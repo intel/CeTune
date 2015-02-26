@@ -1,0 +1,7 @@
+Lttng-parser is used to parse lttng traced file into latency result
+
+User step:
+1. Install lttng babeltrace
+2. Make ceph with lttng babeltrace
+3. create and trace lttng data during test
+4. post-processing lttng data
