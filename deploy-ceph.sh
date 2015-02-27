@@ -1,7 +1,7 @@
 #!/bin/bash
-
+  
 function usage_exit {
-    echo -e "usage:\n\t $0 {-h|{install|deploy|purge|remove-deploy|gen-cephconf} [mon|osd|mds]"
+    echo -e "usage:\n\t $0 {-h|{install|deploy|purge|remove-deploy|gen-cephconf} [mon|osd|mds]."
     exit
 }
 
@@ -28,6 +28,11 @@ case $1 in
 		;;
 		osd)
 		    cd deploy
+                    if [ $3 == '-a' ];then
+                        bash ceph-deploy-osd.sh -a
+                    else
+                        bash ceph-deploy-osd.sh
+                    fi
 		    bash ceph-deploy-osd.sh
                     cd ..
                 ;;
