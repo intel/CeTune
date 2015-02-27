@@ -39,7 +39,7 @@ generate_cases()
                           do
                               for d in `echo $disk | sed 's/,/ /g'`
                               do
-                                  echo $vn $s $ip $rs $qd $wt $rt $d $dest >> ../conf/cases.conf
+                                  printf "%-7s\t%-7s\t%-12s\t%-7s\t%-7s\t%-7s\t%-7s\t%-12s\t%-s\n" $vn $s $ip $rs $qd $wt $rt $d $dest >> ../conf/cases.conf
                               done
                           done
                       done
@@ -115,7 +115,6 @@ cat <<EOF >> ../conf/fio.conf
   iodepth=$qd
   ramp_time=$wt
   runtime=$rt
-  size=$s
   iodepth_batch_submit=$ibs
   iodepth_batch_complete=$ibc
 EOF
@@ -124,18 +123,20 @@ if [ ${dd} == 'fiorbd' ];then
     cat <<EOF >>../conf/fio.conf
   ioengine=$ioengine
   clientname=admin
-  pool=rbd
+  pool=\${POOLNAME}
   rbdname=\${RBDNAME}
 EOF
 elif [ ${dd} == 'fiocephfs' ];then
     ioengine=cephfs
     cat << EOF >> ../conf/fio.conf
+  size=$s
   ioengine=$ioengine
   thread
 EOF
 else
     ioengine=libaio
     cat <<EOF >>../conf/fio.conf
+  size=$s
   ioengine=${ioengine}
   filename=$disk
 EOF

@@ -152,7 +152,7 @@ function sys_stat_vclient
     run_time=$3
     wait_time=$4
     post_time=$5
-    
+
     sleep ${wait_time}
     fio --output /opt/${vclient}_fio.txt --section ${section_name} fio.conf &
 
@@ -168,28 +168,30 @@ function sys_stat_vclient
 
 function sys_stat_fiorbd
 {
-    if [ $# != 7 ] ; then
+    if [ $# != 5 ] ; then
         echo " "
-        echo "[WRONG] missing parameter: $0 end_num total_num section_name client run_time wait_time post_time"
+        echo "[WRONG] missing parameter: $0 section_name client run_time wait_time post_time"
         echo " "
         exit 1
     fi
 
-    end_num=$1
-    total_num=$2
-    section_name=$3
-    client=$4
-    run_time=$5
-    wait_time=$6
-    post_time=$7
+    section_name=$1
+    client=$2
+    run_time=$3
+    wait_time=$4
+    post_time=$5
 
     sleep ${wait_time}
     collect_interrupts ${client}_interrupts_start.txt
-    rbd ls | head -${end_num} | tail -${total_num} | while read line
-    do
-        #RBDNAME=${line} fio --output /opt/${client}_${line}_fio.txt --section ${section_name} fio.conf 2>/opt/${client}_${line}_fio_errorlog.txt &
-        RBDNAME=${line} fio --output /opt/${client}_${line}_fio.txt --write_bw_log=/opt/${client}_${line}_fio --write_lat_log=/opt/${client}_${line}_fio --write_iops_log=/opt/${client}_${line}_fio --section ${section_name} fio.conf 2>/opt/${client}_${line}_fio_errorlog.txt &
-    done
+    totalline=`grep "^${client}" /opt/rbd.conf | wc -l`
+    if [ ${totalline} -gt 0 ];then
+        grep "^${client}" /opt/rbd.conf | while read line
+        do
+            poolname=`echo $line | awk '{printf $2}'`
+            rbdname=`echo $line | awk '{printf $3}'`
+            POOLNAME=${poolname} RBDNAME=${rbdname} fio --output /opt/${client}_${rbdname}_fio.txt --write_bw_log=/opt/${client}_${rbdname}_fio --write_lat_log=/opt/${client}_${rbdname}_fio --write_iops_log=/opt/${client}_${rbdname}_fio --section ${section_name} fio.conf 2>/opt/${client}_${rbdname}_fio_errorlog.txt &
+        done
+    fi
 
     sleep ${warm_time}
     collect_sar       ${run_time}  /opt/${client}_sar.txt &
@@ -269,18 +271,16 @@ elif [ "$1" == "sys_stat_ceph" ];then
     post_time=$8
     sys_stat_ceph ${warmup_time} ${run_time} ${ceph} ${blk_target} ${check_ceph_health} ${wait_time} ${post_time} &
 elif [ "$1" == "sys_stat_fiorbd" ];then
-    if [ "$#" -ne 8 ];then
+    if [ "$#" -ne 6 ];then
         echo "Wrong paramters for 'bash common.sh sys_stat_fiorbd'!"
         exit 1
     fi
-    rnum2=$2
-    rnum3=$3
-    section_name=$4
-    client=$5
-    run_time=$6
-    wait_time=$7
-    post_time=$8
-    sys_stat_fiorbd ${rnum2} ${rnum3} ${section_name} ${client} ${run_time} ${wait_time} ${post_time} &
+    section_name=$2
+    client=$3
+    run_time=$4
+    wait_time=$5
+    post_time=$6
+    sys_stat_fiorbd ${section_name} ${client} ${run_time} ${wait_time} ${post_time} &
 elif [ "$1" == "collect_interrupts" ];then
     if [ "$#" -ne 2 ];then
         echo "Wrong paramters for 'bash common.sh collect_interrupts'!"

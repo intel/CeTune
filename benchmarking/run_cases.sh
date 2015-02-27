@@ -222,13 +222,13 @@ function run_single_qemu
 
 function run_single_fiorbd
 {
-    if [ $# != 10 ];then
+    if [ $# != 9 ];then
         echo " "
         echo "Description:"
         echo "   This script attempts to make run "fio" on instance and collect data at the same time."
         echo " "
         echo "usage:"
-        echo "    $0 instances_num size operate record_size queue_depth warmup_time run_time disk dest_dir rbd_num_per_client"
+        echo "    $0 instances_num size operate record_size queue_depth warmup_time run_time disk dest_dir"
         echo " "
         exit 1
     fi
@@ -243,12 +243,12 @@ function run_single_fiorbd
     run_time=$7
     disk=$8
     dest_dir=$9
-    rbd_num_per_client=${10}
-    force=${11}
+    force=${10}
     runid=`get_runid`
     increase_runid $runid
 
     fio_conf="../conf/fio.conf"
+    rbd_conf="../conf/rbd.conf"
     check_ceph_health=1
     blk_target=/dev/sdf
     wait_time=50
@@ -283,6 +283,13 @@ function run_single_fiorbd
     fi
     mkdir -p $dir
 
+    rbd_conf_flag=0
+    if [ ! -f ${rbd_conf} ];then
+        bash gen_rbd.sh
+        rbd_conf_flag=1
+    fi
+
+
     echo "----Start to clean cache"
     for ceph in `cat $list_ceph`
     do
@@ -293,21 +300,18 @@ function run_single_fiorbd
     ###Run fio+rbd test on all ceph clients and collect physical data on clients and servers###
     echo "======================Running===============================...."
     echo "Start fio+rbd test on all the clients!"
-    rnum1=0
-    rnum2=0
     for client in `cat $list_client`
     do
-        let 'rnum1+=1'
         echo ">>>> client $client"
         ssh ${client} "killall -9 dd 2>/dev/null;killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
         scp $fio_conf root@${client}:/opt/  > /dev/null
+        scp $rbd_conf root@${client}:/opt/  > /dev/null
         scp common.sh root@${client}:/opt/  > /dev/null
-        rnum3=`echo ${rbd_num_per_client} | cut -d ',' -f ${rnum1}`
-        if [ ${rnum3} -gt 0 ];then
-            rnum2=$(( ${rnum2} + ${rnum3} ))
-            ssh ${client} "cd /opt; bash common.sh sys_stat_fiorbd ${rnum2} ${rnum3} ${section_name} ${client} ${run_time} ${wait_time} ${post_time} &" &
-        fi
+        ssh ${client} "cd /opt; bash common.sh sys_stat_fiorbd  ${section_name} ${client} ${run_time} ${wait_time} ${post_time} &" &
     done
+    if [ ${rbd_conf_flag} -eq 1 ];then
+        rm -rf ${rbd_conf} >/dev/null 2>&1
+    fi
 
     echo "start data collection on volume machine"
     for ceph in `cat $list_ceph`
@@ -529,7 +533,7 @@ if [ "$ltype" == 'single' ];then
      index=1
      cat ../conf/cases.conf | while read line
      do
-         echo "$index) "$line
+         echo "$index) "$line | awk '{printf("%-5s\t%-7s\t%-7s\t%-12s\t%-7s\t%-7s\t%-7s\t%-7s\t%-12s\t%-s\n",$1,$2,$3,$4,$5,$6,$7,$8,$9,$10)}'
          index=$(( $index + 1 ))
      done
      echo -n "Select the number of the case you wanna run: "
@@ -538,7 +542,7 @@ if [ "$ltype" == 'single' ];then
      if [ "${lengine}" == "qemu" ];then
          run_single_qemu $opt
     elif [ "${lengine}" == "fiorbd" ];then
-         run_single_fiorbd $opt ${rbd_num_per_client}
+         run_single_fiorbd $opt
     elif [ "${lengine}" == "fiocephfs" ];then
          run_single_fiocephfs $opt
     fi
@@ -555,7 +559,7 @@ elif [ "$ltype" == 'all' ];then
             echo "Sleep for 60 secs to start next run"
             sleep 60
         elif [ "${lengine}" == "fiorbd" ];then
-            run_single_fiorbd $rc ${rbd_num_per_client}
+            run_single_fiorbd $rc
             echo "Sleep for 60 secs to start next run"
             sleep 60
         elif [ "${lengine}" == "fiocephfs" ];then
