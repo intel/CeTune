@@ -529,6 +529,7 @@ function run_single_fiocephfs
 ################################Main##############################################
 ltype=$1
 lengine=$2
+check_post_processing
 if [ "$ltype" == 'single' ];then
      index=1
      cat ../conf/cases.conf | while read line

@@ -138,5 +138,15 @@ function check_fio_rbd {
         echo "true"
     fi
 }
+
+function check_post_processing {
+    `python -c "import xlsxwriter"`
+    res=$?
+    if [ $res != "0" ]; then
+        echo "[WARN]Python doesn't installed the module 'xlsxwriter', pls install firstly"
+        exit
+    fi
+}
+ 
 #uuid_to_fstab KVSceph01
 #uuid_to_fstab KVSceph02

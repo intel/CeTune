@@ -69,45 +69,49 @@ EOF
 
   for d in `echo $disk | sed 's/,/ /g'` fiorbd fiocephfs
   do
-	  for s in `echo $size | sed 's/,/ /g'`
-	  do
-	      for io in `echo $io_pattern | sed 's/,/ /g'`
-	      do
-	          case $io in
-	          	"seqwrite")
-		    		ip=write
-		    		ibs=8
-		   			ibc=8
-		    		;;
-	         	"seqread")
-		    		ip=read
-		   			ibs=8
-		 			ibc=8
-				    ;;
-	            "randwrite")
-		    		ip=randwrite
-		   			ibs=1
-		    		ibc=1
-		    		;;
-	            "randread")
-		    		ip=randread
-		    		ibs=1
-		    		ibc=1
-		    		;;
-	            *)
-		    		echo "operation $io is forbidden"
-		    		exit 0
-	          esac
-	          for rs in `echo $record_size | sed 's/,/ /g'`
-	          do
-	              for qd in `echo $queue_depth | sed 's/,/ /g'`
-	              do
-		          for wt in `echo $warmup_time | sed 's/,/ /g'`
-		          do
-		              for rt in `echo $run_time | sed 's/,/ /g'`
-			          do
-	                  		dd=`echo $d | sed 's#^/##g' | sed 's#/#-#g'`
-	                        section_name="$io-$rs-qd$qd-$s-$wt-$rt-$dd"
+    for s in `echo $size | sed 's/,/ /g'`
+    do
+      for io in `echo $io_pattern | sed 's/,/ /g'`
+      do
+        case $io in
+          "seqwrite")
+            ip=write
+            ibs=8
+            ibc=8
+            capping="rate=60m"
+            ;;
+          "seqread")
+            ip=read
+            ibs=8
+            ibc=8
+            capping="rate=60m"
+            ;;
+          "randwrite")
+            ip=randwrite
+            ibs=1
+            ibc=1
+            capping="rate_iops=100"
+            ;;
+          "randread")
+            ip=randread
+            ibs=1
+            ibc=1
+            capping="rate_iops=100"
+            ;;
+          *)
+            echo "operation $io is forbidden"
+            exit 0
+          esac
+          for rs in `echo $record_size | sed 's/,/ /g'`
+          do
+            for qd in `echo $queue_depth | sed 's/,/ /g'`
+            do
+              for wt in `echo $warmup_time | sed 's/,/ /g'`
+              do
+                for rt in `echo $run_time | sed 's/,/ /g'`
+                  do
+                    dd=`echo $d | sed 's#^/##g' | sed 's#/#-#g'`
+                    section_name="$io-$rs-qd$qd-$s-$wt-$rt-$dd"
 cat <<EOF >> ../conf/fio.conf
 [$section_name]
   rw=$ip
@@ -117,6 +121,7 @@ cat <<EOF >> ../conf/fio.conf
   runtime=$rt
   iodepth_batch_submit=$ibs
   iodepth_batch_complete=$ibc
+  $capping
 EOF
 if [ ${dd} == 'fiorbd' ];then
     ioengine=rbd
@@ -142,13 +147,13 @@ else
 EOF
 fi
 
-		          done
-		      done
-	          done
-	      done
-          done
+                  done
+                done
+              done
+            done
+        done
       done
-  done
+    done
 }
 
 
