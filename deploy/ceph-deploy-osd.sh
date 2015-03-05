@@ -27,7 +27,7 @@ function do_deploy_osd {
         osd_list=`echo $disk | sed 's/,/ /g'`
         for item in $osd_list
         do
-            if [ `os_disk_check $host $item` = "false" ]; then
+            if [ `os_disk_check $host $item` = "true" ]; then
                 echo "Devices contains os disk!"
                 exit
             fi

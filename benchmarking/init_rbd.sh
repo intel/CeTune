@@ -21,11 +21,29 @@ function dd_init {
 }
 
 if [ "`check_fio_rbd`" = "true" ]; then
-    rbd ls | while read volume
+    volume_total=`rbd ls | wc -l`
+    client_total=`echo $list_client | sed 's/,/\n/g' | wc -l `
+    res=`expr ${volume_total} % ${client_total}`
+    if [ "$res" != "0" ]; then
+      max_init_volume_num=`expr $volume_total / $client_total + 1`
+    else
+      max_init_volume_num=`expr $volume_total / $client_total`
+    fi
+    inited_volume=0
+    client_inited_volume=0
+    volumes=`rbd ls | sed 's/\n/ /g'`
+    clients=`echo $list_client | sed 's/,/ /g'`
+    for client in $clients
     do
-        rbd_name=${volume}
-        echo "fio conf/rbd.fio --output=${volume}_fio.txt &"
-        fio conf/rbd.fio --output=${volume}_fio.txt &
+        scp -q ../conf/rbd.fio $client:/opt/
+        while [ $client_inited_volume -le $max_init_volume_num ]; do
+            inited_volume=`expr $inited_volume + 1`
+            volume=`echo ${volumes} | sed 's/ /\n/g' | sed -n ${inited_volume}'p'`
+            echo "ssh $client rbd_name=${volume} fio /opt/rbd.fio --output=/opt/${volume}_fio.txt &"
+            ssh $client "rbd_name=${volume} fio /opt/rbd.fio --output=/opt/${volume}_fio.txt &"&
+            client_inited_volume=`expr $client_inited_volume + 1`
+        done
+        client_inited_volume=0
     done
     echo "RBD initialization has been started by fio rbd engine,"
     echo "please check 'ceph -s' to see if it is finished"

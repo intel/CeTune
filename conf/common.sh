@@ -147,6 +147,7 @@ function check_post_processing {
         exit
     fi
 }
- 
+
 #uuid_to_fstab KVSceph01
 #uuid_to_fstab KVSceph02
+#os_disk_check client01 /dev/sdb
