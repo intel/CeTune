@@ -42,6 +42,7 @@ if [ "`check_fio_rbd`" = "true" ]; then
             echo "ssh $client rbd_name=${volume} fio /opt/rbd.fio --output=/opt/${volume}_fio.txt &"
             ssh $client "rbd_name=${volume} fio /opt/rbd.fio --output=/opt/${volume}_fio.txt &"&
             client_inited_volume=`expr $client_inited_volume + 1`
+            sleep 1
         done
         client_inited_volume=0
     done

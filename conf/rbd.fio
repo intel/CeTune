@@ -15,7 +15,7 @@ ioengine=rbd
 clientname=admin
 pool=rbd
 rbdname=${rbd_name}
-rw=read
+rw=write
 bs=1M
 
 [rbd_iodepth32]
