@@ -134,6 +134,8 @@ function run_single_qemu
     do
         echo ">>>> vclient $vm"
         ssh ${vm} "killall -9 dd 2>/dev/null;killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
+        ssh ${vm} "rm -f /opt/*.txt"
+        ssh ${vm} "rm -f /opt/*.log"
         scp $fio_conf root@${vm}:/opt/  > /dev/null
         scp $fio_conf root@${vm}:/opt/  > /dev/null
         scp common.sh root@${vm}:/opt/ > /dev/null
@@ -304,6 +306,8 @@ function run_single_fiorbd
     do
         echo ">>>> client $client"
         ssh ${client} "killall -9 dd 2>/dev/null;killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
+        ssh ${client} "rm -f /opt/*.txt"
+        ssh ${client} "rm -f /opt/*.log"
         scp $fio_conf root@${client}:/opt/  > /dev/null
         scp $rbd_conf root@${client}:/opt/  > /dev/null
         scp common.sh root@${client}:/opt/  > /dev/null
@@ -456,6 +460,8 @@ function run_single_fiocephfs
     do
         echo ">>>> client $client"
         ssh ${client} "killall -9 dd 2>/dev/null;killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
+        ssh ${client} "rm -f /opt/*.txt"
+        ssh ${client} "rm -f /opt/*.log"
         scp ${fio_conf} root@${client}:/opt/  > /dev/null
         scp common.sh root@${client}:/opt/  > /dev/null
         ssh ${client} "cd /opt; bash common.sh sys_stat_fiocephfs ${number} ${section_name} ${client} ${run_time} ${wait_time} ${post_time}&" &
