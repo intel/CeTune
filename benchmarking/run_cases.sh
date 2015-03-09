@@ -265,12 +265,19 @@ function run_single_fiorbd
     echo $list_client | sed 's/,/\n/g' > $list_client_tmp
     echo $list_ceph | sed 's/,/\n/g' > $list_ceph_tmp
 
-    list_client=$list_client_tmp
-    list_ceph=$list_ceph_tmp
-
     echo "date is `date`"
     echo "runid is $runid"
 
+    client_total=`echo $list_client | awk -F, '{print NF}' `
+    res=`expr ${number} % ${client_total}`
+    if [ "$res" != "0" ]; then
+      volume_num_per_client=`expr ${number} / $client_total + 1`
+    else
+      volume_num_per_client=`expr ${number} / $client_total`
+    fi
+    
+    list_client=$list_client_tmp
+    list_ceph=$list_ceph_tmp
 
     ###Do some preparation work, as check output directory and drop cache on ceph servers###
     echo "======================Preparing===============================...."
@@ -311,7 +318,7 @@ function run_single_fiorbd
         scp $fio_conf root@${client}:/opt/  > /dev/null
         scp $rbd_conf root@${client}:/opt/  > /dev/null
         scp common.sh root@${client}:/opt/  > /dev/null
-        ssh ${client} "cd /opt; bash common.sh sys_stat_fiorbd  ${section_name} ${client} ${run_time} ${wait_time} ${post_time} &" &
+        ssh ${client} "cd /opt; bash common.sh sys_stat_fiorbd  ${section_name} ${client} ${run_time} ${wait_time} ${post_time} ${volume_num_per_client} &" &
     done
     if [ ${rbd_conf_flag} -eq 1 ];then
         rm -rf ${rbd_conf} >/dev/null 2>&1

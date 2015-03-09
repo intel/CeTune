@@ -168,9 +168,9 @@ function sys_stat_vclient
 
 function sys_stat_fiorbd
 {
-    if [ $# != 5 ] ; then
+    if [ $# != 6 ] ; then
         echo " "
-        echo "[WRONG] missing parameter: $0 section_name client run_time wait_time post_time"
+        echo "[WRONG] missing parameter: $0 section_name client run_time wait_time post_time volume_per_client"
         echo " "
         exit 1
     fi
@@ -180,16 +180,23 @@ function sys_stat_fiorbd
     run_time=$3
     wait_time=$4
     post_time=$5
+    volume_num_per_client=$6
 
     sleep ${wait_time}
     collect_interrupts ${client}_interrupts_start.txt
     totalline=`grep "^${client}" /opt/rbd.conf | wc -l`
     if [ ${totalline} -gt 0 ];then
+        tested_rbd_num=0
         grep "^${client}" /opt/rbd.conf | while read line
         do
-            poolname=`echo $line | awk '{printf $2}'`
-            rbdname=`echo $line | awk '{printf $3}'`
-            POOLNAME=${poolname} RBDNAME=${rbdname} fio --output /opt/${client}_${rbdname}_fio.txt --write_bw_log=/opt/${client}_${rbdname}_fio --write_lat_log=/opt/${client}_${rbdname}_fio --write_iops_log=/opt/${client}_${rbdname}_fio --section ${section_name} fio.conf 2>/opt/${client}_${rbdname}_fio_errorlog.txt &
+            if [ $tested_rbd_num -lt $volume_num_per_client ]; then
+                poolname=`echo $line | awk '{printf $2}'`
+                rbdname=`echo $line | awk '{printf $3}'`
+                POOLNAME=${poolname} RBDNAME=${rbdname} fio --output /opt/${client}_${rbdname}_fio.txt --write_bw_log=/opt/${client}_${rbdname}_fio --write_lat_log=/opt/${client}_${rbdname}_fio --write_iops_log=/opt/${client}_${rbdname}_fio --section ${section_name} fio.conf 2>/opt/${client}_${rbdname}_fio_errorlog.txt &
+                tested_rbd_num=`expr $tested_rbd_num + 1`
+            else
+                break
+            fi
         done
     fi
 
@@ -271,7 +278,7 @@ elif [ "$1" == "sys_stat_ceph" ];then
     post_time=$8
     sys_stat_ceph ${warmup_time} ${run_time} ${ceph} ${blk_target} ${check_ceph_health} ${wait_time} ${post_time} &
 elif [ "$1" == "sys_stat_fiorbd" ];then
-    if [ "$#" -ne 6 ];then
+    if [ "$#" -ne 7 ];then
         echo "Wrong paramters for 'bash common.sh sys_stat_fiorbd'!"
         exit 1
     fi
@@ -280,7 +287,8 @@ elif [ "$1" == "sys_stat_fiorbd" ];then
     run_time=$4
     wait_time=$5
     post_time=$6
-    sys_stat_fiorbd ${section_name} ${client} ${run_time} ${wait_time} ${post_time} &
+    volume_num_per_client=$7
+    sys_stat_fiorbd ${section_name} ${client} ${run_time} ${wait_time} ${post_time} ${volume_num_per_client}&
 elif [ "$1" == "collect_interrupts" ];then
     if [ "$#" -ne 2 ];then
         echo "Wrong paramters for 'bash common.sh collect_interrupts'!"
