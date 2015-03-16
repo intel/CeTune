@@ -42,8 +42,17 @@ case $1 in
                     ;;
             esac
         done
-        if [ "$lengine" = "cbt" ] or [ "$lengine" = "CBT" ]; then
-            echo "start to do, pls wait"  
+        if [ "$lengine" = "cbt" ] || [ "$lengine" = "CBT" ]; then
+            if [ "$ltype" != "all" ]; then
+                echo "Only support deploy mon and osd at same time now, please enter: "
+                echo "bash benchmarking-ceph.sh $1 --engine cbt --type all"
+                exit 1
+            fi
+            cd deploy
+            bash gen_ceph_conf.sh
+            cp ceph.conf.new ../plugin/ceph.conf
+            cd ../plugin
+            python plugin.py
         elif [ "$lengine" = "ceph-deploy" ]; then
 	    case $ltype in
 	        mon)
