@@ -29,8 +29,8 @@ function get_conf {
     if [ ! -z $1 ]; then
         conf=$1
     fi 
-    line_num=`awk '{if($0=="[ceph_conf]")print NR;}' $conf`
-    line_num=$(( $line_num - 1 ))
+    line_num=`awk 'BEGIN{line_num = 0}{if(!line_num && $0=="[ceph_conf]")line_num = NR}END{if(!line_num)line_num=NR; print line_num}' $conf`
+    line_num=`expr $line_num - 1`
     head -$line_num $conf >> all.conf.tmp
     source all.conf.tmp
     rm all.conf.tmp
@@ -47,10 +47,10 @@ function copy_to_conf {
     if [ "$type" == "mon" ]; then
         print_user_ceph_conf | grep -v network | while read line
         do
-	    res=`grep "$line" ceph.conf`
+            res=`grep "$line" ceph.conf`
             if [ -z "$res" ]; then
                 echo $line >> ../deploy/ceph.conf
-	    fi
+            fi
         done
     else
 

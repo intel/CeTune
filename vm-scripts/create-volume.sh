@@ -5,6 +5,7 @@ get_conf
 pool=rbd
 
 function create_vdb_xml {
+    mkdir -p ./vdbs
     index=0
     auth=$1
     nodes=`echo ${list_vclient} | sed 's/,/ /g'`

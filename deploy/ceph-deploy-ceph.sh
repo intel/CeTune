@@ -7,7 +7,7 @@ function install-ceph-dev-pkg {
     release_type=$2
     case $release_type in
         CentOS)
-            ssh $host "yum -y install librados-dev librbd-dev"
+            ssh $host "yum -y install librados-devel librbd-devel"
         ;;
         Ubuntu)
             ssh $host "apt-get -y install librados-dev librbd-dev"

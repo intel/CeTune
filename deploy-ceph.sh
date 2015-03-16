@@ -20,7 +20,32 @@ case $1 in
 	    bash ceph-deploy-ceph.sh
 	    ;;
     deploy)
-	    case $2 in
+        if [ "$#" -ne 5 ];then
+            echo -e "bash benchmarking-ceph.sh $1 --engine cbt/ceph-deploy/mkcephfs --type all/mon/osd"
+            exit 1
+        fi
+        shift 1
+        while [ "$#" -gt 0 ]
+        do
+            case $1 in
+                '--engine')
+                    lengine=$2
+                    shift 2
+                    ;;
+                '--type')
+                    ltype=$2
+                    shift 2
+                    ;;
+                *)
+                    echo "Unrecognized option '$1'"
+                    exit 1
+                    ;;
+            esac
+        done
+        if [ "$lengine" = "cbt" ] or [ "$lengine" = "CBT" ]; then
+            echo "start to do, pls wait"  
+        elif [ "$lengine" = "ceph-deploy" ]; then
+	    case $ltype in
 	        mon)
 	            cd deploy
 		    bash ceph-deploy-mon.sh
@@ -28,25 +53,58 @@ case $1 in
 		;;
 		osd)
 		    cd deploy
-                    if [ $3 == '-a' ];then
-                        bash ceph-deploy-osd.sh -a
-                    else
-                        bash ceph-deploy-osd.sh
-                    fi
-		    bash ceph-deploy-osd.sh
+                    bash ceph-deploy-osd.sh
                     cd ..
+                ;;
+                add-more-osd)
+                    cd deploy
+                    bash ceph-deploy-osd.sh -a
                 ;;
 		mds)
                     cd deploy
 		    bash ceph-deploy-mds.sh
 		    cd ..
 		;;
+		all)
+                    cd deploy
+                    echo "=======start to deploy MON=========="
+		    bash ceph-deploy-mon.sh
+                    echo "=======Finished deploying MON=========="
+                    echo "=======start to deploy OSD=========="
+		    bash ceph-deploy-osd.sh
+                    echo "=======Finished deploying OSD=========="
+		    cd ..
+		;;
 		*)
-                    echo "You can only deploy mon/osd/mds"
+                    echo "Please choose type, we currently provides 5 options:  mon/osd/mds/all/add-more-osd"
 		    exit
                 ;;
             esac
-	    ;;
+        elif [ "$lengine" = "mkcephfs" ]; then
+	    case $ltype in
+	        all)
+	            cd deploy
+                    bash gen_ceph_conf.sh
+                    echo "Please check the new ceph.conf, do you want to continue deploy ceph?"
+                    if [ "`interact`" = "true" ]; then   
+                        cp ceph.conf.new /etc/ceph/ceph.conf
+                        mkcephfs -a -c ceph.conf --mkfs
+                    else
+                        exit
+                    fi
+		    cd ..
+		;;
+                force)
+                    cd deploy
+                    bash gen_ceph_conf.sh
+                    cp ceph.conf.new /etc/ceph/ceph.conf
+                    mkcephfs -a -c ceph.conf --mkfs
+                    cd ..
+            esac
+        else
+            echo "please choose engine, we currently provides 3 options: cbt, ceph-deploy, mkcephfs"
+        fi
+        ;;
     purge)
             cd deploy
 	    bash ceph-deploy-purge.sh
