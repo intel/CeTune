@@ -163,14 +163,14 @@ function run_single_qemu
                 ssh ${vm} "cd /opt; bash common.sh sys_stat_vclient $section_name $vm $run_time ${wait_time} ${post_time} &" &
                 vm_count=`expr ${vm_count} + 1`
                 total_tested_vm=`expr ${total_tested_vm} + 1`
-                if [ ${total_tested_vm} -le ${number} ]; then
+                if [ ${total_tested_vm} -ge ${number} ]; then
                     break
                 fi
             else
                 break
             fi
         done
-        if [ ${total_tested_vm} -le ${number} ]; then
+        if [ ${total_tested_vm} -ge ${number} ]; then
             break
         fi
     done
@@ -235,14 +235,14 @@ function run_single_qemu
                 ssh ${vm} "rm -f /opt/*.log"
                 vm_count=`expr ${vm_count} + 1`
                 total_tested_vm=`expr ${total_tested_vm} + 1`
-                if [ ${total_tested_vm} -le ${number} ]; then
+                if [ ${total_tested_vm} -ge ${number} ]; then
                     break
                 fi
             else
                 break
             fi
         done
-        if [ ${total_tested_vm} -le ${number} ]; then
+        if [ ${total_tested_vm} -ge ${number} ]; then
             break
         fi
     done
