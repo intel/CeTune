@@ -85,11 +85,36 @@ class ConfigHub:
         self.yaml_data["benchmarks"]["radosbench"] = {}
 
         
-yaml_file = "ceph-tools/cbt/tmp.yaml"
-config = ConfigHub()
-config.load_all_conf()
-config.copy_all_to_yaml()
-config.write_yaml( yaml_file )
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Cephperf third party plugin hub.')
+    parser.add_argument(
+        '--engine',
+        help = 'Choose the PLUGIN: CBT, cosbench.',
+        )
+    parser.add_argument(
+        'operation',
+        help = 'Choose the operation: deploy, benchmark  ',
+        )
+    parser.add_argument(
+        '--cbt_yaml',
+        help = 'specify the cbt config path, default using ceph-perf/cbt/tmp.yaml  ',
+        )
+    args = parser.parse_args()
+    if args.operation == "deploy":
+        if args.engine == "cbt" or args.engine == "CBT":
+            yaml_file = "ceph-tools/cbt/tmp.yaml"
+            config = ConfigHub()
+            config.load_all_conf()
+            config.copy_all_to_yaml()
+            config.write_yaml( yaml_file )
+            
+            cbt_api = CBTAPI( yaml_file )
+            cbt_api.deploy_ceph_cluster()
+    elif args.operation == "benchmark":
+        if args.engine == "cosbench":
+            if args.cbt_yaml:
+                yaml_file = args.cbt_yaml
+            else:
+                yaml_file = "ceph-tools/cbt/tmp.yaml"
+            print yaml_file
 
-cbt_api = CBTAPI( yaml_file )
-cbt_api.deploy_ceph_cluster()
