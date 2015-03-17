@@ -79,6 +79,14 @@ function run_single_qemu
     #[ -s $list_client ] || (echo "$list_client size is ZERO";exit 1)
     #[ -s $list_ceph ] || (echo "$list_ceph size is ZERO";exit 1)
 
+    client_total=`echo $list_client | awk -F, '{print NF}' `
+    res=`expr ${number} % ${client_total}`
+    if [ "$res" != "0" ]; then
+      volume_num_per_client=`expr ${number} / $client_total + 1`
+    else
+      volume_num_per_client=`expr ${number} / $client_total`
+    fi
+
     list_vclient_tmp=../conf/vclient.lst
     list_client_tmp=../conf/client.lst
     list_ceph_tmp=../conf/ceph.lst
@@ -94,6 +102,13 @@ function run_single_qemu
     echo "date is `date`"
     echo "runid is $runid"
 
+    rbd_conf=../conf/rbd.conf
+
+    rbd_conf_flag=0
+    if [ ! -f ${rbd_conf} ];then
+        bash gen_rbd.sh qemu
+        rbd_conf_flag=1
+    fi
 
     ###Do some preparation work, as check output directory and drop cache on ceph servers###
     echo "======================Preparing===============================...."
@@ -119,6 +134,7 @@ function run_single_qemu
     ###add prerun-check data in result dir###
     echo "Current system status:"
     bash before_test_check.sh > $dir/prerun-check.log
+    error_check
     cat $dir/prerun-check.log
     #if [ "$force" != "--force" ]; then
     #    if [ "`interact`" != "true" ]; then
@@ -130,16 +146,33 @@ function run_single_qemu
     ###Run FIO test on specified VMs and collect physical data on clients and servers###
     echo "======================Running===============================...."
     echo "Start FIO on specified number ($number) of VMs..!"
-    for vm in `cat $list_vclient | head -n$number`
+    total_tested_vm=0
+    for client in `cat $list_client`
     do
-        echo ">>>> vclient $vm"
-        ssh ${vm} "killall -9 dd 2>/dev/null;killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
-        ssh ${vm} "rm -f /opt/*.txt"
-        ssh ${vm} "rm -f /opt/*.log"
-        scp $fio_conf root@${vm}:/opt/  > /dev/null
-        scp $fio_conf root@${vm}:/opt/  > /dev/null
-        scp common.sh root@${vm}:/opt/ > /dev/null
-        ssh ${vm} "cd /opt; bash common.sh sys_stat_vclient $section_name $vm $run_time ${wait_time} ${post_time} &" &
+        vm_count=0
+        for vm in `cat ${rbd_conf} | awk -v client=${client} '{if( $1 == client ) print $3}'`
+        do
+            if [ ${vm_count} -lt ${volume_num_per_client} ]; then
+                echo ">>>> vclient $vm"
+                ssh ${vm} "killall -9 dd 2>/dev/null;killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
+                ssh ${vm} "rm -f /opt/*.txt"
+                ssh ${vm} "rm -f /opt/*.log"
+                scp $fio_conf root@${vm}:/opt/  > /dev/null
+                scp $fio_conf root@${vm}:/opt/  > /dev/null
+                scp common.sh root@${vm}:/opt/ > /dev/null
+                ssh ${vm} "cd /opt; bash common.sh sys_stat_vclient $section_name $vm $run_time ${wait_time} ${post_time} &" &
+                vm_count=`expr ${vm_count} + 1`
+                total_tested_vm=`expr ${total_tested_vm} + 1`
+                if [ ${total_tested_vm} -le ${number} ]; then
+                    break
+                fi
+            else
+                break
+            fi
+        done
+        if [ ${total_tested_vm} -le ${number} ]; then
+            break
+        fi
     done
 
     echo "Start data collection on all the clients"
@@ -168,30 +201,54 @@ function run_single_qemu
     sleep $run_time
     sleep ${post_time}
 
-
     ###killall aio-stress and get data###
     echo "======================Stopping===============================...."
-    for vm in `cat $list_vclient | head -n$number`
+    total_tested_vm=0
+    for client in `cat $list_client`
     do
-        mkdir $dir/${vm}
-        ssh ${vm} "killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
-        stop_flag=0
-	#Wait until fio finish
-	while [[ $stop_flag == 0 ]]
-	do
-	    stop_flag=1
-	    finish=`ssh ${vm} "cat /opt/${vm}_fio.txt | grep 'Run status' -c"`
-	    if [[ $finish == 0 ]]; then
-		stop_flag=0
-		sleep 10
-	    fi
-	done
-
-        scp ${vm}:/opt/*.txt $dir/${vm}
-        scp ${vm}:/opt/*.log $dir/${vm}
-        ssh ${vm} "rm -f /opt/*.txt"
-        ssh ${vm} "rm -f /opt/*.log"
+        vm_count=0
+        for vm in `cat ${rbd_conf} | awk -v client=${client} '{if( $1 == client ) print $3}'`
+        #for vm in `grep ${client} ${rbd_conf} | awk '{print $3}'`
+        do
+            if [ ${vm_count} -lt ${volume_num_per_client} ]; then
+                mkdir $dir/${vm}
+                ssh ${vm} "killall -9 fio 2>/dev/null;killall -9 ./fio.sh  2>/dev/null;killall -9 sar 2>/dev/null;killall -9 iostat 2>/dev/null"
+                stop_flag=0
+                #Wait until fio finish
+                wait_stop_flag=0
+                while [[ $stop_flag == 0 ]]
+                do
+                    if [ ${wait_stop_flag} -eq 30 ]; then
+                        break
+                    fi
+                    stop_flag=1
+                    finish=`ssh ${vm} "cat /opt/${vm}_fio.txt | grep 'Run status' -c"`
+                    if [[ $finish == 0 ]]; then
+                        stop_flag=0
+                        sleep 10
+                        wait_stop_flag=`expr ${wait_stop_flag} + 1`
+                    fi
+                done
+                scp ${vm}:/opt/*.txt $dir/${vm}
+                scp ${vm}:/opt/*.log $dir/${vm}
+                ssh ${vm} "rm -f /opt/*.txt"
+                ssh ${vm} "rm -f /opt/*.log"
+                vm_count=`expr ${vm_count} + 1`
+                total_tested_vm=`expr ${total_tested_vm} + 1`
+                if [ ${total_tested_vm} -le ${number} ]; then
+                    break
+                fi
+            else
+                break
+            fi
+        done
+        if [ ${total_tested_vm} -le ${number} ]; then
+            break
+        fi
     done
+    if [ ${rbd_conf_flag} -eq 1 ]; then
+        rm -f ${rbd_conf}
+    fi
 
     for client in `cat $list_client`
     do
@@ -294,7 +351,7 @@ function run_single_fiorbd
 
     rbd_conf_flag=0
     if [ ! -f ${rbd_conf} ];then
-        bash gen_rbd.sh
+        bash gen_rbd.sh fiorbd
         rbd_conf_flag=1
     fi
 

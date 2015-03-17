@@ -345,7 +345,8 @@ def write_history_csv(history_directory,work_directory,directory):
             if list1[-1]=='vdb':
                 #if re.search('run_vm_num',line):
                 #    rbd_num=(line.split('='))[1]
-                rbd_num=list1[1].repalce('instance','')
+                #rbd_num=list1[1].repalce('instance','')
+                rbd_num=list1[1]
             elif list1[-1]=='fiorbd':
                 if re.search('rbd_num_per_client',line):
                     rbd_num=0
