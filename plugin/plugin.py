@@ -43,6 +43,23 @@ class CBTAPI:
         cluster = Ceph(settings.cluster)
         cluster.initialize()
 
+    def run_benchmark(self, benchmark):
+        settings.initialize( self )
+        print settings.cluster
+        cluster = Ceph(settings.cluster)
+        if benchmark not in settings.benchmarks:
+            return False
+        iteration = 0
+        while (iteration < settings.cluster.get("iterations", 0)):
+            benchmarks = benchmarkfactory.getAll(cluster, iteration)
+            for _benchmark in benchmarks:
+                if _benchmark.exists():
+                    return False
+                _benchmark.initialize()
+            iteration += 1
+        #_benchmark.run()
+        #_benchmark.cleanup()
+
 class ConfigHub:
     all_conf_data = {}
     yaml_data = {}
@@ -120,11 +137,10 @@ if __name__ == '__main__':
             cbt_api = CBTAPI( yaml_file )
             cbt_api.deploy_ceph_cluster()
     elif args.operation == "benchmark":
-        if args.engine == "cosbench":
+        if args.engine == "cbt":
             if args.cbt_yaml:
                 yaml_file = args.cbt_yaml
             else:
-                yaml_file = "cbt/tmp.yaml"
-            config = ConfigHub()
-            config.load_yaml_conf(yaml_file)
-            print config.yaml_data
+                yaml_file = "cbt/conf/cosbench/tmp.1.yaml"
+            cbt_api = CBTAPI( yaml_file )
+            cbt_api.run_benchmark("cosbench")
