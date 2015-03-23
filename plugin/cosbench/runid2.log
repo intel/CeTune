@@ -1,0 +1,191 @@
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+node proxy
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       117G   18G   94G  17% /
+udev             16G  4.0K   16G   1% /dev
+tmpfs           6.3G  292K  6.3G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none             16G     0   16G   0% /run/shm
+
+node proxy ceph health status:
+   health HEALTH_WARN 1416 pgs degraded; 1416 pgs stuck unclean; recovery 7137/120578 degraded (5.919%); 3/45 in osds are down
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 1, quorum 0 a
+   osdmap e52: 45 osds: 42 up, 45 in
+    pgmap v1180: 10880 pgs: 9464 active+clean, 1416 active+degraded; 95357 MB data, 280 GB used, 41626 GB / 41918 GB avail; 886MB/s rd, 537op/s; 7137/120578 degraded (5.919%)
+   mdsmap e1: 0/0/1 up
+
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+node proxy
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       117G   18G   94G  17% /
+udev             16G  4.0K   16G   1% /dev
+tmpfs           6.3G  292K  6.3G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none             16G     0   16G   0% /run/shm
+
+node proxy ceph health status:
+   health HEALTH_WARN 555 pgs degraded; 2 pgs peering; 90 pgs recovering; 36 pgs recovery_wait; 2 pgs stuck inactive; 683 pgs stuck unclean; recovery 9182/120578 degraded (7.615%);  recovering 90 o/s, 211MB/s
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 1, quorum 0 a
+   osdmap e58: 45 osds: 42 up, 42 in
+    pgmap v1217: 10880 pgs: 10196 active+clean, 36 active+recovery_wait, 2 peering, 555 active+degraded, 1 active+clean+scrubbing+deep, 90 active+recovering; 95357 MB data, 265 GB used, 38847 GB / 39123 GB avail; 355MB/s rd, 248op/s; 9182/120578 degraded (7.615%);  recovering 90 o/s, 211MB/s
+   mdsmap e1: 0/0/1 up
+
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+node proxy
+node sn1
+node sn2
+node sn3
+node sn4
+node sn5
+node #c1
+node #c2
+node #c3
+node #c4
+node #c5
+node #c6
+node #c7
+node #c8
+node #c9
+node #c10
+node #c11
+node #c12
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------
+=====================================
+runid 2269
+--------------
+Swfit stat:
+   Account: v1
+Containers: 100
+   Objects: 9999
+     Bytes: 99990000000
+      Vary: Accept-Encoding
+    Server: Apache/2.2.22 (Ubuntu)
+X-Account-Bytes-Used-Actual: 100014317568
+Content-Type: text/plain; charset=utf-8
+--------------

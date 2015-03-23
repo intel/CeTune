@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="write_1000con_1000obj_10MB_640w" description="WRITE-ONLY">
+<storage type="librados" config="timeout=300000;accesskey=admin;endpoint=10.10.10.100;secretkey=AQCMroJRSAzvFhAAuJH8OH8OiPn703yysJIEaw==" />
+<workflow>
+<workstage name="main">
+<work name="10MB" workers="640" rampup="90" runtime="300" rampdown="30">
+<operation type="write" ratio="100" config="containers=u(1,1000);objects=u(1,1000);sizes=c(10)MB"/>
+</work>
+</workstage>
+</workflow>
+</workload>

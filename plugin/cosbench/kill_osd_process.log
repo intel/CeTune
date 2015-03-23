@@ -1,0 +1,34 @@
+    cluster d68aaecd-7ea8-402c-b956-c1505f02990e
+     health HEALTH_OK
+     monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+     osdmap e118: 40 osds: 40 up, 40 in
+      pgmap v273: 13248 pgs, 102 pools, 95367 MB data, 10000 objects
+            203 GB used, 37038 GB / 37242 GB avail
+               13248 active+clean
+
+2014-07-10 15:46:05.333293 mon.0 [INF] pgmap v273: 13248 pgs: 13248 active+clean; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:23:09.869346 mon.0 [INF] osd.1 10.10.10.1:6800/11428 failed (3 reports from 3 peers after 20.000378 >= grace 20.000000)
+2014-07-10 16:23:10.100664 mon.0 [INF] osdmap e119: 40 osds: 39 up, 40 in
+2014-07-10 16:23:10.189022 mon.0 [INF] pgmap v274: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:23:11.316794 mon.0 [INF] osdmap e120: 40 osds: 39 up, 40 in
+2014-07-10 16:23:11.389611 mon.0 [INF] pgmap v275: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:23:12.523397 mon.0 [INF] pgmap v276: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:23:13.644280 mon.0 [INF] pgmap v277: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:23:15.851563 mon.0 [INF] pgmap v278: 13248 pgs: 302 stale+active+clean, 12871 active+clean, 75 incomplete; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:23:17.241418 mon.0 [INF] pgmap v279: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:25:12.042872 mon.0 [INF] pgmap v280: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:25:13.076713 mon.0 [INF] pgmap v281: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:25:15.544024 mon.0 [INF] pgmap v282: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:25:16.578076 mon.0 [INF] pgmap v283: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 203 GB used, 37038 GB / 37242 GB avail
+2014-07-10 16:28:14.785949 mon.0 [INF] osd.1 out (down for 304.692283)
+2014-07-10 16:28:14.914975 mon.0 [INF] osdmap e121: 40 osds: 39 up, 39 in
+2014-07-10 16:28:14.980911 mon.0 [INF] pgmap v284: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 198 GB used, 36112 GB / 36311 GB avail
+2014-07-10 16:28:16.052418 mon.0 [INF] osdmap e122: 40 osds: 39 up, 39 in
+2014-07-10 16:28:16.124923 mon.0 [INF] pgmap v285: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 198 GB used, 36112 GB / 36311 GB avail
+2014-07-10 16:28:17.284789 mon.0 [INF] pgmap v286: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 198 GB used, 36112 GB / 36311 GB avail
+2014-07-10 16:28:18.496564 mon.0 [INF] pgmap v287: 13248 pgs: 12561 active+clean, 687 incomplete; 95367 MB data, 198 GB used, 36112 GB / 36311 GB avail
+2014-07-10 16:28:21.079844 mon.0 [INF] pgmap v288: 13248 pgs: 3 active, 13042 active+clean, 11 active+recovering, 192 incomplete; 95367 MB data, 200 GB used, 36110 GB / 36311 GB avail; 48/20000 objects degraded (0.240%); 1424 MB/s, 149 objects/s recovering
+2014-07-10 16:28:22.104512 mon.0 [INF] pgmap v289: 13248 pgs: 3 active, 13232 active+clean, 13 active+recovering; 95367 MB data, 202 GB used, 36109 GB / 36311 GB avail; 61/20000 objects degraded (0.305%); 1917 MB/s, 201 objects/s recovering
+2014-07-10 16:28:25.147640 mon.0 [INF] pgmap v290: 13248 pgs: 3 active, 13234 active+clean, 11 active+recovering; 95367 MB data, 202 GB used, 36108 GB / 36311 GB avail; 56/20000 objects degraded (0.280%); 431 MB/s, 45 objects/s recovering
+2014-07-10 16:28:26.257779 mon.0 [INF] pgmap v291: 13248 pgs: 13248 active+clean; 95367 MB data, 203 GB used, 36108 GB / 36311 GB avail; 63687 kB/s, 6 objects/s recovering
+2014-07-10 16:30:17.095347 mon.0 [INF] pgmap v292: 13248 pgs: 13248 active+clean; 95367 MB data, 203 GB used, 36107 GB / 36311 GB avail

@@ -1,0 +1,43 @@
+ cluster 54975be5-99bd-4271-a846-34545d1395ae
+     health HEALTH_WARN 347 pgs stale
+     monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 1, quorum 0 a
+     osdmap e147: 40 osds: 40 up, 40 in
+      pgmap v390: 13248 pgs, 102 pools, 95367 MB data, 10000 objects
+            192 GB used, 37049 GB / 37242 GB avail
+                 347 stale+active+clean
+               12901 active+clean
+
+2014-07-09 17:41:06.152784 mon.0 [INF] osdmap e146: 40 osds: 40 up, 40 in
+2014-07-09 17:37:18.240905 osd.4 [WRN] map e145 wrongly marked me down
+2014-07-09 17:41:06.218715 mon.0 [INF] pgmap v389: 13248 pgs: 347 stale+active+clean, 12901 active+clean; 95367 MB data, 192 GB used, 37049 GB / 37242 GB avail
+2014-07-09 17:41:07.289050 mon.0 [INF] osdmap e147: 40 osds: 40 up, 40 in
+2014-07-09 17:41:07.352876 mon.0 [INF] pgmap v390: 13248 pgs: 347 stale+active+clean, 12901 active+clean; 95367 MB data, 192 GB used, 37049 GB / 37242 GB avail
+2014-07-09 17:41:08.663987 mon.0 [INF] pgmap v391: 13248 pgs: 347 stale+active+clean, 12901 active+clean; 95367 MB data, 192 GB used, 37049 GB / 37242 GB avail
+2014-07-09 17:41:11.391114 mon.0 [INF] pgmap v392: 13248 pgs: 347 stale+active+clean, 12901 active+clean; 95367 MB data, 192 GB used, 37049 GB / 37242 GB avail
+2014-07-09 17:41:13.059456 mon.0 [INF] pgmap v393: 13248 pgs: 13248 active+clean; 95367 MB data, 192 GB used, 37049 GB / 37242 GB avail
+2014-07-09 17:41:13.798649 mon.0 [INF] pgmap v394: 13248 pgs: 13248 active+clean; 95367 MB data, 192 GB used, 37049 GB / 37242 GB avail
+    cluster d68aaecd-7ea8-402c-b956-c1505f02990e
+     health HEALTH_OK
+     monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+     osdmap e124: 40 osds: 40 up, 40 in
+      pgmap v306: 13248 pgs, 102 pools, 95367 MB data, 10000 objects
+            200 GB used, 37041 GB / 37242 GB avail
+               13248 active+clean
+
+2014-07-10 22:02:59.944649 mon.0 [INF] pgmap v305: 13248 pgs: 13248 active+clean; 95367 MB data, 201 GB used, 37040 GB / 37242 GB avail
+2014-07-10 22:03:00.979217 mon.0 [INF] pgmap v306: 13248 pgs: 13248 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:20.122958 mon.0 [INF] osdmap e125: 40 osds: 39 up, 40 in
+2014-07-10 22:04:20.231693 mon.0 [INF] pgmap v307: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:21.290706 mon.0 [INF] osdmap e126: 40 osds: 39 up, 40 in
+2014-07-10 22:04:21.413353 mon.0 [INF] pgmap v308: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:22.637448 mon.0 [INF] pgmap v309: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:24.714399 mon.0 [INF] osd.1 10.10.10.1:6800/14521 boot
+2014-07-10 22:04:24.716870 mon.0 [INF] osdmap e127: 40 osds: 40 up, 40 in
+2014-07-10 22:04:24.789839 mon.0 [INF] pgmap v310: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:25.873552 mon.0 [INF] osdmap e128: 40 osds: 40 up, 40 in
+2014-07-10 22:00:31.278884 osd.1 [WRN] map e126 wrongly marked me down
+2014-07-10 22:04:25.976665 mon.0 [INF] pgmap v311: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:27.210641 mon.0 [INF] pgmap v312: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:30.001308 mon.0 [INF] pgmap v313: 13248 pgs: 340 stale+active+clean, 12908 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:04:31.316013 mon.0 [INF] pgmap v314: 13248 pgs: 13248 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail
+2014-07-10 22:06:26.293754 mon.0 [INF] pgmap v315: 13248 pgs: 13248 active+clean; 95367 MB data, 200 GB used, 37041 GB / 37242 GB avail

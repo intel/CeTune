@@ -1,0 +1,112 @@
+Fri Nov 29 18:22:19 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:22:49 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:23:19 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:23:26 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:23:43 CST 2013
+Fri Nov 29 18:23:43 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:23:52 CST 2013
+Fri Nov 29 18:23:52 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:24:22 CST 2013
+Fri Nov 29 18:24:22 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:24:53 CST 2013
+Fri Nov 29 18:24:53 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v389: 8960 pgs: 8960 active+clean; 416 bytes data, 3123 MB used, 55860 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:25:23 CST 2013
+Fri Nov 29 18:25:23 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v391: 8960 pgs: 8960 active+clean; 416 bytes data, 3124 MB used, 55860 GB / 55863 GB avail; 2579B/s rd, 0B/s wr, 4op/s
+   mdsmap e1: 0/0/1 up
+
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v391: 8960 pgs: 8960 active+clean; 416 bytes data, 3124 MB used, 55860 GB / 55863 GB avail; 2579B/s rd, 0B/s wr, 4op/s
+   mdsmap e1: 0/0/1 up
+
+Fri Nov 29 18:25:53 CST 2013
+Fri Nov 29 18:25:53 CST 2013
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v395: 8960 pgs: 8960 active+clean; 416 bytes data, 3124 MB used, 55860 GB / 55863 GB avail; 831B/s rd, 1op/s
+   mdsmap e1: 0/0/1 up
+
+   health HEALTH_WARN noscrub,nodeep-scrub flag(s) set
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e159: 60 osds: 60 up, 60 in
+    pgmap v395: 8960 pgs: 8960 active+clean; 416 bytes data, 3124 MB used, 55860 GB / 55863 GB avail; 831B/s rd, 1op/s
+   mdsmap e1: 0/0/1 up
+

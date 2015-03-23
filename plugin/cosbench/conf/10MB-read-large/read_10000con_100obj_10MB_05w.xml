@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="read_10000con_100obj_10MB_05w" description="INIT-PREPARE">
+<storage type="swift" config="timeout=300000" />
+<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.4.9.105/auth/v1.0;retry=9" />
+<workflow>
+<workstage name="init">
+<work type="init" workers="20" config="containers=r(5001,6000);cprefix=10MB-read"/>
+</workstage>
+<workstage name="prepare">
+<work type="prepare" workers="320" config="containers=r(5001,6000);objects=r(1,100);cprefix=10MB-read;sizes=c(10)MB"/>
+</workstage>
+</workflow>
+</workload>

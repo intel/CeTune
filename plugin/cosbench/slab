@@ -1,0 +1,23 @@
+ Active / Total Objects (% used)    : 938740 / 1563309 (60.0%)
+ Active / Total Slabs (% used)      : 34331 / 34331 (100.0%)
+ Active / Total Caches (% used)     : 76 / 110 (69.1%)
+ Active / Total Size (% used)       : 365153.17K / 717143.22K (50.9%)
+ Minimum / Average / Maximum Object : 0.01K / 0.46K / 8.00K
+
+  OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
+277396  99528  35%    0.55K   4928       57    157696K radix_tree_node        
+211392 211392 100%    0.06K   3303       64     13212K kmalloc-64             
+209480 105358  50%    1.00K   6548       32    209536K kmalloc-1024           
+184667   9071   4%    0.21K   4991       37     39928K xfs_ili                
+172388  73399  42%    0.94K   5072       34    162304K xfs_inode              
+ 88788  88788 100%    0.19K   2114       42     16912K dentry                 
+ 67422  67422 100%    0.31K   1322       51     21152K ip6_dst_cache          
+ 56832  56832 100%    0.01K    111      512       444K kmalloc-8              
+ 45440  30212  66%    0.25K    710       64     11360K kmalloc-256            
+ 41216  10911  26%    0.12K    644       64      5152K kmalloc-128            
+ 31584  31584 100%    0.14K    564       56      4512K sysfs_dir_cache        
+ 30720  14306  46%    0.50K    480       64     15360K kmalloc-512            
+ 13260  11669  88%    0.05K    156       85       624K shared_policy_node     
+ 11730  11098  94%    0.17K    255       46      2040K vm_area_struct         
+  9048   8993  99%    0.55K    156       58      4992K inode_cache            
+  7680   7008  91%    0.03K     60      128       240K kmalloc-32             

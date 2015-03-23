@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="read_10con_10obj_4MB_80w" description="READ-ONLY">
+<storage type="swift" config="timeout=300000" />
+<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.10.9.100/auth/v1.0;retry=9" />
+<workflow>
+<workstage name="main">
+<work name="4MB" workers="80" rampup="90" runtime="300" rampdown="30">
+<operation type="read" ratio="100" config="containers=u(1,10);objects=u(1,10);cprefix=4MB-read;sizes=c(4)MB"/>
+</work>
+</workstage>
+</workflow>
+</workload>

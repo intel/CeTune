@@ -1,0 +1,2961 @@
+Sat Nov 23 11:33:26 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28108: 8960 pgs: 8960 active+clean; 9279 GB data, 29793 GB used, 26070 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:33:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28108: 8960 pgs: 8960 active+clean; 9279 GB data, 29793 GB used, 26070 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:34:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28130: 8960 pgs: 8960 active+clean; 9279 GB data, 29793 GB used, 26070 GB / 55863 GB avail; 138MB/s rd, 101op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:34:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28158: 8960 pgs: 8960 active+clean; 9279 GB data, 29790 GB used, 26072 GB / 55863 GB avail; 147MB/s rd, 84op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:35:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28186: 8960 pgs: 8960 active+clean; 9279 GB data, 29787 GB used, 26076 GB / 55863 GB avail; 142MB/s rd, 100op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:35:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28214: 8960 pgs: 8960 active+clean; 9279 GB data, 29784 GB used, 26079 GB / 55863 GB avail; 182MB/s rd, 118op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:36:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28242: 8960 pgs: 8960 active+clean; 9279 GB data, 29778 GB used, 26084 GB / 55863 GB avail; 35240KB/s rd, 20op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:36:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28270: 8960 pgs: 8960 active+clean; 9279 GB data, 29768 GB used, 26095 GB / 55863 GB avail; 151MB/s rd, 93op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:37:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28298: 8960 pgs: 8960 active+clean; 9279 GB data, 29751 GB used, 26111 GB / 55863 GB avail; 79410KB/s rd, 47op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:37:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28325: 8960 pgs: 8960 active+clean; 9279 GB data, 29733 GB used, 26130 GB / 55863 GB avail; 39500KB/s rd, 26op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:38:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28350: 8960 pgs: 8960 active+clean; 9279 GB data, 29700 GB used, 26163 GB / 55863 GB avail; 21892KB/s rd, 16op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:38:44 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28378: 8960 pgs: 8960 active+clean; 9279 GB data, 29652 GB used, 26210 GB / 55863 GB avail; 44970KB/s rd, 23op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:39:14 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28406: 8960 pgs: 8960 active+clean; 9279 GB data, 29608 GB used, 26254 GB / 55863 GB avail; 56617KB/s rd, 35op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:39:44 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28434: 8960 pgs: 8960 active+clean; 9279 GB data, 29564 GB used, 26299 GB / 55863 GB avail; 36650KB/s rd, 23op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:40:14 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28462: 8960 pgs: 8960 active+clean; 9279 GB data, 29522 GB used, 26341 GB / 55863 GB avail; 64410KB/s rd, 39op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:40:44 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28490: 8960 pgs: 8960 active+clean; 9279 GB data, 29475 GB used, 26387 GB / 55863 GB avail; 66885KB/s rd, 36op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:40:58 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28499: 8960 pgs: 8960 active+clean; 9279 GB data, 29465 GB used, 26397 GB / 55863 GB avail; 15333KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:41:28 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28499: 8960 pgs: 8960 active+clean; 9279 GB data, 29465 GB used, 26397 GB / 55863 GB avail; 15333KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:41:58 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28499: 8960 pgs: 8960 active+clean; 9279 GB data, 29465 GB used, 26397 GB / 55863 GB avail; 15333KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:42:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28499: 8960 pgs: 8960 active+clean; 9279 GB data, 29465 GB used, 26397 GB / 55863 GB avail; 15333KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:42:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28517: 8960 pgs: 8960 active+clean; 9279 GB data, 29381 GB used, 26482 GB / 55863 GB avail; 112KB/s rd, 112op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:43:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28545: 8960 pgs: 8960 active+clean; 9279 GB data, 29367 GB used, 26496 GB / 55863 GB avail; 172KB/s rd, 172op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:43:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28573: 8960 pgs: 8960 active+clean; 9279 GB data, 29351 GB used, 26512 GB / 55863 GB avail; 232KB/s rd, 232op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:44:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28601: 8960 pgs: 8960 active+clean; 9279 GB data, 29327 GB used, 26536 GB / 55863 GB avail; 380KB/s rd, 380op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:45:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28629: 8960 pgs: 8960 active+clean; 9279 GB data, 29302 GB used, 26561 GB / 55863 GB avail; 1470KB/s rd, 1470op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:45:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28656: 8960 pgs: 8960 active+clean; 9279 GB data, 29280 GB used, 26583 GB / 55863 GB avail; 417KB/s rd, 417op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:46:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28684: 8960 pgs: 8960 active+clean; 9279 GB data, 29264 GB used, 26598 GB / 55863 GB avail; 550KB/s rd, 550op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:46:16 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28699: 8960 pgs: 8960 active+clean; 9279 GB data, 29255 GB used, 26608 GB / 55863 GB avail; 512KB/s rd, 512op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:46:46 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28727: 8960 pgs: 8960 active+clean; 9279 GB data, 29240 GB used, 26622 GB / 55863 GB avail; 66102KB/s rd, 32op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:47:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28755: 8960 pgs: 8960 active+clean; 9279 GB data, 29198 GB used, 26665 GB / 55863 GB avail; 119MB/s rd, 66op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:47:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28783: 8960 pgs: 8960 active+clean; 9279 GB data, 29153 GB used, 26710 GB / 55863 GB avail; 67613KB/s rd, 41op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:48:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28811: 8960 pgs: 8960 active+clean; 9279 GB data, 29108 GB used, 26754 GB / 55863 GB avail; 100646KB/s rd, 59op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:48:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28839: 8960 pgs: 8960 active+clean; 9279 GB data, 29057 GB used, 26806 GB / 55863 GB avail; 149MB/s rd, 87op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:49:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28867: 8960 pgs: 8960 active+clean; 9279 GB data, 29005 GB used, 26857 GB / 55863 GB avail; 145MB/s rd, 77op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:49:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28895: 8960 pgs: 8960 active+clean; 9279 GB data, 28954 GB used, 26908 GB / 55863 GB avail; 137MB/s rd, 79op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:50:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28923: 8960 pgs: 8960 active+clean; 9279 GB data, 28908 GB used, 26954 GB / 55863 GB avail; 178MB/s rd, 104op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:50:48 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28950: 8960 pgs: 8960 active+clean; 9279 GB data, 28859 GB used, 27004 GB / 55863 GB avail; 125MB/s rd, 85op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:51:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v28978: 8960 pgs: 8960 active+clean; 9279 GB data, 28812 GB used, 27050 GB / 55863 GB avail; 173MB/s rd, 110op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:51:48 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29006: 8960 pgs: 8960 active+clean; 9279 GB data, 28768 GB used, 27095 GB / 55863 GB avail; 133MB/s rd, 70op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:52:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29034: 8960 pgs: 8960 active+clean; 9279 GB data, 28726 GB used, 27136 GB / 55863 GB avail; 167MB/s rd, 106op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:52:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29062: 8960 pgs: 8960 active+clean; 9279 GB data, 28684 GB used, 27179 GB / 55863 GB avail; 171MB/s rd, 111op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:53:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29090: 8960 pgs: 8960 active+clean; 9279 GB data, 28643 GB used, 27220 GB / 55863 GB avail; 150MB/s rd, 91op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:53:32 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29099: 8960 pgs: 8960 active+clean; 9279 GB data, 28632 GB used, 27230 GB / 55863 GB avail; 12332KB/s rd, 9op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:54:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29099: 8960 pgs: 8960 active+clean; 9279 GB data, 28632 GB used, 27230 GB / 55863 GB avail; 12332KB/s rd, 9op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:54:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29099: 8960 pgs: 8960 active+clean; 9279 GB data, 28632 GB used, 27230 GB / 55863 GB avail; 12332KB/s rd, 9op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:55:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29099: 8960 pgs: 8960 active+clean; 9279 GB data, 28632 GB used, 27230 GB / 55863 GB avail; 12332KB/s rd, 9op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:55:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29117: 8960 pgs: 8960 active+clean; 9279 GB data, 28618 GB used, 27244 GB / 55863 GB avail; 332KB/s rd, 332op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:56:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29140: 8960 pgs: 8960 active+clean; 9279 GB data, 28597 GB used, 27266 GB / 55863 GB avail; 175MB/s rd, 119op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:56:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29168: 8960 pgs: 8960 active+clean; 9279 GB data, 28556 GB used, 27306 GB / 55863 GB avail; 187MB/s rd, 124op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:57:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29196: 8960 pgs: 8960 active+clean; 9279 GB data, 28516 GB used, 27346 GB / 55863 GB avail; 193MB/s rd, 109op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:57:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29224: 8960 pgs: 8960 active+clean; 9279 GB data, 28481 GB used, 27381 GB / 55863 GB avail; 187MB/s rd, 117op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:58:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29252: 8960 pgs: 8960 active+clean; 9279 GB data, 28448 GB used, 27414 GB / 55863 GB avail; 187MB/s rd, 120op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:58:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29280: 8960 pgs: 8960 active+clean; 9279 GB data, 28414 GB used, 27449 GB / 55863 GB avail; 258MB/s rd, 154op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:59:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29307: 8960 pgs: 8960 active+clean; 9279 GB data, 28385 GB used, 27477 GB / 55863 GB avail; 132MB/s rd, 81op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 11:59:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29335: 8960 pgs: 8960 active+clean; 9279 GB data, 28358 GB used, 27505 GB / 55863 GB avail; 141MB/s rd, 103op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:00:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29362: 8960 pgs: 8960 active+clean; 9279 GB data, 28327 GB used, 27535 GB / 55863 GB avail; 232MB/s rd, 139op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:00:35 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29390: 8960 pgs: 8960 active+clean; 9279 GB data, 28305 GB used, 27558 GB / 55863 GB avail; 277MB/s rd, 170op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:01:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29418: 8960 pgs: 8960 active+clean; 9279 GB data, 28278 GB used, 27584 GB / 55863 GB avail; 293MB/s rd, 199op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:01:35 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29446: 8960 pgs: 8960 active+clean; 9279 GB data, 28254 GB used, 27609 GB / 55863 GB avail; 248MB/s rd, 172op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:02:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29474: 8960 pgs: 8960 active+clean; 9279 GB data, 28228 GB used, 27634 GB / 55863 GB avail; 311MB/s rd, 201op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:02:35 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29502: 8960 pgs: 8960 active+clean; 9279 GB data, 28204 GB used, 27659 GB / 55863 GB avail; 338MB/s rd, 228op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:02:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29511: 8960 pgs: 8960 active+clean; 9279 GB data, 28196 GB used, 27666 GB / 55863 GB avail; 36139KB/s rd, 17op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:03:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29511: 8960 pgs: 8960 active+clean; 9279 GB data, 28196 GB used, 27666 GB / 55863 GB avail; 36139KB/s rd, 17op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:03:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29511: 8960 pgs: 8960 active+clean; 9279 GB data, 28196 GB used, 27666 GB / 55863 GB avail; 36139KB/s rd, 17op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:04:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29511: 8960 pgs: 8960 active+clean; 9279 GB data, 28196 GB used, 27666 GB / 55863 GB avail; 36139KB/s rd, 17op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:04:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29529: 8960 pgs: 8960 active+clean; 9279 GB data, 28190 GB used, 27673 GB / 55863 GB avail; 154KB/s rd, 154op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:05:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29557: 8960 pgs: 8960 active+clean; 9279 GB data, 28190 GB used, 27673 GB / 55863 GB avail; 351KB/s rd, 351op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:05:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29585: 8960 pgs: 8960 active+clean; 9279 GB data, 28190 GB used, 27673 GB / 55863 GB avail; 696KB/s rd, 696op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:06:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29600: 8960 pgs: 8960 active+clean; 9279 GB data, 28190 GB used, 27673 GB / 55863 GB avail; 201KB/s rd, 201op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:06:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29623: 8960 pgs: 8960 active+clean; 9279 GB data, 28181 GB used, 27681 GB / 55863 GB avail; 287MB/s rd, 214op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:07:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29651: 8960 pgs: 8960 active+clean; 9279 GB data, 28156 GB used, 27706 GB / 55863 GB avail; 400MB/s rd, 264op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:07:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29678: 8960 pgs: 8960 active+clean; 9279 GB data, 28136 GB used, 27726 GB / 55863 GB avail; 343MB/s rd, 243op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:08:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29706: 8960 pgs: 8960 active+clean; 9279 GB data, 28116 GB used, 27746 GB / 55863 GB avail; 347MB/s rd, 207op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:08:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29733: 8960 pgs: 8960 active+clean; 9279 GB data, 28098 GB used, 27764 GB / 55863 GB avail; 389MB/s rd, 244op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:09:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29761: 8960 pgs: 8960 active+clean; 9279 GB data, 28082 GB used, 27781 GB / 55863 GB avail; 314MB/s rd, 205op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:09:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29789: 8960 pgs: 8960 active+clean; 9279 GB data, 28066 GB used, 27797 GB / 55863 GB avail; 405MB/s rd, 260op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:10:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29816: 8960 pgs: 8960 active+clean; 9279 GB data, 28050 GB used, 27812 GB / 55863 GB avail; 436MB/s rd, 275op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:10:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29844: 8960 pgs: 8960 active+clean; 9279 GB data, 28037 GB used, 27826 GB / 55863 GB avail; 351MB/s rd, 202op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:11:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29872: 8960 pgs: 8960 active+clean; 9279 GB data, 28026 GB used, 27837 GB / 55863 GB avail; 563MB/s rd, 353op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:11:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29900: 8960 pgs: 8960 active+clean; 9279 GB data, 28013 GB used, 27849 GB / 55863 GB avail; 618MB/s rd, 370op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:12:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29928: 8960 pgs: 8960 active+clean; 9279 GB data, 28004 GB used, 27859 GB / 55863 GB avail; 684MB/s rd, 426op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:12:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29954: 8960 pgs: 8960 active+clean; 9279 GB data, 27995 GB used, 27867 GB / 55863 GB avail; 665MB/s rd, 429op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:13:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29982: 8960 pgs: 8960 active+clean; 9279 GB data, 27985 GB used, 27877 GB / 55863 GB avail; 657MB/s rd, 432op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:13:23 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29992: 8960 pgs: 8960 active+clean; 9279 GB data, 27984 GB used, 27879 GB / 55863 GB avail; 104MB/s rd, 57op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:13:54 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29992: 8960 pgs: 8960 active+clean; 9279 GB data, 27984 GB used, 27879 GB / 55863 GB avail; 104MB/s rd, 57op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:14:24 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29992: 8960 pgs: 8960 active+clean; 9279 GB data, 27984 GB used, 27879 GB / 55863 GB avail; 104MB/s rd, 57op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:14:54 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v29992: 8960 pgs: 8960 active+clean; 9279 GB data, 27984 GB used, 27879 GB / 55863 GB avail; 104MB/s rd, 57op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:15:24 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30010: 8960 pgs: 8960 active+clean; 9279 GB data, 27982 GB used, 27881 GB / 55863 GB avail; 390KB/s rd, 390op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:15:54 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30037: 8960 pgs: 8960 active+clean; 9279 GB data, 27982 GB used, 27881 GB / 55863 GB avail; 903KB/s rd, 791op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:16:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30050: 8960 pgs: 8960 active+clean; 9279 GB data, 27982 GB used, 27881 GB / 55863 GB avail; 77426B/s rd, 75op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:16:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30072: 8960 pgs: 8960 active+clean; 9279 GB data, 27978 GB used, 27885 GB / 55863 GB avail; 764MB/s rd, 466op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:17:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30100: 8960 pgs: 8960 active+clean; 9279 GB data, 27969 GB used, 27893 GB / 55863 GB avail; 11912KB/s rd, 10op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:17:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30128: 8960 pgs: 8960 active+clean; 9279 GB data, 27942 GB used, 27921 GB / 55863 GB avail; 904MB/s rd, 554op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:18:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30155: 8960 pgs: 8960 active+clean; 9279 GB data, 27935 GB used, 27928 GB / 55863 GB avail; 575MB/s rd, 370op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:18:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30183: 8960 pgs: 8960 active+clean; 9279 GB data, 27930 GB used, 27933 GB / 55863 GB avail; 901MB/s rd, 581op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:19:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30210: 8960 pgs: 8960 active+clean; 9279 GB data, 27927 GB used, 27935 GB / 55863 GB avail; 800MB/s rd, 480op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:19:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30238: 8960 pgs: 8960 active+clean; 9279 GB data, 27926 GB used, 27936 GB / 55863 GB avail; 1032MB/s rd, 648op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:20:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30265: 8960 pgs: 8960 active+clean; 9279 GB data, 27925 GB used, 27937 GB / 55863 GB avail; 891MB/s rd, 597op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:20:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30292: 8960 pgs: 8960 active+clean; 9279 GB data, 27925 GB used, 27938 GB / 55863 GB avail; 1001MB/s rd, 633op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:21:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30319: 8960 pgs: 8960 active+clean; 9279 GB data, 27924 GB used, 27938 GB / 55863 GB avail; 1133MB/s rd, 705op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:21:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30347: 8960 pgs: 8960 active+clean; 9279 GB data, 27924 GB used, 27939 GB / 55863 GB avail; 1196MB/s rd, 741op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:22:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30375: 8960 pgs: 8960 active+clean; 9279 GB data, 27924 GB used, 27939 GB / 55863 GB avail; 1047MB/s rd, 670op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:22:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30402: 8960 pgs: 8960 active+clean; 9279 GB data, 27924 GB used, 27939 GB / 55863 GB avail; 1187MB/s rd, 781op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:23:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30430: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1001MB/s rd, 618op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:23:25 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30440: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 200MB/s rd, 112op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:23:55 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30440: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 200MB/s rd, 112op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:24:25 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30440: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 200MB/s rd, 112op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:24:55 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30440: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 200MB/s rd, 112op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:25:25 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30458: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 321KB/s rd, 267op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:25:55 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30486: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 879KB/s rd, 771op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:26:26 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30513: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1004KB/s rd, 894op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:26:27 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30515: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 79947B/s rd, 78op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:26:58 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30537: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1048MB/s rd, 0B/s wr, 737op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:27:28 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30564: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1052MB/s rd, 685op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:27:58 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30592: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1008MB/s rd, 632op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:28:28 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30619: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1029MB/s rd, 639op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:28:58 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30647: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 907MB/s rd, 565op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:29:28 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30674: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1132MB/s rd, 710op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:29:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30701: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1282MB/s rd, 815op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:30:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30729: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1247MB/s rd, 767op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:30:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30757: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1152MB/s rd, 758op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:31:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30784: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1011MB/s rd, 608op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:31:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30812: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1180MB/s rd, 716op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:32:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30839: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1217MB/s rd, 723op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:33:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30866: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1165MB/s rd, 736op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:33:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30894: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1161MB/s rd, 743op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:33:45 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30905: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 21324KB/s rd, 6op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:34:15 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30905: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 21324KB/s rd, 6op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:34:45 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30905: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 21324KB/s rd, 6op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:35:15 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30905: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 21324KB/s rd, 6op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:35:45 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30923: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 261KB/s rd, 261op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:36:15 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30951: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 587KB/s rd, 587op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:36:46 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30978: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 996KB/s rd, 996op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:36:48 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v30980: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 345KB/s rd, 291op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:37:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31000: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1011MB/s rd, 655op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:37:48 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31028: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 948MB/s rd, 629op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:38:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31055: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1190MB/s rd, 768op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:38:48 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31083: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1202MB/s rd, 714op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:39:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31110: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1306MB/s rd, 805op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:39:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31137: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1144MB/s rd, 707op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:40:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31165: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1186MB/s rd, 773op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:40:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31192: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1017MB/s rd, 614op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:41:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31219: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1190MB/s rd, 735op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:41:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31246: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1018MB/s rd, 654op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:42:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31274: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1208MB/s rd, 772op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:42:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31301: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 960MB/s rd, 578op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:43:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31329: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1067MB/s rd, 658op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:43:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31356: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1049MB/s rd, 667op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:44:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31369: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 15665KB/s rd, 4op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:44:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31369: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 15665KB/s rd, 4op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:45:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31369: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 15665KB/s rd, 4op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:45:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31369: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 15665KB/s rd, 4op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:46:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31387: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 289KB/s rd, 289op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:46:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31415: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 568KB/s rd, 568op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:47:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31442: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 971KB/s rd, 971op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:47:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31444: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 255KB/s rd, 200op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:47:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31463: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27939 GB / 55863 GB avail; 1130MB/s rd, 714op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:48:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31490: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1190MB/s rd, 712op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:48:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31517: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1241MB/s rd, 764op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:49:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31544: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1174MB/s rd, 739op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:49:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31572: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1259MB/s rd, 836op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:50:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31599: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1063MB/s rd, 641op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:50:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31627: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 989MB/s rd, 632op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:51:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31654: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1175MB/s rd, 734op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:51:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31681: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 1240MB/s rd, 768op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:52:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31708: 8960 pgs: 8960 active+clean; 9279 GB data, 27923 GB used, 27940 GB / 55863 GB avail; 856MB/s rd, 558op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:52:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31736: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 966MB/s rd, 589op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:53:11 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31764: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1027MB/s rd, 643op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:53:41 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31791: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1125MB/s rd, 700op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:54:11 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31819: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1197MB/s rd, 759op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:54:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31835: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 45831KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:55:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31835: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 45831KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:55:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31835: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 45831KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:56:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31835: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 45831KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:56:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31853: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 324KB/s rd, 271op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:57:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31880: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 640KB/s rd, 541op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:57:35 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31907: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1356KB/s rd, 1242op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:57:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31909: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 540KB/s rd, 540op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:58:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31929: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1032MB/s rd, 639op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:58:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31956: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1287MB/s rd, 810op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:59:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v31984: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1303MB/s rd, 784op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 12:59:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32010: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1160MB/s rd, 722op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:00:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32038: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1151MB/s rd, 761op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:00:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32065: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1453MB/s rd, 900op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:01:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32093: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1096MB/s rd, 695op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:01:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32119: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1203MB/s rd, 757op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:02:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32147: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 985MB/s rd, 613op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:02:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32174: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 979MB/s rd, 610op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:03:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32202: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1120MB/s rd, 674op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:03:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32228: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 893MB/s rd, 569op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:04:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32256: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1075MB/s rd, 688op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:04:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32283: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 976MB/s rd, 590op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:05:02 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32302: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 163MB/s rd, 79op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:05:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32302: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 163MB/s rd, 79op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:06:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32302: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 163MB/s rd, 79op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:06:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32302: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 163MB/s rd, 79op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:07:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32319: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 276KB/s rd, 276op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:07:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32347: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 668KB/s rd, 565op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:08:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32374: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1389KB/s rd, 1335op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 13:08:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32376: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 240KB/s rd, 240op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:00:46 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32394: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:01:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32394: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:01:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32415: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1246MB/s rd, 784op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:02:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32442: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1263MB/s rd, 806op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:02:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32470: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1060MB/s rd, 693op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:03:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32497: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1015MB/s rd, 648op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:03:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32524: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1115MB/s rd, 705op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:04:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32551: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 906MB/s rd, 584op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:04:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32579: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1158MB/s rd, 727op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:05:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32606: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1046MB/s rd, 651op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:05:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32634: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1181MB/s rd, 760op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:06:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32660: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1054MB/s rd, 685op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:06:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32688: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1106MB/s rd, 714op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:07:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32715: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1125MB/s rd, 719op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:07:35 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32743: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1045MB/s rd, 671op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:08:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32770: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 1027MB/s rd, 667op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:08:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32782: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 150MB/s rd, 70op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:08:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32782: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 150MB/s rd, 70op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:09:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32782: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 150MB/s rd, 70op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:09:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32782: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 150MB/s rd, 70op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:10:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32797: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 239KB/s rd, 239op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:10:52 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32824: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 704KB/s rd, 594op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:11:22 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32852: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 2526KB/s rd, 2320op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:11:52 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32857: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 141KB/s rd, 141op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:12:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32857: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 141KB/s rd, 141op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:13:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32857: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 141KB/s rd, 141op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:13:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32879: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 323MB/s rd, 203op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:14:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32907: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 216MB/s rd, 121op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:14:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32934: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 331MB/s rd, 202op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:15:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32962: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 267MB/s rd, 175op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:15:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v32989: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 281MB/s rd, 170op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:16:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33017: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 257MB/s rd, 164op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:16:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33045: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 212MB/s rd, 132op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:17:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33072: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 239MB/s rd, 166op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:17:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33100: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 236MB/s rd, 132op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:18:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33128: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 229MB/s rd, 132op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:18:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33155: 8960 pgs: 8960 active+clean; 9279 GB data, 27922 GB used, 27941 GB / 55863 GB avail; 247MB/s rd, 152op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:19:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33183: 8960 pgs: 8960 active+clean; 9279 GB data, 27921 GB used, 27941 GB / 55863 GB avail; 259MB/s rd, 165op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:19:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33210: 8960 pgs: 8960 active+clean; 9279 GB data, 27918 GB used, 27945 GB / 55863 GB avail; 199MB/s rd, 136op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:20:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33238: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 198MB/s rd, 132op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:20:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33245: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 141MB/s rd, 83op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:20:48 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33247: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 19759KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:21:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33247: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 19759KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:21:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33247: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 19759KB/s rd, 11op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:22:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33265: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 371KB/s rd, 316op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:22:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33292: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 906KB/s rd, 807op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:23:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33307: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 151KB/s rd, 151op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:23:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33329: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 386MB/s rd, 237op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:24:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33357: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 403MB/s rd, 258op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:24:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33385: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 384MB/s rd, 237op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:25:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33412: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 430MB/s rd, 286op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:25:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33439: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 480MB/s rd, 289op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:26:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33467: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 381MB/s rd, 244op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:26:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33494: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 465MB/s rd, 292op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:27:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33522: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 539MB/s rd, 346op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:27:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33549: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 500MB/s rd, 297op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:28:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33576: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 430MB/s rd, 292op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:28:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33604: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 513MB/s rd, 313op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:29:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33632: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 576MB/s rd, 353op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:29:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33659: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 497MB/s rd, 309op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:30:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33686: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 556MB/s rd, 340op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:30:16 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33694: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 133MB/s rd, 89op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:30:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33696: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 57827KB/s rd, 27op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:31:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33696: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 57827KB/s rd, 27op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:31:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33696: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 57827KB/s rd, 27op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:32:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33714: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 274KB/s rd, 274op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:32:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33742: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 674KB/s rd, 674op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:33:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33770: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 852KB/s rd, 852op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:33:19 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33771: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 272KB/s rd, 272op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:33:49 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33793: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 725MB/s rd, 432op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:34:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33821: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 585MB/s rd, 375op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:34:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33849: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 705MB/s rd, 455op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:35:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33877: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 644MB/s rd, 417op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:35:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33904: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 726MB/s rd, 417op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:36:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33931: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 605MB/s rd, 396op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:36:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33958: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 703MB/s rd, 436op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:37:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v33985: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 782MB/s rd, 490op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:37:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34013: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 687MB/s rd, 411op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:38:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34041: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 599MB/s rd, 397op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:38:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34068: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 662MB/s rd, 416op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:39:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34095: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 719MB/s rd, 462op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:39:52 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34123: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 734MB/s rd, 460op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:40:22 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34151: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 719MB/s rd, 449op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:40:35 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34160: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 100452KB/s rd, 59op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:41:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34160: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 100452KB/s rd, 59op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:41:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34160: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 100452KB/s rd, 59op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:42:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34160: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 100452KB/s rd, 59op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:42:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34179: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 375KB/s rd, 319op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:43:06 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34206: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 707KB/s rd, 596op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:43:36 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34234: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1021KB/s rd, 967op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:43:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34236: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 145KB/s rd, 145op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:44:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34258: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 937MB/s rd, 590op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:44:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34285: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 772MB/s rd, 484op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:45:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34312: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1020MB/s rd, 641op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:45:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34340: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 679MB/s rd, 456op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:46:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34367: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1007MB/s rd, 622op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:46:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34395: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 755MB/s rd, 483op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:47:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34422: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1108MB/s rd, 731op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:47:39 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34450: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1037MB/s rd, 632op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:48:09 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34478: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 843MB/s rd, 546op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:48:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34505: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1108MB/s rd, 725op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:49:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34532: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1016MB/s rd, 639op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:49:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34560: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 975MB/s rd, 600op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:50:10 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34587: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1088MB/s rd, 681op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:50:40 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34615: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 821MB/s rd, 508op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:50:55 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34625: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 82649KB/s rd, 36op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:51:25 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34625: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 82649KB/s rd, 36op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:51:55 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34625: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 82649KB/s rd, 36op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:52:25 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34625: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 82649KB/s rd, 36op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:52:56 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34643: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 239KB/s rd, 239op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:53:26 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34670: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 596KB/s rd, 596op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:53:56 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34698: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1522KB/s rd, 1412op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:54:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34701: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 116KB/s rd, 116op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:54:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34723: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1037MB/s rd, 615op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:55:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34751: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 810MB/s rd, 493op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:55:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34779: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 950MB/s rd, 609op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:56:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34806: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1114MB/s rd, 673op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:56:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34834: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1059MB/s rd, 659op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:57:00 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34862: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 997MB/s rd, 619op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:57:31 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34888: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 901MB/s rd, 566op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:58:01 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34916: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 965MB/s rd, 633op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:58:31 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34943: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1138MB/s rd, 737op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:59:01 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34970: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 962MB/s rd, 582op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 14:59:31 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v34997: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 999MB/s rd, 627op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:00:01 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35024: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1022MB/s rd, 604op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:00:32 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35052: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1125MB/s rd, 702op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:01:02 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35079: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 921MB/s rd, 585op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:01:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35089: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 154MB/s rd, 92op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:01:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35089: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 154MB/s rd, 92op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:02:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35089: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 154MB/s rd, 92op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:02:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35089: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 154MB/s rd, 92op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:03:17 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35107: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 232KB/s rd, 232op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:03:47 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35135: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 721KB/s rd, 616op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:04:18 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35163: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1343KB/s rd, 1229op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:04:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35165: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 253KB/s rd, 253op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:04:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35187: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1100MB/s rd, 721op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:05:20 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35215: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 958MB/s rd, 604op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:05:50 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35242: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1102MB/s rd, 663op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:06:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35269: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 933MB/s rd, 573op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:06:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35296: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 893MB/s rd, 574op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:07:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35323: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1033MB/s rd, 645op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:07:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35351: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1134MB/s rd, 729op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:08:21 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35379: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1042MB/s rd, 677op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:08:51 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35406: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1141MB/s rd, 761op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:09:22 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35434: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 766MB/s rd, 496op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:09:52 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35461: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1157MB/s rd, 735op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:10:22 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35488: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 933MB/s rd, 595op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:10:52 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35515: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1123MB/s rd, 703op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:11:22 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35543: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1072MB/s rd, 672op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:11:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35552: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 137MB/s rd, 74op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:12:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35552: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 137MB/s rd, 74op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:12:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35552: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 137MB/s rd, 74op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:13:07 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35552: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 137MB/s rd, 74op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:13:37 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35569: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 194KB/s rd, 194op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:14:08 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35597: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 448KB/s rd, 448op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:14:38 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35624: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1750KB/s rd, 1750op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:14:41 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35627: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 191KB/s rd, 191op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:15:11 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35648: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1097MB/s rd, 697op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:15:41 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35675: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1077MB/s rd, 665op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:16:11 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35703: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1248MB/s rd, 804op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:16:41 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35731: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1089MB/s rd, 668op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:17:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35759: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1010MB/s rd, 645op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:17:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35786: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1060MB/s rd, 660op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:18:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35814: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1042MB/s rd, 675op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:18:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35842: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 830MB/s rd, 543op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:19:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35869: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 994MB/s rd, 589op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:19:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35896: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1409MB/s rd, 899op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:20:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35924: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1226MB/s rd, 763op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:20:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35952: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1266MB/s rd, 793op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:21:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v35979: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1144MB/s rd, 727op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:21:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36006: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1006MB/s rd, 620op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:21:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36019: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 81470KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:22:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36019: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 81470KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:22:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36019: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 81470KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:23:29 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36019: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 81470KB/s rd, 29op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:23:59 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36037: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 233KB/s rd, 233op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:24:30 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36065: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 616KB/s rd, 616op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:25:01 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36092: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1623KB/s rd, 1516op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:25:02 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36094: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 225KB/s rd, 225op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:25:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36109: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1006MB/s rd, 650op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:26:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36137: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1066MB/s rd, 688op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:26:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36165: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1375MB/s rd, 873op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:27:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36192: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1274MB/s rd, 0B/s wr, 818op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:27:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36220: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1189MB/s rd, 0B/s wr, 815op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:28:03 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36247: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1280MB/s rd, 0B/s wr, 812op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:28:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36275: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1087MB/s rd, 0B/s wr, 712op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:29:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36303: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1035MB/s rd, 605op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:29:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36330: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 870MB/s rd, 0B/s wr, 544op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:30:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36357: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1344MB/s rd, 844op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:30:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36385: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1220MB/s rd, 736op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:31:04 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36413: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 881MB/s rd, 536op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:31:34 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36441: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 872MB/s rd, 552op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:32:05 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36468: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 971MB/s rd, 591op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:32:32 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36489: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 55961KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:33:02 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36489: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 55961KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:33:32 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36489: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 55961KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:34:02 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36489: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 55961KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:34:32 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36506: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 194KB/s rd, 194op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:35:02 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36534: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 716KB/s rd, 609op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:35:33 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36561: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1477KB/s rd, 1477op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:35:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36570: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 100051B/s rd, 97op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:36:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36585: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1014MB/s rd, 697op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:36:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36613: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1229MB/s rd, 924op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:37:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36640: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 966MB/s rd, 616op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:37:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36668: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1222MB/s rd, 685op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:38:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36695: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1237MB/s rd, 821op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:38:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36723: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1244MB/s rd, 821op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:39:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36751: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1361MB/s rd, 836op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:39:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36779: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1448MB/s rd, 901op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:40:13 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36807: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1296MB/s rd, 784op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:40:43 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36835: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1184MB/s rd, 733op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:41:14 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36862: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1177MB/s rd, 729op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:41:44 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36890: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1017MB/s rd, 624op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:42:14 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36917: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1329MB/s rd, 878op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:42:44 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36945: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1159MB/s rd, 721op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:43:11 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36969: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 68871KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:43:41 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36969: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 68871KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:44:11 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36969: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 68871KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:44:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36969: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 68871KB/s rd, 31op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:45:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v36986: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 152KB/s rd, 152op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:45:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v37014: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 526KB/s rd, 526op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:46:12 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v37042: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 1269KB/s rd, 1269op/s
+   mdsmap e1: 0/0/1 up
+
+Sat Nov 23 15:46:42 CST 2013
+   health HEALTH_OK
+   monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a
+   osdmap e144: 60 osds: 60 up, 60 in
+    pgmap v37045: 8960 pgs: 8960 active+clean; 9279 GB data, 27916 GB used, 27946 GB / 55863 GB avail; 208KB/s rd, 208op/s
+   mdsmap e1: 0/0/1 up
+

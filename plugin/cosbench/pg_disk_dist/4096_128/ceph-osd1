@@ -1,0 +1,84 @@
+osd-1
+        "numpg": 263, 
+        "numpg_primary": 80, 
+        "numpg_replica": 183, 
+        "numpg_stray": 0, 
+
+osd-2
+        "numpg": 233, 
+        "numpg_primary": 71, 
+        "numpg_replica": 162, 
+        "numpg_stray": 0, 
+
+osd-3
+        "numpg": 239, 
+        "numpg_primary": 102, 
+        "numpg_replica": 137, 
+        "numpg_stray": 0, 
+
+osd-4
+        "numpg": 199, 
+        "numpg_primary": 80, 
+        "numpg_replica": 119, 
+        "numpg_stray": 0, 
+
+osd-5
+        "numpg": 206, 
+        "numpg_primary": 58, 
+        "numpg_replica": 148, 
+        "numpg_stray": 0, 
+
+osd-6
+        "numpg": 269, 
+        "numpg_primary": 95, 
+        "numpg_replica": 174, 
+        "numpg_stray": 0, 
+
+osd-7
+        "numpg": 239, 
+        "numpg_primary": 95, 
+        "numpg_replica": 144, 
+        "numpg_stray": 0, 
+
+osd-8
+        "numpg": 239, 
+        "numpg_primary": 99, 
+        "numpg_replica": 140, 
+        "numpg_stray": 0, 
+
+osd-9
+        "numpg": 247, 
+        "numpg_primary": 84, 
+        "numpg_replica": 163, 
+        "numpg_stray": 0, 
+
+osd-10
+        "numpg": 222, 
+        "numpg_primary": 84, 
+        "numpg_replica": 138, 
+        "numpg_stray": 0, 
+
+osd-11
+        "numpg": 216, 
+        "numpg_primary": 74, 
+        "numpg_replica": 142, 
+        "numpg_stray": 0, 
+
+osd-12
+        "numpg": 206, 
+        "numpg_primary": 70, 
+        "numpg_replica": 136, 
+        "numpg_stray": 0, 
+
+ceph-1 237
+ceph-2 222
+ceph-3 212
+ceph-4 183
+ceph-5 190
+ceph-6 227
+ceph-7 211
+ceph-8 201
+ceph-9 225
+ceph-10 195
+ceph-11 210
+ceph-12 183

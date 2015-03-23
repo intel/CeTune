@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="4MB_obj_test" description="INIT-PREPARE">
+<storage type="swift" config="timeout=300000" />
+<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.4.9.105:80/auth/v1.0;retry=9" />
+<workflow>
+<workstage name="prepare">
+<work type="prepare" workers="10" config="containers=r(1,1);objects=r(2,2);cprefix=4MB-read;sizes=c(4)MB"/>
+</workstage>
+</workflow>
+</workload>

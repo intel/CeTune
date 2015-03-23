@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="mix_100con_100obj_10MB_2560w" description="MIX-ONLY">
+<storage type="librados" config="timeout=300000;accesskey=admin;endpoint=10.10.10.100;secretkey=AQCMroJRSAzvFhAAuJH8OH8OiPn703yysJIEaw==" />
+<workflow>
+<workstage name="main">
+<work name="10MB" workers="2560" rampup="90" runtime="300" rampdown="30">
+<operation type="read" ratio="95" config="containers=u(1,95);objects=u(1,100);sizes=c(10)MB"/>
+<operation type="write" ratio="5" config="containers=u(96,100);objects=u(1,100);sizes=c(10)MB"/>
+</work>
+</workstage>
+</workflow>
+</workload>

@@ -1,0 +1,78 @@
+Tue Dec  3 11:18:54 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24225: 8960 pgs: 8960 active+clean; 9312 GB data, 29506 GB used, 26607 GB / 56113 GB avail mdsmap e1: 0/0/1 up
+Tue Dec  3 11:19:10 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24232: 8960 pgs: 8960 active+clean; 9312 GB data, 29506 GB used, 26607 GB / 56113 GB avail mdsmap e1: 0/0/1 up
+Tue Dec  3 11:19:40 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24254: 8960 pgs: 8960 active+clean; 9312 GB data, 29506 GB used, 26607 GB / 56113 GB avail; 281MB/s rd, 160op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:20:11 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24278: 8960 pgs: 8960 active+clean; 9312 GB data, 29452 GB used, 26660 GB / 56113 GB avail; 2989KB/s rd, 2op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:20:41 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24302: 8960 pgs: 8960 active+clean; 9312 GB data, 29402 GB used, 26711 GB / 56113 GB avail; 15033KB/s rd, 9op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:21:11 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24327: 8960 pgs: 8960 active+clean; 9312 GB data, 29340 GB used, 26772 GB / 56113 GB avail; 30309KB/s rd, 20op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:21:41 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e516: 65 osds: 65 up, 65 in pgmap v24355: 8960 pgs: 8960 active+clean; 9312 GB data, 29271 GB used, 26841 GB / 56113 GB avail; 17948KB/s rd, 10op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:22:11 CST 2013
+health HEALTH_WARN 414 pgs degraded; 599 pgs stuck unclean; recovery 194417/12049538 degraded (1.613%); 1/65 in osds are down; noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e526: 65 osds: 64 up, 65 in pgmap v24382: 8960 pgs: 185 active, 8361 active+clean, 414 active+degraded; 9312 GB data, 29235 GB used, 26878 GB / 56113 GB avail; 1706MB/s rd, 1068op/s; 194417/12049538 degraded (1.613%) mdsmap e1: 0/0/1 up
+osd down
+Tue Dec  3 11:23:19 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e528: 65 osds: 65 up, 65 in pgmap v24438: 8960 pgs: 8960 active+clean; 9312 GB data, 29234 GB used, 26878 GB / 56113 GB avail; 21423KB/s rd, 16op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:23:49 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e528: 65 osds: 65 up, 65 in pgmap v24463: 8960 pgs: 8960 active+clean; 9312 GB data, 29234 GB used, 26878 GB / 56113 GB avail; 132MB/s rd, 75op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:24:19 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e528: 65 osds: 65 up, 65 in pgmap v24489: 8960 pgs: 8960 active+clean; 9312 GB data, 29215 GB used, 26897 GB / 56113 GB avail; 5625KB/s rd, 3op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:24:49 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e528: 65 osds: 65 up, 65 in pgmap v24515: 8960 pgs: 8960 active+clean; 9312 GB data, 29166 GB used, 26946 GB / 56113 GB avail; 35531KB/s rd, 27op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:25:20 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e528: 65 osds: 65 up, 65 in pgmap v24539: 8960 pgs: 8960 active+clean; 9312 GB data, 29113 GB used, 26999 GB / 56113 GB avail; 53127KB/s rd, 25op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:25:50 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e528: 65 osds: 65 up, 65 in pgmap v24564: 8960 pgs: 8960 active+clean; 9312 GB data, 29049 GB used, 27063 GB / 56113 GB avail; 65315KB/s rd, 39op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:26:20 CST 2013
+health HEALTH_WARN 2523 pgs degraded; 39 pgs stale; 2523 pgs stuck unclean; recovery 1181315/12049538 degraded (9.804%); recovering 15E o/s, 15EB/s, 15E key/s; 5/65 in osds are down; noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e537: 65 osds: 60 up, 65 in pgmap v24591: 8960 pgs: 6398 active+clean, 39 stale+active+clean, 2523 active+degraded; 9312 GB data, 28997 GB used, 27115 GB / 56113 GB avail; 15EB/s rd, 15Eop/s; 1181315/12049538 degraded (9.804%); recovering 15E o/s, 15EB/s, 15E key/s mdsmap e1: 0/0/1 up
+osd down
+Tue Dec  3 11:27:30 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e546: 65 osds: 65 up, 65 in pgmap v24623: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail mdsmap e1: 0/0/1 up
+Tue Dec  3 11:28:01 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e546: 65 osds: 65 up, 65 in pgmap v24623: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail mdsmap e1: 0/0/1 up
+Tue Dec  3 11:28:31 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e546: 65 osds: 65 up, 65 in pgmap v24640: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 130KB/s rd, 130op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:29:01 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e546: 65 osds: 65 up, 65 in pgmap v24667: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 316KB/s rd, 239op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:29:31 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e546: 65 osds: 65 up, 65 in pgmap v24694: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 83000B/s rd, 81op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:30:01 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e546: 65 osds: 65 up, 65 in pgmap v24720: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 668KB/s rd, 668op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:30:31 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24745: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 4522KB/s rd, 4090op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:31:02 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24769: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 1176KB/s rd, 1176op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:31:32 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24791: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 14104B/s rd, 13op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:37:15 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24791: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 14104B/s rd, 13op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:37:32 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24791: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 14104B/s rd, 13op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:38:02 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24810: 8960 pgs: 8960 active+clean; 9312 GB data, 28987 GB used, 27125 GB / 56113 GB avail; 2033MB/s rd, 1265op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:38:32 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24835: 8960 pgs: 8960 active+clean; 9312 GB data, 28949 GB used, 27163 GB / 56113 GB avail; 87101KB/s rd, 47op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:39:02 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24850: 8960 pgs: 8960 active+clean; 9312 GB data, 28931 GB used, 27181 GB / 56113 GB avail; 900KB/s rd, 0op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:39:32 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e548: 65 osds: 65 up, 65 in pgmap v24853: 8960 pgs: 8960 active+clean; 9312 GB data, 28925 GB used, 27188 GB / 56113 GB avail; 20690KB/s rd, 24op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:40:03 CST 2013
+health HEALTH_WARN 179 pgs stale; 1/65 in osds are down; noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e550: 65 osds: 64 up, 65 in pgmap v24855: 8960 pgs: 8781 active+clean, 179 stale+active+clean; 9312 GB data, 28925 GB used, 27188 GB / 56113 GB avail mdsmap e1: 0/0/1 up
+osd down
+Tue Dec  3 11:44:57 CST 2013
+health HEALTH_WARN 445 pgs degraded; 445 pgs stuck unclean; recovery 211968/12049538 degraded (1.759%); 1/65 in osds are down; noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e578: 65 osds: 64 up, 65 in pgmap v25029: 8960 pgs: 8515 active+clean, 445 active+degraded; 9312 GB data, 28871 GB used, 27242 GB / 56113 GB avail; 33567KB/s rd, 11op/s; 211968/12049538 degraded (1.759%) mdsmap e1: 0/0/1 up
+osd down
+Tue Dec  3 11:47:33 CST 2013
+health HEALTH_WARN 45 pgs backfill; 45 pgs degraded; 83 pgs recovering; 45 pgs recovery_wait; 173 pgs stuck unclean; recovery 82188/12049538 degraded (0.682%); noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e585: 65 osds: 65 up, 65 in pgmap v25149: 8960 pgs: 8787 active+clean, 45 active+recovery_wait, 45 active+degraded+remapped+wait_backfill, 83 active+recovering; 9312 GB data, 28375 GB used, 26807 GB / 55182 GB avail; 21415B/s rd, 20op/s; 82188/12049538 degraded (0.682%) mdsmap e1: 0/0/1 up
+Tue Dec  3 11:48:03 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e585: 65 osds: 65 up, 65 in pgmap v25177: 8960 pgs: 8960 active+clean; 9312 GB data, 28853 GB used, 27260 GB / 56113 GB avail; 167KB/s rd, 167op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:48:34 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e585: 65 osds: 65 up, 65 in pgmap v25205: 8960 pgs: 8960 active+clean; 9312 GB data, 28853 GB used, 27260 GB / 56113 GB avail; 297KB/s rd, 297op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:49:04 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e585: 65 osds: 65 up, 65 in pgmap v25232: 8960 pgs: 8960 active+clean; 9312 GB data, 28853 GB used, 27260 GB / 56113 GB avail; 139KB/s rd, 139op/s mdsmap e1: 0/0/1 up
+Tue Dec  3 11:49:34 CST 2013
+health HEALTH_WARN noscrub,nodeep-scrub flag(s) set monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e585: 65 osds: 65 up, 65 in pgmap v25254: 8960 pgs: 8960 active+clean; 9312 GB data, 28853 GB used, 27260 GB / 56113 GB avail; 15350B/s rd, 14op/s mdsmap e1: 0/0/1 up

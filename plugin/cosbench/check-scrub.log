@@ -1,0 +1,2 @@
+Mon Dec  9 15:54:58 CST 2013
+health HEALTH_OK monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e21: 60 osds: 60 up, 60 in pgmap v18792: 8960 pgs: 8959 active+clean, 1 active+clean+scrubbing+deep; 6810 GB data, 22314 GB used, 33549 GB / 55863 GB avail; 53808B/s rd, 214MB/s wr, 698op/s mdsmap e1: 0/0/1 up
