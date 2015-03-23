@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="write_50con_10obj_10MB_80w" description="WRITE-ONLY">
+<storage type="swift" config="timeout=30000" />
+<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.10.9.100/auth/v1.0;retry=9" />
+<workflow>
+<workstage name="main">
+<work name="10MB" workers="80" rampup="30" runtime="1800" rampdown="30">
+<operation type="write" ratio="100" config="containers=u(1,50);objects=u(1,10);cprefix=10MB-write;sizes=c(10)MB"/>
+</work>
+</workstage>
+</workflow>
+</workload>

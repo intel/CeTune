@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="read_100con_100obj_128KB_2560w" description="READ-ONLY">
+<storage type="librados" config="timeout=300000;accesskey=admin;endpoint=10.10.10.100;secretkey=AQCMroJRSAzvFhAAuJH8OH8OiPn703yysJIEaw==" />
+<workflow>
+<workstage name="main">
+<work name="128KB" workers="2560" rampup="90" runtime="300" rampdown="30">
+<operation type="read" ratio="100" config="containers=u(1,100);objects=u(1,100);sizes=c(128)KB"/>
+</work>
+</workstage>
+</workflow>
+</workload>

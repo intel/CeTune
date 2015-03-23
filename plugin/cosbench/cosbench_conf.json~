@@ -1,0 +1,11 @@
+{
+"cosbench_setup_folder": "/cosbench/current",
+"config_list": "0 5 10",
+"remote_data_server": "192.168.4.253",
+"remote_data_user": "root",
+"remote_data_dir": "/data1/rui_script_test",
+"size": "128KB",
+"scale": "small",
+"rw": "write",
+"timeout":"99999999"
+}

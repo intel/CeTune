@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="write_100con_100obj_1GB" description="large objects write">
+  <storage type="swift" config="timeout=100000"/>
+  <auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.10.9.100:8080/auth/v1.0"/>
+  
+  <workflow>
+    <workstage name="init">
+      <work type="init" workers="5" config="containers=r(1,10);cprefix=1GB-write" />
+    </workstage>
+	<workstage name="prepare">
+      <work type="prepare" workers="10" config="containers=r(1,10);objects=r(1,10);cprefix=1GB-write;sizes=c(1)GB" />
+    </workstage>
+	
+	<workstage name="main">
+      <work name="main" workers="24" runtime="300">
+        <operation type="write" ratio="100" config="containers=u(1,10);objects=u(1,10);cprefix=1GB-write;sizes=c(1)GB" />
+      </work>
+    </workstage>
+	
+	<workstage name="cleanup">
+      <work type="cleanup" workers="10" config="containers=r(1,10);objects=r(1,10);cprefix=1GB-write" />
+    </workstage>
+
+    <workstage name="dispose">
+      <work type="dispose" workers="5" config="containers=r(1,10);cprefix=1GB-write" />
+    </workstage>
+  </workflow>
+  
+  
+</workload>

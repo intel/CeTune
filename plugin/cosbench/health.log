@@ -1,0 +1,9 @@
+Wed Jun  4 19:51:17 CST 2014
+cluster e11134d6-8da9-4cb1-ad32-3e40bb91d049 health HEALTH_WARN 7639 pgs incomplete; 29 pgs peering; 7691 pgs stuck inactive; 7691 pgs stuck unclean; 1/40 in osds are down monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e4740: 40 osds: 39 up, 40 in pgmap v6624: 153832 pgs, 3652 pools, 0 bytes data, 0 objects 96447 MB used, 37148 GB / 37242 GB avail 23 creating 29 peering 146141 active+clean 7635 incomplete 4 creating+incomplete
+osd down
+Wed Jun  4 19:55:08 CST 2014
+cluster e11134d6-8da9-4cb1-ad32-3e40bb91d049 health HEALTH_WARN 15 pgs peering; 62 pgs stuck inactive; 62 pgs stuck unclean monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e4769: 40 osds: 40 up, 40 in pgmap v6673: 154152 pgs, 3660 pools, 0 bytes data, 0 objects 97366 MB used, 37147 GB / 37242 GB avail 47 creating 15 peering 154090 active+clean
+Wed Jun  4 19:58:58 CST 2014
+cluster e11134d6-8da9-4cb1-ad32-3e40bb91d049 health HEALTH_WARN 32 pgs peering; 48 pgs stuck inactive; 48 pgs stuck unclean monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e4798: 40 osds: 40 up, 40 in pgmap v6727: 154392 pgs, 3666 pools, 0 bytes data, 0 objects 98258 MB used, 37146 GB / 37242 GB avail 16 creating 32 peering 154344 active+clean
+Wed Jun  4 20:10:46 CST 2014
+cluster e11134d6-8da9-4cb1-ad32-3e40bb91d049 health HEALTH_WARN 5 pgs peering; 469 pgs stuck inactive; 469 pgs stuck unclean monmap e1: 1 mons at {a=10.10.10.100:6789/0}, election epoch 2, quorum 0 a osdmap e4823: 40 osds: 40 up, 40 in pgmap v6795: 154992 pgs, 3681 pools, 0 bytes data, 0 objects 98792 MB used, 37145 GB / 37242 GB avail 464 creating 5 peering 154523 active+clean

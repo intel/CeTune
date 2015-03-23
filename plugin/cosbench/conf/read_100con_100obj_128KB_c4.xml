@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="read_100con_100obj_128KB_c4" description="small objects read">
+  <storage type="swift" config="timeout=100000"/>
+  <auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.4.9.105/auth/v1.0"/>
+  
+  <workflow>
+    <workstage name="init">
+      <work type="init" workers="5" config="containers=r(1,100);cprefix=128KB-read" />
+    </workstage>
+	<workstage name="prepare">
+      <work type="prepare" workers="10" config="containers=r(1,100);objects=r(1,100);cprefix=128KB-read;sizes=c(128)KB" />
+    </workstage>
+	
+	<workstage name="main">
+      <work name="main" workers="24" runtime="300">
+        <operation type="read" ratio="100" config="containers=u(1,100);objects=u(1,100);cprefix=128KB-read" />
+      </work>
+    </workstage>
+	
+	<workstage name="cleanup">
+      <work type="cleanup" workers="10" config="containers=r(1,100);objects=r(1,100);cprefix=128KB-read" />
+    </workstage>
+
+    <workstage name="dispose">
+      <work type="dispose" workers="5" config="containers=r(1,100);cprefix=128KB-read" />
+    </workstage>
+  </workflow>
+  
+  
+</workload>

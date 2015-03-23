@@ -1,0 +1,101 @@
+ceph-osd1
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda2        38G  8.6G   27G  25% /
+udev            7.7G  4.0K  7.7G   1% /dev
+tmpfs           3.1G  464K  3.1G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none            7.7G     0  7.7G   0% /run/shm
+/dev/sda1       140M   32M  101M  24% /boot
+/dev/sde        932G  558G  374G  60% /var/lib/ceph/osd/ceph-1
+/dev/sdn        932G  485G  447G  53% /var/lib/ceph/osd/ceph-10
+/dev/sdo        932G  514G  418G  56% /var/lib/ceph/osd/ceph-11
+/dev/sdp        932G  502G  430G  54% /var/lib/ceph/osd/ceph-12
+/dev/sdf        932G  522G  410G  57% /var/lib/ceph/osd/ceph-2
+/dev/sdg        932G  501G  431G  54% /var/lib/ceph/osd/ceph-3
+/dev/sdh        932G  471G  461G  51% /var/lib/ceph/osd/ceph-4
+/dev/sdi        932G  468G  465G  51% /var/lib/ceph/osd/ceph-5
+/dev/sdj        932G  541G  391G  59% /var/lib/ceph/osd/ceph-6
+/dev/sdk        932G  523G  409G  57% /var/lib/ceph/osd/ceph-7
+/dev/sdl        932G  521G  411G  56% /var/lib/ceph/osd/ceph-8
+/dev/sdm        932G  536G  396G  58% /var/lib/ceph/osd/ceph-9
+
+ceph-osd2
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        44G  4.5G   38G  11% /
+udev             16G  4.0K   16G   1% /dev
+tmpfs           6.3G  428K  6.3G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none             16G     0   16G   0% /run/shm
+/dev/sde        932G  500G  432G  54% /var/lib/ceph/osd/ceph-13
+/dev/sdf        932G  511G  421G  55% /var/lib/ceph/osd/ceph-14
+/dev/sdg        932G  521G  411G  56% /var/lib/ceph/osd/ceph-15
+/dev/sdh        932G  511G  421G  55% /var/lib/ceph/osd/ceph-16
+/dev/sdi        932G  522G  410G  57% /var/lib/ceph/osd/ceph-17
+/dev/sdj        932G  495G  437G  54% /var/lib/ceph/osd/ceph-18
+/dev/sdk        932G  497G  435G  54% /var/lib/ceph/osd/ceph-19
+/dev/sdl        932G  498G  434G  54% /var/lib/ceph/osd/ceph-20
+/dev/sdm        932G  518G  414G  56% /var/lib/ceph/osd/ceph-21
+/dev/sdn        932G  497G  435G  54% /var/lib/ceph/osd/ceph-22
+/dev/sdo        932G  553G  379G  60% /var/lib/ceph/osd/ceph-23
+/dev/sdp        932G  536G  397G  58% /var/lib/ceph/osd/ceph-24
+
+ceph-osd3
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        44G  4.1G   38G  10% /
+udev            7.7G  4.0K  7.7G   1% /dev
+tmpfs           3.1G  428K  3.1G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none            7.7G     0  7.7G   0% /run/shm
+/dev/sde        932G  524G  408G  57% /var/lib/ceph/osd/ceph-25
+/dev/sdf        932G  522G  410G  57% /var/lib/ceph/osd/ceph-26
+/dev/sdg        932G  523G  409G  57% /var/lib/ceph/osd/ceph-27
+/dev/sdh        932G  504G  428G  55% /var/lib/ceph/osd/ceph-28
+/dev/sdi        932G  523G  409G  57% /var/lib/ceph/osd/ceph-29
+/dev/sdj        932G  490G  442G  53% /var/lib/ceph/osd/ceph-30
+/dev/sdk        932G  477G  455G  52% /var/lib/ceph/osd/ceph-31
+/dev/sdl        932G  548G  384G  59% /var/lib/ceph/osd/ceph-32
+/dev/sdm        932G  503G  429G  54% /var/lib/ceph/osd/ceph-33
+/dev/sdn        932G  505G  427G  55% /var/lib/ceph/osd/ceph-34
+/dev/sdo        932G  500G  432G  54% /var/lib/ceph/osd/ceph-35
+/dev/sdp        932G  498G  434G  54% /var/lib/ceph/osd/ceph-36
+
+ceph-osd4
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        44G  3.7G   38G   9% /
+udev            7.7G  4.0K  7.7G   1% /dev
+tmpfs           3.1G  428K  3.1G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none            7.7G     0  7.7G   0% /run/shm
+/dev/sde        932G  510G  422G  55% /var/lib/ceph/osd/ceph-37
+/dev/sdf        932G  525G  407G  57% /var/lib/ceph/osd/ceph-38
+/dev/sdg        932G  527G  405G  57% /var/lib/ceph/osd/ceph-39
+/dev/sdh        932G  503G  429G  54% /var/lib/ceph/osd/ceph-40
+/dev/sdi        932G  550G  382G  60% /var/lib/ceph/osd/ceph-41
+/dev/sdj        932G  518G  414G  56% /var/lib/ceph/osd/ceph-42
+/dev/sdk        932G  547G  385G  59% /var/lib/ceph/osd/ceph-43
+/dev/sdl        932G  470G  462G  51% /var/lib/ceph/osd/ceph-44
+/dev/sdm        932G  505G  427G  55% /var/lib/ceph/osd/ceph-45
+/dev/sdn        932G  504G  428G  55% /var/lib/ceph/osd/ceph-46
+/dev/sdo        932G  498G  435G  54% /var/lib/ceph/osd/ceph-47
+/dev/sdp        932G  510G  422G  55% /var/lib/ceph/osd/ceph-48
+
+ceph-osd5
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        44G  3.8G   38G   9% /
+udev            7.7G  4.0K  7.7G   1% /dev
+tmpfs           3.1G  452K  3.1G   1% /run
+none            5.0M     0  5.0M   0% /run/lock
+none            7.7G     0  7.7G   0% /run/shm
+/dev/sde        932G  476G  456G  52% /var/lib/ceph/osd/ceph-49
+/dev/sdf        932G  503G  429G  55% /var/lib/ceph/osd/ceph-50
+/dev/sdg        932G  477G  455G  52% /var/lib/ceph/osd/ceph-51
+/dev/sdh        932G  476G  456G  52% /var/lib/ceph/osd/ceph-52
+/dev/sdi        932G  548G  384G  59% /var/lib/ceph/osd/ceph-53
+/dev/sdj        932G  515G  417G  56% /var/lib/ceph/osd/ceph-54
+/dev/sdk        932G  534G  398G  58% /var/lib/ceph/osd/ceph-55
+/dev/sdl        932G  449G  483G  49% /var/lib/ceph/osd/ceph-56
+/dev/sdm        932G  486G  446G  53% /var/lib/ceph/osd/ceph-57
+/dev/sdn        932G  494G  438G  53% /var/lib/ceph/osd/ceph-58
+/dev/sdo        932G  523G  409G  57% /var/lib/ceph/osd/ceph-59
+/dev/sdp        932G  557G  375G  60% /var/lib/ceph/osd/ceph-60
+

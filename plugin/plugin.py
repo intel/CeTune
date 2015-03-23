@@ -6,14 +6,14 @@ from subprocess import *
 import re
 import socket
 import argparse
-
+import json
 lib_path = os.path.abspath(os.path.join('cbt/'))
 sys.path.append(lib_path)
-import cbt
-import settings
-import common
-import benchmarkfactory
-from cluster.ceph import Ceph
+#import cbt
+#import settings
+#import common
+#import benchmarkfactory
+#from cluster.ceph import Ceph
 
 def get_list( string ):
     res = []
@@ -42,6 +42,37 @@ class CBTAPI:
         print settings.cluster
         cluster = Ceph(settings.cluster)
         cluster.initialize()
+
+class Cosbench:
+    conf={}
+
+    def __init__(self, cosbench_conf_file):
+        with open(cosbench_conf_file) as conf_file:
+            self.conf = json.load(conf_file)
+        with open("./cosbench/NodeList",'w') as node_list:
+            node_list.write(self.conf["gw"]+"\n")
+            for osd in  self.conf["osd"].split():
+                node_list.write(osd+"\n")
+            for client in self.conf["ceph_client"].split():
+                node_list.write(client+"\n")
+
+    def run_test(self):
+        if self.conf["scale"] == "small":
+            prefix_xml = self.conf["rw"]+"_100con_100obj_"+self.conf["size"]+"_"
+            xml_dir ="./conf/"+self.conf["size"]+"-"+self.conf["rw"]+"/100_100/"
+        else:
+            prefix_xml = self.conf["rw"]+"_10000con_10000obj_"+self.conf["size"]+"_"
+            xml_dir = "./conf/"+self.conf["size"]+"-"+self.conf["rw"]+"-large/"
+        old_path = os.getcwd()
+        test_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(test_path+"/cosbench/")
+        command = "./run1.sh "+self.conf["size"]+"-"+self.conf["rw"]+" "+prefix_xml
+        command +=" "+self.conf["cosbench_setup_folder"]+" \""+self.conf["config_list"]+"\" "+self.conf["remote_data_server"] 
+        command += " "+self.conf["remote_data_user"]+" "+self.conf["remote_data_dir"]+" " + self.conf["timeout"]+" "+xml_dir
+        print command
+        os.system(command)
+        os.chdir(old_path)
+
 
 class ConfigHub:
     all_conf_data = {}
@@ -108,7 +139,12 @@ if __name__ == '__main__':
         '--cbt_yaml',
         help = 'specify the cbt config path, default using cbt/tmp.yaml  ',
         )
+    parser.add_argument(
+        '--cosbench_config',
+        help = 'Choose the path of the cosbench config json file. Default is ./cosbench/cosbench_conf.json'
+        )
     args = parser.parse_args()
+
     if args.operation == "deploy":
         if args.engine == "cbt" or args.engine == "CBT":
             yaml_file = "cbt/tmp.yaml"
@@ -121,10 +157,8 @@ if __name__ == '__main__':
             cbt_api.deploy_ceph_cluster()
     elif args.operation == "benchmark":
         if args.engine == "cosbench":
-            if args.cbt_yaml:
-                yaml_file = args.cbt_yaml
+            if args.cosbench_config:
+                cosbench_instance = Cosbench(args.cosbench_config)
             else:
-                yaml_file = "cbt/tmp.yaml"
-            config = ConfigHub()
-            config.load_yaml_conf(yaml_file)
-            print config.yaml_data
+                cosbench_instance = Cosbench("./cosbench/cosbench_conf.json")
+                cosbench_instance.run_test()

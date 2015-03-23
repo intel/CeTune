@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="read_800con_1000obj_128KB_0w" description="small objects read">
+<storage type="swift" config="timeout=100000" />
+<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://10.10.9.100/auth/v1.0" />
+<workflow>
+<workstage name="prepare">
+<work type="prepare" workers="240" config="containers=r(201,300);objects=r(1,1000);cprefix=128KB-read;sizes=c(128)KB"/>
+</workstage>
+</workflow>
+</workload>

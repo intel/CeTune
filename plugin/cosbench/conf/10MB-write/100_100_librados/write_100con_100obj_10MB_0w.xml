@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload name="write_100con_100obj_10MB_0w" description="WRITE-ONLY">
+<storage type="librados" config="timeout=300000;accesskey=admin;endpoint=10.10.10.100;secretkey=AQCMroJRSAzvFhAAuJH8OH8OiPn703yysJIEaw==" />
+<workflow>
+<workstage name="prepare">
+<work type="prepare" workers="8" config="containers=r(1,100);objects=r(1,100);;sizes=c(10)MB"/>
+</workstage>
+</workflow>
+</workload>
