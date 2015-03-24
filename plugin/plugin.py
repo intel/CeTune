@@ -6,14 +6,7 @@ from subprocess import *
 import re
 import socket
 import argparse
-
-lib_path = os.path.abspath(os.path.join('cbt/'))
-sys.path.append(lib_path)
-import cbt
-import settings
-import common
-import benchmarkfactory
-from cluster.ceph import Ceph
+import cbt_api
 
 def get_list( string ):
     res = []
@@ -26,39 +19,6 @@ def get_list( string ):
 
 def get_len( string ):
     return len(string.split(","))
-
-class CBTAPI:
-    config_file = ""
-    conf = ""
-    archive = ""
- 
-    def __init__( self, yaml_file ):
-        self.config_file = yaml_file
-        self.conf = "ceph.conf"
-        self.archive = "/opt/"
-    
-    def deploy_ceph_cluster( self ):
-        settings.initialize( self )
-        print settings.cluster
-        cluster = Ceph(settings.cluster)
-        cluster.initialize()
-
-    def run_benchmark(self, benchmark):
-        settings.initialize( self )
-        print settings.cluster
-        cluster = Ceph(settings.cluster)
-        if benchmark not in settings.benchmarks:
-            return False
-        iteration = 0
-        while (iteration < settings.cluster.get("iterations", 0)):
-            benchmarks = benchmarkfactory.getAll(cluster, iteration)
-            for _benchmark in benchmarks:
-                if _benchmark.exists():
-                    return False
-                _benchmark.initialize()
-            iteration += 1
-        #_benchmark.run()
-        #_benchmark.cleanup()
 
 class ConfigHub:
     all_conf_data = {}
@@ -134,13 +94,13 @@ if __name__ == '__main__':
             config.copy_all_to_yaml()
             config.write_yaml( yaml_file )
             
-            cbt_api = CBTAPI( yaml_file )
-            cbt_api.deploy_ceph_cluster()
+            _cbt_api = cbt_api.CBTAPI( yaml_file )
+            _cbt_api.deploy_ceph_cluster()
     elif args.operation == "benchmark":
         if args.engine == "cbt":
             if args.cbt_yaml:
                 yaml_file = args.cbt_yaml
             else:
-                yaml_file = "cbt/conf/cosbench/tmp.1.yaml"
-            cbt_api = CBTAPI( yaml_file )
-            cbt_api.run_benchmark("cosbench")
+                yaml_file = "tmp.1.yaml"
+            _cbt_api = cbt_api.CBTAPI( yaml_file )
+            _cbt_api.run_benchmark("cosbench")
