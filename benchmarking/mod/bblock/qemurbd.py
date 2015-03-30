@@ -24,13 +24,15 @@ class QemuRbd(Benchmark):
         dest_dir = self.cluster["tmp_dir"]
 
         #1. send command to vclient
+        nodes = []
         for client in self.benchmark["distribution"]:
-            nodes = self.benchmark["distribution"][client]
-            common.pdsh(user, nodes, "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf" % (dest_dir, self.benchmark["section_name"], dest_dir))
-            common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt" % (time, dest_dir))
-            common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt" % (time, dest_dir))
-            common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt" % (time, dest_dir))
-            common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt" % (time, dest_dir))
+            nodes.extend(self.benchmark["distribution"][client])
+
+        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf > /dev/null" % (dest_dir, self.benchmark["section_name"], dest_dir))
         
     def cleanup(self):
         super(self.__class__, self).cleanup()
@@ -59,9 +61,9 @@ class QemuRbd(Benchmark):
             for client in self.benchmark["distribution"]:
                 nodes = self.benchmark["distribution"][client]
                 res = common.pdsh(user, nodes, "pgrep fio", True)
-                if isinstance(res, list) and not res[1]:
+                if not res[1]:
                     stop_flag = 0
-            if stop_flag:
+            if stop_flag or cur_check > max_check_times:
                 break;
             cur_check += 1
             time.sleep(10)

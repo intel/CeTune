@@ -2,6 +2,8 @@ import subprocess
 import common
 import copy
 import os, sys
+import time
+import re
 
 class Benchmark(object):
     def __init__(self, testcase):
@@ -22,20 +24,23 @@ class Benchmark(object):
         self.prepare_result_dir()
         print "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"])
 
-        print "======== Prepare ========"
+        print common.bcolors.OKGREEN + "[LOG]Prepare Status: Do prerun_check and distribute config files" + common.bcolors.ENDC
         self.cal_run_job_distribution()
         self.prerun_check() 
         self.prepare_run()
 
-        print "======== Run Workload ========"
-        self.run()
-        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
-        print "wait %d secs till this run finishes." % time
-        #time.sleep(time)
+        print common.bcolors.OKGREEN + "[LOG]Run Benchmark Status: collect system metrics and run benchmark" + common.bcolors.ENDC
+        try:
+            self.run()
+        except KeyboardInterrupt:
+            print common.bcolors.WARNING + "[WARNING]Caught Signal to Cancel this run" + common.bcolors.ENDC
+            self.stop_workload()
+            self.stop_data_collecters()
 
-        print "======== Collect Result ========"
+        print common.bcolors.OKGREEN + "[LOG]Collect Data Status" + common.bcolors.ENDC
         self.after_run()
         self.archive()
+        self.set_runid()
         
     def after_run(self):
         #1. check workload stoped
@@ -56,11 +61,12 @@ class Benchmark(object):
     def prepare_result_dir(self):
         #1. prepare result dir
         self.get_runid()
-        self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["rampup"], self.benchmark["runtime"], self.benchmark["vdisk"])
+        vdisk = re.sub(r'/dev/',r'dev-',self.benchmark["vdisk"])
+        self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s-%s" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"], vdisk)
         self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
         self.benchmark["dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
         if os.path.exists(self.benchmark["dir"]):
-            print "[ERROR]Output DIR %s exists" % (self.benchmark["dir"])
+            print common.bcolors.FAIL + "[ERROR]Output DIR %s exists" % (self.benchmark["dir"]) + common.bcolors.ENDC
             sys.exit()
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
 
@@ -71,6 +77,9 @@ class Benchmark(object):
         pass
 
     def run(self):
+        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+        print common.bcolors.OKGREEN + "[LOG]This test will run %d secs until finish." % waittime + common.bcolors.ENDC
+        
         #drop page cache
         user = self.cluster["user"]
         time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
@@ -80,23 +89,25 @@ class Benchmark(object):
         
         #send command to ceph cluster
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt" % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt" % (time, dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt" % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt" % (time, dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
 
     def archive(self):
         user = self.cluster["user"]
         head = self.cluster["head"]
         dest_dir = self.benchmark["dir"]
+        #collect all.conf
+        common.rscp(user, node, "%s/%s/" % (dest_dir, head), "../conf/all.conf")
         #collect osd data
         for node in self.cluster["osd"]:
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
