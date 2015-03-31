@@ -1,5 +1,6 @@
 import argparse
 import os, sys
+from mod import *
 from mod.bblock import *
 from mod.bobject import *
 from  mod.bcephfs import *
@@ -29,4 +30,14 @@ if __name__ == '__main__':
     if args.engine == "qemurbd":
         for testcase in testcase_list:
             benchmark = qemurbd.QemuRbd(testcase)
-            benchmark.go()
+            try:
+                benchmark.go()
+            except KeyboardInterrupt:
+                print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+    if args.engine == "fiorbd":
+        for testcase in testcase_list:
+            benchmark = fiorbd.FioRbd(testcase)
+            try:
+                benchmark.go()
+            except KeyboardInterrupt:
+                print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC

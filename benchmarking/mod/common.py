@@ -36,19 +36,36 @@ class bcolors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
-def pdsh(user, nodes, command, force=False):
+def pdsh(user, nodes, command, option="error_check"):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
-#    print('pdsh: %s' % args)
+    #print('pdsh: %s' % args)
+    if option == "force":
+        _subp = subprocess.Popen(args)
+        return _subp
+    if option == "check_return":
+        stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+        return [stdout, stderr]
+    if option == "error_check":
+        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+        stdout, stderr = _subp.communicate()
+        if stderr:
+            print('pdsh: %s' % args)
+            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolor.ENDC
+            sys.exit()
+
+def bash(command, force=False):
+    args = ['bash', '-c', command]
+    print('bash: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if force:
         return [stdout, stderr]
     if stderr:
-        print('pdsh: %s' % args)
-        print "[ERROR]:"+stderr+"\n"
+        print('bash: %s' % args)
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolor.ENDC
         sys.exit()
 
 def scp(user, node, localfile, remotefile):
@@ -57,7 +74,7 @@ def scp(user, node, localfile, remotefile):
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('pdsh: %s' % args)
-        print "[ERROR]:"+stderr+"\n"
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
 
 def rscp(user, node, localfile, remotefile):
@@ -66,6 +83,6 @@ def rscp(user, node, localfile, remotefile):
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('pdsh: %s' % args)
-        print "[ERROR]:"+stderr+"\n"
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
 

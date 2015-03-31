@@ -38,7 +38,7 @@ class CBTAPI:
                 if _benchmark.exists():
                     return False
                 _benchmark.initialize()
-                #_benchmark._run()
+                _benchmark.run()
             iteration += 1
         #_benchmark.cleanup()
 

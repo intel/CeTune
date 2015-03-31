@@ -3,7 +3,7 @@ benchmarks:
     cosbench_dir: /mnt/data/0.4.1.0
     #cosbench_dir: /root/0.4.1.0
     cosbench_xml_dir: /home/cephperf/plugin/cbt/conf/cosbench/
-    controller: cceph01
+    controller: client01
     auth:
       config: username=cosbench:operator;password=intel2012;url=http://192.168.5.251/auth/v1.0;retry=9
     obj_size: [128KB,10MB]

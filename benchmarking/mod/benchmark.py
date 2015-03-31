@@ -33,7 +33,7 @@ class Benchmark(object):
         try:
             self.run()
         except KeyboardInterrupt:
-            print common.bcolors.WARNING + "[WARNING]Caught Signal to Cancel this run" + common.bcolors.ENDC
+            print common.bcolors.WARNING + "[WARNING]Caught Signal to Cancel this run, killing Workload now, pls wait" + common.bcolors.ENDC
             self.stop_workload()
             self.stop_data_collecters()
 
@@ -57,18 +57,6 @@ class Benchmark(object):
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt" % (dest_dir))
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt" % (dest_dir))
-
-    def prepare_result_dir(self):
-        #1. prepare result dir
-        self.get_runid()
-        vdisk = re.sub(r'/dev/',r'dev-',self.benchmark["vdisk"])
-        self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s-%s" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"], vdisk)
-        self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
-        self.benchmark["dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
-        if os.path.exists(self.benchmark["dir"]):
-            print common.bcolors.FAIL + "[ERROR]Output DIR %s exists" % (self.benchmark["dir"]) + common.bcolors.ENDC
-            sys.exit()
-        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
 
     def prepare_run(self):
         self.stop_data_collecters()
@@ -101,13 +89,14 @@ class Benchmark(object):
         common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
-
+        
     def archive(self):
         user = self.cluster["user"]
         head = self.cluster["head"]
         dest_dir = self.benchmark["dir"]
         #collect all.conf
-        common.rscp(user, node, "%s/%s/" % (dest_dir, head), "../conf/all.conf")
+        
+        common.rscp(user, head, "%s/" % (dest_dir), "%s/../conf/all.conf" % os.getcwd())
         #collect osd data
         for node in self.cluster["osd"]:
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
@@ -122,17 +111,17 @@ class Benchmark(object):
         #2. clean running process
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
-        common.pdsh(user, nodes, "killall -9 top", True)
-        common.pdsh(user, nodes, "killall -9 fio", True)
-        common.pdsh(user, nodes, "killall -9 sar", True)
-        common.pdsh(user, nodes, "killall -9 iostat", True)
+        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "killall -9 top", True)
-        common.pdsh(user, nodes, "killall -9 fio", True)
-        common.pdsh(user, nodes, "killall -9 sar", True)
-        common.pdsh(user, nodes, "killall -9 iostat", True)
+        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
 
     def tuning(self):
         pass
