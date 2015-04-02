@@ -2,11 +2,12 @@
 import yaml
 import sys
 import os
-from subprocess import *
+import subprocess
 import re
 import socket
 import argparse
 import cbt_api
+import types
 
 def get_list( string ):
     res = []
@@ -19,6 +20,15 @@ def get_list( string ):
 
 def get_len( string ):
     return len(string.split(","))
+
+def bash(command, force=False):
+    args = ['bash', '-c', command]
+    #print('bash: %s' % args)
+    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    return [stdout, stderr]
+
+def check_dependency():
+    pass
 
 class ConfigHub:
     all_conf_data = {}
@@ -86,6 +96,8 @@ if __name__ == '__main__':
         help = 'specify the cbt config path, default using cbt/tmp.yaml  ',
         )
     args = parser.parse_args()
+    if args.operation == "check":
+        check_dependency()
     if args.operation == "deploy":
         if args.engine == "cbt" or args.engine == "CBT":
             yaml_file = "tmp.1.yaml"

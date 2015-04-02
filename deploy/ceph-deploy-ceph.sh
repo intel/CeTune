@@ -15,6 +15,19 @@ function install-ceph-dev-pkg {
     esac
 }
 
+function install-sysmetrics-collecter-pkg {
+    host=$1
+    release_type=$2
+    case $release_type in
+        CentOS)
+            ssh $host "yum -y sysstat"
+        ;;
+        Ubuntu)
+            ssh $host "apt-get -y sysstat"
+        ;;
+    esac
+}
+
 . ../conf/all.conf
 #create a cluster so that you can use ceph-deploy to install ceph
 servers=`echo "$deploy_mon_servers,$deploy_osd_servers,$deploy_mds_servers,$deploy_rbd_nodes" | sed 's/,/\n/g' | sort -u | sed 's/\n/ /g'`
@@ -24,14 +37,15 @@ echo "start Install ceph $deploy_ceph_version"
 for host in $servers
 do
     if [ ! -z $host ];then
+        if [  -z ${deploy_ceph_version} ]; then
+            continue
+        fi
         ceph_v=`ssh $host ceph -v | grep version`
         if [ ! -z "$ceph_v" ];then 
             echo $host is already installed ceph, $ceph_v
-	    continue
-        fi
-        echo "Install ceph package on $host"
-        is_client=`echo $deploy_rbd_nodes | grep $host`
-        if [ ! -z ${deploy_ceph_version} ]; then
+        else
+            echo "Install ceph package on $host"
+            is_client=`echo $deploy_rbd_nodes | grep $host`
             param=`echo ${deploy_ceph_version} | awk -F: '{print $1}'`
             version=`echo ${deploy_ceph_version} | awk -F: '{print $2}'`
             case $param in
@@ -50,12 +64,13 @@ do
                     error_check
                 ;;
             esac
-            if [ ! -z "$is_client" ];then 
-	        release_type=`lsb_release -i | awk -F: '{print $2}'`
-	        release_codename=`lsb_release -c | awk -F: '{print $2}'`
-                install-ceph-dev-pkg $host $release_type
-            fi
         fi
+	release_type=`lsb_release -i | awk -F: '{print $2}'`
+        if [ ! -z "$is_client" ];then 
+	    release_codename=`lsb_release -c | awk -F: '{print $2}'`
+            install-ceph-dev-pkg $host $release_type
+        fi
+        install-sysmetrics-collecter-pkg $host $release_type
     fi
 done
 
