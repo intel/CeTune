@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . ../conf/common.sh
-  
+
 function usage_exit {
     echo -e "usage:\n\t $0 {-h|{install|deploy|purge|remove-deploy|gen-cephconf} [mon|osd|mds]."
     exit
@@ -65,7 +65,7 @@ case $1 in
                 ;;
                 osd)
                     cd deploy
-                    bash ceph-deploy-osd.sh
+                    env `get_conf_with_dash ../conf/all.conf` bash ceph-deploy-osd.sh
                     cd ..
                 ;;
                 add-more-osd)
@@ -99,7 +99,7 @@ case $1 in
                     cd deploy
                     bash gen_ceph_conf.sh
                     echo "Please check the new ceph.conf, do you want to continue deploy ceph?"
-                    if [ "`interact`" = "true" ]; then   
+                    if [ "`interact`" = "true" ]; then
                         cp ceph.conf.new /etc/ceph/ceph.conf
                         mkcephfs -a -c ceph.conf --mkfs
                     else

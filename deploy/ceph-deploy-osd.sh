@@ -20,7 +20,11 @@ function do_deploy_osd {
     for host in $osd_host_list
     do
         echo "============start create osds on host $host============"
-        disk=$(eval echo \$$host)
+        if [ ! -z "`echo "$host" | grep '-'`" ]; then
+            disk=`get_val_from_conf $host`
+        else
+            disk=$(eval echo \${$host})
+        fi
         osd_list=`echo $disk | sed 's/,/ /g'`
         for item in $osd_list
         do
@@ -81,7 +85,11 @@ function do_deploy_osd_add {
     for host in $osd_host_list
     do
         echo "============start add osds on host $host============"
-        disk=$(eval echo \$$host)
+        if [ ! -z "`echo "$host" | grep '-'`" ]; then
+            disk=`get_val_from_conf $host`
+        else
+            disk=$(eval echo \${$host})
+        fi
         osd_list=`echo $disk | sed 's/,/ /g'`
         for item in $osd_list
         do
@@ -120,7 +128,7 @@ function do_deploy_osd_add {
 
 
 create_pattern=0
-if [ $# -eq 1 -a $1 == '-a' ];then
+if [ $# -eq 1 -a $1 == '-a' ]; then
     create_pattern=1
 elif [ $# -eq 1 ] && [ $1 == '-h' -o $1 == '--help' ];then
     echo -e "Usage:\n\tbash ceph-deploy-osd.sh\n\tbash ceph-deploy-osd.sh -a"
