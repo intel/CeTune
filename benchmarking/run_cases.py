@@ -41,3 +41,10 @@ if __name__ == '__main__':
                 benchmark.go()
             except KeyboardInterrupt:
                 print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+    if args.engine == "fiocephfs":
+	for testcase in testcase_list:
+	    benchmark = fiocephfs.FioCephFS(testcase)
+	    try:
+		benchmark.go()
+	    except KeyboardInterrupt:
+		print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC

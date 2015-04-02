@@ -27,6 +27,14 @@ class Config():
         else:
             print "%s not defined in all.conf" % key
             sys.exit()
+    def get_list(self,key):
+	if key in self.all_conf_data:
+	    if type(self.all_conf_data[key]) == str:
+		return [self.all_conf_data[key]]
+	    else:
+		return self.all_conf_data[key]
+	else:
+	    print "%s not defined in all.conf" % key
 
 class bcolors:
     HEADER = '\033[95m'
@@ -54,7 +62,7 @@ def pdsh(user, nodes, command, option="error_check"):
         stdout, stderr = _subp.communicate()
         if stderr:
             print('pdsh: %s' % args)
-            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolor.ENDC
+            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
             sys.exit()
 
 def bash(command, force=False):
@@ -65,7 +73,7 @@ def bash(command, force=False):
         return [stdout, stderr]
     if stderr:
         print('bash: %s' % args)
-        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolor.ENDC
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
 
 def scp(user, node, localfile, remotefile):
