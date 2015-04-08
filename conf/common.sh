@@ -148,6 +148,13 @@ function check_post_processing {
     fi
 }
 
+function mytest {
+    echo "$1 $2 $3"
+}
 #uuid_to_fstab KVSceph01
 #uuid_to_fstab KVSceph02
 #os_disk_check client01 /dev/sdb
+if [ '$#' != '0' ]; then
+    echo $@
+     `echo $@`
+fi

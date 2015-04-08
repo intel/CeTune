@@ -9,7 +9,12 @@ for mon in $deploy_mon_servers
 do
     echo "[mon."$mon"]" >> $new_conf
     echo "    host = "$mon >> $new_conf
-    echo "    mon addr = "`get_host_ip $mon` >> $new_conf
+    public_addr=`print_user_ceph_conf | grep "public network\|public_network"`
+    if [ ! -z "$public_addr" ]; then
+        public_addr=`echo $public_addr | awk -F= '{print $2}'`
+        search_kw=`get_subnet $public_addr`
+        echo "    mon addr = "`get_host_ip $mon $search_kw` >> $new_conf
+    fi
 done
 index=0
 osd_disk_list=`echo $deploy_osd_servers | sed 's/,/ /g'`

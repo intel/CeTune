@@ -1,0 +1,38 @@
+[global]
+    auth_service_required = none
+    auth_client_required = none
+    auth_cluster_required = none
+    mon_data = /var/lib/ceph/ceph.$id
+    osd_data = /var/lib/ceph/mnt/osd-device-$id-data
+
+    debug_lockdep = 0/0
+    debug_context = 0/0
+    debug_crush = 0/0
+    debug_buffer = 0/0
+    debug_timer = 0/0
+    debug_filer = 0/0
+    debug_objecter = 0/0
+    debug_rados = 0/0
+    debug_rbd = 0/0
+    debug_journaler = 0/0
+    debug_objectcatcher = 0/0
+    debug_client = 0/0
+    debug_osd = 0/0
+    debug_optracker = 0/0
+    debug_objclass = 0/0
+    debug_filestore = 0/0
+    debug_journal = 0/0
+    debug_ms = 0/0
+    debug_monc = 0/0
+    debug_tp = 0/0
+    debug_auth = 0/0
+    debug_finisher = 0/0
+    debug_heartbeatmap = 0/0
+    debug_perfcounter = 0/0
+    debug_asok = 0/0
+    debug_throttle = 0/0
+    debug_mon = 0/0
+    debug_paxos = 0/0
+    debug_rgw = 0/0
+[client]
+    rbd cache = false

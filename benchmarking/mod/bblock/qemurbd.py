@@ -4,6 +4,7 @@ class QemuRbd(Benchmark):
     def __init__(self, testcase):
         super(self.__class__, self).__init__(testcase)
         self.cluster["vclient"] = self.all_conf_data.get("list_vclient")
+        self.benchmark["vdisk"] = self.all_conf_data.get("run_file")
 
         rbd_num_per_client = self.cluster["rbd_num_per_client"]
         instance_list = self.cluster["vclient"]
@@ -24,28 +25,38 @@ class QemuRbd(Benchmark):
     def prerun_check(self):
         #1. check is vclient alive
         user = self.cluster["user"]
+        vdisk = self.benchmark["vdisk"]
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             common.pdsh(user, nodes, "fio -v")
+            res = common.pdsh(user, nodes, "df %s" % vdisk)
             common.pdsh(user, nodes, "mpstat")
             
     def run(self):
         super(self.__class__, self).run() 
         user = self.cluster["user"]
-        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
 
         #1. send command to vclient
         nodes = []
         for client in self.benchmark["distribution"]:
             nodes.extend(self.benchmark["distribution"][client])
+        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (waittime, dest_dir))
 
-        print common.bcolors.OKGREEN + "[LOG]FIO Jobs starts on %s" % str(nodes) + common.bcolors.ENDC
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf > /dev/null" % (dest_dir, self.benchmark["section_name"], dest_dir))
+        for node in nodes:
+            common.pdsh(user, [node], "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf > /dev/null" % (dest_dir, self.benchmark["section_name"], dest_dir), option = "force")
+
+        time.sleep(1)
+        res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
+        if res and not len(res[0].split('\n')) >= 2*len(nodes):
+            print common.bcolors.FAIL + "[ERROR]Failed to start FIO process" + common.bcolors.ENDC
+            raise KeyboardInterrupt
+            print common.bcolors.OKGREEN + "[LOG]FIO Jobs starts on %s" % str(nodes) + common.bcolors.ENDC
+        time.sleep(waittime)
         
     def cleanup(self):
         super(self.__class__, self).cleanup()

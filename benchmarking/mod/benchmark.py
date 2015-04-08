@@ -22,7 +22,7 @@ class Benchmark(object):
 
     def go(self):
         self.prepare_result_dir()
-        print "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"])
+        print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
 
         print common.bcolors.OKGREEN + "[LOG]Prepare Status: Do prerun_check and distribute config files" + common.bcolors.ENDC
         self.cal_run_job_distribution()
@@ -41,6 +41,9 @@ class Benchmark(object):
         self.after_run()
         self.archive()
         self.set_runid()
+
+        print common.bcolors.OKGREEN + "[LOG]Post Process Result Data" + common.bcolors.ENDC
+        common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"])
         
     def after_run(self):
         #1. check workload stoped

@@ -36,7 +36,7 @@ case $1 in
         ;;
     run)
         if [ "$#" -eq 1 ];then
-            echo -e "bash benchmarking-ceph.sh $1 --engine qemu/fiorbd/fiocephfs --type all/single"
+            echo -e "bash benchmarking-ceph.sh $1 --engine qemurbd/fiorbd/fiocephfs --type all/single"
             exit 1
         elif [ "$#" -ne 5 ];then
             echo "Wrong number of parameter! Please check your input!"
@@ -60,9 +60,10 @@ case $1 in
                     ;;
             esac
         done
-        if [ "${lengine}" == 'qemu' -o "${lengine}" == 'fiorbd' -o "${lengine}" == 'fiocephfs' ] && [ "${ltype}" == 'single' -o "${ltype}" == 'all' ];then
+        if [ "${lengine}" == 'qemurbd' -o "${lengine}" == 'fiorbd' -o "${lengine}" == 'fiocephfs' ] && [ "${ltype}" == 'single' -o "${ltype}" == 'all' ];then
             cd benchmarking
-            bash run_cases.sh ${ltype} ${lengine}
+            #bash run_cases.sh ${ltype} ${lengine}
+            python run_cases.py --runtype ${ltype} --engine ${lengine}
             cd ..
         else
             echo "Wrong input! Please check your input!"

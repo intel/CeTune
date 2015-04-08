@@ -54,7 +54,7 @@ def pdsh(user, nodes, command, option="error_check"):
         stdout, stderr = _subp.communicate()
         if stderr:
             print('pdsh: %s' % args)
-            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolor.ENDC
+            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
             sys.exit()
 
 def bash(command, force=False):
@@ -65,12 +65,12 @@ def bash(command, force=False):
         return [stdout, stderr]
     if stderr:
         print('bash: %s' % args)
-        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolor.ENDC
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', localfile, '%s@%s:%s' % (user, node, remotefile)]
-#   print('scp: %s' % args)
+    print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('pdsh: %s' % args)
@@ -79,7 +79,7 @@ def scp(user, node, localfile, remotefile):
 
 def rscp(user, node, localfile, remotefile):
     args = ['scp', '%s@%s:%s' % (user, node, remotefile), localfile]
-#    print('scp: %s' % args)
+    print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('pdsh: %s' % args)

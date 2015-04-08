@@ -1,4 +1,6 @@
 #!/bin/bash
+
+. ../conf/common.sh
   
 function usage_exit {
     echo -e "usage:\n\t $0 {-h|{install|deploy|purge|remove-deploy|gen-cephconf} [mon|osd|mds]."
@@ -21,7 +23,7 @@ case $1 in
         ;;
     deploy)
         if [ "$#" -ne 5 ];then
-            echo -e "bash benchmarking-ceph.sh $1 --engine cbt/ceph-deploy/mkcephfs --type all/mon/osd"
+            echo -e "bash $0 $1 --engine cbt/ceph-deploy/mkcephfs --type all/mon/osd"
             exit 1
         fi
         shift 1
@@ -45,14 +47,15 @@ case $1 in
         if [ "$lengine" = "cbt" ] || [ "$lengine" = "CBT" ]; then
             if [ "$ltype" != "all" ]; then
                 echo "Only support deploy mon and osd at same time now, please enter: "
-                echo "bash benchmarking-ceph.sh $1 --engine cbt --type all"
+                echo `get_conf`" bash $0 $1 --engine cbt --type all"
                 exit 1
             fi
             cd deploy
             bash gen_ceph_conf.sh
-            cp ceph.conf.new ../plugin/ceph.conf
+            mv ceph.conf.new ../plugin/ceph.conf
             cd ../plugin
             python plugin.py --engine cbt deploy
+            cd ..
         elif [ "$lengine" = "ceph-deploy" ]; then
             case $ltype in
                 mon)

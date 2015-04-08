@@ -1,8 +1,5 @@
 #!/bin/bash
 
-. ../conf/common.sh
-get_conf
-
 function translate_id {
     host=$1
     item_id=$2

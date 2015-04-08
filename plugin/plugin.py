@@ -38,7 +38,10 @@ class ConfigHub:
         with open("../conf/all.conf", "r") as f:
             for line in f:
                 if( not re.search('^#', line) ):
-                    key, value = line.split("=")
+                    try:
+                        key, value = line.split("=")
+                    except:
+                        print line
                     if( value[-1] == '\n' ):
                         self.all_conf_data[key] = value[:-1]
                     else:
@@ -50,7 +53,7 @@ class ConfigHub:
 
     def copy_all_to_yaml( self ):
         self.yaml_data["cluster"] = {}
-        self.yaml_data["cluster"]["head"] =  os.getenv('HOSTNAME')
+        self.yaml_data["cluster"]["head"] =  self.all_conf_data["head"]
         self.yaml_data["cluster"]["clients"] = get_list( self.all_conf_data["deploy_rbd_nodes"] )
         self.yaml_data["cluster"]["osds"] = get_list( self.all_conf_data["deploy_osd_servers"] )
         self.yaml_data["cluster"]["mons"] = {}
@@ -66,10 +69,11 @@ class ConfigHub:
         self.yaml_data["cluster"]["mkfs_opts"] = "-f -i size=2048 -n size=64k"        
         self.yaml_data["cluster"]["mount_opts"] = "-o inode64,noatime,logbsize=256k"
         self.yaml_data["cluster"]["conf_file"] = "ceph.conf"
-        self.yaml_data["cluster"]["tmp_dir"] = "/tmp/cbt"
+        self.yaml_data["cluster"]["tmp_dir"] = "/var/lib/ceph"
         self.yaml_data["cluster"]["use_existing"] = True
+        self.yaml_data["cluster"]["iterations"] = 1
         self.yaml_data["benchmarks"] = {}
-        self.yaml_data["benchmarks"]["radosbench"] = {}
+        self.yaml_data["benchmarks"]["librbdfio"] = {}
     
     def load_yaml_conf(self, cbt_yaml):
         config = self.yaml_data
@@ -115,4 +119,4 @@ if __name__ == '__main__':
             else:
                 yaml_file = "tmp.1.yaml"
             _cbt_api = cbt_api.CBTAPI( yaml_file )
-            _cbt_api.run_benchmark("cosbench")
+            _cbt_api.run_benchmark()
