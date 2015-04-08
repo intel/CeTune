@@ -16,7 +16,6 @@ class Benchmark(object):
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
         self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
-	self.cluster["fiocephfs_dir"] = self.all_conf_data.get("fio_for_libcephfs_dir")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
@@ -147,14 +146,15 @@ class Benchmark(object):
 
     def testjob_distribution(self, rbd_num_per_client, instance_list):
         start_vclient_num = 0
-        client_num = 0 
+        client_num = 0
         self.cluster["testjob_distribution"] = {}
         for client in self.cluster["client"]:
             vclient_total = int(rbd_num_per_client[client_num])
             end_vclient_num = start_vclient_num + vclient_total
             self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
             start_vclient_num = end_vclient_num
-            client_num += 1
+            client_num += 1 
+        print self.cluster["testjob_distribution"]
 
     def cal_run_job_distribution(self):
          number = int(self.benchmark["instance_number"])
@@ -165,13 +165,12 @@ class Benchmark(object):
               volume_max_per_client = number / client_total
          
          self.benchmark["distribution"] = {}
-	 client_num = 0
+	 remained_instance_num = number
          for client in self.cluster["testjob_distribution"]:
-	     if  volume_max_per_client <= int(rbd_num_per_client[client_num]):
-	         volume_num_upper_bound = volume_max_per_client
-	     else:
-		 volume_num_upper_bound = int(rbd_num_per_client[client_num])
-
+             if remained_instance_num < volume_max_per_client:
+                 volume_num_upper_bound = remained_instance_num
+             else:
+                 volume_num_upper_bound = volume_max_per_client
              self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
-	     client_num += 1
-         
+             remained_instance_num = remained_instance_num - volume_num_upper_bound
+         print self.benchmark["distribution"] 

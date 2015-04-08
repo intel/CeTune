@@ -3,6 +3,7 @@ from ..benchmark import *
 class FioCephFS(Benchmark):
     def __init__(self, testcase):
         super(self.__class__, self).__init__(testcase)
+	self.cluster["fiocephfs_dir"] = self.all_conf_data.get("fio_for_libcephfs_dir")
 
     def prepare_result_dir(self):
         #1. prepare result dir
