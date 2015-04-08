@@ -121,11 +121,11 @@ cat <<EOF >> ../conf/fio.conf
   runtime=$rt
   iodepth_batch_submit=$ibs
   iodepth_batch_complete=$ibc
-  $capping
 EOF
 if [ ${dd} == 'fiorbd' ];then
     ioengine=rbd
     cat <<EOF >>../conf/fio.conf
+  $capping
   ioengine=$ioengine
   clientname=admin
   pool=\${POOLNAME}
@@ -141,6 +141,7 @@ EOF
 else
     ioengine=libaio
     cat <<EOF >>../conf/fio.conf
+  $capping
   size=$s
   ioengine=${ioengine}
   filename=$disk

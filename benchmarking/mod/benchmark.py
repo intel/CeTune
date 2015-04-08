@@ -16,9 +16,10 @@ class Benchmark(object):
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
         self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
-        self.cluster["client"] = self.all_conf_data.get("list_client")
-        self.cluster["osd"] = self.all_conf_data.get("list_ceph")
-        self.cluster["rbd_num_per_client"] = self.all_conf_data.get("rbd_num_per_client")
+	self.cluster["fiocephfs_dir"] = self.all_conf_data.get("fio_for_libcephfs_dir")
+        self.cluster["client"] = self.all_conf_data.get_list("list_client")
+        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
+        self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
 
     def go(self):
         self.prepare_result_dir()
@@ -164,6 +165,13 @@ class Benchmark(object):
               volume_max_per_client = number / client_total
          
          self.benchmark["distribution"] = {}
+	 client_num = 0
          for client in self.cluster["testjob_distribution"]:
-             self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_max_per_client])
+	     if  volume_max_per_client <= int(rbd_num_per_client[client_num]):
+	         volume_num_upper_bound = volume_max_per_client
+	     else:
+		 volume_num_upper_bound = int(rbd_num_per_client[client_num])
+
+             self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
+	     client_num += 1
          

@@ -27,6 +27,14 @@ class Config():
         else:
             print "%s not defined in all.conf" % key
             sys.exit()
+    def get_list(self,key):
+	if key in self.all_conf_data:
+	    if type(self.all_conf_data[key]) == str:
+		return [self.all_conf_data[key]]
+	    else:
+		return self.all_conf_data[key]
+	else:
+	    print "%s not defined in all.conf" % key
 
 class bcolors:
     HEADER = '\033[95m'
