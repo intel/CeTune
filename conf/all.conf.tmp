@@ -31,6 +31,10 @@ journal_partition_size=60G
 #
 #=====================TEST DEPLOY=====================
 #list_vclient=vclient01,vclient02,vclient03,vclient04,vclient05,vclient06,vclient07,vclient08,vclient09,vclient10,vclient11,vclient12,vclient13,vclient14,vclient15,vclient16,vclient17,vclient18,vclient19,vclient20
+head=client01
+tmp_dir=/opt
+fio_for_libcephfs_dir=/opt
+user=root
 list_client=client01,client02
 list_ceph=aceph01,aceph02,aceph03,aceph04
 list_nic=aceph01:eth2,aceph02:eth2,aceph03:eth2,aceph04:eth2

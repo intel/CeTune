@@ -1,18 +1,13 @@
 from ..benchmark import *
 
-class FioRbd(Benchmark):
+class FioCephFS(Benchmark):
     def __init__(self, testcase):
         super(self.__class__, self).__init__(testcase)
-        self.cluster["rbdlist"] = self.get_rbd_list()
-
-        rbd_num_per_client = self.cluster["rbd_num_per_client"]
-        instance_list = self.cluster["rbdlist"]
-        self.testjob_distribution(rbd_num_per_client, instance_list)
 
     def prepare_result_dir(self):
         #1. prepare result dir
         self.get_runid()
-        self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s-fiorbd" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
+        self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s-fiocephfs" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
         self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
         self.benchmark["dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
 	
@@ -20,25 +15,18 @@ class FioRbd(Benchmark):
 	if not res[1]:
             print common.bcolors.FAIL + "[ERROR]Output DIR %s exists" % (self.benchmark["dir"]) + common.bcolors.ENDC
             sys.exit()
-
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
-
-    def get_rbd_list(self):
-        res = common.bash("rbd ls", True)
-        if res[1]:
-            print common.bcolors.FAIL + "[ERROR]unable get rbd list, return msg: %s" % res[1] + common.bcolors.ENDC
-            sys.exit()
-        rbd_list_tmp = res[0].split()
-        return rbd_list_tmp
 
     def prerun_check(self):
         #1. check is vclient alive
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "fio -v")
-        res = common.pdsh(user, nodes, "fio -enghelp | grep rbd", option = "check_return")
+	fio_dir = self.cluster["fiocephfs_dir"]
+        common.pdsh(user, nodes, "%s/fio -v" % fio_dir )
+        res = common.pdsh(user, nodes, "%s/fio -enghelp | grep cephfs" % fio_dir, option = "check_return")
         if res and not res[0]:
-            print common.bcolors.FAIL + "[ERROR]FIO rbd engine not installed" + common.bcolors.ENDC
+            print common.bcolors.FAIL + "[ERROR]FIO cephfs engine not installed" + common.bcolors.ENDC
+	    print "You can get the source code of fiocephfs from: https://github.com/noahdesu/fio.git"
             sys.exit()
      
     def run(self):
@@ -46,11 +34,12 @@ class FioRbd(Benchmark):
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
+	fio_dir = self.cluster["fiocephfs_dir"]
 
         nodes = self.benchmark["distribution"].keys()
         for client in self.benchmark["distribution"]:
-            rbdlist = ' '.join(self.benchmark["distribution"][client])
-            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, 'rbd', dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")         
+	    max_instance_num = self.benchmark["distribution"][client][-1]
+            res = common.pdsh(user, [client], "for job_num in `seq 0 %d`; do %s/fio --output %s/`hostname`_${job_num}_fio.txt --write_bw_log=%s/`hostname`_${job_num}_fio --write_lat_log=%s/`hostname`_${job_num}_fio --write_iops_log=%s/`hostname`_${job_num}_fio --section %s --filename=`hostname`.${job_num} %s/fio.conf 2>%s/`hostname`_${job_num}_fio_errorlog.txt & done" % (max_instance_num, fio_dir, dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir, ), option = "force")         
             time.sleep(1)
             res = common.pdsh(user, [client], "pgrep fio", option = "check_return")
             if res and not len(res[0].split('\n')) >= len(self.benchmark["distribution"][client]):
@@ -89,3 +78,14 @@ class FioRbd(Benchmark):
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+    
+    def testjob_distribution(self):
+        pass
+
+    def cal_run_job_distribution(self):
+        number = int(self.benchmark["instance_number"])
+        client_total = len(self.cluster["client"])
+	instance_per_client = number/client_total + (number % client_total > 0 )
+        self.benchmark["distribution"] = {}
+	for client in self.cluster["client"]:
+	    self.benchmark["distribution"][client] = range(instance_per_client)
