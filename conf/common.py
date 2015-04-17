@@ -78,24 +78,24 @@ def pdsh(user, nodes, command, option="error_check"):
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
-    print('pdsh: %s' % args)
-#    if option == "force":
-#        _subp = subprocess.Popen(args)
-#        return _subp
-#    if option == "check_return":
-#        stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
-#        return [stdout, stderr]
-#    if option == "error_check":
-#        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-#        stdout, stderr = _subp.communicate()
-#        if stderr:
-#            print('pdsh: %s' % args)
-#            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
-#            sys.exit()
+    #print('pdsh: %s' % args)
+    if option == "force":
+        _subp = subprocess.Popen(args)
+        return _subp
+    if option == "check_return":
+        stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+        return [stdout, stderr]
+    if option == "error_check":
+        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+        stdout, stderr = _subp.communicate()
+        if stderr:
+            print('pdsh: %s' % args)
+            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+            sys.exit()
 
 def bash(command, force=False):
     args = ['bash', '-c', command]
-    print('bash: %s' % args)
+    #print('bash: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if force:
         return [stdout, stderr]
@@ -106,21 +106,21 @@ def bash(command, force=False):
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', localfile, '%s@%s:%s' % (user, node, remotefile)]
-    print('scp: %s' % args)
-#    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
-#    if stderr:
-#        print('pdsh: %s' % args)
-#        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
-#        sys.exit()
+    #print('scp: %s' % args)
+    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    if stderr:
+        print('scp: %s' % args)
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+        sys.exit()
 
 def rscp(user, node, localfile, remotefile):
     args = ['scp', '%s@%s:%s' % (user, node, remotefile), localfile]
-    print('scp: %s' % args)
-#    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
-#    if stderr:
-#        print('pdsh: %s' % args)
-#        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
-#        sys.exit()
+    #print('rscp: %s' % args)
+    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    if stderr:
+        print('rscp: %s' % args)
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+        sys.exit()
 
 def load_yaml_conf(yaml_path):
     config = {}
@@ -172,7 +172,7 @@ def format_pdsh_return(pdsh_res):
         formatted_output[node].append(output)
     output = {}
     for node in formatted_output:
-        output[node] = " ".join(formatted_output[node])
+        output[node] = "\n".join(formatted_output[node])
         try:
             output[node] = json.loads(output[node], object_hook=_decode_dict)
         except:
