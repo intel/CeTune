@@ -36,3 +36,8 @@
     debug_rgw = 0/0
 [client]
     rbd cache = false
+[client.radosgw.gateway]
+    host = client01
+    keyring = /etc/ceph/keyring.radosgw.gateway
+    rgw socket path = /var/run/ceph/ceph.radosgw.gateway.fastcgi.sock
+    log file = /var/log/ceph/radosgw.log

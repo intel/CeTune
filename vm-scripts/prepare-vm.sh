@@ -96,7 +96,7 @@ function main {
         vm_num=$(( vm_num + 1 ))
         if [ "$vm_num" = "$vm_num_per_client" ];then
             vm_num=0
-    	cpuset=$cpuset_start
+    	    cpuset=$cpuset_start
         fi
         mac_address_fix=$(( $mac_address_fix + 1 ))
     

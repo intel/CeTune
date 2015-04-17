@@ -21,6 +21,11 @@ case $1 in
         cd deploy
         bash ceph-deploy-ceph.sh
         ;;
+    redeploy)
+        cd deploy
+        python deploy.py redeploy
+        cd ..
+        ;;
     deploy)
         if [ "$#" -ne 5 ];then
             echo -e "bash $0 $1 --engine cbt/ceph-deploy/mkcephfs --type all/mon/osd"

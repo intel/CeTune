@@ -7,7 +7,7 @@ import re
 
 class Benchmark(object):
     def __init__(self, testcase):
-        self.all_conf_data = common.Config()
+        self.all_conf_data = common.Config("../conf/all.conf")
         self.benchmark = {}
         self.benchmark = copy.deepcopy(testcase)
 
