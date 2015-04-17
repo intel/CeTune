@@ -11,14 +11,31 @@ servers=`echo "$deploy_mon_servers,$deploy_osd_servers,$deploy_mds_servers,$depl
 for host in $servers
 do
     echo "============Settings on $host============"
-    echo "/etc/apt/apt.conf"
-    ssh $host cat /etc/apt/apt.conf | grep -v "#"
-    echo ""
-    echo "/etc/apt/sources.list"
-    ssh $host cat /etc/apt/sources.list | grep -v "#"
-    echo ""
+    ssh $host apt-get update
+    statu=$?
+    echo $statu
+    if [ $statu -gt 0 ]
+       then
+       flag_1=1
+       host_apt_proxy_down=${host_apt_proxy_down}" "${host}
+    fi
     echo "/etc/wgetrc"
-    ssh $host cat /etc/wgetrc | sed '/^$/d' | grep -v "#"
+#   ssh $host cat /etc/wgetrc | sed '/^$/d' | grep -v "#"
     ssh $host wget ceph.com
+    if [ $? -gt 0 ]
+        then
+        flag_2=1
+        host_wget_proxy_down=${host_wget_proxy_down}" "${host}
+    fi
     ssh $host rm index.html
 done
+    if [ ${flag_1} -eq 1 ]
+        then
+        echo "the proxy of ${host_apt_proxy_down} is unvaliable,you need to edit /etc/apt/apt.conf, /etc/environment or /etc/yum.conf"
+       echo ""
+    fi
+    if [ ${flag_2} -eq 1 ]
+        then
+        echo "the proxy in /etc/wgetrc of ${host_wget_proxy_down} is unvaliable"
+        echo ""
+   fi
