@@ -33,7 +33,7 @@ def check_dependency():
 class ConfigHub:
     all_conf_data = {}
     yaml_data = {}
-    
+
     def load_all_conf( self ):
         with open("../conf/all.conf", "r") as f:
             for line in f:

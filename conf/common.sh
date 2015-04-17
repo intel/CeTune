@@ -25,17 +25,6 @@ function os_disk_check {
     fi
 }
 
-function get_conf {
-    if [ ! -z $1 ]; then
-        conf=$1
-    fi 
-    line_num=`awk 'BEGIN{line_num = 0}{if(!line_num && $0=="[ceph_conf]")line_num = NR}END{if(!line_num)line_num=NR; print line_num}' $conf`
-    line_num=`expr $line_num - 1`
-    head -$line_num $conf >> all.conf.tmp
-    source all.conf.tmp
-    rm all.conf.tmp
-}
-
 function print_user_ceph_conf {
     awk 'BEGIN{p=0}{if(p==1){print $0};if($0=="[ceph_conf]")p=1;}' $conf
 }
@@ -50,18 +39,43 @@ function copy_to_conf {
             res=`grep "$line" ceph.conf`
             if [ -z "$res" ]; then
                 echo $line >> ../deploy/ceph.conf
-            fi
+            fi  
         done
     else
 
         print_user_ceph_conf | while read line
         do
-	    res=`grep "$line" ceph.conf`
+            res=`grep "$line" ceph.conf`
             if [ -z "$res" ]; then
                 echo $line >> ../deploy/ceph.conf
-	    fi
+            fi  
         done
-    fi
+    fi  
+}
+
+function get_conf {
+    if [ ! -z $1 ]; then
+        conf=$1
+    fi 
+    line_num=`awk 'BEGIN{line_num = 0}{if(!line_num && $0=="[ceph_conf]")line_num = NR}END{if(!line_num)line_num=NR; print line_num}' $conf`
+    line_num=`expr $line_num - 1`
+    head -$line_num $conf | grep -v "-" >> all.conf.tmplate
+    source all.conf.tmplate
+    rm all.conf.tmplate
+}
+
+function get_val_from_conf {
+    if [ ! -z $2 ]; then
+        conf=$2
+    fi 
+    echo `grep -e "^$1" $conf | awk -F= '{print $2}'`
+}
+
+function get_conf_with_dash {
+    if [ ! -z $1 ]; then
+        conf=$1
+    fi 
+    echo `grep "-" $conf | grep -v "#" | sed 's/\n//g'`
 }
 
 function get_host_ip {
