@@ -4,61 +4,61 @@ conf_path="/etc/ceph/ceph.conf"
 # username for all host
 deploy_username=ceph
 # ceph stable version
-deploy_ceph_version=dev:master
+deploy_ceph_version=hammer
 # monitor servers , splited by ','
 deploy_mon_servers=aceph01
 # osds servers, splited by ','
-deploy_osd_servers=aceph01,aceph02,aceph03,aceph04
+deploy_osd_servers=aceph01,aceph02
 # mds servers, splited by ','
 #deploy_mds_servers=aceph01
 # rbd clients, split by ','
-deploy_rbd_nodes=client01,client02
+deploy_rbd_nodes=ceph-client1
 # osd-journal list , splited by ','
 #aceph01=/dev/sda1:/dev/sdb1,/dev/sdd1:/dev/sdb2,/dev/sde1:/dev/sdb3,/dev/sdf1:/dev/sdb4,/dev/sdg1:/dev/sdb5,/dev/sdh1:/dev/sdc1,/dev/sdj1:/dev/sdc2,/dev/sdk1:/dev/sdc3,/dev/sdl1:/dev/sdc4,/dev/sdm1:/dev/sdc5
 #aceph02=/dev/sdc1:/dev/sda1,/dev/sdd1:/dev/sda2,/dev/sde1:/dev/sda3,/dev/sdf1:/dev/sda4,/dev/sdg1:/dev/sda5,/dev/sdh1:/dev/sdb1,/dev/sdj1:/dev/sdb2,/dev/sdk1:/dev/sdb3,/dev/sdl1:/dev/sdb4,/dev/sdm1:/dev/sdb5
 #aceph03=/dev/sdc1:/dev/sda1,/dev/sdd1:/dev/sda2,/dev/sde1:/dev/sda3,/dev/sdf1:/dev/sda4,/dev/sdg1:/dev/sda5,/dev/sdh1:/dev/sdb1,/dev/sdj1:/dev/sdb2,/dev/sdk1:/dev/sdb3,/dev/sdl1:/dev/sdb4,/dev/sdm1:/dev/sdb5
 #aceph04=/dev/sdc1:/dev/sda1,/dev/sdd1:/dev/sda2,/dev/sde1:/dev/sda3,/dev/sdf1:/dev/sda4,/dev/sdg1:/dev/sda5,/dev/sdh1:/dev/sdb1,/dev/sdj1:/dev/sdb2,/dev/sdk1:/dev/sdb3,/dev/sdl1:/dev/sdb4,/dev/sdm1:/dev/sdb5
-aceph01=/dev/sda1:/dev/sdb1,/dev/sdd1:/dev/sdb2,/dev/sde1:/dev/sdb3,/dev/sdf1:/dev/sdb4,/dev/sdg1:/dev/sdb5,/dev/sdh1:/dev/sdc1,/dev/sdj1:/dev/sdc2,/dev/sdk1:/dev/sdc3,/dev/sdl1:/dev/sdc4,/dev/sdm1:/dev/sdc5,/dev/nvme0n1p1:/dev/nvme0n1p5,/dev/nvme0n1p2:/dev/nvme0n1p6,/dev/nvme0n1p3:/dev/nvme0n1p7,/dev/nvme0n1p4:/dev/nvme0n1p8
-aceph02=/dev/sdc1:/dev/sda1,/dev/sdd1:/dev/sda2,/dev/sde1:/dev/sda3,/dev/sdf1:/dev/sda4,/dev/sdg1:/dev/sda5,/dev/sdh1:/dev/sdb1,/dev/sdj1:/dev/sdb2,/dev/sdk1:/dev/sdb3,/dev/sdl1:/dev/sdb4,/dev/sdm1:/dev/sdb5,/dev/nvme0n1p1:/dev/nvme0n1p5,/dev/nvme0n1p2:/dev/nvme0n1p6,/dev/nvme0n1p3:/dev/nvme0n1p7,/dev/nvme0n1p4:/dev/nvme0n1p8
-aceph03=/dev/sdc1:/dev/sda1,/dev/sdd1:/dev/sda2,/dev/sde1:/dev/sda3,/dev/sdf1:/dev/sda4,/dev/sdg1:/dev/sda5,/dev/sdh1:/dev/sdb1,/dev/sdj1:/dev/sdb2,/dev/sdk1:/dev/sdb3,/dev/sdl1:/dev/sdb4,/dev/sdm1:/dev/sdb5,/dev/nvme0n1p1:/dev/nvme0n1p5,/dev/nvme0n1p2:/dev/nvme0n1p6,/dev/nvme0n1p3:/dev/nvme0n1p7,/dev/nvme0n1p4:/dev/nvme0n1p8
-aceph04=/dev/sdc1:/dev/sda1,/dev/sdd1:/dev/sda2,/dev/sde1:/dev/sda3,/dev/sdf1:/dev/sda4,/dev/sdg1:/dev/sda5,/dev/sdh1:/dev/sdb1,/dev/sdj1:/dev/sdb2,/dev/sdk1:/dev/sdb3,/dev/sdl1:/dev/sdb4,/dev/sdm1:/dev/sdb5,/dev/nvme0n1p1:/dev/nvme0n1p5,/dev/nvme0n1p2:/dev/nvme0n1p6,/dev/nvme0n1p3:/dev/nvme0n1p7,/dev/nvme0n1p4:/dev/nvme0n1p8
+#aceph01=/dev/sdc1:/dev/sdi3,/dev/sde1:/dev/sdi4
+aceph01=/dev/sdj1:/dev/sdi1,/dev/sda1:/dev/sdi2
+aceph02=/dev/sdh1:/dev/sdo1,/dev/sdf1:/dev/sdo2
 # osd partition_count on one HDD, and the size( default will use the full disk )
 osd_partition_count=1
-osd_partition_size=2000G
+osd_partition_size=""
 # journal partition_count on one HDD, and the size
-journal_partition_count=5
-journal_partition_size=60G
+journal_partition_count=8
+journal_partition_size=10G
 #
 #=====================TEST DEPLOY=====================
-#list_vclient=vclient01,vclient02,vclient03,vclient04,vclient05,vclient06,vclient07,vclient08,vclient09,vclient10,vclient11,vclient12,vclient13,vclient14,vclient15,vclient16,vclient17,vclient18,vclient19,vclient20
-head=client01
+list_vclient=vclient01,vclient02,vclient03,vclient04,vclient05,vclient06,vclient07,vclient08,vclient09,vclient10
+head=ceph-client1
 tmp_dir=/opt
 fio_for_libcephfs_dir=/opt
 user=root
-list_client=client01,client02
-list_ceph=aceph01,aceph02,aceph03,aceph04
-list_nic=aceph01:eth2,aceph02:eth2,aceph03:eth2,aceph04:eth2
-volume_size=61440
+list_mon=aceph01
+list_client=ceph-client1
+list_ceph=aceph01,aceph02
+list_nic=aceph01:eth2,aceph02:eth2
+volume_size=10240
 # the cpu vm cpupin start with
 cpuset_start=0
 # the max num of vms in each hypervisor/node 
-vm_num_per_client=40
+vm_num_per_client=10
 # img_path_dir
 img_path_dir=/mnt/images
 # ip_prefix
 ip_prefix=192.168.9
 # ip_fix_start , vm will be created from ip_prefix.if_fix, example: if set ip_prefix = 192.168.9; ip_fix = 201, then the first vm ip will be 192.168.9.201, the second vm should be 192.168.9.202 and so on
 ip_fix=201
-vm_image_locate_server=10.239.158.55
+vm_image_locate_server=10.239.158.45
 #
 #=====================TEST PART====================
-rbd_volume_count=40
+rbd_volume_count=1
 # vm # , split by ','
-run_vm_num=80,40,20,10,4,2,1
+run_vm_num=1
 # disk , split by ','
 run_file=/dev/vdb
 # test size , split by ','
-run_size=60g
+run_size=10g
 # io pattern, split by ','
 run_io_pattern=seqwrite,seqread,randwrite,randread
 # record size, split by ','
@@ -74,10 +74,10 @@ dest_dir=/mnt/data/
 # destination directory
 dest_dir_remote_bak=192.168.3.101:/data4/Chendi/ArborValley/v0.91/raw/
 # only used in fio_rbd engine test scenario
-rbd_num_per_client=40,40
+rbd_num_per_client=10
 #====================CEPH CONFIGURATION===================
 [ceph_conf]
-public_network = 10.10.5.0/24
-cluster_network = 10.10.5.0/24
-osd_pool_default_pg_num = 512
-osd_pool_default_pgp_num = 512
+public_network = 172.16.96.0/24
+cluster_network = 172.16.96.0/24
+osd_pool_default_pg_num = 1024
+osd_pool_default_pgp_num = 1024

@@ -48,6 +48,19 @@ if [ "`check_fio_rbd`" = "true" ]; then
     done
     echo "RBD initialization has been started by fio rbd engine,"
     echo "please check 'ceph -s' to see if it is finished"
+    fio_daemon_exist=1
+    while [[ $fio_daemon_exist == 1 ]]
+    do
+        sleep(5)
+        for client in $clients
+        do
+            res=`ssh $client pgrep fio`
+            if [ ! -z $res ]; then
+                continue
+            fi
+        done
+        fio_daemon_exist=0
+    done
 else
     qemurbd=0
     nodes=`echo ${list_vclient} | sed 's/,/ /g'`
@@ -64,6 +77,19 @@ else
     if [ "$qemurbd" = "1" ]; then
         echo "RBD initialization has been started by qemu rbd,"
         echo "please check 'ceph -s' to see if it is finished"
+        fio_daemon_exist=1
+        while [[ $fio_daemon_exist == 1 ]]
+        do
+            sleep(5)
+            for vclient in $nodes
+            do
+                res=`ssh $vclient pgrep fio`
+                if [ ! -z $res ]; then
+                    continue
+                fi
+            done
+            fio_daemon_exist=0
+        done
     else
         echo "Can't detect fio rbd engine or vm in your setup,"
         echo "pls download fio rbd engine from https://github.com/axboe/fio"

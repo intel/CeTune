@@ -1,9 +1,6 @@
 testjob1:
   workstages: ["deploy","benchmark"]
-  benchmark_engine: "qemurbd"
+  benchmark_engine: "fiorbd"
   pool:
     rbd:
-      pg_num: 8192
       size: 2
-  version:
-    ceph_version: "giant"

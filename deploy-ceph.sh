@@ -1,7 +1,5 @@
 #!/bin/bash
 
-. ../conf/common.sh
-  
 function usage_exit {
     echo -e "usage:\n\t $0 {-h|{install|deploy|purge|remove-deploy|gen-cephconf} [mon|osd|mds]."
     exit

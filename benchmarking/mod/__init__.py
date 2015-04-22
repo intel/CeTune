@@ -1,1 +1,1 @@
-__all__ = ['benchmark', 'common', 'bblock', 'bobject', 'bcephfs']
+__all__ = ['benchmark', 'bblock', 'bobject', 'bcephfs']

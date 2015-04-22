@@ -18,12 +18,28 @@ class Deploy:
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["clients"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = {}
-        for osd in self.all_conf_data.get_list("list_ceph"):
-            self.cluster["osds"][osd] = socket.gethostbyname(osd)
-
         self.cluster["mons"] = {}
-        for mon in self.all_conf_data.get_list("list_mon"): 
-            self.cluster["mons"][mon] = socket.gethostbyname(mon)
+        self.cluster["ceph_conf"] = {}
+        self.cluster["ceph_conf"]["global"] = {}
+        if self.all_conf_data.get("ceph_conf"):
+            for key, value in self.all_conf_data.get("ceph_conf").items():
+                self.cluster["ceph_conf"]["global"][key] = value
+
+        pp.pprint(self.cluster["ceph_conf"]["global"])
+        if 'cluster_network' in self.cluster["ceph_conf"]["global"]:
+            subnet = self.cluster["ceph_conf"]["global"]['cluster_network']
+            ip_handler = common.IPHandler()
+            for osd in self.all_conf_data.get_list("list_ceph"):
+                self.cluster["osds"][osd] = ip_handler.getIpByHostInSubnet(osd, subnet)
+            for mon in self.all_conf_data.get_list("list_mon"):
+                self.cluster["mons"][mon] = ip_handler.getIpByHostInSubnet(mon, subnet)
+        else:
+            for osd in self.all_conf_data.get_list("list_ceph"):
+                self.cluster["osds"][osd] = socket.gethostbyname(osd)
+            for mon in self.all_conf_data.get_list("list_mon"): 
+                self.cluster["mons"][mon] = socket.gethostbyname(mon)
+        print self.cluster["osds"]
+        print self.cluster["mons"]
 
         for osd in self.cluster["osds"]:
             self.cluster[osd] = self.all_conf_data.get_list(osd)
@@ -32,16 +48,11 @@ class Deploy:
         self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"        
         self.cluster["mount_opts"] = "-o inode64,noatime,logbsize=256k"
         
-        self.cluster["ceph_conf"] = {}
-        self.cluster["ceph_conf"]["global"] = {}
         self.cluster["ceph_conf"]["global"]["auth_service_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_cluster_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
         self.cluster["ceph_conf"]["global"]["mon_data"] = "/var/lib/ceph/mon.$id"
         self.cluster["ceph_conf"]["global"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
-        if self.all_conf_data.get("ceph_conf"):
-            for key, value in self.all_conf_data.get("ceph_conf").items():
-                self.cluster["ceph_conf"]["global"][key] = value
 
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
@@ -66,8 +77,8 @@ class Deploy:
                 cephconf.append("    host = %s\n" % osd)
                 cephconf.append("    public addr = %s\n" % self.cluster["osds"][osd])
                 cephconf.append("    cluster addr = %s\n" % self.cluster["osds"][osd])
-                cephconf.append("    osd journal = %s\n" % osd_device)
-                cephconf.append("    devs = %s\n" % journal_device)
+                cephconf.append("    osd journal = %s\n" % journal_device)
+                cephconf.append("    devs = %s\n" % osd_device)
         output = "".join(cephconf)
         with open("../conf/ceph.conf", 'w') as f:
             f.write(output)
@@ -158,9 +169,10 @@ class Deploy:
         osd_num = 0
 
         for osd in osds:
-            for device_bundle in common.get_list(self.cluster[osd]):
-                osd_device = device_bundle[0]
-                journal_device = device_bundle[1]
+            for device_bundle_tmp in self.cluster[osd]:
+                device_bundle = common.get_list(device_bundle_tmp)
+                osd_device = device_bundle[0][0]
+                journal_device = device_bundle[0][1]
 
                 # Build the OSD
                 osduuid = str(uuid.uuid4())
@@ -168,7 +180,7 @@ class Deploy:
                 key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
                 common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid))
                 common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="check_return")
-                common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
+                stdout,stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
                 common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="check_return")
 
                 # Start the OSD
@@ -219,13 +231,17 @@ class Deploy:
             common.pdsh(user, [mon], '%s' % cmd, option="check_return")
             print common.bcolors.OKGREEN + "[LOG]Builded mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
 
-if __name__ == '__main__':
+def main(args):
     parser = argparse.ArgumentParser(description='Deploy tool')
     parser.add_argument(
         'operation',
         help = 'only support redeploy now',
         )
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     if args.operation == "redeploy":
         mydeploy = Deploy()
         mydeploy.redeploy()
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv[1:])

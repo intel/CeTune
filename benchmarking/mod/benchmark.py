@@ -4,6 +4,7 @@ import copy
 import os, sys
 import time
 import re
+import uuid
 
 class Benchmark(object):
     def __init__(self, testcase):
@@ -19,6 +20,7 @@ class Benchmark(object):
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
+        self.pwd = os.path.abspath(os.path.join('..'))
 
     def go(self):
         self.prepare_result_dir()
@@ -43,8 +45,36 @@ class Benchmark(object):
         self.set_runid()
 
         print common.bcolors.OKGREEN + "[LOG]Post Process Result Data" + common.bcolors.ENDC
-        common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"])
+        common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
         
+    def create_image(self, volume_count, volume_size, poolname):
+        user =  self.cluster["user"]
+        controller =  self.cluster["head"]
+        rbd_list = self.get_rbd_list()
+        need_to_create = 0
+        if not len(rbd_list) >= int(volume_count):
+            need_to_create = int(volume_count) - len(rbd_list)
+        if need_to_create != 0:
+            for i in range(0, need_to_create):
+                volume = 'volume-%s' % str(uuid.uuid4())
+                common.pdsh(user, [controller], "rbd create -p %s --size %s --image-format 2 %s" % (poolname, str(volume_size), volume))
+            print common.bcolors.OKGREEN + "[LOG]%d RBD Image Created" % need_to_create + common.bcolors.ENDC
+
+    def get_rbd_list(self):
+        user =  self.cluster["user"]
+        controller =  self.cluster["head"]
+        poolname = "rbd"
+        stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % poolname, option="check_return")
+        if stderr:
+            print common.bcolors.FAIL + "[ERROR]unable get rbd list, return msg: %s" % res[1] + common.bcolors.ENDC
+            sys.exit()
+        res = common.format_pdsh_return(stdout)
+        if res != {}:
+            rbd_list_tmp = (res[controller]).split()
+        else:
+            rbd_list_tmp = []
+        return rbd_list_tmp
+
     def after_run(self):
         #1. check workload stoped
         self.wait_workload_to_stop()
@@ -64,6 +94,14 @@ class Benchmark(object):
     def prepare_run(self):
         self.stop_data_collecters()
         
+    def cleanup(self):
+        user = self.cluster["user"]
+        nodes = self.cluster["osd"]
+        dest_dir = self.cluster["tmp_dir"]
+        clients = self.cluster["client"]
+        common.pdsh(user, nodes, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
+        common.pdsh(user, clients, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
+
     def prerun_check(self):
         pass
 
@@ -174,3 +212,32 @@ class Benchmark(object):
              self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
              remained_instance_num = remained_instance_num - volume_num_upper_bound
          print self.benchmark["distribution"] 
+
+    def check_fio_pgrep(self, nodes, fio_job_num = 1):
+        user =  self.cluster["user"]
+        stdout, stderr = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
+        res = common.format_pdsh_return(stdout)
+        if res != []:
+            fio_running_job_num = 0
+            for node in res:
+                fio_running_job_num += len(str(res[node]).split('\n'))
+            if fio_running_job_num >= fio_job_num:
+                return True
+            else:
+                return False
+        return False
+
+    def check_rbd_init_completed(self, planed_space):
+        user =  self.cluster["user"]
+        controller =  self.cluster["head"]
+        stdout, stderr = common.pdsh(user, [controller], "ceph -s | grep pgmap | awk '{print $7 $8}'", option = "check_return")
+        res = common.format_pdsh_return(stdout)
+        if controller not in res:
+            common.bcolors.FAIL + "[ERROR]cannot get ceph space, seems to be a dead error" + common.bcolors.ENDC
+            sys.exit()
+        cur_space = common.size_to_bytes(res[controller])
+        planned_space = common.size_to_bytes(planed_space)
+        if cur_space < planned_space:
+            return False
+        else:
+            return True

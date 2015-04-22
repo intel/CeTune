@@ -155,6 +155,5 @@ function mytest {
 #uuid_to_fstab KVSceph02
 #os_disk_check client01 /dev/sdb
 if [ '$#' != '0' ]; then
-    echo $@
-     `echo $@`
+     `echo $@` 2>/dev/null
 fi

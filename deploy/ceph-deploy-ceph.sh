@@ -20,10 +20,10 @@ function install-sysmetrics-collecter-pkg {
     release_type=$2
     case $release_type in
         CentOS)
-            ssh $host "yum -y sysstat"
+            ssh $host "yum -y install sysstat"
         ;;
         Ubuntu)
-            ssh $host "apt-get -y sysstat"
+            ssh $host "apt-get -y install sysstat"
         ;;
     esac
 }

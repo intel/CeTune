@@ -5,7 +5,9 @@ function get_colume_avg {
     step=1
     input_file=$1
     output_file=$2
-    cat $input_file | awk -v step=$step 'BEGIN{for(i=1;i<=NF;i++)sum[i]=0;count=0}{if(count%step==0)for(i=1; i<=NF; i++)sum[i]+=$i;count++}END{for(i=1; i<=NF; i++)printf("%f\t",sum[i]/count); printf("\n")}' >> $output_file
+    if [ -f $input_file ]; then
+        cat $input_file | awk -v step=$step 'BEGIN{for(i=1;i<=NF;i++)sum[i]=0;count=0}{if(count%step==0)for(i=1; i<=NF; i++)sum[i]+=$i;count++}END{for(i=1; i<=NF; i++)if(count!=0)printf("%f\t",sum[i]/count); printf("\n")}' >> $output_file
+    fi
 }
 
 
@@ -13,12 +15,16 @@ function get_colume_sum {
     step=1
     input_file=$1
     output_file=$2
-    cat $input_file | awk -v step=$step 'BEGIN{for(i=1;i<=NF;i++)sum[i]=0;count=0}{if(count%step==0)for(i=1; i<=NF; i++)sum[i]+=$i;count++}END{for(i=1; i<=NF; i++)printf("%f\t",sum[i]); printf("\n")}' >> $output_file
+    if [ -f $input_file ]; then
+        cat $input_file | awk -v step=$step 'BEGIN{for(i=1;i<=NF;i++)sum[i]=0;count=0}{if(count%step==0)for(i=1; i<=NF; i++)sum[i]+=$i;count++}END{for(i=1; i<=NF; i++)printf("%f\t",sum[i]); printf("\n")}' >> $output_file
+    fi
 }
 
 function tail_sum_avg {
     input_file=$1
-    cat $input_file | sed '1d' | awk -v first_column=2 'BEGIN{for(i=first_column;i<=NF;i++)sum[i]=0}{for(i=first_column;i<=NF;i++){sum[i]+=$i}}END{printf("SUM\t"); for(i=first_column;i<=NF;i++)printf("%f\t",sum[i]); printf("\n");printf("AVG\t");for(i=first_column;i<=NF;i++)printf("%f\t",sum[i]/NR); printf("\n")}' >> $input_file
+    if [ -f $input_file ]; then
+        cat $input_file | sed '1d' | awk -v first_column=2 'BEGIN{for(i=first_column;i<=NF;i++)sum[i]=0}{for(i=first_column;i<=NF;i++){sum[i]+=$i}}END{printf("SUM\t"); for(i=first_column;i<=NF;i++)printf("%f\t",sum[i]); printf("\n");printf("AVG\t");for(i=first_column;i<=NF;i++)printf("%f\t",NR!=0?(sum[i]/NR):0); printf("\n")}' >> $input_file
+    fi
 }
 
 function convert_csv {
@@ -31,7 +37,9 @@ function convert_csv {
   if [[ -e $out_file ]];then
      rm $out_file
   fi
-  cat $in_file | awk '{for(i=1;i<=NF;++i){printf("%s,",$i)};printf("\n")}' >> $out_file
+  if [ -f $in_file ]; then
+      cat $in_file | awk '{for(i=1;i<=NF;++i){printf("%s,",$i)};printf("\n")}' >> $out_file
+  fi
 }
 
 function get_nic {
@@ -134,7 +142,9 @@ function deal_interrupts_data {
     input_file_end=$2
     output_file=$3
     token=","
-    awk -v t=$token '{if(FNR==1 || FNR==2){col=NF;printf("%s",t);for(i=1;i<=col;i++)printf("%s%s",$i,t);printf("\n")}else{j=FNR;if(NR==FNR){arr[j,1]=$1;for(i=2;i<=col+1;i++){arr[j,i]=$i;}}else{printf("%s%s",arr[j,1],t);for(i=2;i<=col+1;i++){diff=$i-arr[j,i];printf("%d%s",diff,t)};for(k=col+2;k<=NF;k++){printf("%s%s",$k,t)}printf("\n")}}}' $input_file_start $input_file_end > $output_file
+    if [ -f $input_file_start ] && [ -f $input_file_end ]; then
+        awk -v t=$token '{if(FNR==1 || FNR==2){col=NF;printf("%s",t);for(i=1;i<=col;i++)printf("%s%s",$i,t);printf("\n")}else{j=FNR;if(NR==FNR){arr[j,1]=$1;for(i=2;i<=col+1;i++){arr[j,i]=$i;}}else{printf("%s%s",arr[j,1],t);for(i=2;i<=col+1;i++){diff=$i-arr[j,i];printf("%d%s",diff,t)};for(k=col+2;k<=NF;k++){printf("%s%s",$k,t)}printf("\n")}}}' $input_file_start $input_file_end > $output_file
+    fi
 
 }
 
@@ -145,7 +155,9 @@ function deal_iostat_data {
     disk_list=$4
     validate_runtime=$5
     token=,
-    cat $input_file | awk -v dev="$disk_list" -v host=$node -v t=$token -v validate_line=$validate_runtime 'BEGIN{split(dev,dev_arr," ");for(i in dev_arr){for(j=0;j<=NF;j++){res_arr[i,j]=0;}}}{for(i in dev_arr)if(dev_arr[i]==$1){if(res_arr[i,0]!=1){for(j=2;j<=NF;j++){res_arr[i,j]+=$j;}res_arr[i,1]+=1;col=NF;if(res_arr[i,1]==validate_line)res_arr[i,0]=1}}}END{for(i in dev_arr){printf("%s-%s%s",host,dev_arr[i],t);for(j=2;j<=col;j++)printf("%f%s",res_arr[i,j]/res_arr[i,1],t);printf("\n");}}' >> $output_file
+    if [ -f $input_file ]; then
+        cat $input_file | awk -v dev="$disk_list" -v host=$node -v t=$token -v validate_line=$validate_runtime 'BEGIN{split(dev,dev_arr," ");for(i in dev_arr){for(j=0;j<=NF;j++){res_arr[i,j]=0;}}}{for(i in dev_arr)if(dev_arr[i]==$1){if(res_arr[i,0]!=1){for(j=2;j<=NF;j++){res_arr[i,j]+=$j;}res_arr[i,1]+=1;col=NF;if(res_arr[i,1]==validate_line)res_arr[i,0]=1}}}END{for(i in dev_arr){printf("%s-%s%s",host,dev_arr[i],t);for(j=2;j<=col;j++)printf("%f%s",res_arr[i,1]!=0?(res_arr[i,j]/res_arr[i,1]):0,t);printf("\n");}}' >> $output_file
+    fi
     
     # for iostat may record some data when ceph is under no io, so need to reduce these data
     # res_arr[i,0] is a flag of identify if we should add this data, 
@@ -163,7 +175,9 @@ function deal_iostat_disk_data {
     token=,
 
     disk_list=`echo $disk_list | sed 's/[0-9]*//g' | sed 's/ /\n/g' | sort -u | sed 's/\n/ /g'`
-    cat $input_file | awk -v dev="$disk_list" -v host=$node -v t=$token -v validate_line=$validate_runtime 'BEGIN{split(dev,dev_arr," ");for(i in dev_arr){for(j=0;j<=NF;j++){res_arr[i,j]=0;}}}{for(i in dev_arr)if(dev_arr[i]==$1){if(res_arr[i,0]!=1){for(j=2;j<=NF;j++){res_arr[i,j]+=$j;}res_arr[i,1]+=1;col=NF;if(res_arr[i,1]==validate_line)res_arr[i,0]=1}}}END{for(i in dev_arr){printf("%s-%s%s",host,dev_arr[i],t);for(j=2;j<=col;j++)printf("%f%s",res_arr[i,j]/res_arr[i,1],t);printf("\n");}}' >> $output_file
+    if [ -f $input_file ]; then
+        cat $input_file | awk -v dev="$disk_list" -v host=$node -v t=$token -v validate_line=$validate_runtime 'BEGIN{split(dev,dev_arr," ");for(i in dev_arr){for(j=0;j<=NF;j++){res_arr[i,j]=0;}}}{for(i in dev_arr)if(dev_arr[i]==$1){if(res_arr[i,0]!=1){for(j=2;j<=NF;j++){res_arr[i,j]+=$j;}res_arr[i,1]+=1;col=NF;if(res_arr[i,1]==validate_line)res_arr[i,0]=1}}}END{for(i in dev_arr){printf("%s-%s%s",host,dev_arr[i],t);for(j=2;j<=col;j++)printf("%f%s",res_arr[i,1]!=0?(res_arr[i,j]/res_arr[i,1]):0,t);printf("\n");}}' >> $output_file
+    fi
    
 }
 
@@ -173,9 +187,13 @@ function get_iostat_loadline {
     node=$3
     disk_list=$4
     token=,
-    line_count=`cat $input_file | awk -v dev="$disk_list" 'BEGIN{split(dev,dev_arr," ");for(k in dev_arr)count[k]=0}{for(k in dev_arr)if(dev_arr[k]==$1){count[k]+=1;}}END{dev_count=0;total=0;for(k in dev_arr){total+=count[k];dev_count++};print total/dev_count}'`
+    if [ -f $input_file ]; then
+        line_count=`cat $input_file | awk -v dev="$disk_list" 'BEGIN{split(dev,dev_arr," ");for(k in dev_arr)count[k]=0}{for(k in dev_arr)if(dev_arr[k]==$1){count[k]+=1;}}END{dev_count=0;total=0;for(k in dev_arr){total+=count[k];dev_count++};print dev_count!=0?(total/dev_count):0}'`
+    fi
     #echo $line_count
-    cat $input_file | awk -v dev="$disk_list" -v host=$node -v t=$token -v line=$line_count 'BEGIN{split(dev,dev_arr," ");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1}for(i=1;i<=line;i++){for(j=1;j<=NF;j++){res_arr[i,j]=0;}}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){printf("%s-osd_avg%s",host,t);for(j=2;j<=col;j++)printf("%f%s",res_arr[i,j]/dev_count,t);printf("\n");}}' >> $output_file
+    if [ -f $input_file ]; then
+        cat $input_file | awk -v dev="$disk_list" -v host=$node -v t=$token -v line=$line_count 'BEGIN{split(dev,dev_arr," ");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1}for(i=1;i<=line;i++){for(j=1;j<=NF;j++){res_arr[i,j]=0;}}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){printf("%s-osd_avg%s",host,t);for(j=2;j<=col;j++)printf("%f%s",dev_count!=0?(res_arr[i,j]/dev_count):0,t);printf("\n");}}' >> $output_file
+    fi
 }
 
 function deal_cpu_data {
@@ -190,7 +208,9 @@ function deal_cpu_data {
   #add header
   echo -n "$host " >> $output_file
   # filter the all cpu data
-  cat $input_file | sed -n '/ *CPU *%/{n;p}' | sed '1d' | sed '$d' | awk -F"all" '{print $2}' | head -$validate_runtime >> $cpu_tmp_file
+  if [ -f $input_file ]; then
+    cat $input_file | sed -n '/ *CPU *%/{n;p}' | sed '1d' | sed '$d' | awk -F"all" '{print $2}' | head -$validate_runtime >> $cpu_tmp_file
+  fi
   # calculate the data average
   get_colume_avg $cpu_tmp_file $output_file
   rm $cpu_tmp_file
@@ -209,10 +229,15 @@ function deal_nic_data {
   echo -n "${host}-${nic} " >> $output_file
   # filter the wanted nic data
   #echo $host":"$nic
-  cat $input_file | grep "$nic" | awk -F${nic} -v step=2 'BEGIN{count=0}{if(count%step==0){printf("%s",$2)}else{print $2};count++}' | head -$validate_runtime >> $nic_tmp_file
+  if [ -f $input_file ] && [ "$nic" != "" ]; then
+    if [ "`cat $input_file | grep $nic | wc -l`" != "0" ]; then
+      echo `cat $input_file | grep $nic | wc -l`
+      cat $input_file | grep "$nic" | awk -F${nic} -v step=2 'BEGIN{count=0}{if(count%step==0){printf("%s",$2)}else{print $2};count++}' | head -$validate_runtime >> $nic_tmp_file
+    fi
+  fi
   # calculate the data average
   get_colume_avg $nic_tmp_file $output_file
-  rm $nic_tmp_file
+  rm $nic_tmp_file 2>/dev/null
 }
 
 function deal_mem_data {
@@ -226,7 +251,9 @@ function deal_mem_data {
   mem_tmp_file=mem.tmp
   echo -n "$host " >> $output_file
   # filter the mem data
-  cat $input_file | sed -n '/kbmemfree/{n;p}' | sed '1d' | sed '$d' | awk '{for(i=3;i<=NF;i++) printf $i""FS;print ""}' | head -$validate_runtime >> $mem_tmp_file
+  if [ -f $input_file ]; then
+    cat $input_file | sed -n '/kbmemfree/{n;p}' | sed '1d' | sed '$d' | awk '{for(i=3;i<=NF;i++) printf $i""FS;print ""}' | head -$validate_runtime >> $mem_tmp_file
+  fi
   # calculate the mem data average
   get_colume_avg $mem_tmp_file $output_file
   rm $mem_tmp_file
@@ -243,7 +270,9 @@ function deal_tps_data {
   tps_tmp_file=tps.tmp
   echo -n "$host " >> $output_file
   # filter the tps data
-  cat $input_file | sed -n '/rtps/{n;p}' | sed '1d' | sed '$d' | awk '{for(i=3;i<=NF;i++) printf $i""FS;print ""}' | head -$validate_runtime >> $tps_tmp_file
+  if [ -f $input_file ]; then
+    cat $input_file | sed -n '/rtps/{n;p}' | sed '1d' | sed '$d' | awk '{for(i=3;i<=NF;i++) printf $i""FS;print ""}' | head -$validate_runtime >> $tps_tmp_file
+  fi
   # calculate the tps data average
   get_colume_avg $tps_tmp_file $output_file
   rm $tps_tmp_file
@@ -258,6 +287,10 @@ function deal_fio_data {
     output_file=$2
     host=$3
     token=','
+    if [ ! -f $fio_file ]; then
+        echo "$fio_file not exists"
+        return
+    fi
 
     iops=`grep " *io=.*bw=.*iops=.*runt=.*" $fio_file | awk -F, '{print $3}'`
     iops=${iops// iops=/}
@@ -267,6 +300,7 @@ function deal_fio_data {
 	iops_list[$i]=$iops_iter
         i=$(( i + 1 ))
     done
+    max_line=$i
 
     bw=`grep " *io=.*bw=.*iops=.*runt=.*" $fio_file | awk -F, '{print $2}'`
     bw=${bw// bw=/}
@@ -299,6 +333,9 @@ function deal_fio_data {
         esac 
         i=$(( i + 1 ))
     done
+    if [ $max_line -lt $i ]; then
+        max_line=$i
+    fi
 
     lat=`grep "^ *lat.*min=.*max=.*avg=.*stdev=.*" $fio_file | awk -F, '{print $3}'`
     lat_units=`grep "^ *lat.*min=.*max=.*avg=.*stdev=.*" $fio_file | awk -F' ' '{print $2}'`
@@ -343,12 +380,16 @@ function deal_fio_data {
         esac
 	i=$(( i + 1 ))
     done
-    i=$(( i - 1 ))
+    if [ $max_line -lt $i ]; then
+        max_line=$i
+    fi
+    i=$(( max_line - 1 ))
 
     for j in `seq 0 $i`;
     do
     	echo -e "${host}_job${j}${token}${iops_list[$j]}${token}${bw_list[$j]}${token}${lat_list[$j]}" >> $output_file
     done
+    cat $output_file
 }
 
 function process_sar_data {
@@ -468,14 +509,18 @@ function process_iostat_data {
         done
         #======== output to file ========
 	echo $title > $iostat
-        cat $iostat_tmp | awk -F, -v t=$token 'BEGIN{count=0;for(i=2;i<=NF;i++)sum[i]=0}{for(i=2;i<=NF;i++){sum[i]+=$i;}count++;col=NF}END{printf("sum%s",t);for(i=2;i<=col;i++)printf("%f%s",sum[i],t);printf("\navg%s",t);for(i=2;i<=col;i++)printf("%f%s",sum[i]/count,t);printf("\n")}' >> $iostat
-        cat $iostat_tmp >> $iostat
-	rm $iostat_tmp    
+        if [ -f $iostat_tmp ]; then
+            cat $iostat_tmp | awk -F, -v t=$token 'BEGIN{count=0;for(i=2;i<=NF;i++)sum[i]=0}{for(i=2;i<=NF;i++){sum[i]+=$i;}count++;col=NF}END{printf("sum%s",t);for(i=2;i<=col;i++)printf("%f%s",sum[i],t);printf("\navg%s",t);for(i=2;i<=col;i++)printf("%f%s",count!=0?(sum[i]/count):0,t);printf("\n")}' >> $iostat
+            cat $iostat_tmp >> $iostat
+	    rm $iostat_tmp    
+        fi
 	
         echo $title > $iostat_extra
-        cat $iostat_extra_tmp | awk -F, -v t=$token 'BEGIN{count=0;for(i=2;i<=NF;i++)sum[i]=0}{for(i=2;i<=NF;i++){sum[i]+=$i;}count++;col=NF}END{printf("sum%s",t);for(i=2;i<=col;i++)printf("%f%s",sum[i],t);printf("\navg%s",t);for(i=2;i<=col;i++)printf("%f%s",sum[i]/count,t);printf("\n")}' >> $iostat_extra
-        cat $iostat_extra_tmp >> $iostat_extra
-	rm $iostat_extra_tmp    
+        if [ -f $iostat_extra_tmp ]; then
+            cat $iostat_extra_tmp | awk -F, -v t=$token 'BEGIN{count=0;for(i=2;i<=NF;i++)sum[i]=0}{for(i=2;i<=NF;i++){sum[i]+=$i;}count++;col=NF}END{printf("sum%s",t);for(i=2;i<=col;i++)printf("%f%s",sum[i],t);printf("\navg%s",t);for(i=2;i<=col;i++)printf("%f%s",count!=0?(sum[i]/count):0,t);printf("\n")}' >> $iostat_extra
+            cat $iostat_extra_tmp >> $iostat_extra
+	    rm $iostat_extra_tmp    
+        fi
     done
 
     #======= output to screen ========
@@ -499,14 +544,14 @@ function draw_fio_loadline {
     do
         if [ -d "$dst_dir/$node/" ]; then
             #fio_generate_plots can only handle filename as *_bw.log, but fio may generate log name as *_bw.1.log, so format name here
-            for fio_file in `ls $dst_dir/$node/${node}*_fio_*.log`
+            for fio_file in `ls $dst_dir/$node/${node}*_fio_*.txt`
             do
                 format_file=`echo $fio_file | sed 's/\.[0-9]*\././'`
                 mv -f $fio_file $format_file 2>/dev/null
             done
             cd $dst_dir/$node/
             fio_generate_plots $node > $node_fio_generate_plots_errorlog.txt 2>&1 
-            mv *.svg $dst_dir/${type}/
+            mv *.svg $dst_dir/${type}/ 2>/dev/null
             cd $cur_path
         fi
     done
@@ -534,13 +579,15 @@ function process_fio_data {
 	    node_label=${fio_file#$dst_dir/$node/}
 	    node_label=${node_label%"_fio.txt"}
 	    if [ -f $fio_file ]; then
+                echo "deal_fio_data $fio_file $tmp_all_fio $node_label"
                 deal_fio_data $fio_file $tmp_all_fio $node_label
 	    fi
         done
     done
-    cat $tmp_all_fio | awk -F, 'BEGIN{for(i=1;i<=NF;i++)res[i]=0;}{for(i=2;i<=NF;i++)res[i]+=$i;col=NF}END{printf("result,");for(i=2;i<col;i++)printf("%f,",res[i]);printf("%f\n",res[col]/(NR-1));printf("result-avg,");for(i=2;i<=col;i++)printf("%f,",res[i]/(NR-1));}' >> $tmp_all_fio
+    cat $tmp_all_fio | awk -F, 'BEGIN{for(i=1;i<=NF;i++)res[i]=0;}{for(i=2;i<=NF;i++)res[i]+=$i;col=NF}END{printf("result,");for(i=2;i<col;i++)printf("%f,",res[i]);printf("%f\n",(NR-1)!=0?(res[col]/(NR-1)):0);printf("result-avg,");for(i=2;i<=col;i++)printf("%f,",(NR-1)!=0?(res[i]/(NR-1)):0);}' >> $tmp_all_fio
     echo "======================== $type fio data output ========================"
     cat $tmp_all_fio
+    echo ""
 
 }
 
@@ -563,9 +610,9 @@ process_iostat_data vclient $dst_dir $validate_runtime
 
 process_interrupts_data ceph $dst_dir 
 
-echo "Process fio loadline, this is a little slow..."
-draw_fio_loadline $dst_dir client
-draw_fio_loadline $dst_dir vclient
+#echo "Process fio loadline, this is a little slow..."
+#draw_fio_loadline $dst_dir client
+#draw_fio_loadline $dst_dir vclient
 
 mkdir -p $dst_dir/csvs
 rm -rf $dst_dir/csvs/*
@@ -577,5 +624,3 @@ python wrexcel.py $dest_dir $dst_dir
 echo "========================Archiving================================="
 scp -rq ${dst_dir} ${dest_dir_remote_bak}
 scp -q ${dest_dir}/history.csv ${dest_dir_remote_bak}/
-
-#cp Ceph_v1.3.xlsm $dst_dir/csvs/

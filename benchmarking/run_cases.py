@@ -1,21 +1,20 @@
 import argparse
 import os, sys
+lib_path = os.path.abspath(os.path.join('..'))
+sys.path.append(lib_path)
+from conf import common
 from mod import *
 from mod.bblock import *
 from mod.bobject import *
 from  mod.bcephfs import *
 
-if __name__ == '__main__':
+def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')
     parser.add_argument(
-        '--engine',
+        'engine',
         help = 'Choose the engine: qemurbd, fiorbd, fiocephfs, cosbench',
         )
-    parser.add_argument(
-        '--runtype',
-        help = 'Choose the running-type: single, all ',
-        )
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     testcase_list = []
     with open("../conf/cases.conf", "r") as f:
         for line in f.readlines():
@@ -25,8 +24,6 @@ if __name__ == '__main__':
                 "block_size":p[3], "qd":p[4], "rampup":p[5], 
                 "runtime":p[6], "vdisk":p[7], "output_dir":p[8]
             }) 
-    if args.runtype == "single":
-        print "Not Done"
     if args.engine == "qemurbd":
         for testcase in testcase_list:
             benchmark = qemurbd.QemuRbd(testcase)
@@ -42,9 +39,13 @@ if __name__ == '__main__':
             except KeyboardInterrupt:
                 print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
     if args.engine == "fiocephfs":
-	for testcase in testcase_list:
-	    benchmark = fiocephfs.FioCephFS(testcase)
-	    try:
-		benchmark.go()
-	    except KeyboardInterrupt:
-		print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+        for testcase in testcase_list:
+            benchmark = fiocephfs.FioCephFS(testcase)
+            try:
+                benchmark.go()
+            except KeyboardInterrupt:
+                print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv[1:])

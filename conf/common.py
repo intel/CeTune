@@ -8,6 +8,10 @@ import pprint
 import json
 import copy
 import yaml
+from fcntl import fcntl, F_GETFL, F_SETFL
+from os import O_NONBLOCK, read
+import socket
+import struct
 
 class Config():
     def __init__(self, conf_path):
@@ -24,6 +28,8 @@ class Config():
                 else:
                     try:
                         key, value = line.split("=")
+                        key = key.strip()
+                        value = value.strip()
                     except:
                         pass
                     if( value[-1] == '\n' ):
@@ -61,6 +67,39 @@ class bcolors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
+class IPHandler:
+    def makeMask(self,n):
+        "return a mask of n bits as a long integer"
+        return (2L<<n-1) - 1
+    
+    def dottedQuadToNum(self,ip):
+        res = re.search(r'(\d+).(\d+).(\d+).(\d+)',ip)
+        ip_hex = "%02x" % int(res.group(1))
+        ip_hex += "%02x" % int(res.group(2))
+        ip_hex += "%02x" % int(res.group(3))
+        ip_hex += "%02x" % int(res.group(4))
+        return int(ip_hex,16)
+    
+    def networkMask(self,subnet):
+        "Convert a network address to a long integer" 
+        res = re.search(r'(\d+.\d+.\d+.\d+)/(\d+)',subnet)
+        ip = res.group(1)
+        bits = int(res.group(2))
+        return self.dottedQuadToNum(ip) & self.makeMask(bits)
+    
+    def addressInNetwork(self,ip,net):
+       "Is an address in a network"
+       return ip & net == net
+
+    def getIpByHostInSubnet(self, hostname, subnet ):
+        "Get IP by hostname and filter with subnet"
+        (hostname, aliaslist, ipaddrlist) = socket.gethostbyname_ex(hostname)
+        network = self.networkMask(subnet)
+        for ip in ipaddrlist:
+            if self.addressInNetwork(self.dottedQuadToNum(ip),network):
+                return ip
+
+
 def get_list( string ):
     res = []
     if isinstance(string, str):
@@ -78,9 +117,20 @@ def pdsh(user, nodes, command, option="error_check"):
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
-    #print('pdsh: %s' % args)
+    print('pdsh: %s' % args)
     if option == "force":
-        _subp = subprocess.Popen(args)
+        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return _subp
+    if option == "non_blocking_return":
+        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        flags = fcntl(_subp.stdout, F_GETFL)
+        fcntl(_subp.stdout, F_SETFL, flags | O_NONBLOCK)
+        time.sleep(1)
+        while True:
+            try:
+                print read(_subp.stdout.fileno())
+            except:
+                break
         return _subp
     if option == "check_return":
         stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
@@ -179,6 +229,19 @@ def format_pdsh_return(pdsh_res):
             pass
     return output
 
+def check_if_adict_contains_bdict(adict, bdict):
+    for key in bdict:
+        if key in adict:
+            if isinstance(adict[key], dict) and isinstance(bdict[key], dict):
+                 if not check_if_adict_contains_bdict(adict[key], bdict[key]):
+                     return False
+            else:
+                if not str(adict[key]) == str(bdict[key]):
+                    return False 
+        else:
+            return False
+    return True      
+
 class MergableDict:
     def __init__(self):
         self.mergable_dict = {}
@@ -216,3 +279,16 @@ class MergableDict:
        
     def get(self):
         return self.mergable_dict
+
+def size_to_bytes(size):
+    res = re.search('(\d+)\s*(\w)+',size)
+    space_num = float(res.group(1))
+    space_unit = res.group(2)
+    if space_unit == 'bytes':
+        return space_num
+    for unit in ['ZB','EB','PB','TB','GB','MB','KB']:
+        if space_unit != unit:
+            continue
+        space_num *= 1024.0
+    return space_num
+        

@@ -7,6 +7,8 @@ list_ceph=`echo ${deploy_osd_servers},${deploy_rbd_nodes},${deploy_mon_servers},
 
 for host in $list_ceph
 do
+    ssh ${host} killall -9 ceph-osd
+    ssh ${host} killall -9 ceph-mon
     ceph-deploy purge ${host}
     error_check
     ceph-deploy purgedata ${host}

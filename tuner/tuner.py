@@ -1,7 +1,9 @@
 import os,sys
-lib_path = os.path.abspath(os.path.join('../conf/'))
+lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-import common
+from conf import common
+from deploy import deploy
+from benchmarking import *
 import os, sys
 import time
 import pprint
@@ -19,9 +21,11 @@ class Tuner:
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon") 
+        self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
             for osd_journal in common.get_list( self.all_conf_data.get_list(osd) ):
+                self.cluster["osd_daemon_num"] += 1
                 self.cluster[osd].append( osd_journal[0] )
         pp.pprint(self.worksheet)
 
@@ -29,17 +33,36 @@ class Tuner:
         user = self.cluster["user"] 
         controller = self.cluster["head"] 
         osds = self.cluster["osds"] 
+        pwd = os.path.abspath(os.path.join('..'))
         for section in self.worksheet:
-            for work in self.worksheet[section][workstages]:
+            for work in self.worksheet[section]['workstages']:
                 if work == "install":
-                    common.pdsh(user, [controller], "bash deploy-ceph.sh purge")
-                    common.pdsh(user, [controller], "bash deploy-ceph.sh install")
+                    proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="force")
+                    stdout, stderr = proc.communicate()
+                    print stdout
+                    print stderr
+                    proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install" % pwd, option="force")
+                    stdout, stderr = proc.communicate()
+                    print stdout
+                    if stderr: 
+                        print common.bcolors.FAIL + stderr + common.bcolors.ENDC
+                        sys.exit()
                 elif work == "deploy":
-                    common.pdsh(user, [controller], "bash deploy-ceph.sh redeploy")
+                    print common.bcolors.OKGREEN + "[LOG]Start to redeploy ceph" + common.bcolors.ENDC
+                    deploy.main(['redeploy'])
+                    self.apply_tuning(section)
+                    if self.check_health() == 'OK':
+                         print common.bcolors.OKGREEN + "[LOG]Redeploy succeeded, ceph is Healthy now" + common.bcolors.ENDC
+                    else:
+                         print common.bcolors.FAIL + "[ERROR]ceph is unHealthy after 300sec waiting, please fix the issue manually" + common.bcolors.ENDC
+                         sys.exit()
                 elif work == "benchmark":
-                    self.check_tuning(self.worksheet[section])
-                    self.apply_tuning(self.worksheet[section])
-                    common.pdsh(user, [controller], "bash benchmarking-ceph.sh run")
+                    print common.bcolors.OKGREEN + "[LOG]start to run performance test" + common.bcolors.ENDC
+                    if 'benchmark_engine' in self.worksheet[section]:
+                        engine = self.worksheet[section]['benchmark_engine']
+                    else:
+                        engine = 'fiorbd' 
+                    run_cases.main([engine])
                 else:
                     print common.bcolors.FAIL + "[ERROR] Unknown tuner workstage %s" % work + common.bcolors.ENDC
 
@@ -167,25 +190,116 @@ class Tuner:
     def check_tuning(self, jobname):
         if not self.cur_tuning:
             self.cur_tuning = self.dump_config()
-        pp.pprint(self.cur_tuning)
         tuning_diff = []
-        for key, tuning in self.worksheet[jobname].items():
+        for key in self.worksheet[jobname]:
+            tuning = self.worksheet[jobname][key]
             if key in ['workstages', 'benchmark_engine']:
                 continue
-           # if key in self.cur_tuning:
-           #     if not tuning == self.cur_tuning[key]:
-           #         print
+            if key in self.cur_tuning:
+                res = common.check_if_adict_contains_bdict(self.cur_tuning[key], tuning)
+                #print key + ": " + str(res)
+                if not res:
+                    tuning_diff.append(key)
+            else:
+                tuning_diff.append(key)
         return tuning_diff
 
     def apply_tuning(self, jobname):
     # apply tuning
          #check the diff between worksheet tuning and cur system
-         #for tuning_key in self.check_tuning(jobname):
-         #    if tuning_key == 
+         tmp_tuning_diff = self.check_tuning(jobname)
+         pp.pprint(tmp_tuning_diff)
+         for tuning_key in tmp_tuning_diff:
+             if tuning_key == 'pool':
+                 pool_exist = False
+                 new_poolname = self.worksheet[jobname]['pool'].keys()[0]
+                 if 'size' in self.worksheet[jobname]['pool'][new_poolname]:
+                     replica_size = self.worksheet[jobname]['pool'][new_poolname]['size']
+                 else:
+                     replica_size = 2
+                 if 'pg_num' not in self.worksheet[jobname]['pool'][new_poolname]:
+                     new_pool_pg_num = 100 * self.cluster["osd_daemon_num"]/replica_size
+                 else:
+                     new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
+                 for cur_tuning_poolname in self.cur_tuning['pool'].keys():
+                     if cur_tuning_poolname != new_poolname:
+                         self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
+                     else:
+                         if self.cur_tuning['pool'][cur_tuning_poolname]['pg_num'] == new_pool_pg_num:
+                             pool_exist = True
+                         else:
+                             self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
+                 if not pool_exist:
+                     self.handle_pool(option = 'create', param = {'name':new_poolname, 'pg_num':new_pool_pg_num})
+                 #after create pool, check pool param
+                 latest_pool_config = self.get_pool_config()
+                 for param in self.worksheet[jobname]['pool'][new_poolname]:
+                     if param == 'pg_num' or param not in latest_pool_config[new_poolname]:
+                         continue
+                     if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
+                         self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
+             if tuning_key == 'version':
+                 print "current:"
+                 pp.pprint(self.cur_tuning['version'])
+                 print "planed:"
+                 pp.pprint(self.worksheet[jobname]['version'])
+             if tuning_key == 'osd':
+                 print "current:"
+                 pp.pprint(self.cur_tuning['osd'])
+                 print "planed:"
+                 pp.pprint(self.worksheet[jobname]['osd'])
+             if tuning_key == 'mon':
+                 print "current:"
+                 pp.pprint(self.cur_tuning['current'])
+                 print "planed:"
+                 pp.pprint(self.worksheet[jobname]['current'])
          #do tuning
          #apply osd config
          #apply pool config
          pass        
 
+    def handle_pool(self, option="set", param = {}):
+        user = self.cluster["user"] 
+        controller = self.cluster["head"] 
+        if option == "create":
+            if 'name' in param and 'pg_num' in param:
+                print common.bcolors.OKGREEN + "[LOG]create ceph pool %s, pg_num is %s" % (param['name'], str(param['pg_num'])) + common.bcolors.ENDC
+                common.pdsh(user, [controller], "ceph osd pool create %s %s %s" % (param['name'], str(param['pg_num']), str(param['pg_num'])),option="check_return")
+
+        if option == "set":
+            if 'name' in param:
+                for key, value in param.items():
+                    if key == 'name':
+                        continue
+                    print common.bcolors.OKGREEN + "[LOG]set ceph pool %s, %s to %s" % (param['name'], key, str(value)) + common.bcolors.ENDC
+                    common.pdsh(user, [controller], "ceph osd pool set %s %s %s" % (param['name'], key, str(value)), option="check_return")
+
+        if option == "delete":
+            if 'name' in param:
+                pool = param['name']
+                print common.bcolors.OKGREEN + "[LOG]delete ceph pool %s" % pool + common.bcolors.ENDC
+                common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
+         
+        if option == "delete_all":
+            cur_pools = get_pool_config()
+            for pool in cur_pools:
+                print common.bcolors.OKGREEN + "[LOG]delete ceph pool %s" % pool + common.bcolors.ENDC
+                common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
+        
+    def check_health(self):
+        user = self.cluster["user"] 
+        controller = self.cluster["head"] 
+        check_count = 0
+        while True:
+            stdout, stderr = common.pdsh(user, [controller], 'ceph health', option="check_return")
+            if "HEALTH_OK" in stdout:
+                break
+            else:
+                check_count += 1
+            time.sleep(1)
+            if check_count == 300:
+                return stdout
+        return 'OK'
+
 tuner = Tuner()
-tuner.check_tuning('testjob1')
+tuner.run()
