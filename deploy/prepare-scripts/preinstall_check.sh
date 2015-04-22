@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bain/bash
 
 . ../../conf/all.conf
 get_conf
@@ -11,31 +11,25 @@ servers=`echo "$deploy_mon_servers,$deploy_osd_servers,$deploy_mds_servers,$depl
 for host in $servers
 do
     echo "============Settings on $host============"
-    ssh $host apt-get update
-    statu=$?
-    echo $statu
-    if [ $statu -gt 0 ]
-       then
-       flag_1=1
-       host_apt_proxy_down=${host_apt_proxy_down}" "${host}
-    fi
     echo "/etc/wgetrc"
 #   ssh $host cat /etc/wgetrc | sed '/^$/d' | grep -v "#"
+    i=`ssh $host "ls -l index.html* | wc -l"`
     ssh $host wget ceph.com
-    if [ $? -gt 0 ]
+    if [ $i == 0 ]
         then
-        flag_2=1
-        host_wget_proxy_down=${host_wget_proxy_down}" "${host}
+        a=`ssh $host "grep "Home Ceph" index.html"`
+    else
+        a=`ssh $host "grep "Home Ceph" index.html.$i"`
     fi
-    ssh $host rm index.html
+    if [ $a == "" ]
+    then
+        echo "Sorry, the proxy in $host is unavailiable!!!"
+	#echo "Congratulations!, the proxy in $host is availiable"
+    else
+        echo $a
+       # echo "Sorry, the proxy in $host is unavailiable!!!"
+	echo "Congratulations!, the proxy in $host is availiable"
+    ssh $host rm index.html*
+    fi
 done
-    if [ ${flag_1} -eq 1 ]
-        then
-        echo "the proxy of ${host_apt_proxy_down} is unvaliable,you need to edit /etc/apt/apt.conf, /etc/environment or /etc/yum.conf"
-       echo ""
-    fi
-    if [ ${flag_2} -eq 1 ]
-        then
-        echo "the proxy in /etc/wgetrc of ${host_wget_proxy_down} is unvaliable"
-        echo ""
-   fi
+
