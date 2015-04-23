@@ -27,7 +27,6 @@ class Tuner:
             for osd_journal in common.get_list( self.all_conf_data.get_list(osd) ):
                 self.cluster["osd_daemon_num"] += 1
                 self.cluster[osd].append( osd_journal[0] )
-        pp.pprint(self.worksheet)
 
     def run(self):
         user = self.cluster["user"] 
@@ -111,23 +110,23 @@ class Tuner:
         user = self.cluster["user"] 
         osds = self.cluster["osds"] 
 
-        stdout, stderr = common.pdsh(user, osds, 'path=`find /var -name "*osd*asok" | head -1`; ceph --admin-daemon $path config diff', option="check_return") 
+        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; ceph --admin-daemon $path config show', option="check_return") 
         res = common.format_pdsh_return(stdout)
         # merge config diff
         osd_config = common.MergableDict()
         for node in res:
-            osd_config.update(res[node]['diff']['current'])
+            osd_config.update(res[node])
         return osd_config.get()
 
     def get_mon_config(self):
         user = self.cluster["user"] 
         mons = self.cluster["mons"] 
 
-        stdout, stderr = common.pdsh(user, mons, 'path=`find /var -name "*mon*asok" | head -1`; ceph --admin-daemon $path config diff', option="check_return") 
+        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; ceph --admin-daemon $path config show', option="check_return") 
         res = common.format_pdsh_return(stdout)
         mon_config = common.MergableDict()
         for node in res:
-            mon_config.update(res[node]['diff']['current'])
+            mon_config.update(res[node])
         return mon_config.get()
 
     def get_pool_config(self):
@@ -136,16 +135,16 @@ class Tuner:
 
         stdout, stderr = common.pdsh(user, [controller], 'ceph osd dump | grep pool', option="check_return") 
         res = common.format_pdsh_return(stdout)
-        pool_config = common.MergableDict()
+        pool_config = {}
         for node in res:
-            pool = {}
-            raw_res = res[node].split()
-            name = raw_res[2].replace("'","")
-            pool[name] = {}
-            for index in range(4, len(raw_res),2):
-                pool[name][raw_res[index]] = raw_res[index+1]
-            pool_config.update(pool)
-        return pool_config.get()
+            res_pool = res[node].split('\n')
+            for pooldata in res_pool:
+                raw_res = pooldata.split()
+                name = raw_res[2].replace("'","")
+                pool_config[name] = {}
+                for index in range(4, len(raw_res),2):
+                    pool_config[name][raw_res[index]] = raw_res[index+1]
+        return pool_config
 
     def dump_config(self):
     # check ceph config and os config meet request
@@ -163,10 +162,9 @@ class Tuner:
         #config['version'] = self.get_version()
 
         #get [osd] asok config diff
-        config['osd'] = self.get_osd_config()
-
         #get [mon] asok config diff
-        config['mon'] = self.get_mon_config()
+        config['global'] = self.get_osd_config()
+        config['global'].update(self.get_mon_config())
 
         #get [pool] information
         config['pool'] = self.get_pool_config()
@@ -202,9 +200,11 @@ class Tuner:
             tuning = self.worksheet[jobname][key]
             if key in ['workstages', 'benchmark_engine']:
                 continue
+            if key in ["osd","mon"]:
+                key = "global"
             if key in self.cur_tuning:
                 res = common.check_if_adict_contains_bdict(self.cur_tuning[key], tuning)
-                #print key + ": " + str(res)
+                print key + ": " + str(res)
                 if not res:
                     tuning_diff.append(key)
             else:
@@ -213,58 +213,63 @@ class Tuner:
 
     def apply_tuning(self, jobname):
     # apply tuning
-         #check the diff between worksheet tuning and cur system
-         tmp_tuning_diff = self.check_tuning(jobname)
-         pp.pprint(tmp_tuning_diff)
-         for tuning_key in tmp_tuning_diff:
-             if tuning_key == 'pool':
-                 pool_exist = False
-                 new_poolname = self.worksheet[jobname]['pool'].keys()[0]
-                 if 'size' in self.worksheet[jobname]['pool'][new_poolname]:
-                     replica_size = self.worksheet[jobname]['pool'][new_poolname]['size']
-                 else:
-                     replica_size = 2
-                 if 'pg_num' not in self.worksheet[jobname]['pool'][new_poolname]:
-                     new_pool_pg_num = 100 * self.cluster["osd_daemon_num"]/replica_size
-                 else:
-                     new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
-                 for cur_tuning_poolname in self.cur_tuning['pool'].keys():
-                     if cur_tuning_poolname != new_poolname:
-                         self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
-                     else:
-                         if self.cur_tuning['pool'][cur_tuning_poolname]['pg_num'] == new_pool_pg_num:
-                             pool_exist = True
-                         else:
-                             self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
-                 if not pool_exist:
-                     self.handle_pool(option = 'create', param = {'name':new_poolname, 'pg_num':new_pool_pg_num})
-                 #after create pool, check pool param
-                 latest_pool_config = self.get_pool_config()
-                 for param in self.worksheet[jobname]['pool'][new_poolname]:
-                     if param == 'pg_num' or param not in latest_pool_config[new_poolname]:
-                         continue
-                     if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
-                         self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
-             if tuning_key == 'osd':
-                 print "current:"
-                 pp.pprint(self.cur_tuning['osd'])
-                 print "planed:"
-                 pp.pprint(self.worksheet[jobname]['osd'])
-             if tuning_key == 'mon':
-                 print "current:"
-                 pp.pprint(self.cur_tuning['current'])
-                 print "planed:"
-                 pp.pprint(self.worksheet[jobname]['current'])
-         waitcount = 0
-         while not self.check_health() and waitcount < 300:
-             print common.bcolors.WARNING + "[WARN]Applied tuning, waiting ceph to be healthy" + common.bcolors.ENDC
-             time.sleep(3)
-             waitcount += 3
-         if waitcount < 300:
-             print common.bcolors.OKGREEN + "[LOG]Tuning has applied to ceph cluster, ceph is Healthy now" + common.bcolors.ENDC
-         else:
-             print common.bcolors.FAIL + "[ERROR]ceph is unHealthy after 300sec waiting, please fix the issue manually" + common.bcolors.ENDC
-             sys.exit()
+        #check the diff between worksheet tuning and cur system
+        tmp_tuning_diff = self.check_tuning(jobname)
+        pp.pprint(tmp_tuning_diff)
+        for tuning_key in tmp_tuning_diff:
+            if tuning_key == 'pool':
+                pool_exist = False
+                new_poolname = self.worksheet[jobname]['pool'].keys()[0]
+                if 'size' in self.worksheet[jobname]['pool'][new_poolname]:
+                    replica_size = self.worksheet[jobname]['pool'][new_poolname]['size']
+                else:
+                    replica_size = 2
+                if 'pg_num' not in self.worksheet[jobname]['pool'][new_poolname]:
+                    new_pool_pg_num = 100 * self.cluster["osd_daemon_num"]/replica_size
+                else:
+                    new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
+                for cur_tuning_poolname in self.cur_tuning['pool'].keys():
+                    print cur_tuning_poolname
+                    if cur_tuning_poolname != new_poolname:
+                        self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
+                    else:
+                        if self.cur_tuning['pool'][cur_tuning_poolname]['pg_num'] != new_pool_pg_num:
+                            self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
+                        else:
+                            pool_exist = True
+                if not pool_exist:
+                    self.handle_pool(option = 'create', param = {'name':new_poolname, 'pg_num':new_pool_pg_num})
+                #after create pool, check pool param
+                latest_pool_config = self.get_pool_config()
+                for param in self.worksheet[jobname]['pool'][new_poolname]:
+                    if param == 'pg_num' or param not in latest_pool_config[new_poolname]:
+                        continue
+                    if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
+                        self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
+            if tuning_key == 'global':
+                tuning = {}
+                for section_name, section in self.worksheet[jobname].items():
+                    if section_name in ["version","workstages","pool","benchmark_engine"]:
+                        continue
+                    tuning[section_name] = section
+                print common.bcolors.OKGREEN + "[LOG]Apply osd and mon tuning to ceph.conf" + common.bcolors.ENDC
+                deploy.main(['--config', str(tuning), 'gen_cephconf'])
+                print common.bcolors.OKGREEN + "[LOG]Distribute ceph.conf" + common.bcolors.ENDC
+                deploy.main(['distribute_conf'])
+                print common.bcolors.OKGREEN + "[LOG]Restart ceph cluster" + common.bcolors.ENDC
+                deploy.main(['restart'])
+
+        #wait ceph health to be OK       
+        waitcount = 0
+        while not self.check_health() and waitcount < 300:
+            print common.bcolors.WARNING + "[WARN]Applied tuning, waiting ceph to be healthy" + common.bcolors.ENDC
+            time.sleep(3)
+            waitcount += 3
+        if waitcount < 300:
+            print common.bcolors.OKGREEN + "[LOG]Tuning has applied to ceph cluster, ceph is Healthy now" + common.bcolors.ENDC
+        else:
+            print common.bcolors.FAIL + "[ERROR]ceph is unHealthy after 300sec waiting, please fix the issue manually" + common.bcolors.ENDC
+            sys.exit()
 
     def handle_pool(self, option="set", param = {}):
         user = self.cluster["user"] 

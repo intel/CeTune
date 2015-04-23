@@ -237,8 +237,10 @@ def check_if_adict_contains_bdict(adict, bdict):
                      return False
             else:
                 if not str(adict[key]) == str(bdict[key]):
+                    print "[Tuning to applied]  "+key+":"+str(bdict[key])
                     return False 
         else:
+            print key
             return False
     return True      
 

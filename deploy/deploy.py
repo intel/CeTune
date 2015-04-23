@@ -8,10 +8,11 @@ import re
 import socket
 import uuid
 import argparse
+import yaml
 
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy:
-    def __init__(self):
+    def __init__(self, tunings=""):
         self.all_conf_data = common.Config("../conf/all.conf")
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
@@ -25,7 +26,6 @@ class Deploy:
             for key, value in self.all_conf_data.get("ceph_conf").items():
                 self.cluster["ceph_conf"]["global"][key] = value
 
-        pp.pprint(self.cluster["ceph_conf"]["global"])
         if 'cluster_network' in self.cluster["ceph_conf"]["global"]:
             subnet = self.cluster["ceph_conf"]["global"]['cluster_network']
             ip_handler = common.IPHandler()
@@ -38,8 +38,6 @@ class Deploy:
                 self.cluster["osds"][osd] = socket.gethostbyname(osd)
             for mon in self.all_conf_data.get_list("list_mon"): 
                 self.cluster["mons"][mon] = socket.gethostbyname(mon)
-        print self.cluster["osds"]
-        print self.cluster["mons"]
 
         for osd in self.cluster["osds"]:
             self.cluster[osd] = self.all_conf_data.get_list(osd)
@@ -56,6 +54,25 @@ class Deploy:
 
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
+
+        tuning_dict = yaml.load(tunings)
+        if isinstance( tuning_dict, dict ):
+            for section_name, section in yaml.load(tunings).items():
+                if section_name == 'global':
+                    if 'global' not in self.cluster["ceph_conf"]:
+                        self.cluster["ceph_conf"]['global'] = {}
+                    for key, value in section.items():
+                        self.cluster["ceph_conf"]['global'][key] = value
+                if section_name == 'mon':
+                    if 'mon' not in self.cluster["ceph_conf"]:
+                        self.cluster["ceph_conf"]['mon'] = {}
+                    for key, value in section.items():
+                        self.cluster["ceph_conf"]['mon'][key] = value
+                if section_name == 'osd':
+                    if 'osd' not in self.cluster["ceph_conf"]:
+                        self.cluster["ceph_conf"]['osd'] = {}
+                    for key, value in section.items():
+                        self.cluster["ceph_conf"]['osd'][key] = value
 
     def gen_cephconf(self):
         cephconf = []
@@ -102,8 +119,11 @@ class Deploy:
         self.make_osd()
         print common.bcolors.OKGREEN + "[LOG]Succeeded in building osd daemon" +common.bcolors.ENDC
 
-    def shutdown(self):
-        pass
+    def startup(self):
+        print common.bcolors.OKGREEN + "[LOG]Starting mon daemon" +common.bcolors.ENDC
+        self.start_mon()
+        print common.bcolors.OKGREEN + "[LOG]Starting osd daemon" +common.bcolors.ENDC
+        self.start_osd()
 
     def cleanup(self):
         user = self.cluster["user"]
@@ -111,7 +131,9 @@ class Deploy:
         osds = self.cluster["osds"]
         mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
         mon_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["mon_data"]).replace("$id","*")
+        print common.bcolors.OKGREEN + "[LOG]Shutting down mon daemon" +common.bcolors.ENDC
         common.pdsh( user, mons, "sudo killall -9 ceph-mon", option="check_return")
+        print common.bcolors.OKGREEN + "[LOG]Shutting down osd daemon" +common.bcolors.ENDC
         common.pdsh( user, osds, "sudo killall -9 ceph-osd", option="check_return")
 
     def distribute_conf(self):
@@ -231,16 +253,63 @@ class Deploy:
             common.pdsh(user, [mon], '%s' % cmd, option="check_return")
             print common.bcolors.OKGREEN + "[LOG]Builded mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
 
+    def start_mon(self):
+        mons = self.cluster["mons"]
+        user = self.cluster["user"]
+        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
+        # Start the mons
+        for mon, addr in mons.items():
+            common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
+            pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
+            cmd = 'sudo sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
+            cmd = 'ceph-run %s' % cmd
+            common.pdsh(user, [mon], '%s' % cmd, option="check_return")
+            print common.bcolors.OKGREEN + "[LOG]Started mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
+
+    def start_osd(self):
+        user = self.cluster["user"]
+        osds = sorted(self.cluster["osds"])
+        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
+        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
+        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+        osd_num = 0
+        for osd in osds:
+            for device_bundle_tmp in self.cluster[osd]:
+                # Start the OSD
+                common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
+                pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
+                cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
+                cmd = 'ceph-run %s' % cmd
+                common.pdsh(user, [osd], 'sudo sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
+                print common.bcolors.OKGREEN + "[LOG]Started osd.%s daemon on %s" % (osd_num, osd) +common.bcolors.ENDC
+                osd_num = osd_num+1
+
 def main(args):
     parser = argparse.ArgumentParser(description='Deploy tool')
     parser.add_argument(
         'operation',
         help = 'only support redeploy now',
         )
+    parser.add_argument(
+        '--config',
+        )
     args = parser.parse_args(args)
     if args.operation == "redeploy":
         mydeploy = Deploy()
         mydeploy.redeploy()
+    if args.operation == "restart":
+        mydeploy = Deploy()
+        mydeploy.cleanup()
+        mydeploy.startup()
+    if args.operation == "distribute_conf":
+        mydeploy = Deploy()
+        mydeploy.distribute_conf()
+    if args.operation == "gen_cephconf":
+        if args.config:
+            mydeploy = Deploy(args.config)
+        else:
+            mydeploy = Deploy()
+        mydeploy.gen_cephconf()
 
 if __name__ == '__main__':
     import sys
