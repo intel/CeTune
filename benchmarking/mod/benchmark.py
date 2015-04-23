@@ -222,6 +222,7 @@ class Benchmark(object):
             for node in res:
                 fio_running_job_num += len(str(res[node]).split('\n'))
             if fio_running_job_num >= fio_job_num:
+                common.bcolors.WARNING + "[WARN]%d fio job still runing" % fio_running_job_num + common.bcolors.ENDC
                 return True
             else:
                 return False
