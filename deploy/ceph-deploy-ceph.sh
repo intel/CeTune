@@ -1,4 +1,5 @@
 #!/bin/bash
+
 . ../conf/common.sh
 get_conf
 
@@ -28,10 +29,11 @@ function install-sysmetrics-collecter-pkg {
     esac
 }
 
-. ../conf/all.conf
 #create a cluster so that you can use ceph-deploy to install ceph
 servers=`echo "$deploy_mon_servers,$deploy_osd_servers,$deploy_mds_servers,$deploy_rbd_nodes" | sed 's/,/\n/g' | sort -u | sed 's/\n/ /g'`
-
+if [ "$#" != "0" ]; then
+    deploy_ceph_version=$1
+fi
 echo "start Install ceph $deploy_ceph_version"
 
 for host in $servers

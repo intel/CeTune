@@ -36,28 +36,15 @@ class Tuner:
         pwd = os.path.abspath(os.path.join('..'))
         for section in self.worksheet:
             for work in self.worksheet[section]['workstages']:
-                if work == "install":
-                    proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="force")
-                    stdout, stderr = proc.communicate()
-                    print stdout
-                    print stderr
-                    proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install" % pwd, option="force")
-                    stdout, stderr = proc.communicate()
-                    print stdout
-                    if stderr: 
-                        print common.bcolors.FAIL + stderr + common.bcolors.ENDC
-                        sys.exit()
-                elif work == "deploy":
+                if work == "deploy":
+                    print common.bcolors.OKGREEN + "[LOG]Check ceph version, reinstall ceph if necessary" + common.bcolors.ENDC
+                    self.apply_version(section)
                     print common.bcolors.OKGREEN + "[LOG]Start to redeploy ceph" + common.bcolors.ENDC
                     deploy.main(['redeploy'])
                     self.apply_tuning(section)
-                    if self.check_health() == 'OK':
-                         print common.bcolors.OKGREEN + "[LOG]Redeploy succeeded, ceph is Healthy now" + common.bcolors.ENDC
-                    else:
-                         print common.bcolors.FAIL + "[ERROR]ceph is unHealthy after 300sec waiting, please fix the issue manually" + common.bcolors.ENDC
-                         sys.exit()
                 elif work == "benchmark":
                     print common.bcolors.OKGREEN + "[LOG]start to run performance test" + common.bcolors.ENDC
+                    self.apply_tuning(section)
                     if 'benchmark_engine' in self.worksheet[section]:
                         engine = self.worksheet[section]['benchmark_engine']
                     else:
@@ -106,18 +93,17 @@ class Tuner:
         rados_version = res
         # merge config diff
         ceph_version = common.MergableDict()
-        version = {}
         for node, res in osd_version.items():
             raw_res = res.split()
-            version['ceph_version'] = raw_res[2]
+            version = raw_res[2]
             ceph_version.update(version)
         for node, res in rbd_version.items():
             raw_res = res.split()
-            version['rbd_version'] = raw_res[2]
+            version = raw_res[2]
             ceph_version.update(version)
         for node, res in rados_version.items():
             raw_res = res.split()
-            version['rados_version'] = raw_res[2]
+            version = raw_res[2]
             ceph_version.update(version)
         return ceph_version.get()
 
@@ -171,10 +157,10 @@ class Tuner:
 
         config = {}
         #get [system] config
-        #config["Disk"] = self.handle_disk(option="get")
+        config["Disk"] = self.handle_disk(option="get")
 
         #get [ceph version]
-        config['version'] = self.get_version()
+        #config['version'] = self.get_version()
 
         #get [osd] asok config diff
         config['osd'] = self.get_osd_config()
@@ -186,6 +172,27 @@ class Tuner:
         config['pool'] = self.get_pool_config()
 
         return config
+
+    def apply_version(self, jobname):
+        cur_version = self.get_version()
+        version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer'}
+        current_version_group = re.search('(\d+.\d+).\d',cur_version)
+        current_version = current_version_group.group(1)
+        version_match = False
+        if current_version in version_map:
+            version_match = ( version_map[current_version] == self.worksheet[jobname]['version'] )
+        if not version_match:
+            print common.bcolors.OKGREEN + "[LOG]Current ceph version not match testjob version, will reinstall" + common.bcolors.ENDC
+            proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="non_blocking_return")
+            stdout, stderr = proc.communicate()
+            print stdout
+            print stderr
+            proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install %s" % (pwd, self.worksheet[jobname]['version']), option="non_blocking_return")
+            stdout, stderr = proc.communicate()
+            print stdout
+            if stderr: 
+                print common.bcolors.FAIL + stderr + common.bcolors.ENDC
+                sys.exit()
 
     def check_tuning(self, jobname):
         if not self.cur_tuning:
@@ -238,11 +245,6 @@ class Tuner:
                          continue
                      if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                          self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
-             if tuning_key == 'version':
-                 print "current:"
-                 pp.pprint(self.cur_tuning['version'])
-                 print "planed:"
-                 pp.pprint(self.worksheet[jobname]['version'])
              if tuning_key == 'osd':
                  print "current:"
                  pp.pprint(self.cur_tuning['osd'])
@@ -253,10 +255,16 @@ class Tuner:
                  pp.pprint(self.cur_tuning['current'])
                  print "planed:"
                  pp.pprint(self.worksheet[jobname]['current'])
-         #do tuning
-         #apply osd config
-         #apply pool config
-         pass        
+         waitcount = 0
+         while not self.check_health() and waitcount < 300:
+             print common.bcolors.WARNING + "[WARN]Applied tuning, waiting ceph to be healthy" + common.bcolors.ENDC
+             time.sleep(3)
+             waitcount += 3
+         if waitcount < 300:
+             print common.bcolors.OKGREEN + "[LOG]Tuning has applied to ceph cluster, ceph is Healthy now" + common.bcolors.ENDC
+         else:
+             print common.bcolors.FAIL + "[ERROR]ceph is unHealthy after 300sec waiting, please fix the issue manually" + common.bcolors.ENDC
+             sys.exit()
 
     def handle_pool(self, option="set", param = {}):
         user = self.cluster["user"] 
@@ -290,16 +298,11 @@ class Tuner:
         user = self.cluster["user"] 
         controller = self.cluster["head"] 
         check_count = 0
-        while True:
-            stdout, stderr = common.pdsh(user, [controller], 'ceph health', option="check_return")
-            if "HEALTH_OK" in stdout:
-                break
-            else:
-                check_count += 1
-            time.sleep(1)
-            if check_count == 300:
-                return stdout
-        return 'OK'
+        stdout, stderr = common.pdsh(user, [controller], 'ceph health', option="check_return")
+        if "HEALTH_OK" in stdout:
+            return True
+        else:
+            return False
 
 tuner = Tuner()
 tuner.run()
