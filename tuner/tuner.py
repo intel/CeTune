@@ -157,7 +157,7 @@ class Tuner:
 
         config = {}
         #get [system] config
-        config["Disk"] = self.handle_disk(option="get")
+        config["disk"] = self.handle_disk(option="get")
 
         #get [ceph version]
         #config['version'] = self.get_version()
@@ -240,6 +240,7 @@ class Tuner:
                      self.handle_pool(option = 'create', param = {'name':new_poolname, 'pg_num':new_pool_pg_num})
                  #after create pool, check pool param
                  latest_pool_config = self.get_pool_config()
+                 print latest_pool_config
                  for param in self.worksheet[jobname]['pool'][new_poolname]:
                      if param == 'pg_num' or param not in latest_pool_config[new_poolname]:
                          continue

@@ -1,9 +1,11 @@
 testjob1:
   workstages: ["benchmark"]
-  benchmark_engine: "fiorbd"
+  benchmark_engine: "qemurbd"
   version: 'hammer'
   pool:
     rbd:
       size: 2
-      pg_num: 200
+      pg_num: 8192
+  disk:
+    read_ahead_kb: 2048
   

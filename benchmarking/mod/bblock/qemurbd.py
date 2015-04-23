@@ -198,6 +198,7 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+            common.pdsh(user, nodes, "killall -9 dd", option = "check_return")
         self.detach_images()
 
     def archive(self):
