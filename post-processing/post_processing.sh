@@ -406,7 +406,7 @@ function process_sar_data {
     echo -e "CPU\t%usr\t%nice\t%sys\t%iowait\t%irq\t%soft\t%steal\t%guest\t%gnice\t%idle" >> $tmp_all_cpu
     echo -e "IFACE\trxpck/s\ttxpck/s\trxkB/s\ttxkB/s\trxcmp/s\ttxcmp/s\trxmcst/s\trxerr/s\ttxerr/s\tcoll/s\trxdrop/s\ttxdrop/s\ttxcarr/s\trxfram/s\trxfifo/s\ttxfifo/s" >> $tmp_all_nic
     echo -e "MEM\tkbmemfree\tkbmemused\t%memused\tkbbuffers\tkbcached\tkbcommit\t%commit\tkbactive\tkbinact" >> $tmp_all_mem
-    echo -e "NETWORK\tps\trtps\twtps\tbread/s\tbwrtn/s" >> $tmp_all_tps
+    echo -e "NETWORK\ttps\trtps\twtps\tbread/s\tbwrtn/s" >> $tmp_all_tps
     
     eval list_vars=\$list_${type}
     nodes=`echo ${list_vars} | sed 's/,/ /g'`

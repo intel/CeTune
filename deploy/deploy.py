@@ -22,6 +22,12 @@ class Deploy:
         self.cluster["mons"] = {}
         self.cluster["ceph_conf"] = {}
         self.cluster["ceph_conf"]["global"] = {}
+        self.cluster["ceph_conf"]["global"]["auth_service_required"] = "none"
+        self.cluster["ceph_conf"]["global"]["auth_cluster_required"] = "none"
+        self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
+        self.cluster["ceph_conf"]["global"]["mon_data"] = "/var/lib/ceph/mon.$id"
+        self.cluster["ceph_conf"]["global"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
+
         if self.all_conf_data.get("ceph_conf"):
             for key, value in self.all_conf_data.get("ceph_conf").items():
                 self.cluster["ceph_conf"]["global"][key] = value
@@ -46,12 +52,6 @@ class Deploy:
         self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"        
         self.cluster["mount_opts"] = "-o inode64,noatime,logbsize=256k"
         
-        self.cluster["ceph_conf"]["global"]["auth_service_required"] = "none"
-        self.cluster["ceph_conf"]["global"]["auth_cluster_required"] = "none"
-        self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
-        self.cluster["ceph_conf"]["global"]["mon_data"] = "/var/lib/ceph/mon.$id"
-        self.cluster["ceph_conf"]["global"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
-
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
 

@@ -58,23 +58,27 @@ class Tuner:
 
         disk_data = {}
         disk_data = common.MergableDict()
-        for osd in osds:
-           for device in self.cluster[osd]:
-               tmp = {}
-               for key, value in param.items():
-                   if option == "get":
+        if option == "get":
+            for osd in osds:
+               for device in self.cluster[osd]:
+                   tmp = {}
+                   for key, value in param.items():
                        stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{} sudo sh -c "cat /sys/block/\'{}\'/queue/%s"' % (device, key), option="check_return")
-                   if option == "set":
-                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{} sudo sh -c "echo %s > /sys/block/\'{}\'/queue/%s"' % (device, str(value), key), option="check_return")
+                       res = common.format_pdsh_return(stdout)
+                       tmp[key] = res[osd]
+                   stdout, stderr = common.pdsh(user, [osd], 'xfs_info %s' % (device), option="check_return")
                    res = common.format_pdsh_return(stdout)
-                   tmp[key] = res[osd]
-               stdout, stderr = common.pdsh(user, [osd], 'xfs_info %s' % (device), option="check_return")
-               res = common.format_pdsh_return(stdout)
-               tmp['xfs_info'] = res[osd]
-               disk_data.update(tmp)
-               if option == "get":
-                   break
-        return disk_data.get()
+                   tmp['xfs_info'] = res[osd]
+                   disk_data.update(tmp)
+                   if option == "get":
+                       break
+            return disk_data.get()
+
+        if option == "set":
+           for osd in osds:
+               for device in self.cluster[osd]:
+                   for key, value in param.items():
+                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{} sudo sh -c "echo %s > /sys/block/\'{}\'/queue/%s"' % (device, str(value), key), option="check_return")
 
     def get_version(self):
         user = self.cluster["user"] 
@@ -204,17 +208,18 @@ class Tuner:
                 key = "global"
             if key in self.cur_tuning:
                 res = common.check_if_adict_contains_bdict(self.cur_tuning[key], tuning)
-                print key + ": " + str(res)
                 if not res:
                     tuning_diff.append(key)
             else:
                 tuning_diff.append(key)
+        for key in tuning_diff:
+            print common.bcolors.OKGREEN + "[LOG]Tuning[%s] is not same with current configuration" % (key) + common.bcolors.ENDC
         return tuning_diff
 
     def apply_tuning(self, jobname):
         #check the diff between worksheet tuning and cur system
+        print common.bcolors.OKGREEN + "[LOG]Calculate Difference between Current Ceph Cluster Configuration with tuning" + common.bcolors.ENDC
         tmp_tuning_diff = self.check_tuning(jobname)
-        pp.pprint(tmp_tuning_diff)
         for tuning_key in tmp_tuning_diff:
             if tuning_key == 'pool':
                 pool_exist = False
@@ -257,13 +262,19 @@ class Tuner:
                 deploy.main(['distribute_conf'])
                 print common.bcolors.OKGREEN + "[LOG]Restart ceph cluster" + common.bcolors.ENDC
                 deploy.main(['restart'])
+            if tuning_key == 'disk':
+                self.handle_disk( option="set" ) 
 
         #wait ceph health to be OK       
         waitcount = 0
-        while not self.check_health() and waitcount < 300:
-            print common.bcolors.WARNING + "[WARN]Applied tuning, waiting ceph to be healthy" + common.bcolors.ENDC
-            time.sleep(3)
-            waitcount += 3
+        try:
+            while not self.check_health() and waitcount < 300:
+                print common.bcolors.WARNING + "[WARN]Applied tuning, waiting ceph to be healthy" + common.bcolors.ENDC
+                time.sleep(3)
+                waitcount += 3
+        except:
+            print common.bcolors.WARNING + "[WARN]Caught KeyboardInterrupt, exit" + common.bcolors.ENDC
+            sys.exit()
         if waitcount < 300:
             print common.bcolors.OKGREEN + "[LOG]Tuning has applied to ceph cluster, ceph is Healthy now" + common.bcolors.ENDC
         else:

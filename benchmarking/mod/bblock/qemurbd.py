@@ -38,7 +38,11 @@ class QemuRbd(Benchmark):
             print common.bcolors.FAIL + "[ERROR]need to set rbd_volume_count and volune_size in all.conf" + common.bcolors.ENDC
 
         #create image xml
+        print common.bcolors.OKGREEN + "[LOG]create rbd volume vm attach xml" + common.bcolors.ENDC
         common.pdsh(user, [controller], "cd %s/vm-scripts; echo 3 | bash create-volume.sh create_disk_xml" % (self.pwd), "check_return")
+        print common.bcolors.OKGREEN + "[LOG]Distribute vdbs xml" + common.bcolors.ENDC
+        for client in self.cluster["testjob_distribution"]:
+            common.scp(user, client, "../vm-scripts/vdbs", dest_dir)
 
         #attach to vm
         self.attach_images()
@@ -77,38 +81,47 @@ class QemuRbd(Benchmark):
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
         planed_space = str(len(self.instance_list) * int(self.volume_size)) + "MB"
+        print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if rbd volume be intialized" + common.bcolors.ENDC
         if not self.check_rbd_init_completed(planed_space):
-            common.bcolors.WARNING + "[WARN]rbd volume initialization has not be done" + common.bcolors.ENDC
+            print common.bcolors.WARNING + "[WARN]rbd volume initialization has not be done" + common.bcolors.ENDC
             self.prepare_images()
 
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
+            print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if fio installed in vclient" + common.bcolors.ENDC
             common.pdsh(user, nodes, "fio -v")
+            print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if rbd volume attached" + common.bcolors.ENDC
             stdout, stderr = common.pdsh(user, nodes, "df %s" % vdisk, option="check_return")
             if stderr:
                 common.bcolors.WARNING + "[WARN]vclients are not attached with rbd volume" + common.bcolors.ENDC
                 self.attach_images()
                 common.bcolors.WARNING + "[WARN]vclients attached rbd volume now" + common.bcolors.ENDC
+            print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if sysstat installed" + common.bcolors.ENDC
             common.pdsh(user, nodes, "mpstat")
 
     def attach_images(self):
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
-        for client in self.cluster["testjob_distribution"]:
-            nodes = self.cluster["testjob_distribution"][client]
+        dest_dir = self.cluster["tmp_dir"]
+        #for client in self.cluster["testjob_distribution"]:
+        for client in self.benchmark["distribution"]:
+            nodes = self.benchmark["distribution"][client]
             for node in nodes:
+                print common.bcolors.OKGREEN + "[LOG]Attach rbd image to %s" % node + common.bcolors.ENDC
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
                 if stderr:
-                   common.pdsh(user, [client], "cd %s/vm-scripts/vdbs; virsh attach-device %s %s.xml" % (self.pwd, node, node))
+                   common.pdsh(user, [client], "cd %s/vdbs; virsh attach-device %s %s.xml" % (dest_dir, node, node))
 
     def detach_images(self):
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
         tmp_vdisk = re.search('/dev/(\w+)',vdisk)
         vdisk_suffix = tmp_vdisk.group(1)
-        for client in self.cluster["testjob_distribution"]:
-            nodes = self.cluster["testjob_distribution"][client]
+        #for client in self.cluster["testjob_distribution"]:
+        for client in self.benchmark["distribution"]:
+            nodes = self.benchmark["distribution"][client]
             for node in nodes:
+                print common.bcolors.OKGREEN + "[LOG]Detach rbd image from %s" % node + common.bcolors.ENDC
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
                 if not stderr:
                    common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix))
@@ -158,6 +171,7 @@ class QemuRbd(Benchmark):
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
+        print common.bcolors.OKGREEN + "[LOG]Prepare_run: distribute fio.conf to vclient" + common.bcolors.ENDC
         for client in self.benchmark["distribution"]:
             for vclient in self.benchmark["distribution"][client]:
                 common.scp(user, vclient, "../conf/fio.conf", self.cluster["tmp_dir"])
@@ -199,7 +213,11 @@ class QemuRbd(Benchmark):
             nodes = self.benchmark["distribution"][client]
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
             common.pdsh(user, nodes, "killall -9 dd", option = "check_return")
-        self.detach_images()
+        print common.bcolors.OKGREEN + "[LOG]Workload stopped, detaching rbd volume from vclient" + common.bcolors.ENDC
+        try:
+            self.detach_images()
+        except KeyboardInterrupt:
+            print common.bcolors.WARNING + "[WARN]Caught KeyboardInterrupt, stop detaching" + common.bcolors.ENDC
 
     def archive(self):
         super(self.__class__, self).archive()

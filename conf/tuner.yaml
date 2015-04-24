@@ -1,7 +1,7 @@
 testjob1:
   workstages: ["benchmark"]
-  benchmark_engine: "qemurbd"
-  version: 'hammer'
+  benchmark_engine: "fiorbd"
+  version: 'firefly'
   pool:
     rbd:
       size: 2
@@ -31,9 +31,10 @@ testjob1:
     debug_auth: 0/0
     debug_finisher: 0/0
     debug_heartbeatmap: 0/0
-    debug_perfcounter: 0/1
+    debug_perfcounter: 0/0
     debug_asok: 0/0
     debug_throttle: 0/0
     debug_mon: 0/0
     debug_paxos: 0/0
     debug_rgw: 0/0
+    filestore_queue_max_ops: 5000

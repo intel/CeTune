@@ -117,7 +117,7 @@ def pdsh(user, nodes, command, option="error_check"):
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
-    print('pdsh: %s' % args)
+    #print('pdsh: %s' % args)
     if option == "force":
         _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return _subp
@@ -155,7 +155,7 @@ def bash(command, force=False):
         sys.exit()
 
 def scp(user, node, localfile, remotefile):
-    args = ['scp', localfile, '%s@%s:%s' % (user, node, remotefile)]
+    args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
     #print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
@@ -233,11 +233,11 @@ def check_if_adict_contains_bdict(adict, bdict):
     for key in bdict:
         if key in adict:
             if isinstance(adict[key], dict) and isinstance(bdict[key], dict):
-                 if not check_if_adict_contains_bdict(adict[key], bdict[key]):
-                     return False
+                if not check_if_adict_contains_bdict(adict[key], bdict[key]):
+                    return False
             else:
                 if not str(adict[key]) == str(bdict[key]):
-                    print "[Tuning to applied]  "+key+":"+str(bdict[key])
+                    print bcolors.OKGREEN + "[LOG]Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])) + bcolors.ENDC
                     return False 
         else:
             print key
@@ -282,15 +282,19 @@ class MergableDict:
     def get(self):
         return self.mergable_dict
 
-def size_to_bytes(size):
-    res = re.search('(\d+)\s*(\w)+',size)
+def size_to_Kbytes(size):
+    res = re.search('(\d+)\s*(\w+)',size)
     space_num = float(res.group(1))
     space_unit = res.group(2)
-    if space_unit == 'bytes':
+    if space_unit == 'KB':
         return space_num
+    last_unit = "-1"
     for unit in ['ZB','EB','PB','TB','GB','MB','KB']:
-        if space_unit != unit:
+        if space_unit != last_unit:
+            last_unit = unit
             continue
         space_num *= 1024.0
+        space_unit = unit
+        last_unit = unit
     return space_num
         

@@ -17,6 +17,7 @@ class FioRbd(Benchmark):
         controller =  self.cluster["head"]
         rbd_count = self.all_conf_data.get("rbd_volume_count")
         rbd_size = self.all_conf_data.get("volume_size")
+        print common.bcolors.OKGREEN + "[LOG]Creating rbd volume" + common.bcolors.ENDC
         if rbd_count and rbd_size:
             super(self.__class__, self).create_image(rbd_count, rbd_size, 'rbd')
         else:
@@ -73,13 +74,15 @@ class FioRbd(Benchmark):
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "fio -v")
+        print common.bcolors.OKGREEN + "[LOG]check if FIO rbd engine installed" + common.bcolors.ENDC
         res = common.pdsh(user, nodes, "fio -enghelp | grep rbd", option = "check_return")
         if res and not res[0]:
             print common.bcolors.FAIL + "[ERROR]FIO rbd engine not installed" + common.bcolors.ENDC
             sys.exit()
         planed_space = str(len(self.cluster["rbdlist"]) * int(self.volume_size)) + "MB"
+        print common.bcolors.OKGREEN + "[LOG]check if rbd volume fully initialized" + common.bcolors.ENDC
         if not self.check_rbd_init_completed(planed_space):
-            common.bcolors.WARNING + "[WARN]rbd volume initialization has not be done" + common.bcolors.ENDC
+            print common.bcolors.WARNING + "[WARN]rbd volume initialization has not be done" + common.bcolors.ENDC
             self.prepare_images()
      
     def run(self):
@@ -101,7 +104,7 @@ class FioRbd(Benchmark):
         if not fio_job_num_total:
             print common.bcolors.FAIL + "[ERROR]Planned to start 0 FIO process, seems to be an error" + common.bcolors.ENDC
             raise KeyboardInterrupt
-        print common.bcolors.OKGREEN + "[LOG]%d FIO Jobs starts on %s" % (len(self.benchmark["distribution"][client]), client) + common.bcolors.ENDC
+        print common.bcolors.OKGREEN + "[LOG]%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())) + common.bcolors.ENDC
 
         while self.check_fio_pgrep(self.benchmark["distribution"].keys()):
             time.sleep(5)
@@ -110,6 +113,7 @@ class FioRbd(Benchmark):
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
+        print common.bcolors.OKGREEN + "[LOG]Prepare_run: distribute fio.conf to all clients" + common.bcolors.ENDC
         for client in self.benchmark["distribution"].keys():
             common.scp(user, client, "../conf/fio.conf", dest_dir)
         self.cleanup()

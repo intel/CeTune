@@ -26,7 +26,6 @@ class Benchmark(object):
         self.prepare_result_dir()
         print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
 
-        print common.bcolors.OKGREEN + "[LOG]Prepare Status: Do prerun_check and distribute config files" + common.bcolors.ENDC
         self.cal_run_job_distribution()
         self.prerun_check() 
         self.prepare_run()
@@ -39,7 +38,7 @@ class Benchmark(object):
             self.stop_workload()
             self.stop_data_collecters()
 
-        print common.bcolors.OKGREEN + "[LOG]Collect Data Status" + common.bcolors.ENDC
+        print common.bcolors.OKGREEN + "[LOG]Collecting Data" + common.bcolors.ENDC
         self.after_run()
         self.archive()
         self.set_runid()
@@ -66,7 +65,7 @@ class Benchmark(object):
         poolname = "rbd"
         stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % poolname, option="check_return")
         if stderr:
-            print common.bcolors.FAIL + "[ERROR]unable get rbd list, return msg: %s" % res[1] + common.bcolors.ENDC
+            print common.bcolors.FAIL + "[ERROR]unable get rbd list, return msg: %s" % stderr + common.bcolors.ENDC
             sys.exit()
         res = common.format_pdsh_return(stdout)
         if res != {}:
@@ -192,7 +191,6 @@ class Benchmark(object):
             self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
             start_vclient_num = end_vclient_num
             client_num += 1 
-        print self.cluster["testjob_distribution"]
 
     def cal_run_job_distribution(self):
          number = int(self.benchmark["instance_number"])
@@ -211,7 +209,6 @@ class Benchmark(object):
                  volume_num_upper_bound = volume_max_per_client
              self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
              remained_instance_num = remained_instance_num - volume_num_upper_bound
-         print self.benchmark["distribution"] 
 
     def check_fio_pgrep(self, nodes, fio_job_num = 1):
         user =  self.cluster["user"]
@@ -222,7 +219,7 @@ class Benchmark(object):
             for node in res:
                 fio_running_job_num += len(str(res[node]).split('\n'))
             if fio_running_job_num >= fio_job_num:
-                common.bcolors.WARNING + "[WARN]%d fio job still runing" % fio_running_job_num + common.bcolors.ENDC
+                print common.bcolors.WARNING + "[WARN]%d fio job still runing" % fio_running_job_num + common.bcolors.ENDC
                 return True
             else:
                 return False
@@ -234,10 +231,11 @@ class Benchmark(object):
         stdout, stderr = common.pdsh(user, [controller], "ceph -s | grep pgmap | awk '{print $7 $8}'", option = "check_return")
         res = common.format_pdsh_return(stdout)
         if controller not in res:
-            common.bcolors.FAIL + "[ERROR]cannot get ceph space, seems to be a dead error" + common.bcolors.ENDC
+            print common.bcolors.FAIL + "[ERROR]cannot get ceph space, seems to be a dead error" + common.bcolors.ENDC
             sys.exit()
-        cur_space = common.size_to_bytes(res[controller])
-        planned_space = common.size_to_bytes(planed_space)
+        cur_space = common.size_to_Kbytes(res[controller])
+        planned_space = common.size_to_Kbytes(planed_space)
+        print common.bcolors.WARNING + "[WARN]Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space) + common.bcolors.ENDC
         if cur_space < planned_space:
             return False
         else:
