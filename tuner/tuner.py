@@ -48,7 +48,7 @@ class Tuner:
                         engine = self.worksheet[section]['benchmark_engine']
                     else:
                         engine = 'fiorbd' 
-                    run_cases.main([engine])
+                    run_cases.main(['--tuning', section, engine])
                 else:
                     print common.bcolors.FAIL + "[ERROR] Unknown tuner workstage %s" % work + common.bcolors.ENDC
 

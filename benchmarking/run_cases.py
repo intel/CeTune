@@ -14,15 +14,23 @@ def main(args):
         'engine',
         help = 'Choose the engine: qemurbd, fiorbd, fiocephfs, cosbench',
         )
+    parser.add_argument(
+        '--tuning',
+        )
     args = parser.parse_args(args)
     testcase_list = []
+    print args
+    try:
+        tuning_section = args.tuning
+    except:
+        tuning_section = ""
     with open("../conf/cases.conf", "r") as f:
         for line in f.readlines():
             p = line.split()
             testcase_list.append({
                 "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
                 "block_size":p[3], "qd":p[4], "rampup":p[5], 
-                "runtime":p[6], "vdisk":p[7], "output_dir":p[8]
+                "runtime":p[6], "vdisk":p[7], "output_dir":p[8], "tuning_section": tuning_section
             }) 
     if args.engine == "qemurbd":
         for testcase in testcase_list:

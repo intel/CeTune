@@ -39,10 +39,17 @@ class Config():
                     if re.search(',', cur_conf_section[key]):
                         cur_conf_section[key] = cur_conf_section[key].split(",")
 
-    def dump(self):
+    def dump(self, key=""):
         pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(self.conf_data)
+        try:
+            pp.pprint(self.conf_data[key])
+        except:
+            pp.pprint(self.conf_data)
 
+    def dump_to_file(self, output, key=""):
+        with open(output, 'w') as f:
+            f.write( self.dump(key) )
+        
     def get(self, key):
         if key in self.conf_data:
             return self.conf_data[key]
@@ -174,14 +181,15 @@ def rscp(user, node, localfile, remotefile):
 
 def load_yaml_conf(yaml_path):
     config = {}
-    try:
-        with file(yaml_path) as f:
-            g = yaml.safe_load_all(f)
-            for new in g:
-                config.update(new)
-    except IOError, e:
-        raise argparse.ArgumentTypeError(str(e))
+    with file(yaml_path) as f:
+        g = yaml.safe_load_all(f)
+        for new in g:
+            config.update(new)
     return config
+
+def write_yaml_file(yaml_path, data):
+    with file(yaml_path, 'w') as f:
+        f.write( yaml.dump(data, indent=4, default_flow_style=False) )
 
 def _decode_list(data):
     rv = []

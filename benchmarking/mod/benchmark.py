@@ -135,8 +135,12 @@ class Benchmark(object):
         head = self.cluster["head"]
         dest_dir = self.benchmark["dir"]
         #collect all.conf
-        
-        common.rscp(user, head, "%s/" % (dest_dir), "%s/../conf/all.conf" % os.getcwd())
+        common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
+        #collect tuner.yaml
+        worksheet = common.load_yaml_conf("%s/conf/tuner.yaml" % self.pwd)
+        print self.benchmark["tuning_section"]
+        if self.benchmark["tuning_section"] in worksheet:
+            common.write_yaml_file( "%s/tuning.yaml" % dest_dir, {self.benchmark["tuning_section"]:worksheet[self.benchmark["tuning_section"]]})
         #collect osd data
         for node in self.cluster["osd"]:
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
@@ -203,6 +207,8 @@ class Benchmark(object):
          self.benchmark["distribution"] = {}
 	 remained_instance_num = number
          for client in self.cluster["testjob_distribution"]:
+             if not remained_instance_num:
+                 break
              if remained_instance_num < volume_max_per_client:
                  volume_num_upper_bound = remained_instance_num
              else:
