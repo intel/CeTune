@@ -5,6 +5,7 @@ import os, sys
 import time
 import re
 import uuid
+from analyzer import *
 
 class Benchmark(object):
     def __init__(self, testcase):
@@ -31,20 +32,24 @@ class Benchmark(object):
         self.prepare_run()
 
         print common.bcolors.OKGREEN + "[LOG]Run Benchmark Status: collect system metrics and run benchmark" + common.bcolors.ENDC
+        test_start_time = time.time()
         try:
             self.run()
         except KeyboardInterrupt:
             print common.bcolors.WARNING + "[WARNING]Caught Signal to Cancel this run, killing Workload now, pls wait" + common.bcolors.ENDC
+            self.real_runtime = time.time() - test_start_time
             self.stop_workload()
             self.stop_data_collecters()
 
+        self.real_runtime = time.time() - test_start_time
         print common.bcolors.OKGREEN + "[LOG]Collecting Data" + common.bcolors.ENDC
         self.after_run()
         self.archive()
         self.set_runid()
 
         print common.bcolors.OKGREEN + "[LOG]Post Process Result Data" + common.bcolors.ENDC
-        common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
+        #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
+        analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
         
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
@@ -138,7 +143,6 @@ class Benchmark(object):
         common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
         #collect tuner.yaml
         worksheet = common.load_yaml_conf("%s/conf/tuner.yaml" % self.pwd)
-        print self.benchmark["tuning_section"]
         if self.benchmark["tuning_section"] in worksheet:
             common.write_yaml_file( "%s/tuning.yaml" % dest_dir, {self.benchmark["tuning_section"]:worksheet[self.benchmark["tuning_section"]]})
         #collect osd data
@@ -150,6 +154,11 @@ class Benchmark(object):
         for node in self.benchmark["distribution"].keys():
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+
+        #save real runtime
+        if self.real_runtime:
+            with open("%s/real_runtime.txt" % dest_dir, "w") as f:
+                f.write(str(int(self.real_runtime)))
 
     def stop_data_collecters(self):
         #2. clean running process
