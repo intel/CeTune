@@ -233,7 +233,6 @@ class Tuner:
                 else:
                     new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
                 for cur_tuning_poolname in self.cur_tuning['pool'].keys():
-                    print cur_tuning_poolname
                     if cur_tuning_poolname != new_poolname:
                         self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
                     else:

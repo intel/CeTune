@@ -12,6 +12,7 @@ from fcntl import fcntl, F_GETFL, F_SETFL
 from os import O_NONBLOCK, read
 import socket
 import struct
+from collections import OrderedDict
 
 class Config():
     def __init__(self, conf_path):
@@ -160,6 +161,7 @@ def bash(command, force=False):
         print('bash: %s' % args)
         print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
+    return stdout
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
@@ -237,6 +239,23 @@ def format_pdsh_return(pdsh_res):
             pass
     return output
 
+def convert_table_to_2Dlist(table_str):
+    res_dict = OrderedDict()
+    first_line = False
+    for line in table_str.split('\n'):
+        if not first_line:
+            title_dict = line.split()
+            first_line = True
+        else:
+            index = 0
+            for data in line.split():
+                try:
+                    res_dict[title_dict[index]].append(float(data))
+                except:
+                    res_dict[title_dict[index]] = [float(data)]
+                index += 1
+    return res_dict
+
 def check_if_adict_contains_bdict(adict, bdict):
     for key in bdict:
         if key in adict:
@@ -290,19 +309,39 @@ class MergableDict:
     def get(self):
         return self.mergable_dict
 
-def size_to_Kbytes(size):
-    res = re.search('(\d+)\s*(\w+)',size)
+def size_to_Kbytes(size, dest_unit='KB'):
+    res = re.search('(\d+\.*\d*)\s*(\w+)',size)
     space_num = float(res.group(1))
     space_unit = res.group(2)
-    if space_unit == 'KB':
-        return space_num
-    last_unit = "-1"
-    for unit in ['ZB','EB','PB','TB','GB','MB','KB']:
-        if space_unit != last_unit:
-            last_unit = unit
-            continue
-        space_num *= 1024.0
-        space_unit = unit
-        last_unit = unit
-    return space_num
+    if space_unit in ['Z','E','P','T','G','M','K']:
+        space_unit += 'B'
+    if space_unit == 'bytes':
+        space_unit = 'B'
+    unit_list = ['ZB','EB','PB','TB','GB','MB','KB','B']
+    dest_unit_index = unit_list.index(dest_unit)
+    space_unit_index = unit_list.index(space_unit)
+    if dest_unit_index > space_unit_index:
+        for i in range(space_unit_index, dest_unit_index):
+            space_num *= 1024.0
+    else:
+        for i in range(dest_unit_index, space_unit_index):
+            space_num /= 1024.0
+    return '%.3f' % space_num
         
+def time_to_sec(fio_runtime, dest_unit='sec'):
+    res = re.search('(\d+.*\d*)(\wsec)', fio_runtime)
+    if not res:
+        print bcolors.WARNING+"[WARN]fio result file seems broken, can't obtain real runing time"+bcolors.ENDC
+        return 0
+    runtime = float(res.group(1))
+    unit = res.group(2)
+    unit_list = ['sec','msec','usec']
+    dest_unit_index = unit_list.index(dest_unit)
+    cur_unit_index = unit_list.index(unit)
+    if dest_unit_index > cur_unit_index:
+        for i in range(cur_unit_index, dest_unit_index):
+            runtime *= 1000.0
+    else:
+        for i in range(dest_unit_index, cur_unit_index):
+            runtime /= 1000.0
+    return '%.3f' % runtime
