@@ -8,6 +8,7 @@ import os, sys
 import time
 import pprint
 import re
+import yaml
 from collections import OrderedDict
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -60,6 +61,7 @@ class Analyzer:
                 system, fio = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
                 self.result["fio"].update(fio)
+
         view = visualizer.Visualizer(self.result)
         output = view.generate_summary_page()
         with open("%s/%s.html" % (dest_dir, self.result["session_name"]), 'w') as f:
@@ -87,15 +89,21 @@ class Analyzer:
             if '_iostat.txt' in dir_name:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
+            if '.asok.txt' in dir_name:
+                res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
+                for key, value in res.items():
+                    if not key in result:
+                        result[key] = OrderedDict()
+                    result[key].update(value)
         return [result, fio_result]
 
     def get_validate_runtime(self):
         self.validate_time = 0
         dest_dir = self.cluster["dest_dir"]
         stdout = common.bash( 'grep " runt=.*" -r %s' % (dest_dir) )
-        fio_runtime_list = re.findall('runt=(\d+\wsec)', stdout)
-        for fio_runtime in fio_runtime_list:
-            validate_time = common.time_to_sec(fio_runtime)
+        fio_runtime = re.search('runt=\s*(\d+\wsec)', stdout)
+        if fio_runtime:
+            validate_time = common.time_to_sec(fio_runtime.group(1), 'sec')
             if validate_time < self.validate_time or self.validate_time == 0:
                 self.validate_time = validate_time
  
@@ -185,8 +193,44 @@ class Analyzer:
     def process_blktrace_data(self, path):
         pass        
 
-    def process_perfcounter_data(self, path):
-        pass         
+    def process_perfcounter_data(self, path, dirname):
+        print common.bcolors.OKGREEN + "[LOG]loading %s" % path + common.bcolors.ENDC
+        perfcounter = []
+        try:
+            with open(path,"r") as fd:
+                data = fd.readlines()
+            tmp_data = "[\n"+"\n".join(data[:-1])+"]"
+            perfcounter = yaml.load(tmp_data)
+        except IOError as e:
+            raise
+        if not len(perfcounter) > 0:
+            return False
+        result = common.MergableDict()
+        lastcounter = perfcounter[0]
+        for counter in perfcounter[1:]:
+            result.update(counter, dedup=False, diff = True)
+        result = result.get()
+        output = OrderedDict()
+        for key in ["osd", "filestore", "objecter"]:
+            output["perfcounter_"+key] = {}
+            output["perfcounter_"+key][dirname] = {}
+            current = output["perfcounter_"+key][dirname]
+            for param, data in result[key].items():
+                if isinstance(data, list):
+                    if not param in current:
+                        current[param] = []
+                    current[param].extend( data[1:] )
+                if isinstance(data, dict) and 'avgcount' in data and 'sum' in data:
+                    if not isinstance(data['sum'], list):
+                        continue
+                    if not param in current:
+                        current[param] = []
+                    for i in range(1, len(data['sum'])):
+                        try:
+                            current[param].append( round(data['sum'][i]/data['avgcount'][i],3) )
+                        except:
+                            pass
+        return output
 
 def main(args):
     parser = argparse.ArgumentParser(description='Analyzer tool')

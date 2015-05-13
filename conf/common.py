@@ -275,7 +275,9 @@ class MergableDict:
     def __init__(self):
         self.mergable_dict = {}
 
-    def update(self, conf):
+    def update(self, conf, dedup = True, diff = False):
+        self.dedup = dedup
+        self.diff = diff
         self.mergable_dict = self.update_leaf( self.mergable_dict, conf)
 
     def update_leaf(self, dest_data, conf):
@@ -286,13 +288,20 @@ class MergableDict:
             return dest_data
         if dest_data == conf:
             return dest_data
-        if isinstance(conf, str):
+        if isinstance(conf, str) or isinstance(conf, int) or isinstance(conf, float):
             if not isinstance(dest_data, list):
                 new_dest_data = [dest_data]
             else:
                 new_dest_data = dest_data
-            if conf not in new_dest_data:
+            if not self.dedup:
+                if self.diff:
+                    conf_tmp = conf
+                    conf = round(conf - new_dest_data[0],3)
+                    new_dest_data[0] = conf_tmp
                 new_dest_data.append(conf)
+            else:
+                if conf not in new_dest_data:
+                    new_dest_data.append(conf)
             return new_dest_data
         if isinstance(conf, dict):
             for root in conf:

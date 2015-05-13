@@ -1,6 +1,6 @@
 testjob1:
   workstages: ["benchmark"]
-  benchmark_engine: "fiorbd"
+  benchmark_engine: "qemurbd"
   version: 'firefly'
   pool:
     rbd:

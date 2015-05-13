@@ -144,14 +144,14 @@ class Visualizer:
             pass
         if tmp["op_type"] in ["randread", "seqread"]:
             for node, node_data in self.result["ceph"].items():
-                tmp["osd_iops"] += numpy.mean(node_data["osd"]["r/s"][-self.result["runtime"]:])*int(node_data["osd"]["disk_num"])
-                tmp["osd_bw"] += numpy.mean(node_data["osd"]["rMB/s"][-self.result["runtime"]:])*int(node_data["osd"]["disk_num"])
-                tmp["osd_latency"] += numpy.mean(node_data["osd"]["r_await"][-self.result["runtime"]:])
+                tmp["osd_iops"] += numpy.mean(node_data["osd"]["r/s"])*int(node_data["osd"]["disk_num"])
+                tmp["osd_bw"] += numpy.mean(node_data["osd"]["rMB/s"])*int(node_data["osd"]["disk_num"])
+                tmp["osd_latency"] += numpy.mean(node_data["osd"]["r_await"])
         if tmp["op_type"] in ["randwrite", "seqwrite"]:
             for node, node_data in self.result["ceph"].items():
-                tmp["osd_iops"] += numpy.mean(node_data["osd"]["w/s"][-self.result["runtime"]:])*int(node_data["osd"]["disk_num"])
-                tmp["osd_bw"] += numpy.mean(node_data["osd"]["wMB/s"][-self.result["runtime"]:])*int(node_data["osd"]["disk_num"])
-                tmp["osd_latency"] += numpy.mean(node_data["osd"]["w_await"][-self.result["runtime"]:])
+                tmp["osd_iops"] += numpy.mean(node_data["osd"]["w/s"])*int(node_data["osd"]["disk_num"])
+                tmp["osd_bw"] += numpy.mean(node_data["osd"]["wMB/s"])*int(node_data["osd"]["disk_num"])
+                tmp["osd_latency"] += numpy.mean(node_data["osd"]["w_await"])
         tmp["osd_iops"] = "%.3f" % (tmp["osd_iops"])
         tmp["osd_bw"] = "%.3f MB/s" % (tmp["osd_bw"])
         tmp["osd_latency"] = "%.3f msec" % (tmp["osd_latency"]/osd_node_count)
@@ -162,7 +162,7 @@ class Visualizer:
     def generate_node_view(self, node_type):
         output = []
         if node_type == 'ceph':
-            node_show_list = ["osd", "journal", "cpu", "memory", "nic"]
+            node_show_list = ["osd", "journal", "cpu", "memory", "nic", "perfcounter_osd", "perfcounter_filestore", "perfcounter_objecter"]
         elif node_type == 'vclient':
             node_show_list = ["vdisk","cpu", "memory", "nic"]
         elif node_type == 'client':
@@ -179,18 +179,26 @@ class Visualizer:
             data = OrderedDict()
             chart_data = OrderedDict()
             for node in self.result[node_type].keys():
-                data[node] = OrderedDict()
-                try:
-                    for key, value in self.result[node_type][node][field].items():
-                        if not isinstance(value, list):
-                            data[node][key] = value
-                        else:
-                            data[node][key] = '%.3f' % numpy.mean(value[-self.result["runtime"]:])
-                            if key not in chart_data:
-                                chart_data[key] = OrderedDict()
-                            chart_data[key][node] = value
-                except:
-                    pass
+                node_data = OrderedDict()
+                if "perfcounter" in field:
+                    for subnode in self.result[node_type][node][field].keys():
+                        data[subnode] = OrderedDict()
+                        node_data[subnode] = self.result[node_type][node][field][subnode]
+                else:
+                    data[node] = OrderedDict()
+                    node_data[node] = self.result[node_type][node][field]
+                for node, tmp in node_data.items():
+                    try:
+                        for key, value in tmp.items():
+                            if not isinstance(value, list):
+                                data[node][key] = value
+                            else:
+                                data[node][key] = '%.3f' % numpy.mean(value)
+                                if key not in chart_data:
+                                    chart_data[key] = OrderedDict()
+                                chart_data[key][node] = value
+                    except:
+                        pass
             output.extend( self.generate_table_from_json(data,'cetune_table', field) )
             output.extend( self.generate_line_chart(chart_data, node_type, field) )
         output.append("</div>")
@@ -206,13 +214,15 @@ class Visualizer:
                 pyplot.plot(node_data, label=node)
             pyplot.xlabel("time(sec)")
             pyplot.ylabel("%s" % field_column)
-            pyplot.legend()
+            # Shrink current axis's height by 10% on the bottom
+            pyplot.legend(loc = 'center left', bbox_to_anchor = (1, 0.5), prop={'size':6})
             pyplot.grid(True)
             pyplot.suptitle("%s" % field_column)
             pic_name = '%s_%s_%s.png' % (node_type, field, re.sub('[/%]','',field_column))
             pyplot.savefig('../visualizer/include/pic/%s' % pic_name) 
             pyplot.close()
-            output.append("<div class='cetune_pic' id='%s_%s_pic'><img src='./include/pic/%s' alt='%s' style='height:400px; width:1000px'></div>" % (field, re.sub('[/%]','',field_column), pic_name, field_column))
+            line_table = self.generate_line_table_from_json(field_data,'line_table',field_column)
+            output.append("<div class='cetune_pic' id='%s_%s_pic'><img src='./include/pic/%s' alt='%s' style='height:400px; width:1000px'>%s</div>" % (field, re.sub('[/%]','',field_column), pic_name, field_column, "\n".join(line_table)))
         return output
 
         #4. vclient info
@@ -232,6 +242,30 @@ class Visualizer:
             output.append("<td>%s</td>" % node)
             for key, value in node_data.items():
                 output.append("<td>%s</td>" % value)
+            output.append("</tr>")
+        output.append("</tbody>")
+        output.append("</table>")
+        return output
+
+    def generate_line_table_from_json(self, data, classname, node_type):
+        output = []
+        output.append("<table class='%s'>" % classname)
+        output.append("<thead>")
+        output.append("<tr>")
+        output.append("<th>%s</th>" % node_type)
+        for key in data.keys():
+            output.append("<th><a id='%s_%s' href='#'>%s</a></th>" % (node_type, re.sub('[/%]','',key), key))
+        output.append("<tr>")
+        output.append("</thead>")
+        output.append("<tbody>")
+        for i in range(0, len(data[data.keys()[0]])):
+            output.append("<tr>")
+            output.append("<td>%s</td>" % i)
+            for node, node_data in data.items():
+                try:
+                    output.append("<td>%s</td>" % node_data[i])
+                except:
+                    output.append("<td></td>")
             output.append("</tr>")
         output.append("</tbody>")
         output.append("</table>")
