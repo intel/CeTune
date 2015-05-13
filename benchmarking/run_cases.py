@@ -1,7 +1,9 @@
 import argparse
 import os, sys
-lib_path = os.path.abspath(os.path.join('..'))
+
+lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 sys.path.append(lib_path)
+print sys.path
 from conf import common
 from mod import *
 from mod.bblock import *
@@ -53,7 +55,15 @@ def main(args):
                 benchmark.go()
             except KeyboardInterrupt:
                 print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
-
+    if args.engine == "cosbench":
+        for testcase in testcase_list:
+            benchmark = cosbench.Cosbench(None)
+            try:
+                #benchmark.print_all_attributes()
+                #benchmark.prerun_check()
+                benchmark.go()
+            except KeyboardInterrupt:
+                print common.bcolors.WARNING +  "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
 if __name__ == '__main__':
     import sys
     main(sys.argv[1:])

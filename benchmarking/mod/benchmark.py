@@ -1,15 +1,16 @@
 import subprocess
-import common
+from conf import common
 import copy
 import os, sys
 import time
 import re
 import uuid
 from analyzer import *
+lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 class Benchmark(object):
     def __init__(self, testcase):
-        self.all_conf_data = common.Config("../conf/all.conf")
+        self.all_conf_data = common.Config(lib_path+"/conf/all.conf")
         self.benchmark = {}
         self.benchmark = copy.deepcopy(testcase)
 
@@ -25,7 +26,7 @@ class Benchmark(object):
 
     def go(self):
         self.prepare_result_dir()
-        print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
+        #print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
 
         self.cal_run_job_distribution()
         self.prerun_check() 
