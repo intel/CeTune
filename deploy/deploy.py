@@ -203,14 +203,14 @@ class Deploy:
                 common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid))
                 common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="check_return")
                 stdout,stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
-                common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="check_return")
+                stdout, stderr = common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="check_return")
 
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                common.pdsh(user, [osd], 'sudo sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
+                stdout, stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
                 print common.bcolors.OKGREEN + "[LOG]Builded osd.%s daemon on %s" % (osd_num, osd) +common.bcolors.ENDC
                 osd_num = osd_num+1
 
@@ -248,9 +248,9 @@ class Deploy:
         for mon, addr in mons.items():
             common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
             pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
-            cmd = 'sudo sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
+            cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            common.pdsh(user, [mon], '%s' % cmd, option="check_return")
+            stdout, stderr = common.pdsh(user, [mon], '%s' % cmd, option="check_return")
             print common.bcolors.OKGREEN + "[LOG]Builded mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
 
     def start_mon(self):
@@ -261,9 +261,9 @@ class Deploy:
         for mon, addr in mons.items():
             common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
             pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
-            cmd = 'sudo sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
+            cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            common.pdsh(user, [mon], '%s' % cmd, option="check_return")
+            stdout, stderr = common.pdsh(user, [mon], '%s' % cmd, option="check_return")
             print common.bcolors.OKGREEN + "[LOG]Started mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
 
     def start_osd(self):
@@ -280,7 +280,7 @@ class Deploy:
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                common.pdsh(user, [osd], 'sudo sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
+                stdout, stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
                 print common.bcolors.OKGREEN + "[LOG]Started osd.%s daemon on %s" % (osd_num, osd) +common.bcolors.ENDC
                 osd_num = osd_num+1
 
