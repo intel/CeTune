@@ -176,6 +176,9 @@ class Tuner:
         return config
 
     def apply_version(self, jobname):
+        user = self.cluster["user"] 
+        controller = self.cluster["head"] 
+        pwd = os.path.abspath(os.path.join('..'))
         cur_version = self.get_version()
         version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer'}
         current_version_group = re.search('(\d+.\d+).\d',cur_version)
@@ -262,7 +265,13 @@ class Tuner:
                 print common.bcolors.OKGREEN + "[LOG]Restart ceph cluster" + common.bcolors.ENDC
                 deploy.main(['restart'])
             if tuning_key == 'disk':
-                self.handle_disk( option="set" ) 
+                param = {}
+                for param_name, param_data in self.worksheet[jobname]['disk'].items():
+                    param[param_name] = param_data
+                if param != {}:
+                    self.handle_disk( option="set", param=param ) 
+                else:
+                    self.handle_disk( option="set" ) 
 
         #wait ceph health to be OK       
         waitcount = 0

@@ -199,7 +199,15 @@ class Analyzer:
         try:
             with open(path,"r") as fd:
                 data = fd.readlines()
-            tmp_data = "[\n"+"\n".join(data[:-1])+"]"
+            if re.search('^,\n', data[0]):
+                if ',' in data[-1]:
+                    tmp_data = "[\n"+"\n".join(data[1:-1])+"]"
+                else:
+                    tmp_data = "[\n"+"\n".join(data[1:])+"]"
+            elif ',' in data[-1]:
+                tmp_data = "[\n"+"\n".join(data[:-1])+"]"
+            else:
+                tmp_data = "[\n"+"\n".join(data)+"]"
             perfcounter = yaml.load(tmp_data)
         except IOError as e:
             raise
@@ -208,7 +216,7 @@ class Analyzer:
         result = common.MergableDict()
         lastcounter = perfcounter[0]
         for counter in perfcounter[1:]:
-            result.update(counter, dedup=False, diff = True)
+            result.update(counter, dedup=False, diff=False)
         result = result.get()
         output = OrderedDict()
         for key in ["osd", "filestore", "objecter"]:
@@ -219,17 +227,21 @@ class Analyzer:
                 if isinstance(data, list):
                     if not param in current:
                         current[param] = []
-                    current[param].extend( data[1:] )
+                    current[param].extend( data )
                 if isinstance(data, dict) and 'avgcount' in data and 'sum' in data:
                     if not isinstance(data['sum'], list):
                         continue
                     if not param in current:
                         current[param] = []
+                    last_sum = data['sum'][0]
+                    last_avgcount = data['avgcount'][0]
                     for i in range(1, len(data['sum'])):
                         try:
-                            current[param].append( round(data['sum'][i]/data['avgcount'][i],3) )
+                            current[param].append( round((data['sum'][i]-last_sum)/(data['avgcount'][i]-last_avgcount),3) )
                         except:
-                            pass
+                            current[param].append(0)
+                        last_sum = data['sum'][i]
+                        last_avgcount = data['avgcount'][i]
         return output
 
 def main(args):

@@ -163,6 +163,7 @@ class Visualizer:
         output = []
         if node_type == 'ceph':
             node_show_list = ["osd", "journal", "cpu", "memory", "nic", "perfcounter_osd", "perfcounter_filestore", "perfcounter_objecter"]
+            #node_show_list = ["osd", "journal", "cpu", "memory", "nic"]
         elif node_type == 'vclient':
             node_show_list = ["vdisk","cpu", "memory", "nic"]
         elif node_type == 'client':
@@ -181,6 +182,8 @@ class Visualizer:
             for node in self.result[node_type].keys():
                 node_data = OrderedDict()
                 if "perfcounter" in field:
+                    if not field in self.result[node_type][node]:
+                        continue
                     for subnode in self.result[node_type][node][field].keys():
                         data[subnode] = OrderedDict()
                         node_data[subnode] = self.result[node_type][node][field][subnode]
@@ -193,18 +196,22 @@ class Visualizer:
                             if not isinstance(value, list):
                                 data[node][key] = value
                             else:
-                                data[node][key] = '%.3f' % numpy.mean(value)
+                                data[node][key] = "%.3f" % numpy.mean(value)
                                 if key not in chart_data:
                                     chart_data[key] = OrderedDict()
                                 chart_data[key][node] = value
                     except:
                         pass
             output.extend( self.generate_table_from_json(data,'cetune_table', field) )
-            output.extend( self.generate_line_chart(chart_data, node_type, field) )
+            if node_type == 'ceph':
+                append_table = True
+            else:
+                append_table = False
+            output.extend( self.generate_line_chart(chart_data, node_type, field, append_table) )
         output.append("</div>")
         return output
 
-    def generate_line_chart(self, data, node_type, field):
+    def generate_line_chart(self, data, node_type, field, append_table=False):
         output = []
         common.bash("mkdir -p ../visualizer/include/pic")
         print common.bcolors.OKGREEN + "[LOG]generate %s line chart" % node_type + common.bcolors.ENDC
@@ -221,7 +228,9 @@ class Visualizer:
             pic_name = '%s_%s_%s.png' % (node_type, field, re.sub('[/%]','',field_column))
             pyplot.savefig('../visualizer/include/pic/%s' % pic_name) 
             pyplot.close()
-            line_table = self.generate_line_table_from_json(field_data,'line_table',field_column)
+            line_table = []
+            if append_table:
+                line_table = self.generate_line_table_from_json(field_data,'line_table',field_column)
             output.append("<div class='cetune_pic' id='%s_%s_pic'><img src='./include/pic/%s' alt='%s' style='height:400px; width:1000px'>%s</div>" % (field, re.sub('[/%]','',field_column), pic_name, field_column, "\n".join(line_table)))
         return output
 

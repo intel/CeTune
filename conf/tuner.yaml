@@ -1,7 +1,7 @@
 testjob1:
-  workstages: ["benchmark"]
+  workstages: ["deploy","benchmark"]
   benchmark_engine: "qemurbd"
-  version: 'firefly'
+  version: 'hammer'
   pool:
     rbd:
       size: 2
@@ -37,18 +37,3 @@ testjob1:
     debug_mon: 0/0
     debug_paxos: 0/0
     debug_rgw: 0/0
-  osd:
-    filestore_max_inline_xattr_size: 254
-    filestore_max_inline_xattrs: 6
-    filestore_queue_max_ops: 500
-    filestore_queue_committing_max_ops: 5000
-    journal_max_write_entries: 1000
-    journal_queue_max_ops: 3000
-    objecter_inflight_ops: 10240
-    filestore_queue_max_bytes: 1048576000
-    filestore_queue_committing_max_bytes: 1048576000
-    journal_max_write_bytes: 1048576000
-    journal_queue_max_bytes: 1048576000
-    ms_dispatch_throttle_bytes: 1048576000
-    objecter_infilght_op_bytes: 1048576000
-    filestore_wbthrottle_enable: false

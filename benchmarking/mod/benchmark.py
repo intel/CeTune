@@ -49,7 +49,10 @@ class Benchmark(object):
 
         print common.bcolors.OKGREEN + "[LOG]Post Process Result Data" + common.bcolors.ENDC
         #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
-        analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
+        try:
+            analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
+        except:
+            print common.bcolors.FAIL+"[ERROR]analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"] + common.bcolors.ENDC
         
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
