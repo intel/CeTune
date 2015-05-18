@@ -1,5 +1,5 @@
 testjob1:
-  workstages: ["deploy","benchmark"]
+  workstages: ["benchmark"]
   benchmark_engine: "qemurbd"
   version: 'hammer'
   pool:
@@ -37,3 +37,4 @@ testjob1:
     debug_mon: 0/0
     debug_paxos: 0/0
     debug_rgw: 0/0
+    mon_pg_warn_max_per_osd: 1000
