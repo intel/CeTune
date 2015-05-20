@@ -70,7 +70,8 @@ class Analyzer:
         common.bash("scp -r %s %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
         
         remote_bak, remote_dir = self.cluster["dest_dir_remote_bak"].split(':')
-        output = view.generate_history_view(remote_bak, remote_dir, user)
+        output = view.generate_history_view(remote_bak, remote_dir, user, self.result["session_name"])
+        print common.bcolors.OKGREEN + "[LOG]History view generated, copy to remote" + common.bcolors.ENDC
         with open("%s/cetune_history.html" % dest_dir, 'w') as f:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))

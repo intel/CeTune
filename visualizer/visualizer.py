@@ -60,40 +60,58 @@ class Visualizer:
         output.append("</script>")
         return self.add_html_framework(output)
 
-    def generate_history_view(self, remote_host, remote_dir, user='root'):
+    def generate_history_view(self, remote_host, remote_dir, user='root', session_id=""):
+        output = []
+        stdout, stderr = common.pdsh(user, [remote_host], "cat %s/cetune_history.html" % remote_dir, option="check_return")
+        res = common.format_pdsh_return(stdout)
+        if res:
+            output = res[remote_host]
         print common.bcolors.OKGREEN + "[LOG]Generating history view" + common.bcolors.ENDC
-        stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+        if output == []:
+            stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+        else:
+            stdout, stderr = common.pdsh(user, [remote_host], "cd %s/%s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % (remote_dir, session_id), option="check_return")
         res = common.format_pdsh_return(stdout)
         if remote_host not in res:
+            print common.bcolors.FAIL + "[ERROR]Generating history view failed" + common.bcolors.ENDC
             return False
-        output = []
-        output.append("<h1>CeTune History Page</h1>")
-        output.append("<table class='cetune_table'>")
-        output.append(" <thead>")
-        output.append(" <tr>")
-        output.append(" <th>runid</th>")
-        output.append(" <th><a id='runid_op_size' href='#'>op_size</a></th>")
-        output.append(" <th><a id='runid_op_type' href='#'>op_type</a></th>")
-        output.append(" <th><a id='runid_QD' href='#'>QD</a></th>")
-        output.append(" <th><a id='runid_engine' href='#'>engine</a></th>")
-        output.append(" <th><a id='runid_serverNum' href='#'>serverNum</a></th>")
-        output.append(" <th><a id='runid_clientNum' href='#'>clientNum</a></th>")
-        output.append(" <th><a id='runid_rbdNum' href='#'>rbdNum</a></th>")
-        output.append(" <th><a id='runid_runtime' href='#'>runtime</a></th>")
-        output.append(" <th><a id='runid_fio_iops' href='#'>fio_iops</a></th>")
-        output.append(" <th><a id='runid_fio_bw' href='#'>fio_bw</a></th>")
-        output.append(" <th><a id='runid_fio_latency' href='#'>fio_latency</a></th>")
-        output.append(" <th><a id='runid_osd_iops' href='#'>osd_iops</a></th>")
-        output.append(" <th><a id='runid_osd_bw' href='#'>osd_bw</a></th>")
-        output.append(" <th><a id='runid_osd_latency' href='#'>osd_latency</a></th>")
-        output.append(" <tr>")
-        output.append(" </thead>")
-        output.append(" <tbody>")
-        output.append(res[remote_host])
-        output.append(" </tbody>")
-        output.append("<script>")
-        output.append("$(\".cetune_table tr\").click(function(){var path=$(this).attr('href'); window.location=path})")
-        output.append("</script>")
+        if output != []:
+            try:
+                output = output.split('\n')
+                insert_index = output.index("  </tbody>")
+                output.insert(insert_index, res[remote_host])
+            except:
+                stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+                res = common.format_pdsh_return(stdout)
+                output = []
+        if output == []:
+            output.append("<h1>CeTune History Page</h1>")
+            output.append("<table class='cetune_table'>")
+            output.append(" <thead>")
+            output.append(" <tr>")
+            output.append(" <th>runid</th>")
+            output.append(" <th><a id='runid_op_size' href='#'>op_size</a></th>")
+            output.append(" <th><a id='runid_op_type' href='#'>op_type</a></th>")
+            output.append(" <th><a id='runid_QD' href='#'>QD</a></th>")
+            output.append(" <th><a id='runid_engine' href='#'>engine</a></th>")
+            output.append(" <th><a id='runid_serverNum' href='#'>serverNum</a></th>")
+            output.append(" <th><a id='runid_clientNum' href='#'>clientNum</a></th>")
+            output.append(" <th><a id='runid_rbdNum' href='#'>rbdNum</a></th>")
+            output.append(" <th><a id='runid_runtime' href='#'>runtime</a></th>")
+            output.append(" <th><a id='runid_fio_iops' href='#'>fio_iops</a></th>")
+            output.append(" <th><a id='runid_fio_bw' href='#'>fio_bw</a></th>")
+            output.append(" <th><a id='runid_fio_latency' href='#'>fio_latency</a></th>")
+            output.append(" <th><a id='runid_osd_iops' href='#'>osd_iops</a></th>")
+            output.append(" <th><a id='runid_osd_bw' href='#'>osd_bw</a></th>")
+            output.append(" <th><a id='runid_osd_latency' href='#'>osd_latency</a></th>")
+            output.append(" <tr>")
+            output.append(" </thead>")
+            output.append(" <tbody>")
+            output.append(res[remote_host])
+            output.append(" </tbody>")
+            output.append("<script>")
+            output.append("$(\".cetune_table tr\").click(function(){var path=$(this).attr('href'); window.location=path})")
+            output.append("</script>")
         return self.add_html_framework(output)
 
     def add_html_framework(self, maindata):
