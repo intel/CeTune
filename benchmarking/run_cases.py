@@ -59,8 +59,6 @@ def main(args):
         for testcase in testcase_list:
             benchmark = cosbench.Cosbench(None)
             try:
-                #benchmark.print_all_attributes()
-                #benchmark.prerun_check()
                 benchmark.go()
             except KeyboardInterrupt:
                 print common.bcolors.WARNING +  "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC

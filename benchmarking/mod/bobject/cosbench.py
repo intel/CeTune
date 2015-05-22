@@ -1,5 +1,6 @@
 import header
 import os
+import os.path
 import time
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 from benchmarking.mod.benchmark import *
@@ -24,7 +25,7 @@ class Cosbench(Benchmark):
         self.cosbench["cosbench_rw"]=self.all_conf_data.get("cosbench_rw")
         self.cosbench["data_processing_scripts"]="/var/lib/multiperf"
         self.cosbench["data_on_nodes"]="/tmp/multiperf"
-        
+        self.cosbench["cluster_ip"]=self.all_conf_data.get("cluster_ip")
         num_tests = len(self.cosbench["test_worker_list"])
         first_id = 1+int(header.read_test_id(".test_id"))
         self.cosbench_run_id = [str(test_id+first_id) for test_id in range(num_tests)]
@@ -60,12 +61,15 @@ class Cosbench(Benchmark):
         else:
             print "radosgw is running"
 
-    def update_config(self):
-        pass
-        # TODO: update config for cosbench cli.sh according to all.conf
-        # 1. cp the config temples to a tmp/ folder
+    def update_config(self,config_middle,test_worker_list):
+        config_suffix = "w.xml"
+        for workers in test_worker_list:
+            config_file_name = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
+            config_path=os.path.dirname(__file__) + "/configs/"
+            if os.path.exists(config_path+config_file_name) == True:
+                os.remove(config_path+config_file_name)
+            header.replace_conf_xml(self.cosbench["cosbench_rw"],self.cosbench["test_size"],workers,config_middle,self.cosbench["cluster_ip"])
 
-        
     def stop_data_collectors(self):
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
         ceph_nodes.append(self.rgw["rgw_server"]) 
@@ -85,20 +89,17 @@ class Cosbench(Benchmark):
         # Unset http_proxy for each cosbench node
         common.pdsh("root",self.cosbench["cosbench_driver"],"unset http_proxy","error_check")
         common.pdsh("root",[self.cosbench["cosbench_controller"]],"unset http_proxy","error_check")
-        # prepare config
-        print "Generating cosbench config files..."
-        self.update_config()
-
+        
     def run(self):
         print "[cosbench] starting workloads..."
         config_prefix = self.cosbench["cosbench_rw"]
         config_suffix = "w.xml"
-        config_path=os.path.dirname(__file__) + "/conf/"
+        config_path=os.path.dirname(__file__) + "/configs/"
         if self.cosbench["test_scale"]== "small":
             config_middle = "_100con_100obj_"
         else:
             config_middle = "_10000con_10000obj_"
-        
+        self.update_config(config_middle,self.cosbench["test_worker_list"])
         print "start system statistics..."
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
         ceph_nodes.append(self.rgw["rgw_server"])
@@ -109,17 +110,30 @@ class Cosbench(Benchmark):
             runtime = 300
             common.pdsh("root",ceph_nodes,"dmesg -C; dmesg -c >> /dev/null")
             common.pdsh("root",ceph_nodes,"sleep "+str(ramp_up)+"; sar -bBrwqWuR -P ALL -n DEV -o "+self.cosbench["data_on_nodes"]+"/sar_raw.log %s %s > /dev/null &" %(str(interval),str(runtime / interval)))
+            #user = self.cluster["user"]
+            #time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+            #dest_dir = self.cluster["tmp_dir"]
+            #nodes = self.cluster["osd"]
+            #common.pdsh(user, nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
+        
+            #send command to ceph cluster
+            #common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
+            #common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
+            #common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir))
+            #common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
+            #common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
+        
             common.pdsh("root",ceph_nodes,"sleep %s; iostat -d -k -t -x %s %s > %s/iostat.log &"   %(str(ramp_up),str(interval),str(runtime / interval),self.cosbench["data_on_nodes"]  ) )
             common.pdsh("root",ceph_nodes,"sleep %s; mpstat -P ALL %s %s > %s/mpstat.log &" %(str(ramp_up),str(interval),str(runtime / interval),self.cosbench["data_on_nodes"] ))
             local_config_file = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
-            local_config_path = config_path+self.cosbench["test_size"]+"-"+self.cosbench["cosbench_rw"]+"/"+config_middle+"/"+ local_config_file
+            #local_config_path = config_path+self.cosbench["test_size"]+"-"+self.cosbench["cosbench_rw"]+"/"+config_middle+"/"+ local_config_file
+            local_config_path = config_path+local_config_file
             remote_config_path = "/tmp/"+local_config_file
-            
+            print local_config_path
             run_command =" sh "+self.cosbench["cosbench_folder"]+"/cli.sh submit "+remote_config_path +"| awk  '{print $4}'"
             
             common.scp("root",self.cosbench["cosbench_controller"],local_config_path,remote_config_path)
-            self.runid = int((common.pdsh("root",list([self.cosbench["cosbench_controller"]]),run_command,"check_return")[0]).split()[1][1:])
-            print self.runid
+            self.runid = int((common.pdsh("root",list([self.cosbench["cosbench_controller"]]),run_command,"check_return")[0]).split()[1][1:]) 
             header.update_test_id(".test_id",str(self.runid))
             common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"rm -f %s" %(remote_config_path),"error_check")
             
