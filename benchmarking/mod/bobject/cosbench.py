@@ -30,7 +30,11 @@ class Cosbench(Benchmark):
         first_id = 1+int(header.read_test_id(".test_id"))
         self.cosbench_run_id = [str(test_id+first_id) for test_id in range(num_tests)]
         self.runid = first_id
+        self.cosbench["run_time"] = self.all_conf_data.get("run_time")
+        self.cosbench["ramp_up"] = self.all_conf_data.get("run_warmup_time")
         
+
+
     def prepare_result_dir(self):
         pass
 
@@ -73,8 +77,6 @@ class Cosbench(Benchmark):
     def stop_data_collectors(self):
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
         ceph_nodes.append(self.rgw["rgw_server"]) 
-
-        
         for node in ceph_nodes:
             print "Kill sleep, sar, sadc, iostat, vmstat, mpstat, blktrace on each ceph osd. Clean up data on node:" + node
             common.pdsh("root",node,"killall -q sleep; killall -q sar sadc iostat vmstat mpstat blktrace","check_return")
@@ -104,29 +106,29 @@ class Cosbench(Benchmark):
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
         ceph_nodes.append(self.rgw["rgw_server"])
         ceph_nodes.extend(self.cosbench["cosbench_driver"])
-        ramp_up = 3
+        ramp_up = self.cosbench["ramp_up"]
+        interval = 5
+        # TODO: replace this with the config from all.conf
+        #runtime = self.cosbench["run_time"]
+        #user = self.cluster["user"]
+        runtime = "300"
+        ramp_up = "100"
+        time = int(ramp_up) + int(runtime)
+        dest_dir = self.cluster["tmp_dir"]
+           
         for workers in self.cosbench["test_worker_list"]:
-            interval = 5
-            runtime = 300
-            common.pdsh("root",ceph_nodes,"dmesg -C; dmesg -c >> /dev/null")
-            common.pdsh("root",ceph_nodes,"sleep "+str(ramp_up)+"; sar -bBrwqWuR -P ALL -n DEV -o "+self.cosbench["data_on_nodes"]+"/sar_raw.log %s %s > /dev/null &" %(str(interval),str(runtime / interval)))
-            #user = self.cluster["user"]
-            #time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
-            #dest_dir = self.cluster["tmp_dir"]
-            #nodes = self.cluster["osd"]
-            #common.pdsh(user, nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
+            common.pdsh(user,ceph_nodes,"dmesg -C; dmesg -c >> /dev/null")
+            common.pdsh(user, ceph_nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
         
             #send command to ceph cluster
-            #common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-            #common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
-            #common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir))
-            #common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
-            #common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
+            # TODO: Question: do we have to sleep for a rampup time before starting collecting data?
+            common.pdsh(user, ceph_nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
+            common.pdsh(user, ceph_nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
+            common.pdsh(user, ceph_nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir))
+            common.pdsh(user, ceph_nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
+            common.pdsh(user, ceph_nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
         
-            common.pdsh("root",ceph_nodes,"sleep %s; iostat -d -k -t -x %s %s > %s/iostat.log &"   %(str(ramp_up),str(interval),str(runtime / interval),self.cosbench["data_on_nodes"]  ) )
-            common.pdsh("root",ceph_nodes,"sleep %s; mpstat -P ALL %s %s > %s/mpstat.log &" %(str(ramp_up),str(interval),str(runtime / interval),self.cosbench["data_on_nodes"] ))
             local_config_file = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
-            #local_config_path = config_path+self.cosbench["test_size"]+"-"+self.cosbench["cosbench_rw"]+"/"+config_middle+"/"+ local_config_file
             local_config_path = config_path+local_config_file
             remote_config_path = "/tmp/"+local_config_file
             print local_config_path
