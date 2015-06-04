@@ -101,7 +101,7 @@ class Deploy:
             f.write(output)
 
     def redeploy(self):
-        self.gen_cephconf()
+        #self.gen_cephconf()
         print common.bcolors.OKGREEN + "[LOG]ceph.conf file generated" +common.bcolors.ENDC
         self.cleanup()
         print common.bcolors.OKGREEN + "[LOG]Killed ceph-mon, ceph-osd and cleaned mon dir" +common.bcolors.ENDC
@@ -109,8 +109,8 @@ class Deploy:
         print common.bcolors.OKGREEN + "[LOG]Started to mkfs.xfs on osd devices" +common.bcolors.ENDC
         self.make_osd_fs()
         print common.bcolors.OKGREEN + "[LOG]Succeded in mkfs.xfs on osd devices" +common.bcolors.ENDC
-        self.distribute_conf()
-        print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
+        #self.distribute_conf()
+        #print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
 
         print common.bcolors.OKGREEN + "[LOG]Started to build mon daemon" +common.bcolors.ENDC
         self.make_mon()        
@@ -200,7 +200,7 @@ class Deploy:
                 osduuid = str(uuid.uuid4())
                 osd_filedir = osd_filename.replace("$id",str(osd_num))
                 key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
-                common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid))
+                common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="check_return")
                 common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="check_return")
                 stdout,stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
                 stdout, stderr = common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="check_return")
@@ -241,7 +241,7 @@ class Deploy:
             mon_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["mon_data"]).replace("$id",mon)
             common.pdsh(user, [mon], 'rm -rf %s/%s' % (mon_basedir, mon_filename))
             common.pdsh(user, [mon], 'mkdir -p %s/%s' % (mon_basedir, mon_filename))
-            common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir))
+            common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="check_return")
             common.pdsh(user, [mon], 'cp %s/keyring %s/%s/keyring' % (mon_basedir, mon_basedir, mon_filename))
             
         # Start the mons

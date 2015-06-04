@@ -1,7 +1,6 @@
 testjob1:
-  workstages: ["benchmark"]
+  workstages: ["deploy"]
   benchmark_engine: "qemurbd"
-  version: 'hammer'
   pool:
     rbd:
       size: 2
@@ -9,49 +8,47 @@ testjob1:
   disk:
     read_ahead_kb: 2048
   global:
-    debug_lockdep: 0/0
-    debug_context: 0/0
-    debug_crush: 0/0
-    debug_buffer: 0/0
-    debug_timer: 0/0
-    debug_filer: 0/0
-    debug_objecter: 0/0
-    debug_rados: 0/0
-    debug_rbd: 0/0
-    debug_journaler: 0/0
-    debug_client: 0/0
-    debug_osd: 0/0
-    debug_optracker: 0/0
-    debug_objclass: 0/0
-    debug_filestore: 0/0
-    debug_journal: 0/0
-    debug_ms: 0/0
-    debug_monc: 0/0
-    debug_tp: 0/0
-    debug_auth: 0/0
-    debug_finisher: 0/0
-    debug_heartbeatmap: 0/0
-    debug_perfcounter: 0/0
-    debug_asok: 0/0
-    debug_throttle: 0/0
-    debug_mon: 0/0
-    debug_paxos: 0/0
-    debug_rgw: 0/0
     mon_pg_warn_max_per_osd: 1000
     ms_nocrc: true
     throttler_perf_counter: false
+    osd_objectstore: newstore
+    osd_mkfs_type: xfs
+    osd_op_threads: 32
+    osd_pool_default_size: 1
+    osd_pool_default_crush_replicated_ruleset: 1
+    osd_pool_default_crush_rule: 1
+    enable_experimental_unrecoverable_data_corrupting_features: newstore,rocksdb
   osd:
     osd_enable_op_tracker: false
     osd_op_num_shards: 10
-    filestore_wbthrottle_enable: false
-    filestore_max_sync_interval: 10
-    filestore_max_inline_xattr_size: 254
-    filestore_max_inline_xattrs: 6
-    filestore_queue_committing_max_bytes: 1048576000
-    filestore_queue_committing_max_ops: 5000
-    filestore_queue_max_bytes: 1048576000
-    filestore_queue_max_ops: 500
-    journal_max_write_bytes: 1048576000
-    journal_max_write_entries: 1000
-    journal_queue_max_bytes: 1048576000
-    journal_queue_max_ops: 3000
+#    filestore_wbthrottle_enable: false
+#    filestore_max_sync_interval: 10
+#    filestore_max_inline_xattr_size: 254
+#    filestore_max_inline_xattrs: 6
+#    filestore_queue_committing_max_bytes: 1048576000
+#    filestore_queue_committing_max_ops: 5000
+#    filestore_queue_max_bytes: 1048576000
+#    filestore_queue_max_ops: 500
+#    journal_max_write_bytes: 1048576000
+#    journal_max_write_entries: 1000
+#    journal_queue_max_bytes: 1048576000
+#    journal_queue_max_ops: 3000
+    newstore_overlay_max: 0
+    newstore_db_path: /var/lib/ceph/mnt/db/ceph-$id-db
+    newstore_aio: false
+    newstore_sync_wal_cleanup: false
+    newstore_sync_wal_apply: true
+    newstore_sync_transaction: true
+    newstore_sync_submit_transaction: true
+    newstore_wal_threads: 8
+    rocksdb_max_background_compactions: 4
+    rocksdb_compaction_threads: 4
+    rocksdb_write_buffer_size: 536870912
+    rocksdb_write_buffer_num: 4
+    rocksdb_min_write_buffer_number_to_merge: 2
+    rocksdb_level0_file_num_compaction_trigger: 4
+    rocksdb_max_bytes_for_level_base: 104857600
+    rocksdb_target_file_size_base: 10485760
+    rocksdb_num_levels: 3
+    rocksdb_compression: none
+    rocksdb_disableDataSync: false

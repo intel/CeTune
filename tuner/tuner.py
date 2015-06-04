@@ -38,9 +38,9 @@ class Tuner:
                 if work == "deploy":
                     print common.bcolors.OKGREEN + "[LOG]Check ceph version, reinstall ceph if necessary" + common.bcolors.ENDC
                     self.apply_version(section)
+                    self.apply_tuning(section, no_check=True)
                     print common.bcolors.OKGREEN + "[LOG]Start to redeploy ceph" + common.bcolors.ENDC
                     deploy.main(['redeploy'])
-                    self.apply_tuning(section)
                 elif work == "benchmark":
                     print common.bcolors.OKGREEN + "[LOG]start to run performance test" + common.bcolors.ENDC
                     self.apply_tuning(section)
@@ -184,20 +184,23 @@ class Tuner:
         current_version_group = re.search('(\d+.\d+).\d',cur_version)
         current_version = current_version_group.group(1)
         version_match = False
-        if current_version in version_map:
-            version_match = ( version_map[current_version] == self.worksheet[jobname]['version'] )
+        if 'version' in self.worksheet[jobname]:
+            if current_version in version_map:
+                version_match = ( version_map[current_version] == self.worksheet[jobname]['version'] )
+        else:
+            version_match = True
         if not version_match:
-            print common.bcolors.OKGREEN + "[LOG]Current ceph version not match testjob version, will reinstall" + common.bcolors.ENDC
-            proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="non_blocking_return")
-            stdout, stderr = proc.communicate()
-            print stdout
-            print stderr
-            proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install %s" % (pwd, self.worksheet[jobname]['version']), option="non_blocking_return")
-            stdout, stderr = proc.communicate()
-            print stdout
-            if stderr: 
-                print common.bcolors.FAIL + stderr + common.bcolors.ENDC
-                sys.exit()
+            print common.bcolors.OKGREEN + "[LOG]Current ceph version not match testjob version, need reinstall" + common.bcolors.ENDC
+            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="non_blocking_return")
+            #stdout, stderr = proc.communicate()
+            #print stdout
+            #print stderr
+            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install %s" % (pwd, self.worksheet[jobname]['version']), option="non_blocking_return")
+            #stdout, stderr = proc.communicate()
+            #print stdout
+            #if stderr: 
+            #    print common.bcolors.FAIL + stderr + common.bcolors.ENDC
+            sys.exit()
 
     def check_tuning(self, jobname):
         if not self.cur_tuning:
@@ -219,10 +222,13 @@ class Tuner:
             print common.bcolors.OKGREEN + "[LOG]Tuning[%s] is not same with current configuration" % (key) + common.bcolors.ENDC
         return tuning_diff
 
-    def apply_tuning(self, jobname):
+    def apply_tuning(self, jobname, no_check = False):
         #check the diff between worksheet tuning and cur system
-        print common.bcolors.OKGREEN + "[LOG]Calculate Difference between Current Ceph Cluster Configuration with tuning" + common.bcolors.ENDC
-        tmp_tuning_diff = self.check_tuning(jobname)
+        if not no_check:
+            print common.bcolors.OKGREEN + "[LOG]Calculate Difference between Current Ceph Cluster Configuration with tuning" + common.bcolors.ENDC
+            tmp_tuning_diff = self.check_tuning(jobname)
+        else:
+            tmp_tuning_diff = ['global']
         for tuning_key in tmp_tuning_diff:
             if tuning_key == 'pool':
                 pool_exist = False
@@ -262,8 +268,9 @@ class Tuner:
                 deploy.main(['--config', str(tuning), 'gen_cephconf'])
                 print common.bcolors.OKGREEN + "[LOG]Distribute ceph.conf" + common.bcolors.ENDC
                 deploy.main(['distribute_conf'])
-                print common.bcolors.OKGREEN + "[LOG]Restart ceph cluster" + common.bcolors.ENDC
-                deploy.main(['restart'])
+                if not no_check:
+                    print common.bcolors.OKGREEN + "[LOG]Restart ceph cluster" + common.bcolors.ENDC
+                    deploy.main(['restart'])
             if tuning_key == 'disk':
                 param = {}
                 for param_name, param_data in self.worksheet[jobname]['disk'].items():
@@ -272,6 +279,9 @@ class Tuner:
                     self.handle_disk( option="set", param=param ) 
                 else:
                     self.handle_disk( option="set" ) 
+
+        if no_check:
+            return
 
         #wait ceph health to be OK       
         waitcount = 0
