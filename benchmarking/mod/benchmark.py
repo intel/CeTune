@@ -74,7 +74,7 @@ class Benchmark(object):
         stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % poolname, option="check_return")
         if stderr:
             print common.bcolors.FAIL + "[ERROR]unable get rbd list, return msg: %s" % stderr + common.bcolors.ENDC
-            sys.exit()
+            #sys.exit()
         res = common.format_pdsh_return(stdout)
         if res != {}:
             rbd_list_tmp = (res[controller]).split()
@@ -252,7 +252,7 @@ class Benchmark(object):
         res = common.format_pdsh_return(stdout)
         if controller not in res:
             print common.bcolors.FAIL + "[ERROR]cannot get ceph space, seems to be a dead error" + common.bcolors.ENDC
-            sys.exit()
+            #sys.exit()
         cur_space = common.size_to_Kbytes(res[controller])
         planned_space = common.size_to_Kbytes(planed_space)
         print common.bcolors.WARNING + "[WARN]Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space) + common.bcolors.ENDC

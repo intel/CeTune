@@ -91,11 +91,14 @@ class Analyzer:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
             if '.asok.txt' in dir_name:
-                res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
-                for key, value in res.items():
-                    if not key in result:
-                        result[key] = OrderedDict()
-                    result[key].update(value)
+                try:
+                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
+                    for key, value in res.items():
+                        if not key in result:
+                            result[key] = OrderedDict()
+                        result[key].update(value)
+                except:
+                    pass
         return [result, fio_result]
 
     def get_validate_runtime(self):
@@ -172,7 +175,7 @@ class Analyzer:
         try:
             output_fio_data['lat'] = common.time_to_sec("%s%s" % (fio_data['avg'], fio_data['lat_unit']),'msec')
             output_fio_data['iops'] = fio_data['iops']
-            res = re.search('(\d+)\s*(\w+)/s',fio_data['bw'])
+            res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'])
             if res:
                 output_fio_data['bw'] = common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB')
             output_fio_data['runtime'] = common.time_to_sec(fio_data['runt'], 'sec')
@@ -224,6 +227,8 @@ class Analyzer:
             output["perfcounter_"+key] = {}
             output["perfcounter_"+key][dirname] = {}
             current = output["perfcounter_"+key][dirname]
+            if not key in result:
+                continue
             for param, data in result[key].items():
                 if isinstance(data, list):
                     if not param in current:

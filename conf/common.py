@@ -149,7 +149,6 @@ def pdsh(user, nodes, command, option="error_check"):
         if stderr:
             print('pdsh: %s' % args)
             print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
-            sys.exit()
 
 def bash(command, force=False):
     args = ['bash', '-c', command]

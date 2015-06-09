@@ -200,10 +200,18 @@ class Deploy:
                 osduuid = str(uuid.uuid4())
                 osd_filedir = osd_filename.replace("$id",str(osd_num))
                 key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
-                common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="check_return")
-                common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="check_return")
-                stdout,stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
+                stdout, stderr = common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="check_return")
+                print stdout
+                print stderr
+                stdout, stderr = common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="check_return")
+                print stdout
+                print stderr
+                stdout, stderr = stdout,stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
+                print stdout
+                print stderr
                 stdout, stderr = common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="check_return")
+                print stdout
+                print stderr
 
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
