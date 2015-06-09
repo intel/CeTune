@@ -26,7 +26,7 @@ class Benchmark(object):
 
     def go(self):
         self.prepare_result_dir()
-        #print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
+        print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
 
         self.cal_run_job_distribution()
         self.prerun_check() 
