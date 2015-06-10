@@ -23,6 +23,7 @@ generate_cases()
   run_time=$7
   disk=$8
   dest=$9
+
   for vn in `echo $vm_num | sed 's/,/ /g'`
   do
       for s in `echo $size | sed 's/,/ /g'`
@@ -122,15 +123,31 @@ cat <<EOF >> ../conf/fio.conf
   iodepth_batch_submit=$ibs
   iodepth_batch_complete=$ibc
 EOF
+#if [ ${dd} == 'qemurbd' ];then
+ # if [[ ${fio_zipf} == 'True' ]];then
+  #  cat <<EOF >> ../conf/fio.conf
+   # norandommap
+    #random_distribution=zipf:1.2
+#EOF
+ # fi
+#fi
 if [ ${dd} == 'fiorbd' ];then
     ioengine=rbd
     cat <<EOF >>../conf/fio.conf
   $capping
   ioengine=$ioengine
+  size=$s
   clientname=admin
   pool=\${POOLNAME}
   rbdname=\${RBDNAME}
 EOF
+
+ if [[ ${fio_zipf} == 'True' ]];then
+    cat <<EOF >>../conf/fio.conf
+  norandommap
+  random_distribution=zipf:1.2
+EOF
+ fi
 elif [ ${dd} == 'fiocephfs' ];then
     ioengine=cephfs
     cat << EOF >> ../conf/fio.conf
@@ -146,6 +163,14 @@ else
   ioengine=${ioengine}
   filename=$disk
 EOF
+  
+ if [ ${fio_zipf} == 'True' ];then
+    cat <<EOF >>../conf/fio.conf
+  norandommap
+  random_distribution=zipf:1.2
+EOF
+ fi
+
 fi
 
                   done
@@ -209,3 +234,4 @@ echo conf/cases.conf generated
 [ -f ../conf/fio.conf ] && > ../conf/fio.conf
 generate_fio_config $run_size $run_io_pattern $run_record_size $run_queue_depth $run_warmup_time $run_time $run_file $rum_vm_num
 echo conf/fio.conf generated
+
