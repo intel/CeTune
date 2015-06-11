@@ -102,27 +102,27 @@ class Deploy:
 
     def redeploy(self):
         #self.gen_cephconf()
-        print common.bcolors.OKGREEN + "[LOG]ceph.conf file generated" +common.bcolors.ENDC
+        common.printout("LOG","ceph.conf file generated")
         self.cleanup()
-        print common.bcolors.OKGREEN + "[LOG]Killed ceph-mon, ceph-osd and cleaned mon dir" +common.bcolors.ENDC
+        common.printout("LOG","Killed ceph-mon, ceph-osd and cleaned mon dir")
 
-        print common.bcolors.OKGREEN + "[LOG]Started to mkfs.xfs on osd devices" +common.bcolors.ENDC
+        common.printout("LOG","Started to mkfs.xfs on osd devices")
         self.make_osd_fs()
-        print common.bcolors.OKGREEN + "[LOG]Succeded in mkfs.xfs on osd devices" +common.bcolors.ENDC
+        common.printout("LOG","Succeded in mkfs.xfs on osd devices")
         #self.distribute_conf()
         #print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
 
-        print common.bcolors.OKGREEN + "[LOG]Started to build mon daemon" +common.bcolors.ENDC
+        common.printout("LOG","Started to build mon daemon")
         self.make_mon()        
-        print common.bcolors.OKGREEN + "[LOG]Succeeded in building mon daemon" +common.bcolors.ENDC
-        print common.bcolors.OKGREEN + "[LOG]Started to build osd daemon" +common.bcolors.ENDC
+        common.printout("LOG","Succeeded in building mon daemon")
+        common.printout("LOG","Started to build osd daemon")
         self.make_osd()
-        print common.bcolors.OKGREEN + "[LOG]Succeeded in building osd daemon" +common.bcolors.ENDC
+        common.printout("LOG","Succeeded in building osd daemon")
 
     def startup(self):
-        print common.bcolors.OKGREEN + "[LOG]Starting mon daemon" +common.bcolors.ENDC
+        common.printout("LOG","Starting mon daemon")
         self.start_mon()
-        print common.bcolors.OKGREEN + "[LOG]Starting osd daemon" +common.bcolors.ENDC
+        common.printout("LOG","Starting osd daemon")
         self.start_osd()
 
     def cleanup(self):
@@ -131,15 +131,17 @@ class Deploy:
         osds = self.cluster["osds"]
         mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
         mon_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["mon_data"]).replace("$id","*")
-        print common.bcolors.OKGREEN + "[LOG]Shutting down mon daemon" +common.bcolors.ENDC
-        common.pdsh( user, mons, "sudo killall -9 ceph-mon", option="check_return")
-        print common.bcolors.OKGREEN + "[LOG]Shutting down osd daemon" +common.bcolors.ENDC
-        common.pdsh( user, osds, "sudo killall -9 ceph-osd", option="check_return")
+        common.printout("LOG","Shutting down mon daemon")
+        common.pdsh( user, mons, " killall -9 ceph-mon", option="check_return")
+        common.printout("LOG","Shutting down osd daemon")
+        common.pdsh( user, osds, " killall -9 ceph-osd", option="check_return")
 
     def distribute_conf(self):
         user = self.cluster["user"]
         clients = self.cluster["clients"]
         osds = sorted(self.cluster["osds"])
+        common.pdsh(user, osds, "mkdir -p /etc/ceph")
+        common.pdsh(user, clients, "mkdir -p /etc/ceph")
 
         for client in clients:
             common.scp(user, client, "../conf/ceph.conf", "/etc/ceph/")
@@ -168,7 +170,7 @@ class Deploy:
             for device_bundle in common.get_list(self.cluster[osd]):
                 osd_device = device_bundle[0]
                 journal_device = device_bundle[1]
-                print common.bcolors.OKGREEN + "[LOG]mkfs.xfs for %s on %s" % (osd_device, osd) +common.bcolors.ENDC
+                common.printout("LOG","mkfs.xfs for %s on %s" % (osd_device, osd))
                 try:
                     mounted_dir = mount_list[osd][osd_device]
                     common.pdsh( user, [osd], 'umount %s' % osd_device )
@@ -219,7 +221,7 @@ class Deploy:
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
                 stdout, stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
-                print common.bcolors.OKGREEN + "[LOG]Builded osd.%s daemon on %s" % (osd_num, osd) +common.bcolors.ENDC
+                common.printout("LOG","Builded osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
 
     def make_mon(self):
@@ -259,7 +261,7 @@ class Deploy:
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
             stdout, stderr = common.pdsh(user, [mon], '%s' % cmd, option="check_return")
-            print common.bcolors.OKGREEN + "[LOG]Builded mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
+            common.printout("LOG","Builded mon.%s daemon on %s" % (mon, mon))
 
     def start_mon(self):
         mons = self.cluster["mons"]
@@ -269,10 +271,12 @@ class Deploy:
         for mon, addr in mons.items():
             common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
             pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
+            #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
+            lttng_prefix = ""
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            stdout, stderr = common.pdsh(user, [mon], '%s' % cmd, option="check_return")
-            print common.bcolors.OKGREEN + "[LOG]Started mon.%s daemon on %s" % (mon, mon) +common.bcolors.ENDC
+            stdout, stderr = common.pdsh(user, [mon], '%s %s' % (lttng_prefix, cmd), option="check_return")
+            common.printout("LOG","Started mon.%s daemon on %s" % (mon, mon))
 
     def start_osd(self):
         user = self.cluster["user"]
@@ -286,10 +290,12 @@ class Deploy:
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
+                #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
+                lttng_prefix = ""
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                stdout, stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
-                print common.bcolors.OKGREEN + "[LOG]Started osd.%s daemon on %s" % (osd_num, osd) +common.bcolors.ENDC
+                stdout, stderr = common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="check_return")
+                common.printout("LOG","Started osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
 
 def main(args):

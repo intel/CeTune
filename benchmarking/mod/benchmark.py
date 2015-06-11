@@ -26,34 +26,34 @@ class Benchmark(object):
 
     def go(self):
         self.prepare_result_dir()
-        print common.bcolors.OKGREEN + "RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]) + common.bcolors.ENDC
+        common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]))
 
         self.cal_run_job_distribution()
         self.prerun_check() 
         self.prepare_run()
 
-        print common.bcolors.OKGREEN + "[LOG]Run Benchmark Status: collect system metrics and run benchmark" + common.bcolors.ENDC
+        common.printout("LOG","Run Benchmark Status: collect system metrics and run benchmark")
         test_start_time = time.time()
         try:
             self.run()
         except KeyboardInterrupt:
-            print common.bcolors.WARNING + "[WARNING]Caught Signal to Cancel this run, killing Workload now, pls wait" + common.bcolors.ENDC
+            common.printout("WARNING","Caught Signal to Cancel this run, killing Workload now, pls wait")
             self.real_runtime = time.time() - test_start_time
             self.stop_workload()
             self.stop_data_collecters()
 
         self.real_runtime = time.time() - test_start_time
-        print common.bcolors.OKGREEN + "[LOG]Collecting Data" + common.bcolors.ENDC
+        common.printout("LOG","Collecting Data")
         self.after_run()
         self.archive()
         self.set_runid()
 
-        print common.bcolors.OKGREEN + "[LOG]Post Process Result Data" + common.bcolors.ENDC
+        common.printout("LOG","Post Process Result Data")
         #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
         try:
             analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
         except:
-            print common.bcolors.FAIL+"[ERROR]analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"] + common.bcolors.ENDC
+            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"])
         
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
@@ -66,7 +66,7 @@ class Benchmark(object):
             for i in range(0, need_to_create):
                 volume = 'volume-%s' % str(uuid.uuid4())
                 common.pdsh(user, [controller], "rbd create -p %s --size %s --image-format 2 %s" % (poolname, str(volume_size), volume))
-            print common.bcolors.OKGREEN + "[LOG]%d RBD Image Created" % need_to_create + common.bcolors.ENDC
+            common.printout("LOG","%d RBD Image Created" % need_to_create)
 
     def get_rbd_list(self):
         user =  self.cluster["user"]
@@ -74,7 +74,7 @@ class Benchmark(object):
         poolname = "rbd"
         stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % poolname, option="check_return")
         if stderr:
-            print common.bcolors.FAIL + "[ERROR]unable get rbd list, return msg: %s" % stderr + common.bcolors.ENDC
+            common.printout("ERROR","unable get rbd list, return msg: %s" % stderr)
             #sys.exit()
         res = common.format_pdsh_return(stdout)
         if res != {}:
@@ -115,7 +115,7 @@ class Benchmark(object):
 
     def run(self):
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
-        print common.bcolors.OKGREEN + "[LOG]This test will run %d secs until finish." % waittime + common.bcolors.ENDC
+        common.printout("LOG","This test will run %d secs until finish." % waittime)
         
         #drop page cache
         user = self.cluster["user"]
@@ -147,6 +147,10 @@ class Benchmark(object):
         dest_dir = self.benchmark["dir"]
         #collect all.conf
         common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
+        common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_log_file) )
+        common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_error_file) )
+        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
+        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
         #collect tuner.yaml
         worksheet = common.load_yaml_conf("%s/conf/tuner.yaml" % self.pwd)
         if self.benchmark["tuning_section"] in worksheet:
@@ -240,7 +244,7 @@ class Benchmark(object):
             for node in res:
                 fio_running_job_num += len(str(res[node]).split('\n'))
             if fio_running_job_num >= fio_job_num:
-                print common.bcolors.WARNING + "[WARN]%d fio job still runing" % fio_running_job_num + common.bcolors.ENDC
+                common.printout("WARNING","%d fio job still runing" % fio_running_job_num)
                 return True
             else:
                 return False
@@ -252,11 +256,11 @@ class Benchmark(object):
         stdout, stderr = common.pdsh(user, [controller], "ceph -s | grep pgmap | awk '{print $7 $8}'", option = "check_return")
         res = common.format_pdsh_return(stdout)
         if controller not in res:
-            print common.bcolors.FAIL + "[ERROR]cannot get ceph space, seems to be a dead error" + common.bcolors.ENDC
+            common.printout("ERROR","cannot get ceph space, seems to be a dead error")
             #sys.exit()
         cur_space = common.size_to_Kbytes(res[controller])
         planned_space = common.size_to_Kbytes(planed_space)
-        print common.bcolors.WARNING + "[WARN]Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space) + common.bcolors.ENDC
+        common.printout("WARNING","Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space))
         if cur_space < planned_space:
             return False
         else:

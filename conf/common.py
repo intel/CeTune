@@ -1,4 +1,5 @@
 import time
+import datetime
 import os
 import errno
 import sys
@@ -13,6 +14,10 @@ from os import O_NONBLOCK, read
 import socket
 import struct
 from collections import OrderedDict
+
+cetune_log_file = "../conf/cetune_process.log"
+cetune_error_file = "../conf/cetune_error.log"
+no_die = False
 
 class Config():
     def __init__(self, conf_path):
@@ -51,12 +56,15 @@ class Config():
         with open(output, 'w') as f:
             f.write( self.dump(key) )
         
-    def get(self, key):
+    def get(self, key, dotry=False):
         if key in self.conf_data:
             return self.conf_data[key]
         else:
             print "%s not defined in all.conf" % key
-            sys.exit()
+            if not dotry:
+                sys.exit()
+            else:
+                return ""
 
     def get_list(self,key):
 	if key in self.conf_data:
@@ -119,46 +127,67 @@ def get_list( string ):
             res.append(value)
     return res
 
+def printout(level, content):
+    if level == "ERROR":
+        output = "[ERROR]: %s" % content
+        with open(cetune_error_file, "a+") as f:
+            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        with open(cetune_log_file, "a+") as f:
+            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        print bcolors.FAIL + output + bcolors.ENDC
+    if level == "LOG":
+        output = "[LOG]: %s" % content
+        with open(cetune_log_file, "a+") as f:
+            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        print bcolors.OKGREEN + output + bcolors.ENDC
+    if level == "WARNING":
+        output = "[WARNING]: %s" % content
+        with open(cetune_log_file, "a+") as f:
+            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        print bcolors.WARNING + output + bcolors.ENDC
+    
 def pdsh(user, nodes, command, option="error_check"):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
-    #print('pdsh: %s' % args)
+    with open(cetune_log_file,"a+") as f:
+        f.write('[%s]%s: %s\n' % (datetime.datetime.now().isoformat(), _nodes, args))
     if option == "force":
         _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return _subp
-    if option == "non_blocking_return":
-        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        flags = fcntl(_subp.stdout, F_GETFL)
-        fcntl(_subp.stdout, F_SETFL, flags | O_NONBLOCK)
-        time.sleep(1)
-        while True:
-            try:
-                print read(_subp.stdout.fileno())
-            except:
-                break
-        return _subp
     if option == "check_return":
         stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+        if stderr:
+            print('pdsh: %s' % args)
+            with open(cetune_error_file,"a+") as f:
+                f.write('[%s]%s: %s\n' % (datetime.datetime.now().isoformat(), _nodes, args))
+            printout("ERROR",stderr)
         return [stdout, stderr]
     if option == "error_check":
         _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
         stdout, stderr = _subp.communicate()
         if stderr:
             print('pdsh: %s' % args)
-            print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+            with open(cetune_error_file,"a+") as f:
+                f.write('[%s]%s: %s\n' % (datetime.datetime.now().isoformat(), _nodes, args))
+            printout("ERROR",stderr)
+            if nodie:
+                sys.exit()
 
 def bash(command, force=False):
     args = ['bash', '-c', command]
-    #print('bash: %s' % args)
+    with open(cetune_log_file,"a+") as f:
+        f.write('[%s]localhost: %s\n' % (datetime.datetime.now().isoformat(), args))
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if force:
         return [stdout, stderr]
     if stderr:
         print('bash: %s' % args)
-        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+        with open(cetune_error_file,"a+") as f:
+            f.write('[%s]localhost: %s\n' % (datetime.datetime.now().isoformat(), args))
+        printout("ERROR",stderr+"\n")
         sys.exit()
     return stdout
 
@@ -168,7 +197,7 @@ def scp(user, node, localfile, remotefile):
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('scp: %s' % args)
-        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+        printout("ERROR",stderr+"\n")
         sys.exit()
 
 def rscp(user, node, localfile, remotefile):
@@ -177,7 +206,7 @@ def rscp(user, node, localfile, remotefile):
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('rscp: %s' % args)
-        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+        printout("ERROR",stderr+"\n")
         sys.exit()
 
 def load_yaml_conf(yaml_path):
@@ -263,7 +292,7 @@ def check_if_adict_contains_bdict(adict, bdict):
                     return False
             else:
                 if not str(adict[key]) == str(bdict[key]):
-                    print bcolors.OKGREEN + "[LOG]Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])) + bcolors.ENDC
+                    printout("LOG","Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])))
                     return False 
         else:
             print key
@@ -339,7 +368,7 @@ def size_to_Kbytes(size, dest_unit='KB'):
 def time_to_sec(fio_runtime, dest_unit='sec'):
     res = re.search('(\d+.*\d*)(\wsec)', fio_runtime)
     if not res:
-        print bcolors.WARNING+"[WARN]fio result file seems broken, can't obtain real runing time"+bcolors.ENDC
+        printout("WARNING","fio result file seems broken, can't obtain real runing time")
         return 0
     runtime = float(res.group(1))
     unit = res.group(2)

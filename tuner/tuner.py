@@ -28,6 +28,10 @@ class Tuner:
                 self.cluster["osd_daemon_num"] += 1
                 self.cluster[osd].append( osd_journal[0] )
 
+    def default_all_conf(self):
+        self.cluster = {}
+        self.cluster["user"] = self.all_conf_data.get("user")
+
     def run(self):
         user = self.cluster["user"] 
         controller = self.cluster["head"] 
@@ -36,13 +40,13 @@ class Tuner:
         for section in self.worksheet:
             for work in self.worksheet[section]['workstages']:
                 if work == "deploy":
-                    print common.bcolors.OKGREEN + "[LOG]Check ceph version, reinstall ceph if necessary" + common.bcolors.ENDC
+                    common.printout("LOG","Check ceph version, reinstall ceph if necessary")
                     self.apply_version(section)
                     self.apply_tuning(section, no_check=True)
-                    print common.bcolors.OKGREEN + "[LOG]Start to redeploy ceph" + common.bcolors.ENDC
+                    common.printout("LOG","Start to redeploy ceph")
                     deploy.main(['redeploy'])
                 elif work == "benchmark":
-                    print common.bcolors.OKGREEN + "[LOG]start to run performance test" + common.bcolors.ENDC
+                    common.printout("LOG","start to run performance test")
                     self.apply_tuning(section)
                     if 'benchmark_engine' in self.worksheet[section]:
                         engine = self.worksheet[section]['benchmark_engine']
@@ -50,7 +54,7 @@ class Tuner:
                         engine = 'fiorbd' 
                     run_cases.main(['--tuning', section, engine])
                 else:
-                    print common.bcolors.FAIL + "[ERROR] Unknown tuner workstage %s" % work + common.bcolors.ENDC
+                    common.printout("ERROR","Unknown tuner workstage %s" % work)
 
     def handle_disk(self, option="get", param={'read_ahead_kb':2048, 'max_sectors_kb':512, 'scheduler':'deadline'}, fs_params=""):
         user = self.cluster["user"] 
@@ -63,7 +67,7 @@ class Tuner:
                for device in self.cluster[osd]:
                    tmp = {}
                    for key, value in param.items():
-                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{} sudo sh -c "cat /sys/block/\'{}\'/queue/%s"' % (device, key), option="check_return")
+                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{}  sh -c "cat /sys/block/\'{}\'/queue/%s"' % (device, key), option="check_return")
                        res = common.format_pdsh_return(stdout)
                        tmp[key] = res[osd]
                    stdout, stderr = common.pdsh(user, [osd], 'xfs_info %s' % (device), option="check_return")
@@ -78,7 +82,7 @@ class Tuner:
            for osd in osds:
                for device in self.cluster[osd]:
                    for key, value in param.items():
-                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{} sudo sh -c "echo %s > /sys/block/\'{}\'/queue/%s"' % (device, str(value), key), option="check_return")
+                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{}  sh -c "echo %s > /sys/block/\'{}\'/queue/%s"' % (device, str(value), key), option="check_return")
 
     def get_version(self):
         user = self.cluster["user"] 
@@ -190,16 +194,16 @@ class Tuner:
         else:
             version_match = True
         if not version_match:
-            print common.bcolors.OKGREEN + "[LOG]Current ceph version not match testjob version, need reinstall" + common.bcolors.ENDC
-            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="non_blocking_return")
+            common.printout("LOG","Current ceph version not match testjob version, need reinstall")
+            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="check_return")
             #stdout, stderr = proc.communicate()
             #print stdout
             #print stderr
-            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install %s" % (pwd, self.worksheet[jobname]['version']), option="non_blocking_return")
+            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install %s" % (pwd, self.worksheet[jobname]['version']), option="check_return")
             #stdout, stderr = proc.communicate()
             #print stdout
             #if stderr: 
-            #    print common.bcolors.FAIL + stderr + common.bcolors.ENDC
+            #    common.printout("ERROR","stderr")
             sys.exit()
 
     def check_tuning(self, jobname):
@@ -219,13 +223,13 @@ class Tuner:
             else:
                 tuning_diff.append(key)
         for key in tuning_diff:
-            print common.bcolors.OKGREEN + "[LOG]Tuning[%s] is not same with current configuration" % (key) + common.bcolors.ENDC
+            common.printout("LOG","Tuning[%s] is not same with current configuration" % (key))
         return tuning_diff
 
     def apply_tuning(self, jobname, no_check = False):
         #check the diff between worksheet tuning and cur system
         if not no_check:
-            print common.bcolors.OKGREEN + "[LOG]Calculate Difference between Current Ceph Cluster Configuration with tuning" + common.bcolors.ENDC
+            common.printout("LOG","Calculate Difference between Current Ceph Cluster Configuration with tuning")
             tmp_tuning_diff = self.check_tuning(jobname)
         else:
             tmp_tuning_diff = ['global']
@@ -264,12 +268,12 @@ class Tuner:
                     if section_name in ["version","workstages","pool","benchmark_engine"]:
                         continue
                     tuning[section_name] = section
-                print common.bcolors.OKGREEN + "[LOG]Apply osd and mon tuning to ceph.conf" + common.bcolors.ENDC
+                common.printout("LOG","Apply osd and mon tuning to ceph.conf")
                 deploy.main(['--config', str(tuning), 'gen_cephconf'])
-                print common.bcolors.OKGREEN + "[LOG]Distribute ceph.conf" + common.bcolors.ENDC
+                common.printout("LOG","Distribute ceph.conf")
                 deploy.main(['distribute_conf'])
                 if not no_check:
-                    print common.bcolors.OKGREEN + "[LOG]Restart ceph cluster" + common.bcolors.ENDC
+                    common.printout("LOG","Restart ceph cluster")
                     deploy.main(['restart'])
             if tuning_key == 'disk':
                 param = {}
@@ -287,16 +291,16 @@ class Tuner:
         waitcount = 0
         try:
             while not self.check_health() and waitcount < 300:
-                print common.bcolors.WARNING + "[WARN]Applied tuning, waiting ceph to be healthy" + common.bcolors.ENDC
+                common.printout("WARNING","Applied tuning, waiting ceph to be healthy")
                 time.sleep(3)
                 waitcount += 3
         except:
-            print common.bcolors.WARNING + "[WARN]Caught KeyboardInterrupt, exit" + common.bcolors.ENDC
+            common.printout("WARNING","Caught KeyboardInterrupt, exit")
             sys.exit()
         if waitcount < 300:
-            print common.bcolors.OKGREEN + "[LOG]Tuning has applied to ceph cluster, ceph is Healthy now" + common.bcolors.ENDC
+            common.printout("LOG","Tuning has applied to ceph cluster, ceph is Healthy now")
         else:
-            print common.bcolors.FAIL + "[ERROR]ceph is unHealthy after 300sec waiting, please fix the issue manually" + common.bcolors.ENDC
+            common.printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually")
             sys.exit()
 
     def handle_pool(self, option="set", param = {}):
@@ -304,7 +308,7 @@ class Tuner:
         controller = self.cluster["head"] 
         if option == "create":
             if 'name' in param and 'pg_num' in param:
-                print common.bcolors.OKGREEN + "[LOG]create ceph pool %s, pg_num is %s" % (param['name'], str(param['pg_num'])) + common.bcolors.ENDC
+                common.printout("LOG","create ceph pool %s, pg_num is %s" % (param['name'], str(param['pg_num'])))
                 common.pdsh(user, [controller], "ceph osd pool create %s %s %s" % (param['name'], str(param['pg_num']), str(param['pg_num'])),option="check_return")
 
         if option == "set":
@@ -312,19 +316,19 @@ class Tuner:
                 for key, value in param.items():
                     if key == 'name':
                         continue
-                    print common.bcolors.OKGREEN + "[LOG]set ceph pool %s, %s to %s" % (param['name'], key, str(value)) + common.bcolors.ENDC
+                    common.printout("LOG","set ceph pool %s, %s to %s" % (param['name'], key, str(value)))
                     common.pdsh(user, [controller], "ceph osd pool set %s %s %s" % (param['name'], key, str(value)), option="check_return")
 
         if option == "delete":
             if 'name' in param:
                 pool = param['name']
-                print common.bcolors.OKGREEN + "[LOG]delete ceph pool %s" % pool + common.bcolors.ENDC
+                common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
          
         if option == "delete_all":
             cur_pools = get_pool_config()
             for pool in cur_pools:
-                print common.bcolors.OKGREEN + "[LOG]delete ceph pool %s" % pool + common.bcolors.ENDC
+                common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
         
     def check_health(self):

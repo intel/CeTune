@@ -35,21 +35,21 @@ class Visualizer:
         output.append("<div id='summary'>")
         res = re.search('^(\d+)-(\d+)-(\w+)-(\w+)-(\w+)-\S+-(\w+)$',self.result["session_name"])
         if res:
-            print common.bcolors.OKGREEN + "[LOG]Generating summary view" + common.bcolors.ENDC
+            common.printout("LOG","Generating summary view")
             output.extend(self.generate_summary_view(res))
         output.append("</div>")
 
         #1. fio info
-        print common.bcolors.OKGREEN + "[LOG]Generating fio view" + common.bcolors.ENDC
+        common.printout("LOG","Generating fio view")
         output.extend(self.generate_node_view('fio'))
         #2. ceph info
-        print common.bcolors.OKGREEN + "[LOG]Generating ceph view" + common.bcolors.ENDC
+        common.printout("LOG","Generating ceph view")
         output.extend(self.generate_node_view('ceph'))
         #3. vclient info
-        print common.bcolors.OKGREEN + "[LOG]Generating vclient view" + common.bcolors.ENDC
+        common.printout("LOG","Generating vclient view")
         output.extend(self.generate_node_view('vclient'))
         #3. client info
-        print common.bcolors.OKGREEN + "[LOG]Generating client view" + common.bcolors.ENDC
+        common.printout("LOG","Generating client view")
         output.extend(self.generate_node_view('client'))
 
         output.append("</div>")
@@ -66,14 +66,14 @@ class Visualizer:
         res = common.format_pdsh_return(stdout)
         if res:
             output = res[remote_host]
-        print common.bcolors.OKGREEN + "[LOG]Generating history view" + common.bcolors.ENDC
+        common.printout("LOG","Generating history view")
         if output == []:
             stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
         else:
             stdout, stderr = common.pdsh(user, [remote_host], "cd %s/%s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % (remote_dir, session_id), option="check_return")
         res = common.format_pdsh_return(stdout)
         if remote_host not in res:
-            print common.bcolors.FAIL + "[ERROR]Generating history view failed" + common.bcolors.ENDC
+            common.printout("ERROR","Generating history view failed")
             return False
         if output != []:
             try:
@@ -232,7 +232,7 @@ class Visualizer:
     def generate_line_chart(self, data, node_type, field, append_table=False):
         output = []
         common.bash("mkdir -p ../visualizer/include/pic")
-        print common.bcolors.OKGREEN + "[LOG]generate %s line chart" % node_type + common.bcolors.ENDC
+        common.printout("LOG","generate %s line chart" % node_type)
         for field_column, field_data in data.items():
             pyplot.figure(figsize=(9, 4))
             for node, node_data in field_data.items():

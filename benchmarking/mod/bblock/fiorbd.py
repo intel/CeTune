@@ -17,11 +17,11 @@ class FioRbd(Benchmark):
         controller =  self.cluster["head"]
         rbd_count = self.all_conf_data.get("rbd_volume_count")
         rbd_size = self.all_conf_data.get("volume_size")
-        print common.bcolors.OKGREEN + "[LOG]Creating rbd volume" + common.bcolors.ENDC
+        common.printout("LOG","Creating rbd volume")
         if rbd_count and rbd_size:
             super(self.__class__, self).create_image(rbd_count, rbd_size, 'rbd')
         else:
-            print common.bcolors.FAIL + "[ERROR]need to set rbd_volume_count and volune_size in all.conf" + common.bcolors.ENDC
+            common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf")
         #start to init 
         dest_dir = self.cluster["tmp_dir"]
         rbd_num_per_client = self.cluster["rbd_num_per_client"]
@@ -37,15 +37,15 @@ class FioRbd(Benchmark):
             fio_job_num_total += len(self.cluster["testjob_distribution"][client])
         time.sleep(1)
         if not self.check_fio_pgrep(clients, fio_job_num_total):
-            print common.bcolors.FAIL + "[ERROR]Failed to start FIO process" + common.bcolors.ENDC
+            common.printout("ERROR","Failed to start FIO process")
             common.pdsh(user, clients, "killall -9 fio", option = "check_return")
             raise KeyboardInterrupt
         if not fio_job_num_total:
-            print common.bcolors.FAIL + "[ERROR]Planed to run 0 Fio Job, please check all.conf" + common.bcolors.ENDC
+            common.printout("ERROR","Planed to run 0 Fio Job, please check all.conf")
             raise KeyboardInterrupt
-        print common.bcolors.OKGREEN + "[LOG]%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client) + common.bcolors.ENDC
+        common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
 
-        print common.bcolors.OKGREEN + "[LOG]Wait rbd initialization stop" + common.bcolors.ENDC
+        common.printout("LOG","Wait rbd initialization stop")
         #wait fio finish
         try:
             while self.check_fio_pgrep(self.cluster["testjob_distribution"].keys()):
@@ -53,7 +53,7 @@ class FioRbd(Benchmark):
         except KeyboardInterrupt:
             clients = self.cluster["testjob_distribution"].keys()
             common.pdsh(user, clients, "killall -9 fio", option = "check_return")
-        print common.bcolors.OKGREEN + "[LOG]rbd initialization finished" + common.bcolors.ENDC
+        common.printout("LOG","rbd initialization finished")
 
     def prepare_result_dir(self):
         #1. prepare result dir
@@ -64,7 +64,7 @@ class FioRbd(Benchmark):
 	
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.benchmark["dir"]), option = "check_return")
 	if not res[1]:
-            print common.bcolors.FAIL + "[ERROR]Output DIR %s exists" % (self.benchmark["dir"]) + common.bcolors.ENDC
+            common.printout("ERROR","Output DIR %s exists" % (self.benchmark["dir"]))
             sys.exit()
 
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
@@ -74,15 +74,15 @@ class FioRbd(Benchmark):
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "fio -v")
-        print common.bcolors.OKGREEN + "[LOG]check if FIO rbd engine installed" + common.bcolors.ENDC
+        common.printout("LOG","check if FIO rbd engine installed")
         res = common.pdsh(user, nodes, "fio -enghelp | grep rbd", option = "check_return")
         if res and not res[0]:
-            print common.bcolors.FAIL + "[ERROR]FIO rbd engine not installed" + common.bcolors.ENDC
+            common.printout("ERROR","FIO rbd engine not installed")
             sys.exit()
         planed_space = str(len(self.cluster["rbdlist"]) * int(self.volume_size)) + "MB"
-        print common.bcolors.OKGREEN + "[LOG]check if rbd volume fully initialized" + common.bcolors.ENDC
+        common.printout("LOG","check if rbd volume fully initialized")
         if not self.check_rbd_init_completed(planed_space):
-            print common.bcolors.WARNING + "[WARN]rbd volume initialization has not be done" + common.bcolors.ENDC
+            common.printout("WARNING","rbd volume initialization has not be done")
             self.prepare_images()
      
     def run(self):
@@ -99,13 +99,12 @@ class FioRbd(Benchmark):
             fio_job_num_total += len(self.benchmark["distribution"][client])
         time.sleep(1)
         if not self.check_fio_pgrep(self.benchmark["distribution"].keys(), fio_job_num_total):
-            print common.bcolors.FAIL + "[ERROR]Failed to start FIO process" + common.bcolors.ENDC
+            common.printout("ERROR","Failed to start FIO process")
             raise KeyboardInterrupt
         if not fio_job_num_total:
-            print common.bcolors.FAIL + "[ERROR]Planned to start 0 FIO process, seems to be an error" + common.bcolors.ENDC
+            common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
             raise KeyboardInterrupt
-        print common.bcolors.OKGREEN + "[LOG]%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())) + common.bcolors.ENDC
-
+        common.printout("LOG","%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())))
         while self.check_fio_pgrep(self.benchmark["distribution"].keys()):
             time.sleep(5)
         
@@ -113,13 +112,13 @@ class FioRbd(Benchmark):
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
-        print common.bcolors.OKGREEN + "[LOG]Prepare_run: distribute fio.conf to all clients" + common.bcolors.ENDC
+        common.printout("LOG","Prepare_run: distribute fio.conf to all clients")
         for client in self.benchmark["distribution"].keys():
             common.scp(user, client, "../conf/fio.conf", dest_dir)
         self.cleanup()
     
     def wait_workload_to_stop(self):
-        print common.bcolors.OKGREEN + "[LOG]Waiting Workload to complete its work" + common.bcolors.ENDC
+        common.printout("LOG","Waiting Workload to complete its work")
         user = self.cluster["user"]
         stop_flag = 0
         max_check_times = 30
@@ -130,12 +129,12 @@ class FioRbd(Benchmark):
             res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
             if res and not res[1]:
                 stop_flag = 0
-                print common.bcolors.WARNING + "[WARNING]FIO stills run on %s" % str(res[0].split('\n')) + common.bcolors.ENDC
+                common.printout("WARNING","FIO stills run on %s" % str(res[0].split('\n')))
             if stop_flag or cur_check > max_check_times:
                 break;
             cur_check += 1
             time.sleep(10)
-        print common.bcolors.OKGREEN + "[LOG]Workload completed" + common.bcolors.ENDC
+        common.printout("LOG","Workload completed")
 
     def stop_workload(self):
         user = self.cluster["user"]

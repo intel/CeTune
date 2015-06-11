@@ -71,7 +71,7 @@ class Analyzer:
         
         remote_bak, remote_dir = self.cluster["dest_dir_remote_bak"].split(':')
         output = view.generate_history_view(remote_bak, remote_dir, user, self.result["session_name"])
-        print common.bcolors.OKGREEN + "[LOG]History view generated, copy to remote" + common.bcolors.ENDC
+        common.printout("LOG","History view generated, copy to remote")
         with open("%s/cetune_history.html" % dest_dir, 'w') as f:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
@@ -82,7 +82,7 @@ class Analyzer:
         fio_result = {}
         dest_dir = self.cluster["dest_dir"]
         for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
-            print common.bcolors.OKGREEN + "[LOG]Processing %s_%s" % (node_name, dir_name) + common.bcolors.ENDC
+            common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
             if '_sar.txt' in dir_name:
                 result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
             if '_fio.txt' in dir_name:
@@ -198,7 +198,7 @@ class Analyzer:
         pass        
 
     def process_perfcounter_data(self, path, dirname):
-        print common.bcolors.OKGREEN + "[LOG]loading %s" % path + common.bcolors.ENDC
+        common.printout("LOG","loading %s" % path)
         perfcounter = []
         try:
             with open(path,"r") as fd:

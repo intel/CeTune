@@ -54,14 +54,14 @@ class Cosbench(Benchmark):
         cosbench_server.append(self.cosbench["cosbench_controller"])
         for client in cosbench_server:
             if header.remote_file_exist(client,self.cosbench["cosbench_folder"]) == False:
-                print bcolors.FAIL + "[ERROR]: cosbench isn't installed on "+client+bcolors.ENDC
+                common.printout("ERROR","cosbench isn't installed on ")
                 sys.exit()
         print "Cosbench works well" 
         # check if radosgw is running
         print "check whether radosgw is running..."
         output =  common.bash("curl "+ self.rgw["rgw_server"],True)
         if re.search('amazon',output[0]) == None:
-            print common.bcolors.FAIL + "[ERROR]: radosgw doesn't workd" + common.bcolors.ENDC
+            common.printout("ERROR","radosgw doesn't work")
         else:
             print "radosgw is running"
 

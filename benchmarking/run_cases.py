@@ -40,28 +40,28 @@ def main(args):
             try:
                 benchmark.go()
             except KeyboardInterrupt:
-                print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
     if args.engine == "fiorbd":
         for testcase in testcase_list:
             benchmark = fiorbd.FioRbd(testcase)
             try:
                 benchmark.go()
             except KeyboardInterrupt:
-                print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
     if args.engine == "fiocephfs":
         for testcase in testcase_list:
             benchmark = fiocephfs.FioCephFS(testcase)
             try:
                 benchmark.go()
             except KeyboardInterrupt:
-                print common.bcolors.WARNING + "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
     if args.engine == "cosbench":
         for testcase in testcase_list:
             benchmark = cosbench.Cosbench(None)
             try:
                 benchmark.go()
             except KeyboardInterrupt:
-                print common.bcolors.WARNING +  "[WARNING]Caught KeyboardInterrupt Interruption" + common.bcolors.ENDC
+                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
 if __name__ == '__main__':
     import sys
     main(sys.argv[1:])

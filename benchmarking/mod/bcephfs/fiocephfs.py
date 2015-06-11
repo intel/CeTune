@@ -14,7 +14,7 @@ class FioCephFS(Benchmark):
 	
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.benchmark["dir"]), option = "check_return")
 	if not res[1]:
-            print common.bcolors.FAIL + "[ERROR]Output DIR %s exists" % (self.benchmark["dir"]) + common.bcolors.ENDC
+            common.printout("ERROR","Output DIR %s exists" % (self.benchmark["dir"]))
             sys.exit()
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
 
@@ -26,7 +26,7 @@ class FioCephFS(Benchmark):
         common.pdsh(user, nodes, "%s/fio -v" % fio_dir )
         res = common.pdsh(user, nodes, "%s/fio -enghelp | grep cephfs" % fio_dir, option = "check_return")
         if res and not res[0]:
-            print common.bcolors.FAIL + "[ERROR]FIO cephfs engine not installed" + common.bcolors.ENDC
+            common.printout("ERROR","FIO cephfs engine not installed")
 	    print "You can get the source code of fiocephfs from: https://github.com/noahdesu/fio.git"
             sys.exit()
      
@@ -44,9 +44,9 @@ class FioCephFS(Benchmark):
             time.sleep(1)
             res = common.pdsh(user, [client], "pgrep fio", option = "check_return")
             if res and not len(res[0].split('\n')) >= len(self.benchmark["distribution"][client]):
-                print common.bcolors.FAIL + "[ERROR]Failed to start FIO process" + common.bcolors.ENDC
+                common.printout("ERROR","Failed to start FIO process")
                 raise KeyboardInterrupt
-            print common.bcolors.OKGREEN + "[LOG]%d FIO Jobs starts on %s" % (len(self.benchmark["distribution"][client]), client) + common.bcolors.ENDC
+            common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.benchmark["distribution"][client]), client))
         time.sleep(waittime)
         
     def prepare_run(self):
@@ -57,7 +57,7 @@ class FioCephFS(Benchmark):
             common.scp(user, client, "../conf/fio.conf", dest_dir)
     
     def wait_workload_to_stop(self):
-        print common.bcolors.OKGREEN + "[LOG]Waiting Workload to complete its work" + common.bcolors.ENDC
+        common.printout("LOG","Waiting Workload to complete its work")
         user = self.cluster["user"]
         stop_flag = 0
         max_check_times = 30
@@ -68,12 +68,12 @@ class FioCephFS(Benchmark):
             res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
             if res and not res[1]:
                 stop_flag = 0
-                print common.bcolors.WARNING + "[WARNING]FIO stills run on %s" % str(res[0].split('\n')) + common.bcolors.ENDC
+                common.printout("WARNING","FIO stills run on %s" % str(res[0].split('\n')))
             if stop_flag or cur_check > max_check_times:
                 break;
             cur_check += 1
             time.sleep(10)
-        print common.bcolors.OKGREEN + "[LOG]Workload completed" + common.bcolors.ENDC
+        common.printout("LOG","Workload completed")
 
     def stop_workload(self):
         user = self.cluster["user"]

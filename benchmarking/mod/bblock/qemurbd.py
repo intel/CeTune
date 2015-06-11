@@ -21,7 +21,7 @@ class QemuRbd(Benchmark):
 
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.benchmark["dir"]), option = "check_return")
 	if not res[1]:
-            print common.bcolors.FAIL + "[ERROR]Output DIR %s exists" % (self.benchmark["dir"]) + common.bcolors.ENDC
+            common.printout("ERROR","Output DIR %s exists" % (self.benchmark["dir"]))
             sys.exit()
       
 	common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
@@ -35,12 +35,12 @@ class QemuRbd(Benchmark):
         if rbd_count and rbd_size:
             super(self.__class__, self).create_image(rbd_count, rbd_size, 'rbd')
         else:
-            print common.bcolors.FAIL + "[ERROR]need to set rbd_volume_count and volune_size in all.conf" + common.bcolors.ENDC
+            common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf")
 
         #create image xml
-        print common.bcolors.OKGREEN + "[LOG]create rbd volume vm attach xml" + common.bcolors.ENDC
+        common.printout("LOG","create rbd volume vm attach xml")
         common.pdsh(user, [controller], "cd %s/vm-scripts; echo 3 | bash create-volume.sh create_disk_xml" % (self.pwd), "check_return")
-        print common.bcolors.OKGREEN + "[LOG]Distribute vdbs xml" + common.bcolors.ENDC
+        common.printout("LOG","Distribute vdbs xml")
         for client in self.cluster["testjob_distribution"]:
             common.scp(user, client, "../vm-scripts/vdbs", dest_dir)
 
@@ -59,44 +59,44 @@ class QemuRbd(Benchmark):
             nodes.extend(vclients)
         time.sleep(1)
         if not self.check_fio_pgrep(nodes, fio_job_num_total):
-            print common.bcolors.FAIL + "[ERROR]Failed to start FIO process" + common.bcolors.ENDC
+            common.printout("ERROR","Failed to start FIO process")
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
             raise KeyboardInterrupt
         if not fio_job_num_total:
-            print common.bcolors.FAIL + "[ERROR]Planed to run 0 Fio Job, please check all.conf" + common.bcolors.ENDC
+            common.printout("ERROR","Planed to run 0 Fio Job, please check all.conf")
             raise KeyboardInterrupt
-        print common.bcolors.OKGREEN + "[LOG]FIO Jobs starts on %s" % (nodes) + common.bcolors.ENDC
+        common.printout("LOG","FIO Jobs starts on %s" % (nodes))
 
-        print common.bcolors.OKGREEN + "[LOG]Wait rbd initialization stop" + common.bcolors.ENDC
+        common.printout("LOG","Wait rbd initialization stop")
         #wait fio finish
         try:
             while self.check_fio_pgrep(nodes):
                 time.sleep(5)
         except KeyboardInterrupt:
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-        print common.bcolors.OKGREEN + "[LOG]rbd initialization finished" + common.bcolors.ENDC
+        common.printout("LOG","rbd initialization finished")
 
     def prerun_check(self):
         #1. check is vclient alive
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
         planed_space = str(len(self.instance_list) * int(self.volume_size)) + "MB"
-        print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if rbd volume be intialized" + common.bcolors.ENDC
+        common.printout("LOG","Prerun_check: check if rbd volume be intialized")
         if not self.check_rbd_init_completed(planed_space):
-            print common.bcolors.WARNING + "[WARN]rbd volume initialization has not be done" + common.bcolors.ENDC
+            common.printout("WARNING","rbd volume initialization has not be done")
             self.prepare_images()
 
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
-            print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if fio installed in vclient" + common.bcolors.ENDC
+            common.printout("LOG","Prerun_check: check if fio installed in vclient")
             common.pdsh(user, nodes, "fio -v")
-            print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if rbd volume attached" + common.bcolors.ENDC
+            common.printout("LOG","Prerun_check: check if rbd volume attached")
             stdout, stderr = common.pdsh(user, nodes, "df %s" % vdisk, option="check_return")
             if stderr:
-                common.bcolors.WARNING + "[WARN]vclients are not attached with rbd volume" + common.bcolors.ENDC
+                common.printout("WARNING","vclients are not attached with rbd volume")
                 self.attach_images()
-                common.bcolors.WARNING + "[WARN]vclients attached rbd volume now" + common.bcolors.ENDC
-            print common.bcolors.OKGREEN + "[LOG]Prerun_check: check if sysstat installed" + common.bcolors.ENDC
+                common.printout("WARNING","vclients attached rbd volume now")
+            common.printout("LOG","Prerun_check: check if sysstat installed")
             common.pdsh(user, nodes, "mpstat")
 
     def attach_images(self):
@@ -107,7 +107,7 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             for node in nodes:
-                print common.bcolors.OKGREEN + "[LOG]Attach rbd image to %s" % node + common.bcolors.ENDC
+                common.printout("LOG","Attach rbd image to %s" % node)
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
                 if stderr:
                    common.pdsh(user, [client], "cd %s/vdbs; virsh attach-device %s %s.xml" % (dest_dir, node, node))
@@ -121,7 +121,7 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             for node in nodes:
-                print common.bcolors.OKGREEN + "[LOG]Detach rbd image from %s" % node + common.bcolors.ENDC
+                common.printout("LOG","Detach rbd image from %s" % node)
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
                 if not stderr:
                    common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix))
@@ -148,13 +148,13 @@ class QemuRbd(Benchmark):
 
         time.sleep(1)
         if not self.check_fio_pgrep(nodes, fio_job_num_total):
-            print common.bcolors.FAIL + "[ERROR]Failed to start FIO process" + common.bcolors.ENDC
+            common.printout("ERROR","Failed to start FIO process")
             raise KeyboardInterrupt
         if not fio_job_num_total:
-            print common.bcolors.FAIL + "[ERROR]Planned to start 0 FIO process, seems to be an error" + common.bcolors.ENDC
+            common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
             raise KeyboardInterrupt
         
-        print common.bcolors.OKGREEN + "[LOG]FIO Jobs starts on %s" % str(nodes) + common.bcolors.ENDC
+        common.printout("LOG","FIO Jobs starts on %s" % str(nodes))
         while self.check_fio_pgrep(nodes):
             time.sleep(5)
         
@@ -171,14 +171,14 @@ class QemuRbd(Benchmark):
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
-        print common.bcolors.OKGREEN + "[LOG]Prepare_run: distribute fio.conf to vclient" + common.bcolors.ENDC
+        common.printout("LOG","Prepare_run: distribute fio.conf to vclient")
         for client in self.benchmark["distribution"]:
             for vclient in self.benchmark["distribution"][client]:
                 common.scp(user, vclient, "../conf/fio.conf", self.cluster["tmp_dir"])
         self.cleanup()
     
     def wait_workload_to_stop(self):
-        print common.bcolors.OKGREEN + "[LOG]Waiting Workload to complete its work" + common.bcolors.ENDC
+        common.printout("LOG","Waiting Workload to complete its work")
         user = self.cluster["user"]
         stop_flag = 0
         max_check_times = 30
@@ -190,12 +190,12 @@ class QemuRbd(Benchmark):
                 res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
                 if not res[1]:
                     stop_flag = 0
-                    print common.bcolors.WARNING + "[WARNING]FIO stills run on %s" % str(res[0].split('\n')) + common.bcolors.ENDC
+                    common.printout("WARNING","FIO stills run on %s" % str(res[0].split('\n')))
             if stop_flag or cur_check > max_check_times:
                 break;
             cur_check += 1
             time.sleep(10)
-        print common.bcolors.OKGREEN + "[LOG]Workload completed" + common.bcolors.ENDC
+        common.printout("LOG","Workload completed")
 
     def stop_data_collecters(self):
         super(self.__class__, self).stop_data_collecters()
@@ -213,11 +213,11 @@ class QemuRbd(Benchmark):
             nodes = self.benchmark["distribution"][client]
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
             common.pdsh(user, nodes, "killall -9 dd", option = "check_return")
-        print common.bcolors.OKGREEN + "[LOG]Workload stopped, detaching rbd volume from vclient" + common.bcolors.ENDC
+        common.printout("LOG","Workload stopped, detaching rbd volume from vclient")
         try:
             self.detach_images()
         except KeyboardInterrupt:
-            print common.bcolors.WARNING + "[WARN]Caught KeyboardInterrupt, stop detaching" + common.bcolors.ENDC
+            common.printout("WARNING","Caught KeyboardInterrupt, stop detaching")
 
     def archive(self):
         super(self.__class__, self).archive()
