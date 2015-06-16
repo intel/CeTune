@@ -13,7 +13,6 @@ class Benchmark(object):
         self.all_conf_data = common.Config(lib_path+"/conf/all.conf")
         self.benchmark = {}
         self.benchmark = copy.deepcopy(testcase)
-
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
@@ -52,6 +51,12 @@ class Benchmark(object):
         #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
         try:
             analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
+        except TypeError:
+            print "Going to Cosbench Analyser"
+            print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
+            #python analyzer.py --path /mnt/data/run_res/ process_data 
+            for test_id in self.cosbench["cosbench_run_id"]:
+                analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
         except:
             common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"])
         

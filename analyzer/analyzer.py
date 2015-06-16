@@ -28,13 +28,16 @@ class Analyzer:
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["osd_daemon_num"] = 0
+
         self.result = {}
         self.result["ceph"] = OrderedDict()
         self.result["client"] = OrderedDict()
         self.result["vclient"] = OrderedDict()
+        self.result["cosbench"] = OrderedDict()
         self.result["fio"] = OrderedDict()
         self.get_validate_runtime()
         self.result["runtime"] = int(float(self.validate_time))
+
 
     def process_data(self):
         user = self.cluster["user"]
@@ -47,6 +50,12 @@ class Analyzer:
         for dir_name in os.listdir(dest_dir):
             if not os.path.isdir("%s/%s" % (dest_dir, dir_name)):
                 continue
+            if dir_name in self.cluster["head"]:
+                self.result["cosbench"][dir_name]={}
+                system, fio = self._process_data(dir_name)
+                self.result["cosbench"][dir_name]=system
+                #self.result["fio"].update(fio)
+
             if dir_name in self.cluster["osds"]:
                 self.result["ceph"][dir_name]={}
                 system, fio = self._process_data(dir_name)
@@ -61,6 +70,12 @@ class Analyzer:
                 system, fio = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
                 self.result["fio"].update(fio)
+            
+                #for key, value in self.result.items():
+            #print key+": "
+            #for subkey, values in value.items():
+                #print "    "+subkey+":"
+                #print "        "+str(values.keys())
 
         view = visualizer.Visualizer(self.result)
         output = view.generate_summary_page()
