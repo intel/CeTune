@@ -145,9 +145,8 @@ class Cosbench(Benchmark):
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
         ceph_nodes.append(self.rgw["rgw_server"]) 
         ceph_nodes.extend(self.cosbench["cosbench_driver"])
-        for node in ceph_nodes:
-            print "Kill sleep, sar, sadc, iostat, vmstat, mpstat, blktrace on each ceph osd. Clean up data on node:" + node
-            common.pdsh("root",node,"killall -q sleep; killall -q sar sadc iostat vmstat mpstat blktrace","check_return")
+        print "Kill sleep, sar, sadc, iostat, vmstat, mpstat, blktrace on each ceph osd. Clean up data on node:" + ','.join(ceph_nodes)
+        common.pdsh("root",ceph_nodes,"killall -q sleep; killall -q sar sadc iostat vmstat mpstat blktrace","force")
 
        
     def prepare_run(self):
@@ -207,10 +206,11 @@ class Cosbench(Benchmark):
             remote_config_path = "/tmp/"+local_config_file
             print "cosbench xml file: local_config_path is " + local_config_path
             print "cosbench xml remote file is "+remote_config_path
-            run_command =" sh "+self.cosbench["cosbench_folder"]+"/cli.sh submit "+remote_config_path +"| awk  '{print $4}'"
-            header.update_test_id(".test_id",test_id_this_worker)
+            #./cli.sh submit /tmp/write_100con_100obj_128KB_160w.xml 2>/dev/null > /tmp/curl.cosbench && cat /tmp/curl.cosbench | awk '{print $4}'
+            run_command =" sh "+self.cosbench["cosbench_folder"]+"/cli.sh submit "+remote_config_path +" 2>/dev/null | awk  '{print $4}'"
             common.scp("root",self.cosbench["cosbench_controller"],local_config_path,remote_config_path)
             self.runid = int((common.pdsh("root",list([self.cosbench["cosbench_controller"]]),run_command,"check_return")[0]).split()[1][1:]) 
+            header.update_test_id(".test_id",test_id_this_worker)
             
             common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"rm -f %s" %(remote_config_path),"error_check")
 
@@ -249,7 +249,7 @@ class Cosbench(Benchmark):
             print ".",
             if curr_time % 20 == 0:
                 print ""
-            still_running = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.runid),self.cosbench["cosbench_folder"] ),"check_return")[0])
+            still_running = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.runid),self.cosbench["cosbench_folder"] ),"force"))
             if still_running == '':
                 if curr_time == int(self.cosbench["timeout"]):
                     break

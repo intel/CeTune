@@ -25,8 +25,10 @@ class Benchmark(object):
 
     def go(self):
         self.prepare_result_dir()
-        common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]))
-
+        try:
+            common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]))
+        except TypeError:
+            common.printout("LOG","RUNID: %s, RESULT_DIR: %s" % (",".join(self.cosbench["cosbench_run_id"]), self.cluster["dest_dir"]))
         self.cal_run_job_distribution()
         self.prerun_check() 
         self.prepare_run()
