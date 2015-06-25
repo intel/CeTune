@@ -75,6 +75,9 @@ class Config():
     def get_all(self):
         return self.conf_data
 
+    def get_all(self):
+        return self.conf_data
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
