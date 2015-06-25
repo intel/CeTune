@@ -201,6 +201,7 @@ class Analyzer:
             pass
         result[dirname] = {}
         result[dirname]["fio"] = output_fio_data
+        #print result
         return result
 
     def process_lttng_data(self, path):

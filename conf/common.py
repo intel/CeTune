@@ -21,7 +21,7 @@ no_die = False
 
 class Config():
     def __init__(self, conf_path):
-        self.conf_data = {}
+        self.conf_data = OrderedDict()
         cur_conf_section = self.conf_data
         with open(conf_path, "r") as f:
             for line in f:
@@ -74,6 +74,9 @@ class Config():
 		return self.conf_data[key]
 	else:
 	    print "%s not defined in all.conf" % key
+
+    def get_all(self):
+        return self.conf_data
 
 class bcolors:
     HEADER = '\033[95m'
@@ -155,7 +158,7 @@ def printout(level, content, screen = True):
             print content
         
     
-def pdsh(user, nodes, command, option="error_check"):
+def pdsh(user, nodes, command, option="error_check", nodie=False):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))

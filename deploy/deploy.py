@@ -9,6 +9,8 @@ import socket
 import uuid
 import argparse
 import yaml
+from ceph_deploy import cli
+from threading import Thread
 
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy:
@@ -332,8 +334,8 @@ class Deploy:
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
-                #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
-                lttng_prefix = ""
+                lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
+                #lttng_prefix = ""
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
                 common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console")
@@ -348,6 +350,9 @@ def main(args):
         )
     parser.add_argument(
         '--config',
+        )
+    parser.add_argument(
+        '--version',
         )
     args = parser.parse_args(args)
     if args.operation == "redeploy":
@@ -366,6 +371,12 @@ def main(args):
         else:
             mydeploy = Deploy()
         mydeploy.gen_cephconf()
+    if args.operation == "install_binary":
+        mydeploy = Deploy()
+        mydeploy.install_binary(args.version)
+    if args.operation == "uninstall_binary":
+        mydeploy = Deploy()
+        mydeploy.uninstall_binary()
 
 if __name__ == '__main__':
     import sys

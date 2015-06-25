@@ -42,6 +42,7 @@ class Tuner:
                 if work == "deploy":
                     common.printout("LOG","Check ceph version, reinstall ceph if necessary")
                     self.apply_version(section)
+                    sys.exit()
                     self.apply_tuning(section, no_check=True)
                     common.printout("LOG","Start to redeploy ceph")
                     deploy.main(['redeploy'])
@@ -185,26 +186,25 @@ class Tuner:
         pwd = os.path.abspath(os.path.join('..'))
         cur_version = self.get_version()
         version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer'}
-        current_version_group = re.search('(\d+.\d+).\d',cur_version)
-        current_version = current_version_group.group(1)
-        version_match = False
         if 'version' in self.worksheet[jobname]:
-            if current_version in version_map:
-                version_match = ( version_map[current_version] == self.worksheet[jobname]['version'] )
+            planed_version = self.worksheet[jobname]['version']
         else:
-            version_match = True
+            return
+        if not cur_version == {}:
+            current_version_group = re.search('(\d+.\d+).\d',cur_version)
+            current_version = current_version_group.group(1)
+            version_match = False
+            if 'version' in self.worksheet[jobname]:
+                if current_version in version_map:
+                    version_match = ( version_map[current_version] == planed_version )
+            else:
+                version_match = True
+        else:
+            version_match = False
         if not version_match:
             common.printout("LOG","Current ceph version not match testjob version, need reinstall")
-            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh purge" % pwd, option="check_return")
-            #stdout, stderr = proc.communicate()
-            #print stdout
-            #print stderr
-            #proc = common.pdsh(user, [controller], "cd %s; bash deploy-ceph.sh install %s" % (pwd, self.worksheet[jobname]['version']), option="check_return")
-            #stdout, stderr = proc.communicate()
-            #print stdout
-            #if stderr: 
-            #    common.printout("ERROR","stderr")
-            sys.exit()
+            deploy.main(['uninstall_binary'])
+            deploy.main(['install_binary', '--version', planed_version])
 
     def check_tuning(self, jobname):
         if not self.cur_tuning:
