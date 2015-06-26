@@ -242,6 +242,18 @@ def rscp(user, node, localfile, remotefile):
         printout("ERROR",stderr+"\n")
         sys.exit()
 
+# scp from one remote machine to another remote machine
+def rrscp(user, node1, node1_file, node2,node2_file):
+    args = ['scp', '-r', '%s@%s:%s'%(user,node1,node1_file)  , '%s@%s:%s' % (user, node2, node2_file)]
+    #print('scp: %s' % args)
+    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    if stderr:
+        print('scp: %s' % args)
+        print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
+        sys.exit()
+
+
+
 def load_yaml_conf(yaml_path):
     config = {}
     with file(yaml_path) as f:
