@@ -180,8 +180,8 @@ class Visualizer:
     def generate_node_view(self, node_type):
         output = []
         if node_type == 'ceph':
-            node_show_list = ["osd", "journal", "cpu", "memory", "nic", "perfcounter_osd", "perfcounter_filestore", "perfcounter_objecter"]
-            #node_show_list = ["osd", "journal", "cpu", "memory", "nic"]
+            #node_show_list = ["osd", "journal", "cpu", "memory", "nic", "perfcounter_osd", "perfcounter_filestore", "perfcounter_objecter"]
+            node_show_list = ["osd", "journal", "cpu", "memory", "nic"]
         elif node_type == 'vclient':
             node_show_list = ["vdisk","cpu", "memory", "nic"]
         elif node_type == 'client':

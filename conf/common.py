@@ -167,6 +167,8 @@ def pdsh(user, nodes, command, option="error_check", nodie=False):
     printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if option == "force":
+        return _subp
     stdout = []
     for line in iter(_subp.stdout.readline,""):
         stdout.append(line)
@@ -225,7 +227,7 @@ def bash(command, force=False, option="", nodie=False):
             printout("ERROR",stderr+"\n")
         if not nodie:
             sys.exit()
-        return stdout
+    return stdout
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
@@ -326,9 +328,14 @@ def convert_table_to_2Dlist(table_str):
             index = 0
             for data in line.split():
                 try:
-                    res_dict[title_dict[index]].append(float(data))
+                    data_float = float(data)
                 except:
-                    res_dict[title_dict[index]] = [float(data)]
+                    continue
+                if not index < len(title_dict):
+                    continue
+                if title_dict[index] not in res_dict:
+                    res_dict[title_dict[index]] = []
+                res_dict[title_dict[index]].append(data_float)
                 index += 1
     return res_dict
 

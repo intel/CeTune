@@ -105,15 +105,15 @@ class Analyzer:
             if '_iostat.txt' in dir_name:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
-            if '.asok.txt' in dir_name:
-                try:
-                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
-                    for key, value in res.items():
-                        if not key in result:
-                            result[key] = OrderedDict()
-                        result[key].update(value)
-                except:
-                    pass
+#            if '.asok.txt' in dir_name:
+#                try:
+#                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
+#                    for key, value in res.items():
+#                        if not key in result:
+#                            result[key] = OrderedDict()
+#                        result[key].update(value)
+#                except:
+#                    pass
         return [result, fio_result]
 
     def get_validate_runtime(self):

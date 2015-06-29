@@ -53,12 +53,12 @@ class Benchmark(object):
         #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
         try:
             analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
-        except TypeError:
-            print "Going to Cosbench Analyser"
-            print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
+        #except TypeError:
+        #    print "Going to Cosbench Analyser"
+        #    print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
             #python analyzer.py --path /mnt/data/run_res/ process_data 
-            for test_id in self.cosbench["cosbench_run_id"]:
-                analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
+        #    for test_id in self.cosbench["cosbench_run_id"]:
+        #        analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
         except:
             common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"])
         
@@ -153,11 +153,14 @@ class Benchmark(object):
         head = self.cluster["head"]
         dest_dir = self.benchmark["dir"]
         #collect all.conf
-        common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
-        common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_log_file) )
-        common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_error_file) )
-        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
-        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
+        try:
+            common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
+            common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_log_file) )
+            common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_error_file) )
+            common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
+            common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
+        except:
+            pass
         #collect tuner.yaml
         worksheet = common.load_yaml_conf("%s/conf/tuner.yaml" % self.pwd)
         if self.benchmark["tuning_section"] in worksheet:
