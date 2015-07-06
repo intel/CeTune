@@ -48,11 +48,7 @@ class Tuner:
                 elif work == "benchmark":
                     common.printout("LOG","start to run performance test")
                     self.apply_tuning(section)
-                    if 'benchmark_engine' in self.worksheet[section]:
-                        engine = self.worksheet[section]['benchmark_engine']
-                    else:
-                        engine = 'fiorbd' 
-                    run_cases.main(['--tuning', section, engine])
+                    run_cases.main(['--tuning', section])
                 else:
                     common.printout("ERROR","Unknown tuner workstage %s" % work)
 
@@ -217,7 +213,7 @@ class Tuner:
                 key = "global"
             if key in self.cur_tuning:
                 res = common.check_if_adict_contains_bdict(self.cur_tuning[key], tuning)
-                if not res:
+                if not res and key not in tuning_diff:
                     tuning_diff.append(key)
             else:
                 tuning_diff.append(key)

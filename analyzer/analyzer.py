@@ -28,7 +28,6 @@ class Analyzer:
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["osd_daemon_num"] = 0
-
         self.result = {}
         self.result["ceph"] = OrderedDict()
         self.result["client"] = OrderedDict()
@@ -37,7 +36,6 @@ class Analyzer:
         self.result["fio"] = OrderedDict()
         self.get_validate_runtime()
         self.result["runtime"] = int(float(self.validate_time))
-
 
     def process_data(self):
         user = self.cluster["user"]

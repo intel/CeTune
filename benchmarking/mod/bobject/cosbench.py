@@ -8,8 +8,8 @@ from benchmarking.mod.benchmark import *
 from conf import common
 
 class Cosbench(Benchmark):
-    def __init__(self,testcase):
-        super(self.__class__,self).__init__(testcase)
+    def load_parameter(self):
+        super(self.__class__,self).load_parameter()
         self.rgw={}
         self.rgw["rgw_server"]=self.all_conf_data.get("rgw_server")
         self.rgw["rgw_num_per_server"]=self.all_conf_data.get("rgw_num_per_server")
@@ -38,7 +38,6 @@ class Cosbench(Benchmark):
         self.runid = first_id
         self.cosbench["run_time"] = self.all_conf_data.get("run_time")
         self.cosbench["ramp_up"] = self.all_conf_data.get("run_warmup_time")
-        
 
 
     def prepare_result_dir(self):

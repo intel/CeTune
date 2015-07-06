@@ -9,24 +9,21 @@ from analyzer import *
 lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 class Benchmark(object):
-    def __init__(self, testcase):
+    def __init__(self):
         self.all_conf_data = common.Config(lib_path+"/conf/all.conf")
         self.benchmark = {}
-        self.benchmark = copy.deepcopy(testcase)
         self.cluster = {}
-        self.cluster["user"] = self.all_conf_data.get("user")
-        self.cluster["head"] = self.all_conf_data.get("head")
-        self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
-        self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
-        self.cluster["client"] = self.all_conf_data.get_list("list_client")
-        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
-        self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
         self.pwd = os.path.abspath(os.path.join('..'))
 
-    def go(self):
+    def go(self, testcase, tuning):
+        self.load_parameter()
+
+        self.benchmark = self.parse_benchmark_cases(testcase)
+        self.benchmark["tuning_section"] = tuning
+
         self.prepare_result_dir()
         try:
-            common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]))
+            common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
         except TypeError:
             common.printout("LOG","RUNID: %s, RESULT_DIR: %s" % (",".join(self.cosbench["cosbench_run_id"]), self.cluster["dest_dir"]))
         self.cal_run_job_distribution()
@@ -50,9 +47,9 @@ class Benchmark(object):
         self.set_runid()
 
         common.printout("LOG","Post Process Result Data")
-        #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
+        #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.cluster["dest_dir"], True)
         try:
-            analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
+            analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
         #except TypeError:
         #    print "Going to Cosbench Analyser"
         #    print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
@@ -60,7 +57,7 @@ class Benchmark(object):
         #    for test_id in self.cosbench["cosbench_run_id"]:
         #        analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
         except:
-            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"])
+            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
         
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
@@ -151,7 +148,7 @@ class Benchmark(object):
     def archive(self):
         user = self.cluster["user"]
         head = self.cluster["head"]
-        dest_dir = self.benchmark["dir"]
+        dest_dir = self.cluster["dest_dir"]
         #collect all.conf
         try:
             common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
@@ -275,3 +272,18 @@ class Benchmark(object):
             return False
         else:
             return True
+
+    def generate_benchmark_cases(self):
+        return [[],[]]
+
+    def parse_benchmark_cases(self):
+        pass
+
+    def load_parameter(self):
+        self.cluster["user"] = self.all_conf_data.get("user")
+        self.cluster["head"] = self.all_conf_data.get("head")
+        self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
+        self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
+        self.cluster["client"] = self.all_conf_data.get_list("list_client")
+        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
+        self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")

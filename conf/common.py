@@ -163,43 +163,45 @@ def pdsh(user, nodes, command, option="error_check", nodie=False):
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
-    args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
+    args = ['pdsh', '-R', 'exec', '-w', _nodes, 'ssh', '%h', command]
     printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if option == "force":
+    if "force" in option:
         return _subp
     stdout = []
     for line in iter(_subp.stdout.readline,""):
         stdout.append(line)
         if "console" in option:
             print line,
-    if "force" in option:
-        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return _subp
 
+    returncode = _subp.poll()
+    #returncode = _subp.returncode
     _subp.stdout.close()
-    returncode = _subp.wait()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     printout("CONSOLE", stdout, screen=False)
 
     if "check_return" in option:
-        if returncode:
+        if returncode or "Connection timed out" in stderr:
             if stderr:
-                tmp_stderr = stderr.split('\n')
-                if "ssh exited with exit" in tmp_stderr[-2]:
-                    stderr = '\n'.join(tmp_stderr[:-2])
-                printout("ERROR",stderr, screen=False)
+                stderr_tmp = stderr.split('\n')
+                stderr_print = []
+                for line in stderr_tmp:
+                    if "ssh exited with exit code 255" not in line:
+                        stderr_print.append(line)
+                printout("ERROR",'\n'.join(stderr_print), screen=False)
         return [stdout, stderr]
     else:
-        if returncode:
+        if returncode or "Connection timed out" in stderr:
             if stderr:
-                tmp_stderr = stderr.split('\n')
-                if "ssh exited with exit" in tmp_stderr[-2]:
-                    stderr = '\n'.join(tmp_stderr[:-2])
+                stderr_tmp = stderr.split('\n')
+                stderr_print = []
+                for line in stderr_tmp:
+                    if "ssh exited with exit code 255" not in line:
+                        stderr_print.append(line)
                 print('pdsh: %s' % args)
-                printout("ERROR",stderr)
+                printout("ERROR",'\n'.join(stderr_print))
             if not nodie:
                 sys.exit()
 
