@@ -1,4 +1,4 @@
-import os,sys
+import os,sys 
 lib_path = os.path.abspath(os.path.join('../conf/'))
 sys.path.append(lib_path)
 import common
@@ -323,6 +323,12 @@ def main(args):
             mydeploy = Deploy(args.config)
         else:
             mydeploy = Deploy()
+        mydeploy.gen_cephconf()
+    if args.operaton == "deploy_rgw":
+        if args.config:
+            mydeploy = Deploy(args.config)
+        else:
+            mydeploy = Rgw()
         mydeploy.gen_cephconf()
 
 if __name__ == '__main__':

@@ -67,13 +67,13 @@ class Config():
                 return ""
 
     def get_list(self,key):
-	if key in self.conf_data:
-	    if type(self.conf_data[key]) == str:
-		return [self.conf_data[key]]
-	    else:
-		return self.conf_data[key]
-	else:
-	    print "%s not defined in all.conf" % key
+        if key in self.conf_data:
+            if type(self.conf_data[key]) == str:
+                return [self.conf_data[key]]
+            else:
+                return self.conf_data[key]
+        else:
+            print "%s not defined in all.conf" % key
 
 class bcolors:
     HEADER = '\033[95m'
@@ -127,24 +127,33 @@ def get_list( string ):
             res.append(value)
     return res
 
-def printout(level, content):
+def printout(level, content, screen = True):
     if level == "ERROR":
         output = "[ERROR]: %s" % content
         with open(cetune_error_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        print bcolors.FAIL + output + bcolors.ENDC
+        if screen:
+            print bcolors.FAIL + output + bcolors.ENDC
     if level == "LOG":
         output = "[LOG]: %s" % content
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        print bcolors.OKGREEN + output + bcolors.ENDC
+        if screen:
+            print bcolors.OKGREEN + output + bcolors.ENDC
     if level == "WARNING":
         output = "[WARNING]: %s" % content
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        print bcolors.WARNING + output + bcolors.ENDC
+        if screen:
+            print bcolors.WARNING + output + bcolors.ENDC
+    if level == "CONSOLE":
+        with open(cetune_log_file, "a+") as f:
+            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
+        if screen:
+            print content
+        
     
 def pdsh(user, nodes, command, option="error_check"):
     _nodes = []
@@ -152,44 +161,68 @@ def pdsh(user, nodes, command, option="error_check"):
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
-    with open(cetune_log_file,"a+") as f:
-        f.write('[%s]%s: %s\n' % (datetime.datetime.now().isoformat(), _nodes, args))
-    if option == "force":
+    printout("CONSOLE", args, screen=False)
+
+    _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = []
+    for line in iter(_subp.stdout.readline,""):
+        stdout.append(line)
+        if "console" in option:
+            print line,
+    if "force" in option:
         _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return _subp
-    if option == "check_return":
-        stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
-        if stderr:
-            print('pdsh: %s' % args)
-            with open(cetune_error_file,"a+") as f:
-                f.write('[%s]%s: %s\n' % (datetime.datetime.now().isoformat(), _nodes, args))
-            printout("ERROR",stderr)
+
+    _subp.stdout.close()
+    returncode = _subp.wait()
+    stderr = _subp.stderr.read()
+    stdout = "".join(stdout)
+    printout("CONSOLE", stdout, screen=False)
+
+    if "check_return" in option:
+        if returncode:
+            if stderr:
+                tmp_stderr = stderr.split('\n')
+                if "ssh exited with exit" in tmp_stderr[-2]:
+                    stderr = '\n'.join(tmp_stderr[:-2])
+                printout("ERROR",stderr, screen=False)
         return [stdout, stderr]
-    if option == "error_check":
-        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-        stdout, stderr = _subp.communicate()
-        if stderr:
-            print('pdsh: %s' % args)
-            with open(cetune_error_file,"a+") as f:
-                f.write('[%s]%s: %s\n' % (datetime.datetime.now().isoformat(), _nodes, args))
-            printout("ERROR",stderr)
-            if nodie:
+    else:
+        if returncode:
+            if stderr:
+                tmp_stderr = stderr.split('\n')
+                if "ssh exited with exit" in tmp_stderr[-2]:
+                    stderr = '\n'.join(tmp_stderr[:-2])
+                print('pdsh: %s' % args)
+                printout("ERROR",stderr)
+            if not nodie:
                 sys.exit()
 
-def bash(command, force=False):
+def bash(command, force=False, option="", nodie=False):
     args = ['bash', '-c', command]
-    with open(cetune_log_file,"a+") as f:
-        f.write('[%s]localhost: %s\n' % (datetime.datetime.now().isoformat(), args))
-    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    printout("CONSOLE", args, screen=False)
+
+    _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = []
+    for line in iter(_subp.stdout.readline,""):
+        stdout.append(line)
+        if "console" in option:
+            print line,
+    _subp.stdout.close()
+    returncode = _subp.wait()
+    stderr = _subp.stderr.read()
+    stdout = "".join(stdout)
+    printout("CONSOLE", stdout, screen=False)
+
     if force:
         return [stdout, stderr]
-    if stderr:
-        print('bash: %s' % args)
-        with open(cetune_error_file,"a+") as f:
-            f.write('[%s]localhost: %s\n' % (datetime.datetime.now().isoformat(), args))
-        printout("ERROR",stderr+"\n")
-        sys.exit()
-    return stdout
+    if returncode:
+        if stderr:
+            print('bash: %s' % args)
+            printout("ERROR",stderr+"\n")
+        if not nodie:
+            sys.exit()
+        return stdout
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
