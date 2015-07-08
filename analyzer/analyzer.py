@@ -47,14 +47,14 @@ class Analyzer:
             self.result["session_name"] = session_name[-1]
         else:
             self.result["session_name"] = session_name[-2]
+        
         for dir_name in os.listdir(dest_dir):
             if not os.path.isdir("%s/%s" % (dest_dir, dir_name)):
                 continue
-            if dir_name in self.cluster["head"]:
+            if dir_name == 'cosbench':
                 self.result["cosbench"][dir_name]={}
                 system, fio = self._process_data(dir_name)
                 self.result["cosbench"][dir_name]=system
-                #self.result["fio"].update(fio)
 
             if dir_name in self.cluster["osds"]:
                 self.result["ceph"][dir_name]={}
@@ -70,13 +70,9 @@ class Analyzer:
                 system, fio = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
                 self.result["fio"].update(fio)
-            
-                #for key, value in self.result.items():
-            #print key+": "
-            #for subkey, values in value.items():
-                #print "    "+subkey+":"
-                #print "        "+str(values.keys())
-
+       
+        print self.result
+        '''
         view = visualizer.Visualizer(self.result)
         output = view.generate_summary_page()
         with open("%s/%s.html" % (dest_dir, self.result["session_name"]), 'w') as f:
@@ -91,13 +87,15 @@ class Analyzer:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
         common.bash("scp -r ../visualizer/include %s" % (self.cluster["dest_dir_remote_bak"]))
-
+        '''
     def _process_data(self, node_name):
         result = {}
         fio_result = {}
         dest_dir = self.cluster["dest_dir"]
         for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
             common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
+            if '_cosbench.csv' in dir_name:
+                result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name)))
             if '_sar.txt' in dir_name:
                 result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
             if '_fio.txt' in dir_name:
@@ -114,7 +112,21 @@ class Analyzer:
                         result[key].update(value)
                 except:
                     pass
+            
         return [result, fio_result]
+
+    def process_cosbench_data(self,path):
+        result = {}
+        keys = common.bash("head -n 1 %s" %(path))
+        print 'keys are '+keys
+        keys = keys.split(',')
+        values = common.bash('tail -n 1 %s' %(path) )
+        print 'values are '+values
+        values = values.split(',')
+        size = len(keys)
+        for i in range(size):
+            result[keys[i]] = values[i]
+        return result
 
     def get_validate_runtime(self):
         self.validate_time = 0
