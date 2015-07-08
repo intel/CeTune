@@ -44,16 +44,16 @@ class Deploy:
         else:
             for osd in self.all_conf_data.get_list("list_ceph"):
                 self.cluster["osds"][osd] = socket.gethostbyname(osd)
-            for mon in self.all_conf_data.get_list("list_mon"): 
+            for mon in self.all_conf_data.get_list("list_mon"):
                 self.cluster["mons"][mon] = socket.gethostbyname(mon)
 
         for osd in self.cluster["osds"]:
             self.cluster[osd] = self.all_conf_data.get_list(osd)
 
-        self.cluster["fs"] = "xfs"        
-        self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"        
+        self.cluster["fs"] = "xfs"
+        self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"
         self.cluster["mount_opts"] = "-o inode64,noatime,logbsize=256k"
-        
+
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
 
@@ -88,12 +88,12 @@ class Deploy:
         pkg_type = "release"
         if ":" in version:
             try:
-                pkg_type, version = version.split(":") 
+                pkg_type, version = version.split(":")
             except:
                 common.printout("ERROR", "Please check version, received $s" % version)
 
         user = self.cluster["user"]
-        node_os_dict = common.return_os_id(user, need_to_install_nodes) 
+        node_os_dict = common.return_os_id(user, need_to_install_nodes)
         for node in need_to_install_nodes:
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
@@ -103,7 +103,7 @@ class Deploy:
         installed, non_installed = self.check_ceph_installed()
         user = self.cluster["user"]
         nodes = installed.keys()
-        node_os_dict = common.return_os_id(user, nodes) 
+        node_os_dict = common.return_os_id(user, nodes)
         for node in nodes:
             common.bash("ceph-deploy purge %s" % (node), option="console")
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
@@ -121,11 +121,11 @@ class Deploy:
         need_to_install_nodes = []
         stdout, stderr = common.pdsh(user, nodes, "ceph -v", option = "check_return")
         if stderr:
-            err = common.format_pdsh_return(stderr) 
+            err = common.format_pdsh_return(stderr)
             need_to_install_nodes = err.keys()
         res = common.format_pdsh_return(stdout)
         return [res, need_to_install_nodes]
-    
+
     def gen_cephconf(self):
         cephconf = []
         for section in self.cluster["ceph_conf"]:
@@ -165,7 +165,7 @@ class Deploy:
         #print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
 
         common.printout("LOG","Started to build mon daemon")
-        self.make_mon()        
+        self.make_mon()
         common.printout("LOG","Succeeded in building mon daemon")
         common.printout("LOG","Started to build osd daemon")
         self.make_osd()
@@ -207,7 +207,7 @@ class Deploy:
         mount_opts = self.cluster['mount_opts']
         osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
         osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
-        
+
         self.cluster["ceph_conf"]["global"]["osd_data"]
         stdout, stderr = common.pdsh( user, osds, 'mount -l', option="check_return" )
         mount_list = {}
@@ -297,7 +297,7 @@ class Deploy:
             common.pdsh(user, [mon], 'mkdir -p %s/%s' % (mon_basedir, mon_filename))
             common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="console")
             common.pdsh(user, [mon], 'cp %s/keyring %s/%s/keyring' % (mon_basedir, mon_basedir, mon_filename))
-            
+
         # Start the mons
         for mon, addr in mons.items():
             common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
@@ -377,6 +377,12 @@ def main(args):
     if args.operation == "uninstall_binary":
         mydeploy = Deploy()
         mydeploy.uninstall_binary()
+    if args.operaton == "deploy_rgw":
+        if args.config:
+            mydeploy = Deploy(args.config)
+        else:
+            mydeploy = Rgw()
+        mydeploy.gen_cephconf()
 
 if __name__ == '__main__':
     import sys

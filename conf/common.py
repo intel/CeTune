@@ -55,7 +55,7 @@ class Config():
     def dump_to_file(self, output, key=""):
         with open(output, 'w') as f:
             f.write( self.dump(key) )
-        
+
     def get(self, key, dotry=False):
         if key in self.conf_data:
             return self.conf_data[key]
@@ -67,13 +67,13 @@ class Config():
                 return ""
 
     def get_list(self,key):
-	if key in self.conf_data:
-	    if type(self.conf_data[key]) == str:
-		return [self.conf_data[key]]
-	    else:
-		return self.conf_data[key]
-	else:
-	    print "%s not defined in all.conf" % key
+        if key in self.conf_data:
+            if type(self.conf_data[key]) == str:
+                return [self.conf_data[key]]
+            else:
+                return self.conf_data[key]
+        else:
+            print "%s not defined in all.conf" % key
 
     def get_all(self):
         return self.conf_data
@@ -90,7 +90,7 @@ class IPHandler:
     def makeMask(self,n):
         "return a mask of n bits as a long integer"
         return (2L<<n-1) - 1
-    
+
     def dottedQuadToNum(self,ip):
         res = re.search(r'(\d+).(\d+).(\d+).(\d+)',ip)
         ip_hex = "%02x" % int(res.group(1))
@@ -98,14 +98,14 @@ class IPHandler:
         ip_hex += "%02x" % int(res.group(3))
         ip_hex += "%02x" % int(res.group(4))
         return int(ip_hex,16)
-    
+
     def networkMask(self,subnet):
-        "Convert a network address to a long integer" 
+        "Convert a network address to a long integer"
         res = re.search(r'(\d+.\d+.\d+.\d+)/(\d+)',subnet)
         ip = res.group(1)
         bits = int(res.group(2))
         return self.dottedQuadToNum(ip) & self.makeMask(bits)
-    
+
     def addressInNetwork(self,ip,net):
        "Is an address in a network"
        return ip & net == net
@@ -156,8 +156,7 @@ def printout(level, content, screen = True):
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
             print content
-        
-    
+
 def pdsh(user, nodes, command, option="error_check", nodie=False):
     _nodes = []
     for node in nodes:
@@ -259,8 +258,6 @@ def rrscp(user, node1, node1_file, node2,node2_file):
         print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
 
-
-
 def load_yaml_conf(yaml_path):
     config = {}
     with file(yaml_path) as f:
@@ -350,11 +347,11 @@ def check_if_adict_contains_bdict(adict, bdict):
             else:
                 if not str(adict[key]) == str(bdict[key]):
                     printout("LOG","Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])))
-                    return False 
+                    return False
         else:
             print key
             return False
-    return True      
+    return True
 
 class MergableDict:
     def __init__(self):
@@ -399,7 +396,7 @@ class MergableDict:
     def dump(self):
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(self.mergable_dict)
-       
+
     def get(self):
         return self.mergable_dict
 
@@ -421,7 +418,7 @@ def size_to_Kbytes(size, dest_unit='KB'):
         for i in range(dest_unit_index, space_unit_index):
             space_num /= 1024.0
     return '%.3f' % space_num
-        
+
 def time_to_sec(fio_runtime, dest_unit='sec'):
     res = re.search('(\d+.*\d*)(\wsec)', fio_runtime)
     if not res:
