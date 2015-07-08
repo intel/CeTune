@@ -1,0 +1,8 @@
+
+Usage: ./cli.sh <action: submit|cancel|info> <parameter> <web username:password@ip:port>
+  - action:
+          - <submit> <configuration file>: submit configuration and start workload
+          - <cancel> <workload id>: cancel workload
+          - <info>: check status
+  - <web username:password@ip:port> anonymous:cosbench@127.0.0.1:19088 by default
+
