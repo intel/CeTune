@@ -74,6 +74,56 @@ class Deploy:
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['osd'][key] = value
 
+    def install_binary(self, version="hammer"):
+        installed, non_installed = self.check_ceph_installed()
+        need_to_install_nodes = non_installed
+        common.printout("LOG", "Ceph already installed on below nodes")
+        for node, value in installed.items():
+            common.printout("LOG", "%s, installed version: %s" % (node, value))
+        if len(need_to_install_nodes):
+            common.printout("LOG", "Will start to install ceph on %s" % str(need_to_install_nodes))
+
+        pkg_type = "release"
+        if ":" in version:
+            try:
+                pkg_type, version = version.split(":") 
+            except:
+                common.printout("ERROR", "Please check version, received $s" % version)
+
+        user = self.cluster["user"]
+        node_os_dict = common.return_os_id(user, need_to_install_nodes) 
+        for node in need_to_install_nodes:
+            if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
+                common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
+            common.bash("ceph-deploy install --%s %s %s 2>&1" % (pkg_type, version, node), option="console")
+
+    def uninstall_binary(self):
+        installed, non_installed = self.check_ceph_installed()
+        user = self.cluster["user"]
+        nodes = installed.keys()
+        node_os_dict = common.return_os_id(user, nodes) 
+        for node in nodes:
+            common.bash("ceph-deploy purge %s" % (node), option="console")
+            if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
+                common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
+
+    def check_ceph_installed(self):
+        user = self.cluster["user"]
+        mons = sorted(self.cluster["mons"])
+        osds = sorted(self.cluster["osds"])
+        clients = sorted(self.cluster["clients"])
+        nodes = []
+        nodes = common.unique_extend(nodes, mons)
+        nodes = common.unique_extend(nodes, osds)
+        nodes = common.unique_extend(nodes, clients)
+        need_to_install_nodes = []
+        stdout, stderr = common.pdsh(user, nodes, "ceph -v", option = "check_return")
+        if stderr:
+            err = common.format_pdsh_return(stderr) 
+            need_to_install_nodes = err.keys()
+        res = common.format_pdsh_return(stdout)
+        return [res, need_to_install_nodes]
+    
     def gen_cephconf(self):
         cephconf = []
         for section in self.cluster["ceph_conf"]:
@@ -202,25 +252,17 @@ class Deploy:
                 osduuid = str(uuid.uuid4())
                 osd_filedir = osd_filename.replace("$id",str(osd_num))
                 key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
-                stdout, stderr = common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="check_return")
-                print stdout
-                print stderr
-                stdout, stderr = common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="check_return")
-                print stdout
-                print stderr
-                stdout, stderr = stdout,stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="check_return")
-                print stdout
-                print stderr
-                stdout, stderr = common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="check_return")
-                print stdout
-                print stderr
+                common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="console")
+                common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="console")
+                common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="console")
+                common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console")
 
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                stdout, stderr = common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="check_return")
+                common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="console")
                 common.printout("LOG","Builded osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
 
@@ -251,7 +293,7 @@ class Deploy:
             mon_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["mon_data"]).replace("$id",mon)
             common.pdsh(user, [mon], 'rm -rf %s/%s' % (mon_basedir, mon_filename))
             common.pdsh(user, [mon], 'mkdir -p %s/%s' % (mon_basedir, mon_filename))
-            common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="check_return")
+            common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="console")
             common.pdsh(user, [mon], 'cp %s/keyring %s/%s/keyring' % (mon_basedir, mon_basedir, mon_filename))
             
         # Start the mons
@@ -260,7 +302,7 @@ class Deploy:
             pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            stdout, stderr = common.pdsh(user, [mon], '%s' % cmd, option="check_return")
+            common.pdsh(user, [mon], '%s' % cmd, option="console")
             common.printout("LOG","Builded mon.%s daemon on %s" % (mon, mon))
 
     def start_mon(self):
@@ -275,7 +317,7 @@ class Deploy:
             lttng_prefix = ""
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            stdout, stderr = common.pdsh(user, [mon], '%s %s' % (lttng_prefix, cmd), option="check_return")
+            common.pdsh(user, [mon], '%s %s' % (lttng_prefix, cmd), option="console")
             common.printout("LOG","Started mon.%s daemon on %s" % (mon, mon))
 
     def start_osd(self):
@@ -294,7 +336,7 @@ class Deploy:
                 lttng_prefix = ""
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                stdout, stderr = common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="check_return")
+                common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console")
                 common.printout("LOG","Started osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
 
