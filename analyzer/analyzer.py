@@ -72,7 +72,6 @@ class Analyzer:
                 self.result["fio"].update(fio)
        
         print self.result
-        '''
         view = visualizer.Visualizer(self.result)
         output = view.generate_summary_page()
         with open("%s/%s.html" % (dest_dir, self.result["session_name"]), 'w') as f:
@@ -87,7 +86,7 @@ class Analyzer:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
         common.bash("scp -r ../visualizer/include %s" % (self.cluster["dest_dir_remote_bak"]))
-        '''
+    
     def _process_data(self, node_name):
         result = {}
         fio_result = {}
