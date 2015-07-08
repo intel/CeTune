@@ -19,8 +19,6 @@ class Deploy_RGW:
         self.cluster['rgw_num'] = self.all_conf_data.get('rgw_num_per_server')
         self.cluster['rgw_start_index'] = self.all_conf_data.get('rgw_start_index')
         self.cluster['rgw_index'] = [x+int(self.cluster['rgw_start_index']) for x in range(int(self.cluster['rgw_num']))]
-        self.cluster["ceph_conf"] = {}
-        self.cluster["ceph_conf"]["global"] = {}
 
     def check_if_rgw_installed(self):
         stdout,stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'curl localhost','check_return')
@@ -31,25 +29,38 @@ class Deploy_RGW:
             
     def rgw_dependency_install(self):
         common.printout("LOG","Install apache2 and fastcgi...")
-        common.pdsh(self.cluster["user"],self.cluster["rgw"],"wget -q -O- https://raw.github.com/ceph/ceph/master/keys/autobuild.asc --no-check-certificate | sudo apt-key add -","check_return")
-        common.pdsh(self.cluster["user"],self.cluster["rgw"],"echo deb http://gitbuilder.ceph.com/apache2-deb-$(lsb_release -sc)-x86_64-basic/ref/master $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph-apache.list","check_return")
-        common.pdsh(self.cluster["user"],self.cluster["rgw"],"echo deb http://gitbuilder.ceph.com/libapache-mod-fastcgi-deb-$(lsb_release -sc)-x86_64-basic/ref/master $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph-fastcgi.list","check_return")
-        common.pdsh(self.cluster["user"],self.cluster['rgw'],'sudo apt-get update','check-return')
-        common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo apt-get -y install apache2 libapache2-mod-fastcgi","check_return")
+        #common.pdsh(self.cluster["user"],self.cluster["rgw"],"wget -q -O- https://raw.github.com/ceph/ceph/master/keys/autobuild.asc --no-check-certificate | sudo apt-key add -","check_return")
+        #common.pdsh(self.cluster["user"],self.cluster["rgw"],"echo deb http://gitbuilder.ceph.com/apache2-deb-$(lsb_release -sc)-x86_64-basic/ref/master $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph-apache.list","check_return")
+        #common.pdsh(self.cluster["user"],self.cluster["rgw"],"echo deb http://gitbuilder.ceph.com/libapache-mod-fastcgi-deb-$(lsb_release -sc)-x86_64-basic/ref/master $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph-fastcgi.list","check_return")
+        #common.pdsh(self.cluster["user"],self.cluster['rgw'],'sudo apt-get update','console')
+        common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo apt-get -y install apache2 libapache2-mod-fastcgi","console")
         common.printout('LOG','Installing radosgw and radosgw-agent...')
-        common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo apt-get -y install radosgw radosgw-agent --force-yes","check_return")
+        common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo apt-get -y install radosgw radosgw-agent --force-yes","console")
         #common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo apt-get -y install apache2","check_return")
         common.printout("LOG","Updating apache2 conf")
         line, error = common.pdsh(self.cluster["user"],self.cluster["rgw"],"grep 'ServerName[ ]*' /etc/apache2/apache2.conf | wc -l","check_return")
         lines = line.split()[1]
         if lines is not '0':
-            common.pdsh(self.cluster['user'],self.cluster['rgw'],"host_name=`hostname`; sudo sed -i.install_rgw_backup 's/ServerName[ ]*.*/ServerName $host_name/g' /etc/apache2/apache2.conf",'check_return')
+            common.pdsh(self.cluster['user'],self.cluster['rgw'],"sudo sed -i.install_rgw_backup 's/ServerName[ ]*.*/ServerName %s/g' /etc/apache2/apache2.conf" %(self.cluster['rgw'][0]),'check_return')
         else:
-            common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname`; sudo echo "ServerName $host_name" >> /etc/apache2/apache2.conf','check_return')
+            common.pdsh(self.cluster['user'],self.cluster['rgw'],'sudo echo "ServerName %s" >> /etc/apache2/apache2.conf' %(self.cluster['rgw'][0]),'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],"sudo a2enmod rewrite; sudo a2enmod fastcgi; sudo a2enmod proxy; sudo a2enmod proxy_http; sudo a2enmod proxy_balancer",'check_return')
 
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.radosgw.keyring', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'sudo chmod +r /etc/ceph/ceph.client.radosgw.keyring', 'check_return')
+
+        # TODO: automatically add ceph-gw[index] to /etc/environment
+        '''
+        for i in self.cluster['rgw_index']:
+            etc_environment = '/etc/environment'
+            lines,stder = common.pdsh(self.cluster['user'],self.cluster['rgw'],'sudo grep %s %s | wc -l' %(self.cluster['rgw'],etc_environment),'check_return')
+            if lines != '0':
+                common.pdsh(self.cluster['user'],self.cluster['rgw'],"sudo sed -i.install_rgw_backup 's/%s$/ ceph-gw%s/' %s" %(str(i),),'check_return')
+            else:
+                common.printout('ERROR','/etc/environment file doesn\'t contain the host name for rgw itself')
+                sys.exit()
+        '''
+
         for i in self.cluster['rgw_index']:
             host_name_id = self.cluster['rgw'][0]+"-"+str(i)
             common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph auth del client.radosgw.%s' %(host_name_id), 'check_return')
@@ -91,28 +102,35 @@ class Deploy_RGW:
         remote_ceph_conf = "/etc/ceph/ceph.conf"
         ceph_conf_file = lib_path+"/ceph.conf.tmp"
         common.rscp(self.cluster['user'],self.cluster['rgw'][0],ceph_conf_file,remote_ceph_conf)
+        common.printout("LOG","The index of rgw instances are {%s..%s}" %(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]))
         for i in self.cluster['rgw_index']:
             host_id = self.cluster["rgw"][0]+"-"+str(i)
-            lines = common.bash('grep "client.radosgw.%s" %s | wc -l' %(host_id,ceph_conf_file))
+            
+            civetweb_port = 7480 + i
+            lines,stder = common.bash('grep "client.radosgw.%s" %s | wc -l' %(host_id,ceph_conf_file), force=True)
+            print lines
             if lines != '0':
                 common.printout("LOG", "ceph conf already has gateway "+str(i))
                 continue
-            print "writing config for rgw id:"+str(i)
             with open(ceph_conf_file,'a') as f:
                 f.write("[client.radosgw.%s]\n" %(host_id))
                 f.write("host = %s\n" %(self.cluster['rgw'][0]))
                 f.write("keyring = /etc/ceph/ceph.client.radosgw.keyring\n")
                 f.write("rgw cache enabled = true\n")
                 f.write("rgw cache lru size = 100000\n")
-                f.write("rgw socket path = /var/run/ceph/ceph.client.radosgw.%s.fastcgi.sock\n" %(host_id))
+                #f.write("rgw socket path = /var/run/ceph/ceph.client.radosgw.%s.fastcgi.sock\n" %(host_id))
                 f.write("rgw thread pool size = 256\n")
                 f.write("rgw enable ops log = false\n")
                 # enable log
-                f.write("log file = /var/log/radosgw/client.radosgw.%s.log\n\n" %(host_id))
+                f.write("log file = /var/log/radosgw/client.radosgw.%s.log\n" %(host_id))
+                #using civetweb as front end server
+                f.write("rgw frontends =civetweb port=%s\n" %(str(civetweb_port)))
+                # bucket index limit
+                f.write("rgw override bucket index max shards = 8\n\n")
                 #f.write("log file = /dev/null\n\n")
-        # TODO: push to mon,osd
-        common.bash("cat "+ceph_conf_file)
-        sys.stdout.flush()
+                #f.flush()
+            print 'finish rgw ceph.conf for host_id: '+ host_id
+        common.bash("cat "+ceph_conf_file, force=True,option="console")
         push_conf_or_not = raw_input("This is the new conf file. Is it corrent? [y/n] ")
 
         if push_conf_or_not != 'y':
@@ -164,15 +182,19 @@ class Deploy_RGW:
             common.scp(self.cluster['user'],self.cluster['rgw'][0],cfg,cfg)
             common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo a2ensite radosgw-%s" %(host_id))
         common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo a2dissite 000-default; a2enmode rewrite; a2enmod fastcgi;sudo chown www-data:www-data /var/log/apache2")
-        
 
         common.pdsh(self.cluster["user"],self.cluster["rgw"],"rm -rf %s/proxy" %(site_root))
         cfg = site_root+"/proxy.conf"
-        common.pdsh(self.cluster["user"],self.cluster["rgw"],'node=%s; echo "<VirtualHost *:80>\nServerName ${node}\nDocumentRoot /var/www/proxy/\nProxyPass / balancer://ceph/\nProxyPassReverse / balancer://ceph/\n<Proxy balancer://ceph>\nBalancerMember http://ceph-gw1:80\nBalancerMember http://ceph-gw2:80\nBalancerMember http://ceph-gw3:80\nBalancerMember http://ceph-gw4:80\nBalancerMember http://ceph-gw5:80\nOrder allow,deny\nAllow from all\n</Proxy>\n<Directory /var/www/proxy>\nOrder allow,deny\nAllow from all\n</Directory>\nAllowEncodedSlashes On\nErrorLog /var/log/apache2/error.log\nServerSignature Off\n</VirtualHost>" > %s' %(self.cluster['rgw'][0],cfg))
+        common.pdsh(self.cluster["user"],self.cluster["rgw"],'node=`hostname -s`; echo "<VirtualHost *:80>\nServerName ${node}\nDocumentRoot /var/www/proxy/\nProxyPass / balancer://ceph/\nProxyPassReverse / balancer://ceph/\n<Proxy balancer://ceph>\n" > %s' %(cfg) )
+        # TODO: add ceph-gw[start_index] to ceph-gw[end_index] in /etc/hosts
+        for i in self.cluster['rgw_index']:
+            common.pdsh(self.cluster["user"],self.cluster["rgw"],'echo "BalancerMember http://ceph-gw%s:%s\n">>%s' %(i,str(7480+i),cfg))
+
+        common.pdsh(self.cluster["user"],self.cluster["rgw"],'echo "Order allow,deny\nAllow from all\n</Proxy>\n<Directory /var/www/proxy>\nOrder allow,deny\nAllow from all\n</Directory>\nAllowEncodedSlashes On\nErrorLog /var/log/apache2/error.log\nServerSignature Off\n</VirtualHost>">>%s'%(cfg) )
 
         common.pdsh(self.cluster["user"],self.cluster["rgw"],"sudo a2ensite proxy; sudo chown www-data:www-data /var/log/apcache2/; sudo chown www-data:www-data /var/run/ceph")
 
-
+        
     def deploy(self):
         self.rgw_dependency_install()
         self.create_pools()
@@ -180,4 +202,4 @@ class Deploy_RGW:
         self.gen_conf()
         self.add_gw_script()
         self.gw_config()
-    
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`; for inst in {%s..%s}; do /usr/bin/radosgw -n client.radosgw.${host_name}-$inst; done'%(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]),'check_return' )
