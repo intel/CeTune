@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workload name="simple-librados-ceph-test" description="Test Workload for librados">
+<storage type="librados" config="endpoint=10.44.44.15;accesskey=admin;secretkey=AQAuVWBTmN5gIxAAzlA60QJnyY0COGD8EbbhDw==" />
+    <workflow>
+	<workstage name="write - 240t - 4MB">
+	    <work name="write 4MB" workers="12" runtime="300">
+	      <operation type="write" config="containers=c(1);objects=s(1,10000);sizes=c(4)MB" />
+	    </work>
+	</workstage>
+
+    </workflow>
+</workload>

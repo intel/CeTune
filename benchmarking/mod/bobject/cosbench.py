@@ -18,9 +18,7 @@ class Cosbench(Benchmark):
         self.cosbench["timeout"]=self.all_conf_data.get("timeout")
         self.cosbench["cosbench_driver"]=self.all_conf_data.get("cosbench_driver")
         self.cosbench["cosbench_controller"]=self.all_conf_data.get("cosbench_controller")
-        #self.cosbench["data_user"]=self.all_conf_data.get("data_user")
         self.cosbench["data_dir"]=self.all_conf_data.get("dest_dir")
-        
         self.cosbench["test_size"]=self.all_conf_data.get("test_size")
         self.cosbench["test_scale"]=self.all_conf_data.get("test_scale")
         self.cosbench["cosbench_rw"]=self.all_conf_data.get("cosbench_rw")
@@ -39,11 +37,8 @@ class Cosbench(Benchmark):
         self.cosbench["run_time"] = self.all_conf_data.get("run_time")
         self.cosbench["ramp_up"] = self.all_conf_data.get("run_warmup_time")
         
-
-
     def prepare_result_dir(self):
         pass
-
 
     def print_all_attributes(self):
         print "self.cosbench:"        
@@ -54,65 +49,121 @@ class Cosbench(Benchmark):
         print self.cluster
 
     def produce_cosbench_config(self):
-        file_path  = (os.path.dirname(os.path.abspath(__file__)) ) + "/.tmp_config_file"
+        file_path  = (os.path.dirname(os.path.abspath(__file__)) ) + "/.tmp_cosbench_controller_config.conf"
 
         if os.path.isfile(file_path):
             os.remove(file_path)
-        with open(file_path,'w+') as conf:
+        with open(file_path,'w') as conf:
             conf.write("[controller]\n")
             conf.write("concurrency=1\n")
             conf.write("drivers=")
             driver_num = (len(self.cosbench["cosbench_driver"]))
-            conf.write(str(driver_num)+"\n")
+            # default each driver has two cosbench instances running
+            conf.write(str(driver_num*2)+"\n")
             conf.write("log_level=INFO\n")
             conf.write("log_file=log/system.log\n")
             conf.write("archive_dir=archive\n\n")
+            index = 0
             
-            for index in range((driver_num)):
-                name = "driver"+str(index+1)
+            while index < driver_num:
+                # default instance number per cosbench driver is two
+                ip = common.pdsh(self.cluster["user"],[self.cosbench["cosbench_controller"]],"cat /etc/hosts | grep '\s%s' | head -n 1 | awk '{print $1}'"  %(self.cosbench["cosbench_driver"][index]),"check_return")[0].split(':')[1]
+                ip = ip.strip()
+                ip = ip.replace("\s","")
+                ip = ip.replace("#","")
+                print "ip is %s" %ip
+                name = "driver"+str(2*index+1)
                 conf.write("["+name+"]\n")
                 conf.write("name="+name+"\n")
-                ip = bash("grep %s /etc/hosts | awk '{print $1}'" %(self.cosbench["cosbench_driver"][index]))
                 conf.write("url=http://%s:18088/driver\n\n" %(ip))
-        common.scp(self.cluster["user"],file_path,self.cosbench["cosbench_folder"]+"/conf/controller.conf")
+                name = "driver"+str(2*index+2)
+                conf.write("["+name+"]\n")
+                conf.write("name="+name+"\n")
+                conf.write("url=http://%s:17088/driver\n\n" %(ip))
+                index += 1
+        config_result = common.bash("cat %s" %(file_path),True)[0]
+        print config_result
+        continue_or_not = raw_input("This is the config of Cosbench Controller, is it correct? [y|n] ")
+        if continue_or_not != "y":
+            sys.exit()
+        common.scp(self.cluster["user"],self.cosbench["cosbench_controller"],file_path,self.cosbench["cosbench_folder"]+"/conf/controller.conf")
 
-    '''
+    
     def deploy_cosbench(self):
-        cosbench_nodes = copy.deepcopy(list([self.cosbench["cosbench_controller"]]))
+        cosbench_nodes = copy.deepcopy([self.cosbench["cosbench_controller"]])
         cosbench_nodes.extend(self.cosbench["cosbench_driver"])
-        print "downloading cosbench from git..."
-        common.pdsh(self.cluster["user"],cosbench_nodes,"git clone https://github.com/intel-cloud/cosbench.git")
-        
-        print "installing dependencites on cosbench controller and driver..."
-        pdsh(self.cluster["user"],cosbench_nodes,"sudo apt-get update && sudo apt-get install openjdk-7-jre")
-        stdout,stderr = pdsh(self.cluster["user"],cosbench_nodes," java -showversion 2>&1  |  head -1 | awk '{print $1}'",check_return)
-        if stdout != "java":
-            print bcolors.FAIL + "[ERROR]: java environment installation failed "+client+bcolors.ENDC
-                sys.exit()
-        pdsh(self.cluster["user"],cosbench_nodes,"sudo apt-get install curl ")
-        stdout,stderr = pdsh(self.cluster["user"],cosbench_nodes," curl --version 2>&1  |  head -1 | awk '{print $1}'",check_return)
-        if stdout != "curl":
-            print bcolors.FAIL + "[ERROR]: curl installation failed "+client+bcolors.ENDC
-                sys.exit()
-        common.pdsh(self.cluster["user"],cosbench_nodes,"sh cosbench/pack.sh "+self.cosbench["cosbench_folder"])
+        count = 0
+        print "installing dependencites on cosbench controller and driver: "+','.join(cosbench_nodes)
+        print "installing git and curl..."
+        #stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"sudo apt-get update ")
+        for software in ['git','curl']:
+            stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"%s --version 2>&1 | head -n 1 " %(software),'check_return')
+            for arg_node in stdout.split('\n'):
+                if arg_node is '':
+                    continue
+                if (re.search('[0-9]+\.[0-9]+\.[0-9]+',arg_node)) is None:
+                    print "%s arg_node is %s" %(software,arg_node)
+                    sys.stdout.flush()
+            
+                    print "Install %s on node %s" %(software,arg_node.split()[0][:-1])
+                    stdout, stderr = common.pdsh(self.cluster["user"],[arg_node.split()[0][:-1]],"apt-get -y install %s 2>&1" %(software), 'check_return')
+                else:
+                    print "%s has already been installed on %s" %(software,arg_node.split()[0][:-1])
+        print "installing java"
+        stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes," java -showversion 2>&1  |  head -n 1 | awk '{print $3}'",'check_return')
+        print stdout.split('\n')
+        for arg_node in stdout.split('\n'):
+            if arg_node is '':
+                continue
+            if re.search('[0-9]+\.[0-9]+\.[0-9]+',arg_node) == None:
+                node = arg_node.split()[0][:-1]
+                print "Install java environment on node %s" %(node)
+                try:
+                    common.pdsh(self.cluster["user"],[node],"apt-get -y install openjdk-7-jre", 'error_check')
+                except:
+                    common.pdsh(self.cluster["user"],[node],"apt-get -f install", 'error_check')
+                    common.pdsh(self.cluster["user"],[node],"apt-get -y install openjdk-7-jre", 'error_check')
 
+            else:
+                print "java environment has already been installed on %s" %(arg_node.split()[0][:-1])
+ 
+
+        stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"mkdir -p %s" %(self.cosbench['cosbench_folder']),'check_return' )
+        for node in cosbench_nodes:
+            common.scp(self.cluster["user"],node,"%s/cosbench" %(this_file_path),os.path.dirname(self.cosbench["cosbench_folder"]))
+        common.printout('LOG', "Push cosbench to controllers and clients")
+        
+        # stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"cd /cosbench; sh pack.sh "+self.cosbench["cosbench_folder"],'check_return')
+        # common.printout("LOG",stdout)
         # TODO: add the function and template to change controller.conf
         print "configure cosbench..."
         self.produce_cosbench_config()
 
         print "run cosbench..."
-        common.pdsh(self.cluster["user"],list([self.cosbench["cosbench_controller"]]),"sh %s/start-controller.sh")
-        common.pdsh(self.cluster["user"],self.cosbench["cosbench_driver"],"sh %s/start-driver.sh")        
-    '''
+        stdout,stderr = common.pdsh(self.cluster["user"],[self.cosbench["cosbench_controller"]],"cd %s; sh start-controller.sh" %(self.cosbench["cosbench_folder"]),'check_return')
+        common.printout("LOG",stdout)
+        # assume that # of driver is more than one
+        for driver in self.cosbench["cosbench_driver"]:
+            stdout,stderr = common.pdsh(self.cluster["user"],[driver],"cd %s; sh start-driver.sh" %(self.cosbench["cosbench_folder"]))
+            common.printout("LOG",stdout)
+        
     def prerun_check(self):
         # check if cosbench is running
         print "check whether cosbench is running on clients..."
         cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
         cosbench_server.append(self.cosbench["cosbench_controller"])
+        installed = True
         for client in cosbench_server:
-            if header.remote_file_exist(client,self.cosbench["cosbench_folder"]) == False:
+            if header.remote_file_exist(client,self.cosbench["cosbench_folder"]+'/cli.sh') is False:
                 common.printout("ERROR", "cosbench isn't installed on "+client)
+                installed = False
+                break
+        if installed is False:
+            install_or_not = raw_input("Install Cosbench? [y|n] ")
+            if install_or_not is not "y":
                 sys.exit()
+            else:
+                self.deploy_cosbench()
         print "Cosbench works well" 
         # check if radosgw is running
         print "check whether radosgw is running..."
@@ -124,15 +175,12 @@ class Cosbench(Benchmark):
 
     def update_config(self,config_middle,test_worker_list):
         config_suffix = "w.xml"
-        
-
         for workers in (test_worker_list):
             config_file_name = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
             config_path=os.path.dirname(__file__) + "/configs/"
             if os.path.exists(config_path+config_file_name) == True:
                 os.remove(config_path+config_file_name)
             header.replace_conf_xml(self.cosbench["cosbench_rw"],self.cosbench["test_size"],workers,config_middle,self.cosbench["cluster_ip"])
-            
             config_content = common.bash("cat %s" %(config_path+config_file_name))
             print "The config file content is:"
             print config_content
@@ -183,9 +231,11 @@ class Cosbench(Benchmark):
         time = int(ramp_up) + int(runtime)
         dest_dir = self.cluster["tmp_dir"]
     
-        count = 0
+        count = 1
+        self.cosbench["run_name"] = {}
         for workers in self.cosbench["test_worker_list"]:
-            test_id_this_worker = str(header.read_test_id(".test_id")+count)
+            test_id_this_worker = str(header.read_test_id(".test_id")+1)
+            print  "test_id_this_worker is "+ test_id_this_worker
             dest_dir_this_worker = "%s/%s_cosbench" %(dest_dir,test_id_this_worker)
             count += 1
             common.pdsh(user,ceph_nodes,"dmesg -C; dmesg -c >> /dev/null")
@@ -200,7 +250,8 @@ class Cosbench(Benchmark):
             common.pdsh(user, ceph_nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir_this_worker))
             common.pdsh(user, ceph_nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir_this_worker))
         
-            local_config_file = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
+            local_config = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers
+            local_config_file = local_config+config_suffix
             local_config_path = config_path+local_config_file
             common.bash("cat %s" %(local_config_path))
             remote_config_path = "/tmp/"+local_config_file
@@ -209,17 +260,24 @@ class Cosbench(Benchmark):
             #./cli.sh submit /tmp/write_100con_100obj_128KB_160w.xml 2>/dev/null > /tmp/curl.cosbench && cat /tmp/curl.cosbench | awk '{print $4}'
             run_command =" sh "+self.cosbench["cosbench_folder"]+"/cli.sh submit "+remote_config_path +" 2>/dev/null | awk  '{print $4}'"
             common.scp("root",self.cosbench["cosbench_controller"],local_config_path,remote_config_path)
-            self.runid = int((common.pdsh("root",list([self.cosbench["cosbench_controller"]]),run_command,"check_return")[0]).split()[1][1:]) 
+            try:
+                self.runid = int((common.pdsh("root",list([self.cosbench["cosbench_controller"]]),run_command,"check_return")[0]).split()[1][1:]) 
+            except:
+                common.printout("ERROR",'Cosbench controller and driver run failed!')
+                sys.exit()
             header.update_test_id(".test_id",test_id_this_worker)
-            
+            self.cosbench['run_name'][test_id_this_worker] = 'w%s-%sw' %(test_id_this_worker,local_config)
             common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"rm -f %s" %(remote_config_path),"error_check")
+        print "Cosbench[run_name ] is "
+        print self.cosbench["run_name"]
+        self.runid =  (header.read_test_id(".test_id"))
 
     def after_run(self):
         print "[cosbench] waiting for the workload to stop..."
         self.wait_workload_to_stop()
         self.stop_data_collectors()
         
-    def cleanup(self):
+common,pdsh(self.cluster["user"],self.cluster["rgw"],"")    def cleanup(self):
         cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
         cosbench_server.append(self.cosbench["cosbench_controller"])
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
@@ -249,7 +307,8 @@ class Cosbench(Benchmark):
             print ".",
             if curr_time % 20 == 0:
                 print ""
-            still_running = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.runid),self.cosbench["cosbench_folder"] ),"force"))
+            still_running,stderr = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.runid),self.cosbench["cosbench_folder"] ),"force")).communicate()
+            
             if still_running == '':
                 if curr_time == int(self.cosbench["timeout"]):
                     break
@@ -278,8 +337,8 @@ class Cosbench(Benchmark):
         dest_dir = self.cosbench["data_dir"]
        
         for run_id in self.cosbench["cosbench_run_id"]:
-            dest_dir_test_id = "%s/%s_cosbench" %(dest_dir, run_id)
-            common.pdsh(user,list([head]),"mkdir -p %s" %(dest_dir_test_id))
+            dest_dir_test_id = "%s/%s" %(dest_dir, run_id)
+            common.pdsh(user,list([head]),"mkdir -p %s; mkdir -p %s/cosbench" %(dest_dir_test_id,dest_dir_test_id))
             #collect all.conf
             common.scp(user, head, "%s/conf/all.conf" % self.pwd,  "%s/all.conf" % (dest_dir_test_id))
         
@@ -296,7 +355,9 @@ class Cosbench(Benchmark):
             for node in ceph_nodes:
                 common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir_test_id, node))
                 common.rrscp(user, node,  "%s/*.txt" % self.cluster["tmp_dir"], head,"%s/%s/" % (dest_dir_test_id, node))
-        
+            cosbench_summary_stat = self.cosbench["run_name"][run_id]
+            common.rrscp(user,self.cosbench["cosbench_controller"],"%s/archive/%s/%s.csv"%(self.cosbench["cosbench_folder"],cosbench_summary_stat,cosbench_summary_stat),head,"%s/cosbench/_cosbench.csv"%(dest_dir_test_id))
+
             #collect client data
             for node in cosbench_server:
                 common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir_test_id, node))

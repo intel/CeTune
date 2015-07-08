@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<workload name="librados-sample" description="sample benchmark for librados">
+  <storage type="librados" config="accesskey=admin;secretkey=AQCMroJRSAzvFhAAuJH8OH8OiPn703yysJIEaw==;endpoint=10.10.10.100" /> 
+  <workflow>
+
+    <workstage name="init">
+      <work type="init" workers="1" config="containers=r(1,4)" />
+    </workstage>
+
+
+  </workflow>
+</workload>

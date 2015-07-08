@@ -58,7 +58,7 @@ class Benchmark(object):
             print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
             #python analyzer.py --path /mnt/data/run_res/ process_data 
             for test_id in self.cosbench["cosbench_run_id"]:
-                analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
+                analyzer.main(['--path', "%s/%s" %(self.cluster["dest_dir"],test_id), 'process_data'])
         except:
             common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"])
         

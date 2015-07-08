@@ -1,0 +1,141 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x00007fe4ee02ca0f, pid=20038, tid=140621242558208
+#
+# JRE version: OpenJDK Runtime Environment (7.0_55-b14) (build 1.7.0_55-b14)
+# Java VM: OpenJDK 64-Bit Server VM (24.51-b03 mixed mode linux-amd64 compressed oops)
+# Problematic frame:
+# C  [librados.so+0x26ea0f]  librados::WatchCtx::~WatchCtx()+0x1bf
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please include
+# instructions on how to reproduce the bug and visit:
+#   http://icedtea.classpath.org/bugzilla
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007fe430028000):  JavaThread "pool-3-thread-2" [_thread_in_native, id=23405, stack(0x00007fe4ef25e000,0x00007fe4ef35f000)]
+
+siginfo:si_signo=SIGSEGV: si_errno=0, si_code=128 (), si_addr=0x0000000000000000
+
+Registers:
+RAX=0x00000000ffffffff, RBX=0x00007fe40c000a00, RCX=0x00007fe565ed9fe0, RDX=0x000000000000000f
+RSP=0x00007fe4ef35c8f8, RBP=0x796d00393173724d, RSI=0x00007fe40c0029c8, RDI=0x796d00393173725d
+R8 =0xfffffffffffffb28, R9 =0x00007fe40c000ec6, R10=0x0000000000000018, R11=0x00007fe565fb4a54
+R12=0x6d38317372656e69, R13=0x00007fe4ef35c950, R14=0x00007fe564a574c0, R15=0x00007fe4ef35c950
+RIP=0x00007fe4ee02ca0f, EFLAGS=0x0000000000010206, CSGSFS=0x0000000000000033, ERR=0x0000000000000000
+  TRAPNO=0x000000000000000d
+
+Top of Stack: (sp=0x00007fe4ef35c8f8)
+0x00007fe4ef35c8f8:   00007fe4ee03e886 0000000000000100
+0x00007fe4ef35c908:   00007fe4ef35cb78 00007fe4ef35c950
+0x00007fe4ef35c918:   fffffffffffffb1a 00000000000005e6
+0x00007fe4ef35c928:   00007fe40c000ed6 0000000000000010
+0x00007fe4ef35c938:   00007fe4ee033362 0000000000000000
+0x00007fe4ef35c948:   00000000000005e7 00007fe40c000a00
+0x00007fe4ef35c958:   00007fe40c0029e0 0000006e0000005b
+0x00007fe4ef35c968:   00007fe4ef35cb78 00007fe4ef35c9a0
+0x00007fe4ef35c978:   0000000000000001 fffffffffffffffc
+0x00007fe4ef35c988:   0000000000000003 00007fe4ef35d070
+0x00007fe4ef35c998:   00007fe4eee11050 000000000000000a
+0x00007fe4ef35c9a8:   00007fe4ef35d0f8 00007fe4ef35ca90
+0x00007fe4ef35c9b8:   00007fe4eee10baf 0000000000000010
+0x00007fe4ef35c9c8:   00007fe4ef35d070 0000000000000002
+0x00007fe4ef35c9d8:   00007fe4ef35ca40 00007fe4ef35ca5c
+0x00007fe4ef35c9e8:   00007fe4ef35ca58 00007fe4ef35c8f0
+0x00007fe4ef35c9f8:   00007fe4ef35caa0 00007fe4ef35d0f8
+0x00007fe4ef35ca08:   00007fe4ee0332c0 00007fe4ef35c9a0
+0x00007fe4ef35ca18:   00007fe4ef35cad0 0000000300000002
+0x00007fe4ef35ca28:   0000000300000000 0000000100000003
+0x00007fe4ef35ca38:   00007fe4ef35ca44 00007fe400000002
+0x00007fe4ef35ca48:   00007fe428001f40 0000000000000000
+0x00007fe4ef35ca58:   0000000100000000 00007fe4ef35cae8
+0x00007fe4ef35ca68:   0000000000000000 0000000000000000
+0x00007fe4ef35ca78:   00007fe4ef35cab8 00007fe4ef35cae8
+0x00007fe4ef35ca88:   0000000000000003 00007fe4ef35d0e0
+0x00007fe4ef35ca98:   00007fe4eee04bd2 00007fe4ef35cb60
+0x00007fe4ef35caa8:   00007fe4ef35cb68 00007fe4ef35cb70
+0x00007fe4ef35cab8:   00007fe4ef35da18 00007fe4ef35cb80
+0x00007fe4ef35cac8:   00007fe4eee135a0 00007fe4eee135a0
+0x00007fe4ef35cad8:   00007fe4eee135a0 00007fe4eee13600
+0x00007fe4ef35cae8:   00007fe494127ae0 00007fe494127af0 
+
+Instructions: (pc=0x00007fe4ee02ca0f)
+0x00007fe4ee02c9ef:   00 31 c0 c3 56 e8 b7 8d fe ff 0f 1f 80 00 00 00
+0x00007fe4ee02c9ff:   00 48 83 3d 58 47 60 00 00 74 0a b8 ff ff ff ff
+0x00007fe4ee02ca0f:   f0 0f c1 07 c3 8b 07 8d 50 ff 89 17 c3 0f 1f 40
+0x00007fe4ee02ca1f:   00 83 e6 03 48 8b 47 08 48 3b 07 74 07 89 b0 22 
+
+Register to memory mapping:
+
+RAX=0x00000000ffffffff is an unknown value
+RBX=0x00007fe40c000a00 is an unknown value
+RCX=0x00007fe565ed9fe0: <offset 0x9afe0> in /lib/x86_64-linux-gnu/libc.so.6 at 0x00007fe565e3f000
+RDX=0x000000000000000f is an unknown value
+RSP=0x00007fe4ef35c8f8 is pointing into the stack for thread: 0x00007fe430028000
+RBP=0x796d00393173724d is an unknown value
+RSI=0x00007fe40c0029c8 is an unknown value
+RDI=0x796d00393173725d is an unknown value
+R8 =0xfffffffffffffb28 is an unknown value
+R9 =0x00007fe40c000ec6 is an unknown value
+R10=0x0000000000000018 is an unknown value
+R11=0x00007fe565fb4a54: <offset 0x175a54> in /lib/x86_64-linux-gnu/libc.so.6 at 0x00007fe565e3f000
+R12=0x6d38317372656e69 is an unknown value
+R13=0x00007fe4ef35c950 is pointing into the stack for thread: 0x00007fe430028000
+R14=0x00007fe564a574c0: _ZNSs4_Rep20_S_empty_rep_storageE+0 in /usr/lib/x86_64-linux-gnu/libstdc++.so.6 at 0x00007fe564755000
+R15=0x00007fe4ef35c950 is pointing into the stack for thread: 0x00007fe430028000
+
+
+Stack: [0x00007fe4ef25e000,0x00007fe4ef35f000],  sp=0x00007fe4ef35c8f8,  free space=1018k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [librados.so+0x26ea0f]  librados::WatchCtx::~WatchCtx()+0x1bf
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+J  com.sun.jna.Native.invokeInt(JI[Ljava/lang/Object;)I
+J  com.sun.jna.Function.invoke([Ljava/lang/Object;Ljava/lang/Class;Z)Ljava/lang/Object;
+J  com.sun.jna.Function.invoke(Ljava/lang/Class;[Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/Object;
+J  com.sun.jna.Library$Handler.invoke(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;
+j  com.sun.proxy.$Proxy23.rados_pool_list(Lcom/sun/jna/Pointer;[BI)I+27
+j  com.ceph.rados.Rados.poolList()[Ljava/lang/String;+25
+j  com.intel.cosbench.api.librados.LibradosStorage.createContainer(Ljava/lang/String;Lcom/intel/cosbench/config/Config;)V+11
+j  com.intel.cosbench.driver.operator.Preparer.doInit(Ljava/lang/String;Lcom/intel/cosbench/config/Config;Lcom/intel/cosbench/driver/operator/Session;)V+22
+j  com.intel.cosbench.driver.operator.Preparer.operate(IILcom/intel/cosbench/driver/operator/Session;)V+43
+j  com.intel.cosbench.driver.operator.AbstractOperator.operate(Lcom/intel/cosbench/driver/operator/Session;)V+18
+j  com.intel.cosbench.driver.operator.Initializer.operate(Lcom/intel/cosbench/driver/operator/Session;)V+2
+j  com.intel.cosbench.driver.agent.WorkAgent.performOperation()V+66
+j  com.intel.cosbench.driver.agent.WorkAgent.doWork()V+8
+j  com.intel.cosbench.driver.agent.WorkAgent.execute()V+24
+j  com.intel.cosbench.driver.agent.AbstractAgent.call()Lcom/intel/cosbench/driver/agent/Agent;+9
+j  com.intel.cosbench.driver.agent.AbstractAgent.call()Ljava/lang/Object;+1
+j  java.util.concurrent.FutureTask.run()V+42
+j  java.util.concurrent.ThreadPoolExecutor.runWorker(Ljava/util/concurrent/ThreadPoolExecutor$Worker;)V+95
+j  java.util.concurrent.ThreadPoolExecutor$Worker.run()V+5
+j  java.lang.Thread.run()V+11
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00007fe430029800 JavaThread "Timer-10" [_thread_blocked, id=23407, stack(0x00007fe4eef5b000,0x00007fe4ef05c000)]
+  0x00007fe430029000 JavaThread "Timer-9" [_thread_blocked, id=23406, stack(0x00007fe4ef8f9000,0x00007fe4ef9fa000)]
+=>0x00007fe430028000 JavaThread "pool-3-thread-2" [_thread_in_native, id=23405, stack(0x00007fe4ef25e000,0x00007fe4ef35f000)]
+  0x00007fe430025800 JavaThread "pool-3-thread-1" [_thread_in_vm, id=23404, stack(0x00007fe4ef9fa000,0x00007fe4efafb000)]
+  0x00007fe4601b5000 JavaThread "pool-1-thread-2" [_thread_blocked, id=23403, stack(0x00007fe4ef05c000,0x00007fe4ef15d000)]
+  0x00007fe4601b4800 JavaThread "process reaper" daemon [_thread_blocked, id=23402, stack(0x00007fe4eef17000,0x00007fe4eef50000)]
+  0x00007fe458003000 JavaThread "http-18088-3" daemon [_thread_blocked, id=20315, stack(0x00007fe4f492c000,0x00007fe4f4a2d000)]
+  0x00007fe458002000 JavaThread "http-18088-2" daemon [_thread_blocked, id=20313, stack(0x00007fe4f4326000,0x00007fe4f4427000)]
+  0x00007fe458001000 JavaThread "http-18088-1" daemon [_thread_blocked, id=20312, stack(0x00007fe4f4c91000,0x00007fe4f4d92000)]
+  0x00007fe560655000 JavaThread "DestroyJavaVM" [_thread_blocked, id=20040, stack(0x00007fe56653f000,0x00007fe566640000)]
+  0x00007fe474234800 JavaThread "http-18088-Acceptor-0" daemon [_thread_in_native, id=20095, stack(0x00007fe4f411b000,0x00007fe4f421c000)]
+  0x00007fe474238800 JavaThread "ContainerBackgroundProcessor[StandardEngine[Standalone]]" daemon [_thread_blocked, id=20094, stack(0x00007fe4f421c000,0x00007fe4f431d000)]
+  0x00007fe474199800 JavaThread "Timer-0" daemon [_thread_blocked, id=20092, stack(0x00007fe4f4427000,0x00007fe4f4528000)]
+  0x00007fe47418d000 JavaThread "Spring DM Context Creation Timer" daemon [_thread_blocked, id=20091, stack(0x00007fe4f4528000,0x00007fe4f4629000)]
+  0x00007fe474195000 JavaThread "Spring DM context shutdown thread" daemon [_thread_blocked, id=20090, stack(0x00007fe4f4629000,0x00007fe4f472a000)]
+  0x00007fe47417b800 JavaThread "Spring DM Context Creation Timer" daemon [_thread_blocked, id=20089, stack(0x00007fe4f472a000,0x00007fe4f482b000)]
+  0x00007fe474172800 JavaThread "Spring DM context shutdown thread" daemon [_thread_blocked, id=20088, stack(0x00007fe4f482b000,0x00007fe4f492c000)]
+  0x00007fe5602e8000 JavaThread "Start Level Event Dispatcher" daemon [_thread_blocked, id=20081, stack(0x00007fe4f4a8f000,0x00007fe4f4b90000)]

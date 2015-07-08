@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workload description="INIT-PREPARE" name="write_u100con_u100obj_128KB_20w">
+  <storage config="timeout=300000" type="swift"/>
+  <auth config="username=cosbench:operator;password=intel2012;url=http://10.4.9.105/auth/v1.0" type="swauth"/>
+  <workflow>
+    <workstage name="init">
+      <work type="init" workers="10" config="containers=r(1,100);cprefix=128KB-write"/>
+    </workstage>
+    <workstage name="main">
+      <work name="128KB" workers="20" rampup="30" rampdown="90" runtime="300">
+        <operation ratio="100" config="containers=u(1,100);objects=u(1,100);cprefix=128KB-write" type="write"/>
+      </work>
+    </workstage>
+  </workflow>
+</workload>
