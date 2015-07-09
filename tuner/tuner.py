@@ -45,6 +45,7 @@ class Tuner:
                     self.apply_tuning(section, no_check=True)
                     common.printout("LOG","Start to redeploy ceph")
                     deploy.main(['redeploy'])
+                    self.apply_tuning(section)
                 elif work == "benchmark":
                     common.printout("LOG","start to run performance test")
                     self.apply_tuning(section)

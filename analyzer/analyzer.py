@@ -20,7 +20,7 @@ class Analyzer:
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
-        self.cluster["mons"] = self.all_conf_data.get_list("list_mon") 
+        self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         self.cluster["vclient_disk"] = self.all_conf_data.get_list("run_file")
         self.cluster["dest_dir"] = dest_dir
@@ -58,17 +58,17 @@ class Analyzer:
                 self.result["ceph"][dir_name]={}
                 system, fio = self._process_data(dir_name)
                 self.result["ceph"][dir_name]=system
-            if dir_name in self.cluster["client"]: 
+            if dir_name in self.cluster["client"]:
                 self.result["client"][dir_name]={}
                 system, fio = self._process_data(dir_name)
                 self.result["client"][dir_name]=system
                 self.result["fio"].update(fio)
-            if dir_name in self.cluster["vclient"]: 
+            if dir_name in self.cluster["vclient"]:
                 self.result["vclient"][dir_name]={}
                 system, fio = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
                 self.result["fio"].update(fio)
-            
+
                 #for key, value in self.result.items():
             #print key+": "
             #for subkey, values in value.items():
@@ -81,7 +81,7 @@ class Analyzer:
             f.write(output)
         common.bash("cp -r %s %s" % ("../visualizer/include/", dest_dir))
         common.bash("scp -r %s %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
-        
+
         remote_bak, remote_dir = self.cluster["dest_dir_remote_bak"].split(':')
         output = view.generate_history_view(remote_bak, remote_dir, user, self.result["session_name"])
         common.printout("LOG","History view generated, copy to remote")
@@ -123,13 +123,13 @@ class Analyzer:
             validate_time = common.time_to_sec(fio_runtime.group(1), 'sec')
             if validate_time < self.validate_time or self.validate_time == 0:
                 self.validate_time = validate_time
- 
+
     def process_sar_data(self, path):
         result = {}
         #1. cpu
         stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{if($3==\"all\"){for(i=4;i<=NF;i++)printf $i\"\"FS; print \"\"}}'" )
         result["cpu"] = common.convert_table_to_2Dlist(stdout)
-        
+
         #2. memory
         stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -F\"AM|PM\" '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{if($3==\"kbmemfree\"){find=1}else if(find==1){for(i=3;i<=NF;i++)printf $i\"\"FS;print \"\";find=0}}'" )
         result["memory"] = common.convert_table_to_2Dlist(stdout)
@@ -203,13 +203,13 @@ class Analyzer:
         return result
 
     def process_lttng_data(self, path):
-        pass        
+        pass
 
     def process_perf_data(self, path):
-        pass        
+        pass
 
     def process_blktrace_data(self, path):
-        pass        
+        pass
 
     def process_perfcounter_data(self, path, dirname):
         common.printout("LOG","loading %s" % path)
@@ -272,11 +272,20 @@ def main(args):
     parser.add_argument(
         '--path',
         )
+    parser.add_argument(
+        '--path_detail',
+        )
+    parser.add_argument(
+        '--node',
+        )
     args = parser.parse_args(args)
     process = Analyzer(args.path)
-    func = getattr(process, args.operation)
-    if func:
-        func()
+    if args.operation == "process_iostat_data":
+        process.process_iostat_data(args.node, args.path_detail)
+    else:
+        func = getattr(process, args.operation)
+        if func:
+            func()
 
 if __name__ == '__main__':
     import sys

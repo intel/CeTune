@@ -33,7 +33,7 @@ class Visualizer:
         output.append("</ul>")
         #1. summary page
         output.append("<div id='summary'>")
-        res = re.search('^(\d+)-(\d+)-(\w+)-(\w+)-(\w+)-\S+-(\w+)$',self.result["session_name"])
+        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-\S+-(\w+)$',self.result["session_name"])
         if res:
             common.printout("LOG","Generating summary view")
             output.extend(self.generate_summary_view(res))

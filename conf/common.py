@@ -215,8 +215,8 @@ def bash(command, force=False, option="", nodie=False):
         stdout.append(line)
         if "console" in option:
             print line,
+    returncode = _subp.poll()
     _subp.stdout.close()
-    returncode = _subp.wait()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     printout("CONSOLE", stdout, screen=False)
