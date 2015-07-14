@@ -31,8 +31,16 @@ class Cosbench(Benchmark):
         else:
             self.cosbench["test_worker_list"]= list([workers])
         num_tests = len(self.cosbench["test_worker_list"])
-        first_id = 1+int(header.read_test_id(".test_id"))
+        #first_id = 1+int(header.read_test_id(".test_id"))
+        stdout,stderr = common.pdsh(self.cluster['user'],[self.cosbench['cosbench_controller']],'tail -1 %s/stop' %(self.cosbench['cosbench_folder']),'check_return')
+        res = common.format_pdsh_return(stdout)
+        if self.cosbench['cosbench_controller'] in res:
+            first_id = int(res[self.cosbench['cosbench_controller']].strip()[1:]) + 1
+        else:
+            common.printout('ERROR','no run id record in cosbench_folder/stop')
+            sys.exit()
         self.cosbench["cosbench_run_id"] = [str(test_id+first_id) for test_id in range(num_tests)]
+        header.update_test_id(".test_id",str(first_id - 1))
         self.runid = first_id
         self.cosbench["run_time"] = self.all_conf_data.get("run_time")
         self.cosbench["ramp_up"] = self.all_conf_data.get("run_warmup_time")
@@ -103,6 +111,7 @@ class Cosbench(Benchmark):
                 if (re.search('[0-9]+\.[0-9]+\.[0-9]+',arg_node)) is None:
                     print "%s arg_node is %s" %(software,arg_node)
                     sys.stdout.flush()
+
                     print "Install %s on node %s" %(software,arg_node.split()[0][:-1])
                     stdout, stderr = common.pdsh(self.cluster["user"],[arg_node.split()[0][:-1]],"apt-get -y install %s 2>&1" %(software), 'check_return')
                 else:
@@ -129,6 +138,7 @@ class Cosbench(Benchmark):
         for node in cosbench_nodes:
             common.scp(self.cluster["user"],node,"%s/cosbench" %(this_file_path),os.path.dirname(self.cosbench["cosbench_folder"]))
         common.printout('LOG', "Push cosbench to controllers and clients")
+
         # stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"cd /cosbench; sh pack.sh "+self.cosbench["cosbench_folder"],'check_return')
         # common.printout("LOG",stdout)
         # TODO: add the function and template to change controller.conf
@@ -140,7 +150,7 @@ class Cosbench(Benchmark):
         common.printout("LOG",stdout)
         # assume that # of driver is more than one
         for driver in self.cosbench["cosbench_driver"]:
-            stdout,stderr = common.pdsh(self.cluster["user"],[driver],"cd %s; sh start-driver.sh" %(self.cosbench["cosbench_folder"]))
+            stdout,stderr = common.pdsh(self.cluster["user"],[driver],"cd %s; sh start-driver.sh" %(self.cosbench["cosbench_folder"]),'console|check_return')
             common.printout("LOG",stdout)
 
     def prerun_check(self):
@@ -171,16 +181,19 @@ class Cosbench(Benchmark):
 
     def update_config(self,config_middle,test_worker_list):
         config_suffix = "w.xml"
+        config_path=os.path.dirname(__file__) + "/configs/"
+        if not os.path.exists(config_path):
+            print "mkdir configs/"
+            os.makedirs(config_path)
         for workers in (test_worker_list):
             config_file_name = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
-            config_path=os.path.dirname(__file__) + "/configs/"
             if os.path.exists(config_path+config_file_name) == True:
                 os.remove(config_path+config_file_name)
             header.replace_conf_xml(self.cosbench["cosbench_rw"],self.cosbench["test_size"],workers,config_middle,self.cosbench["cluster_ip"])
-            config_content = common.bash("cat %s" %(config_path+config_file_name))
-            print "The config file content is:"
-            print config_content
-            yn = raw_input( "This is the config file %s, is it correct? [y|n] " %(config_file_name))
+            common.bash("cat %s" %(config_path+config_file_name),option='console')
+            #print "The config file content is:"
+            #print config_content
+            yn = raw_input( "This is the config file %s, is it correct? [y|n] " %(config_path+config_file_name))
             print " "
             if yn != "y":
                 sys.exit()
@@ -209,8 +222,10 @@ class Cosbench(Benchmark):
         config_path=os.path.dirname(__file__) + "/configs/"
         if self.cosbench["test_scale"]== "small":
             config_middle = "_100con_100obj_"
-        else:
+        elif self.cosbench['size'] == '128KB':
             config_middle = "_10000con_10000obj_"
+        else:
+            config_middle = '_100con_10000obj_'
         self.update_config(config_middle,self.cosbench["test_worker_list"])
         print "start system statistics..."
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
@@ -221,9 +236,11 @@ class Cosbench(Benchmark):
         # TODO: replace this with the config from all.conf
         runtime = self.cosbench["run_time"]
         user = self.cluster["user"]
+
         #ramp_up = "100"
         time = int(ramp_up) + int(runtime)
         dest_dir = self.cluster["tmp_dir"]
+
         count = 1
         self.cosbench["run_name"] = {}
         for workers in self.cosbench["test_worker_list"]:
@@ -233,6 +250,7 @@ class Cosbench(Benchmark):
             count += 1
             common.pdsh(user,ceph_nodes,"dmesg -C; dmesg -c >> /dev/null")
             common.pdsh(user, ceph_nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
+
             #send command to ceph cluster
             # TODO: Question: do we have to sleep for a rampup time before starting collecting data?
             common.pdsh(user,ceph_nodes,"mkdir -p %s" %(dest_dir_this_worker))
@@ -241,6 +259,7 @@ class Cosbench(Benchmark):
             common.pdsh(user, ceph_nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir_this_worker))
             common.pdsh(user, ceph_nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir_this_worker))
             common.pdsh(user, ceph_nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir_this_worker))
+
             local_config = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers
             local_config_file = local_config+config_suffix
             local_config_path = config_path+local_config_file
@@ -298,8 +317,9 @@ class Cosbench(Benchmark):
             print ".",
             if curr_time % 20 == 0:
                 print ""
-            still_running,stderr = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.runid),self.cosbench["cosbench_folder"] ),"force")).communicate()
-            if still_running == '':
+            still_running,stderr = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.cosbench['cosbench_run_id'][-1]),self.cosbench["cosbench_folder"] ),"check_return"))
+            res = common.format_pdsh_return(still_running)
+            if not self.cosbench['cosbench_run_id'][-1] in res[self.cosbench['cosbench_controller']]:
                 if curr_time == int(self.cosbench["timeout"]):
                     break
             else:
@@ -340,15 +360,17 @@ class Cosbench(Benchmark):
             print "collect data from osd and rgw..."
             for node in ceph_nodes:
                 common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir_test_id, node))
-                common.rrscp(user, node,  "%s/*.txt" % self.cluster["tmp_dir"], head,"%s/%s/" % (dest_dir_test_id, node))
+                #common.rrscp(user, node,  "%s/*.txt" % self.cluster["tmp_dir"], head,"%s/%s/" % (dest_dir_test_id, node))
+                common.rscp(user,node,'%s/%s' %(dest_dir_test_id,node),'%s/*.txt' %(self.cluster['tmp_dir']))
             cosbench_summary_stat = self.cosbench["run_name"][run_id]
-            common.rrscp(user,self.cosbench["cosbench_controller"],"%s/archive/%s/%s.csv"%(self.cosbench["cosbench_folder"],cosbench_summary_stat,cosbench_summary_stat),head,"%s/cosbench/_cosbench.csv"%(dest_dir_test_id))
+            common.rscp(user,self.cosbench['cosbench_controller'],"%s/cosbench/_cosbench.csv"%(dest_dir_test_id),"%s/archive/%s/%s.csv"%(self.cosbench["cosbench_folder"],cosbench_summary_stat,cosbench_summary_stat))
+            #common.rrscp(user,self.cosbench["cosbench_controller"],"%s/archive/%s/%s.csv"%(self.cosbench["cosbench_folder"],cosbench_summary_stat,cosbench_summary_stat),head,"%s/cosbench/_cosbench.csv"%(dest_dir_test_id))
 
             #collect client data
             for node in cosbench_server:
                 common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir_test_id, node))
-                common.rrscp(user, node, "%s/*.txt" % self.cluster["tmp_dir"], head, "%s/%s/" % (dest_dir_test_id, node) )
-
+                #common.rrscp(user, node, "%s/*.txt" % self.cluster["tmp_dir"], head, "%s/%s/" % (dest_dir_test_id, node) )
+                common.pdsh(user,node, "%s/%s/" % (dest_dir_test_id, node),"%s/*.txt" % self.cluster["tmp_dir"] )
             #save real runtime
             #if self.real_runtime:
             #    with open("%s/real_runtime.txt" % dest_dir, "w") as f:

@@ -13,8 +13,8 @@ class Deploy_RGW:
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["clients"] = self.all_conf_data.get_list("list_client")
-        self.cluster["osd"] = self.all_conf_data.get_list("deploy_osd_servers")
-        self.cluster["mon"] = self.all_conf_data.get_list("deploy_mon_servers")
+        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
+        self.cluster["mon"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = [self.all_conf_data.get('rgw_server')]
         self.cluster['rgw_num'] = self.all_conf_data.get('rgw_num_per_server')
         self.cluster['rgw_start_index'] = self.all_conf_data.get('rgw_start_index')
@@ -100,16 +100,17 @@ class Deploy_RGW:
     def gen_conf(self):
         common.printout('LOG', 'updating ceph.conf for radosgw' )
         remote_ceph_conf = "/etc/ceph/ceph.conf"
-        ceph_conf_file = lib_path+"/ceph.conf.tmp"
+        ceph_conf_file = lib_path+"/ceph.conf.tmp.rgw"
         common.rscp(self.cluster['user'],self.cluster['rgw'][0],ceph_conf_file,remote_ceph_conf)
         common.printout("LOG","The index of rgw instances are {%s..%s}" %(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]))
         for i in self.cluster['rgw_index']:
             host_id = self.cluster["rgw"][0]+"-"+str(i)
             
             civetweb_port = 7480 + i
-            lines,stder = common.bash('grep "client.radosgw.%s" %s | wc -l' %(host_id,ceph_conf_file), force=True)
+            lines,stder = common.bash('grep "client.radosgw.%s" %s' %(host_id,ceph_conf_file), force=True)
             print lines
-            if lines != '0':
+            lines.strip()
+            if 'client.radosgw.'+host_id in lines:
                 common.printout("LOG", "ceph conf already has gateway "+str(i))
                 continue
             with open(ceph_conf_file,'a') as f:
@@ -202,4 +203,4 @@ class Deploy_RGW:
         self.gen_conf()
         self.add_gw_script()
         self.gw_config()
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`; for inst in {%s..%s}; do /usr/bin/radosgw -n client.radosgw.${host_name}-$inst; done'%(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]),'check_return' )
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`; for inst in {%s..%s}; do /usr/bin/radosgw -n client.radosgw.${host_name}-$inst; done; service apache2 restart'%(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]),'check_return' )
