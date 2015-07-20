@@ -1,4 +1,3 @@
-import header
 import os
 import os.path
 import time
@@ -6,47 +5,52 @@ lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 this_file_path = os.path.dirname(os.path.abspath(__file__))
 from benchmarking.mod.benchmark import *
 from conf import common
+import itertools
+from collections import OrderedDict
 
 class Cosbench(Benchmark):
     def load_parameter(self):
         super(self.__class__,self).load_parameter()
         self.rgw={}
-        self.rgw["rgw_server"]=self.all_conf_data.get("rgw_server")
+        self.rgw["rgw_server"]=self.all_conf_data.get_list("rgw_server")
         self.rgw["rgw_num_per_server"]=self.all_conf_data.get("rgw_num_per_server")
         self.cosbench={}
         self.cosbench["cosbench_folder"]=self.all_conf_data.get("cosbench_folder")
-        self.cosbench["timeout"]=self.all_conf_data.get("timeout")
-        self.cosbench["cosbench_driver"]=self.all_conf_data.get("cosbench_driver")
+        self.cosbench["cosbench_config_dir"]=self.all_conf_data.get("cosbench_config_dir")
+        self.cosbench["cosbench_driver"]=self.all_conf_data.get_list("cosbench_driver")
+        self.cosbench["cosbench_controller_admin_url"] = self.all_conf_data.get("cosbench_admin_ip")
+        self.cosbench["cosbench_controller_cluster_url"] = self.all_conf_data.get("cosbench_cluster_ip")
         self.cosbench["cosbench_controller"]=self.all_conf_data.get("cosbench_controller")
         self.cosbench["data_dir"]=self.all_conf_data.get("dest_dir")
-        self.cosbench["test_size"]=self.all_conf_data.get("test_size")
-        self.cosbench["test_scale"]=self.all_conf_data.get("test_scale")
-        self.cosbench["cosbench_rw"]=self.all_conf_data.get("cosbench_rw")
-        self.cosbench["data_processing_scripts"]="/var/lib/multiperf"
-        self.cosbench["data_on_nodes"]="/tmp/multiperf"
-        self.cosbench["cluster_ip"]=self.all_conf_data.get("cluster_ip")
-        workers = self.all_conf_data.get("test_worker_list")
-        if type(workers) is list:
-            self.cosbench["test_worker_list"]=workers
-        else:
-            self.cosbench["test_worker_list"]= list([workers])
-        num_tests = len(self.cosbench["test_worker_list"])
-        #first_id = 1+int(header.read_test_id(".test_id"))
-        stdout,stderr = common.pdsh(self.cluster['user'],[self.cosbench['cosbench_controller']],'tail -1 %s/stop' %(self.cosbench['cosbench_folder']),'check_return')
-        res = common.format_pdsh_return(stdout)
-        if self.cosbench['cosbench_controller'] in res:
-            first_id = int(res[self.cosbench['cosbench_controller']].strip()[1:]) + 1
-        else:
-            common.printout('ERROR','no run id record in cosbench_folder/stop')
-            sys.exit()
-        self.cosbench["cosbench_run_id"] = [str(test_id+first_id) for test_id in range(num_tests)]
-        header.update_test_id(".test_id",str(first_id - 1))
-        self.runid = first_id
-        self.cosbench["run_time"] = self.all_conf_data.get("run_time")
-        self.cosbench["ramp_up"] = self.all_conf_data.get("run_warmup_time")
+        self.cosbench["auth_username"] = self.all_conf_data.get("cosbench_auth_username")
+        self.cosbench["auth_password"] = self.all_conf_data.get("cosbench_auth_password")
+        self.cosbench["auth_url"] = "http://%s/auth/v1.0;retry=9" % self.cosbench["cosbench_controller_cluster_url"]
+        self.cosbench["proxy"] = self.all_conf_data.get("cosbench_controller_proxy")
+        self.cluster["testjob_distribution"] = copy.deepcopy(self.cosbench["cosbench_driver"])
+
+    def parse_conobj_script(self, string):
+        m = re.findall("(\w{1})\((\d+),(\d+)\)", string)
+        result = {}
+        if m:
+            result["method"] = m[0][0]
+            result["min"] = m[0][1]
+            result["max"] = m[0][2]
+            result["complete"] = string
+        return result
 
     def prepare_result_dir(self):
-        pass
+        self.benchmark["container"] = self.parse_conobj_script( self.benchmark["container"] )
+        self.benchmark["objecter"] = self.parse_conobj_script( self.benchmark["objecter"] )
+
+        self.benchmark["section_name"] = "cosbench-%s-%scon-%sobj-%s-%sw" % (self.benchmark["iopattern"], self.benchmark["container"]["max"], self.benchmark["objecter"]["max"], self.benchmark["block_size"], self.benchmark["worker"])
+        self.benchmark["dirname"] = "%s-%s" % ( str(self.runid), self.benchmark["section_name"])
+        self.benchmark["configfile"] = "%s/%s.xml" % (self.cosbench["cosbench_config_dir"], self.benchmark["section_name"])
+        self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
+
+        if common.remote_dir_exist( self.cluster["user"], self.cluster["head"], self.cluster["dest_dir"] ):
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            sys.exit()
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def print_all_attributes(self):
         print "self.cosbench:"
@@ -154,138 +158,114 @@ class Cosbench(Benchmark):
             common.printout("LOG",stdout)
 
     def prerun_check(self):
-        # check if cosbench is running
-        print "check whether cosbench is running on clients..."
         cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
-        cosbench_server.append(self.cosbench["cosbench_controller"])
+        cosbench_server.extend(self.cosbench["cosbench_controller"])
+
+        # check if cosbench installed
+        if not self.check_cosbench_installed(cosbench_server):
+            self.deploy_cosbench()
+
+        # check if cosbench is running
+        if not self.check_cosbench_runing(cosbench_server):
+            sys.exit()
+
+    def check_cosbench_runing(self, cosbench_server):
+        user = self.cluster["user"]
+        stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], "http_proxy=%s;curl -D - -H 'X-Auth-User: %s' -H 'X-Auth-Key: %s' %s" % (self.cosbench["proxy"], self.cosbench["auth_username"], self.cosbench["auth_password"], self.cosbench["auth_url"]), option = "check_return")
+        if re.search('(refused|error)', stderr):
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            return False
+        if re.search("AccessDenied", stdout):
+            common.printout("[ERROR]","Cosbench connect to Radosgw Auth Failed")
+            return False
+        return True
+
+    def check_cosbench_installed(self, cosbench_server):
+        user = self.cluster["user"]
+        # check if cosbench installed
         installed = True
         for client in cosbench_server:
-            if header.remote_file_exist(client,self.cosbench["cosbench_folder"]+'/cli.sh') is False:
+            if common.remote_file_exist(user, client, self.cosbench["cosbench_folder"]+'/cli.sh') is False:
                 common.printout("ERROR", "cosbench isn't installed on "+client)
                 installed = False
-                break
-        if installed is False:
-            install_or_not = raw_input("Install Cosbench? [y|n] ")
-            if install_or_not is not "y":
-                sys.exit()
-            else:
-                self.deploy_cosbench()
-        print "Cosbench works well"
-        # check if radosgw is running
-        print "check whether radosgw is running..."
-        output =  common.bash("curl "+ self.rgw["rgw_server"],True)
-        if re.search('amazon',output[0]) == None:
-            common.printout("ERROR","radosgw doesn't work")
-        else:
-            print "radosgw is running"
 
-    def update_config(self,config_middle,test_worker_list):
-        config_suffix = "w.xml"
-        config_path=os.path.dirname(__file__) + "/configs/"
-        if not os.path.exists(config_path):
-            print "mkdir configs/"
-            os.makedirs(config_path)
-        for workers in (test_worker_list):
-            config_file_name = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers+config_suffix
-            if os.path.exists(config_path+config_file_name) == True:
-                os.remove(config_path+config_file_name)
-            header.replace_conf_xml(self.cosbench["cosbench_rw"],self.cosbench["test_size"],workers,config_middle,self.cosbench["cluster_ip"])
-            common.bash("cat %s" %(config_path+config_file_name),option='console')
-            #print "The config file content is:"
-            #print config_content
-            yn = raw_input( "This is the config file %s, is it correct? [y|n] " %(config_path+config_file_name))
-            print " "
-            if yn != "y":
-                sys.exit()
+        return installed
 
     def stop_data_collectors(self):
-        ceph_nodes = copy.deepcopy(self.cluster["osd"])
-        ceph_nodes.append(self.rgw["rgw_server"])
-        ceph_nodes.extend(self.cosbench["cosbench_driver"])
-        print "Kill sleep, sar, sadc, iostat, vmstat, mpstat, blktrace on each ceph osd. Clean up data on node:" + ','.join(ceph_nodes)
-        common.pdsh("root",ceph_nodes,"killall -q sleep; killall -q sar sadc iostat vmstat mpstat blktrace","force")
+        user = self.cluster["user"]
+        nodes = []
+        nodes.append(self.rgw["rgw_server"])
+        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
 
     def prepare_run(self):
-        print "[cosbench] prepare_run"
-        self.print_all_attributes()
+        super(self.__class__, self).prepare_run()
         self.stop_data_collectors()
-        # kill sleep, sar, sadc, iostat, vmstat, mpstat, blktrace on each ceph osd.
-        print "unset proxy on cosbench controller and drivers..."
-        # Unset http_proxy for each cosbench node
-        common.pdsh("root",self.cosbench["cosbench_driver"],"unset http_proxy","error_check")
-        common.pdsh("root",[self.cosbench["cosbench_controller"]],"unset http_proxy","error_check")
+
+        # scp cosbench config dir to remote
+        user = self.cluster["user"]
+        if not common.remote_file_exist( user, self.cosbench["cosbench_controller"], self.benchmark["configfile"] ):
+            common.pdsh( user, self.cosbench["cosbench_controller"], "mkdir -p %s" % self.cosbench["cosbench_config_dir"])
+            common.scp( user, self.cosbench["cosbench_controller"], self.benchmark["configfile"], self.benchmark["configfile"])
 
     def run(self):
-        print "[cosbench] starting workloads..."
-        config_prefix = self.cosbench["cosbench_rw"]
-        config_suffix = "w.xml"
-        config_path=os.path.dirname(__file__) + "/configs/"
-        if self.cosbench["test_scale"]== "small":
-            config_middle = "_100con_100obj_"
-        elif self.cosbench['size'] == '128KB':
-            config_middle = "_10000con_10000obj_"
-        else:
-            config_middle = '_100con_10000obj_'
-        self.update_config(config_middle,self.cosbench["test_worker_list"])
-        print "start system statistics..."
-        ceph_nodes = copy.deepcopy(self.cluster["osd"])
-        ceph_nodes.append(self.rgw["rgw_server"])
-        ceph_nodes.extend(self.cosbench["cosbench_driver"])
-        ramp_up = self.cosbench["ramp_up"]
-        interval = 5
-        # TODO: replace this with the config from all.conf
-        runtime = self.cosbench["run_time"]
+        super(self.__class__, self).run()
         user = self.cluster["user"]
-
-        #ramp_up = "100"
-        time = int(ramp_up) + int(runtime)
+        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
 
-        count = 1
+        #1. send command to radosgw
+        nodes = []
+        nodes.extend(self.rgw["rgw_server"])
+
         self.cosbench["run_name"] = {}
-        for workers in self.cosbench["test_worker_list"]:
-            test_id_this_worker = str(header.read_test_id(".test_id")+1)
-            print  "test_id_this_worker is "+ test_id_this_worker
-            dest_dir_this_worker = "%s/%s_cosbench" %(dest_dir,test_id_this_worker)
-            count += 1
-            common.pdsh(user,ceph_nodes,"dmesg -C; dmesg -c >> /dev/null")
-            common.pdsh(user, ceph_nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (waittime, dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "for waittime in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; ceph --admin-daemon $path perf dump >> ${res_file}; echo ',' >> ${res_file}; done; sleep 1; done" % (waittime, dest_dir), option="force")
 
-            #send command to ceph cluster
-            # TODO: Question: do we have to sleep for a rampup time before starting collecting data?
-            common.pdsh(user,ceph_nodes,"mkdir -p %s" %(dest_dir_this_worker))
-            common.pdsh(user, ceph_nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir_this_worker))
-            common.pdsh(user, ceph_nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir_this_worker))
-            common.pdsh(user, ceph_nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir_this_worker))
-            common.pdsh(user, ceph_nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir_this_worker))
-            common.pdsh(user, ceph_nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir_this_worker))
+        run_command ="http_proxy=%s; sh %s/cli.sh submit %s " % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.benchmark["configfile"])
+        stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], run_command, option="check_return")
+        m = re.search('Accepted with ID:\s*(\w+)', stdout)
+        if not m:
+            common.printout("ERROR",'Cosbench controller and driver run failed!')
+            raise KeyboardInterrupt
 
-            local_config = self.cosbench["cosbench_rw"]+config_middle+self.cosbench["test_size"]+"_"+workers
-            local_config_file = local_config+config_suffix
-            local_config_path = config_path+local_config_file
-            common.bash("cat %s" %(local_config_path))
-            remote_config_path = "/tmp/"+local_config_file
-            print "cosbench xml file: local_config_path is " + local_config_path
-            print "cosbench xml remote file is "+remote_config_path
-            #./cli.sh submit /tmp/write_100con_100obj_128KB_160w.xml 2>/dev/null > /tmp/curl.cosbench && cat /tmp/curl.cosbench | awk '{print $4}'
-            run_command =" sh "+self.cosbench["cosbench_folder"]+"/cli.sh submit "+remote_config_path +" 2>/dev/null | awk  '{print $4}'"
-            common.scp("root",self.cosbench["cosbench_controller"],local_config_path,remote_config_path)
-            try:
-                self.runid = int((common.pdsh("root",list([self.cosbench["cosbench_controller"]]),run_command,"check_return")[0]).split()[1][1:]) 
-            except:
-                common.printout("ERROR",'Cosbench controller and driver run failed!')
-                sys.exit()
-            header.update_test_id(".test_id",test_id_this_worker)
-            self.cosbench['run_name'][test_id_this_worker] = 'w%s-%sw' %(test_id_this_worker,local_config)
-            common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"rm -f %s" %(remote_config_path),"error_check")
-        print "Cosbench[run_name ] is "
-        print self.cosbench["run_name"]
-        self.runid =  (header.read_test_id(".test_id"))
+        common.printout("LOG", "Cosbench job start, in cosbench scope the job num will be %s" % m.group(1))
+        common.printout("LOG", "You can monitor runtime status and results on http://%s:19088/controller" % self.cosbench["cosbench_controller_admin_url"])
+        self.cosbench["cosbench_job_id"] = m.group(1)
+        while self.check_cosbench_testjob_running( self.cosbench["cosbench_controller"], self.cosbench["cosbench_job_id"] ):
+            time.sleep(5)
 
-    def after_run(self):
-        print "[cosbench] waiting for the workload to stop..."
-        self.wait_workload_to_stop()
-        self.stop_data_collectors()
+    def check_cosbench_testjob_running(self, node, runid ):
+        user = self.cluster["user"]
+        stdout, stderr = common.pdsh(user, [node], "http_proxy=%s; sh %s/cli.sh info 2>/dev/null | grep PROCESSING | awk '{print $1}'" % (self.cosbench["proxy"], self.cosbench["cosbench_folder"]), option="check_return")
+        res = common.format_pdsh_return(stdout)
+        if node in res:
+            if res[node].strip() == "%s" % runid:
+                common.printout("LOG", "Cosbench test job w%s is still runing" % runid)
+                return True
+        return False
+
+    def stop_workload(self):
+        user = self.cluster["user"]
+        controller = self.cosbench["cosbench_controller"]
+        common.pdsh( user, [controller], 'http_proxy=%s; sh %s/cli.sh cancel %s' % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]), option="console")
+
+    def wait_workload_to_stop(self):
+        common.printout("LOG","Waiting Workload to complete its work")
+        max_check_times = 30
+        cur_check = 0
+        while self.check_cosbench_testjob_running(self.cosbench["cosbench_controller"], self.cosbench["cosbench_job_id"]):
+            if cur_check > max_check_times:
+                break
+            time.sleep(10)
+            cur_check += 1
+        common.printout("LOG","Workload completed")
 
     def cleanup(self):
         cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
@@ -297,81 +277,154 @@ class Cosbench(Benchmark):
         common.pdsh(user, ceph_nodes, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
         common.pdsh(user, cosbench_server, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
 
-
-
-    def get_curr_workload(self):
-        pass
-        # TODO: get current work id
-
-    def stop_workload(self):
-        pass
-        # TODO: stop cosbench workload
-
-
-
-    def wait_workload_to_stop(self):
-        curr_time = 0
-        while True:
-            time.sleep(1)
-            curr_time += 1
-            print ".",
-            if curr_time % 20 == 0:
-                print ""
-            still_running,stderr = (common.pdsh("root",list([self.cosbench["cosbench_controller"]]),"grep %s %s/stop" %(int(self.cosbench['cosbench_run_id'][-1]),self.cosbench["cosbench_folder"] ),"check_return"))
-            res = common.format_pdsh_return(still_running)
-            if not self.cosbench['cosbench_run_id'][-1] in res[self.cosbench['cosbench_controller']]:
-                if curr_time == int(self.cosbench["timeout"]):
-                    break
-            else:
-                break
-        print "w"+str(self.runid)+" ends"
-
-    def post_processing(self):
-        return
-
     def testjob_distribution(self):
         pass
 
     def cal_run_job_distribution(self):
-        print "The test ID we are going to do is:"+ ','.join(self.cosbench["cosbench_run_id"]) 
-        print "scale:" + self.cosbench["test_scale"]
-        print "size:" + self.cosbench["test_size"]
+        self.benchmark["distribution"] = {}
+        for driver in self.cosbench["cosbench_driver"]:
+            self.benchmark["distribution"][driver] = driver
 
     def archive(self):
+        super(self.__class__, self).archive()
         user = self.cluster["user"]
         head = self.cluster["head"]
-        dest_dir = self.cosbench["data_dir"]
+        dest_dir = self.cluster["dest_dir"]
 
-        for run_id in self.cosbench["cosbench_run_id"]:
-            dest_dir_test_id = "%s/%s" %(dest_dir, run_id)
-            common.pdsh(user,list([head]),"mkdir -p %s; mkdir -p %s/cosbench" %(dest_dir_test_id,dest_dir_test_id))
-            #collect all.conf
-            common.scp(user, head, "%s/conf/all.conf" % self.pwd,  "%s/all.conf" % (dest_dir_test_id))
+        ceph_nodes = []
+        ceph_nodes.extend(self.rgw["rgw_server"])
+        for node in ceph_nodes:
+            common.pdsh(user, [head], "mkdir -p %s/%s" % (dest_dir, node))
+            common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
-            #collect osd data
-            cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
-            #cosbench_server.append(self.cosbench["cosbench_controller"])
-            ceph_nodes = copy.deepcopy(self.cluster["osd"])
-            ceph_nodes.append(self.rgw["rgw_server"])
+        cosbench_controller = self.cosbench["cosbench_controller"]
+        common.rscp(user, cosbench_controller, "%s/%s/"%(dest_dir, cosbench_controller), "%s/archive/%s-*"%(self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]))
 
-            #print "collect data from cosbench controller..."
-            #common.rrscp(user, self.cosbench["cosbench_controller"],"%s/%s/archieve/" self.cosbench["cosbench_folder"]
+    def parse_benchmark_cases(self, testcase):
+        p = testcase
+        testcase_dict = {
+            "worker":p[0], "container":p[1], "iopattern":p[2],
+            "block_size":p[3], "objecter":p[4], "rampup":p[5],
+            "runtime":p[6]
+        }
+        if ":" in testcase_dict["iopattern"]:
+            rw_type, rw_ratio = testcase_dict["iopattern"].split(':')
+        else:
+            rw_type = testcase_dict["iopattern"]
+            rw_ratio = 100
+        testcase_dict["iopattern"] = rw_type
+        testcase_dict["iopattern_ratio"] = rw_ratio
+        return testcase_dict
 
-            print "collect data from osd and rgw..."
-            for node in ceph_nodes:
-                common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir_test_id, node))
-                #common.rrscp(user, node,  "%s/*.txt" % self.cluster["tmp_dir"], head,"%s/%s/" % (dest_dir_test_id, node))
-                common.rscp(user,node,'%s/%s' %(dest_dir_test_id,node),'%s/*.txt' %(self.cluster['tmp_dir']))
-            cosbench_summary_stat = self.cosbench["run_name"][run_id]
-            common.rscp(user,self.cosbench['cosbench_controller'],"%s/cosbench/_cosbench.csv"%(dest_dir_test_id),"%s/archive/%s/%s.csv"%(self.cosbench["cosbench_folder"],cosbench_summary_stat,cosbench_summary_stat))
-            #common.rrscp(user,self.cosbench["cosbench_controller"],"%s/archive/%s/%s.csv"%(self.cosbench["cosbench_folder"],cosbench_summary_stat,cosbench_summary_stat),head,"%s/cosbench/_cosbench.csv"%(dest_dir_test_id))
+    def generate_benchmark_cases(self):
+        engine = self.all_conf_data.get_list('benchmark_engine')
+        if "cosbench" not in engine:
+            return [[],[]]
+        test_config = OrderedDict()
+        benchmark = {}
+        benchmark["cosbench_config_dir"]=self.all_conf_data.get("cosbench_config_dir")
+        benchmark["cosbench_controller"]=self.all_conf_data.get("cosbench_controller")
+        benchmark["cosbench_controller_cluster_url"] =  self.all_conf_data.get("cosbench_cluster_ip")
+        benchmark["auth_username"] = self.all_conf_data.get("cosbench_auth_username")
+        benchmark["auth_password"] = self.all_conf_data.get("cosbench_auth_password")
+        benchmark["auth_url"] = "http://%s/auth/v1.0;retry=9" % benchmark["cosbench_controller_cluster_url"]
+        test_config["workers"] = self.all_conf_data.get_list("cosbench_workers")
+        test_config["contaiter"] = ["".join(self.all_conf_data.get("cosbench_containers"))]
+        test_config["cosbench_rw"]=self.all_conf_data.get_list("cosbench_rw")
+        test_config["test_size"]=self.all_conf_data.get_list("cosbench_test_size")
+        test_config["objecter"] = ["".join(self.all_conf_data.get("cosbench_objects"))]
+        test_config["ramp_up"] = self.all_conf_data.get_list("run_warmup_time")
+        test_config["run_time"] = self.all_conf_data.get_list("run_time")
 
-            #collect client data
-            for node in cosbench_server:
-                common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir_test_id, node))
-                #common.rrscp(user, node, "%s/*.txt" % self.cluster["tmp_dir"], head, "%s/%s/" % (dest_dir_test_id, node) )
-                common.pdsh(user,node, "%s/%s/" % (dest_dir_test_id, node),"%s/*.txt" % self.cluster["tmp_dir"] )
-            #save real runtime
-            #if self.real_runtime:
-            #    with open("%s/real_runtime.txt" % dest_dir, "w") as f:
-            #        f.write(str(int(self.real_runtime)))
+        testcase_list = []
+        for testcase in itertools.product(*(test_config.values())):
+            benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"] = testcase
+            testcase_string = "%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\tcosbench" % ("cosbench", benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"])
+            testcase_list.append( testcase_string )
+            benchmark["container"] = self.parse_conobj_script( benchmark["container"] )
+            benchmark["objecter"] = self.parse_conobj_script( benchmark["objecter"] )
+            if ":" in benchmark["iopattern"]:
+                rw_type, rw_ratio = benchmark["iopattern"].split(':')
+            else:
+                rw_type = benchmark["iopattern"]
+                rw_ratio = 100
+            benchmark["iopattern"] = {}
+            benchmark["iopattern"]["type"] = rw_type
+            benchmark["iopattern"]["ratio"] = rw_ratio
+            m = re.search("(\d+)([a-zA-Z]+)", benchmark["size"])
+            size_complete = benchmark["size"]
+            benchmark["size"] = {}
+            benchmark["size"]["complete"] = size_complete
+            if m:
+                benchmark["size"]["size_value"] = m.group(1)
+                benchmark["size"]["size_unit"] = m.group(2)
+            else:
+                benchmark["size"]["size_value"] = "128"
+                benchmark["size"]["size_unit"] = KB
+
+            benchmark["section_name"] = "cosbench-%s-%scon-%sobj-%s-%sw" % (benchmark["iopattern"]["type"], benchmark["container"]["max"], benchmark["objecter"]["max"], benchmark["size"]["complete"], benchmark["worker"])
+            benchmark["configfile"] = "%s/%s.xml" % (benchmark["cosbench_config_dir"], benchmark["section_name"])
+
+            # check if config dir and config file exists
+            if not os.path.exists(benchmark["cosbench_config_dir"]):
+                os.makedirs(benchmark["cosbench_config_dir"])
+            if os.path.exists(benchmark["configfile"]):
+                os.remove(benchmark["configfile"])
+            self.replace_conf_xml(benchmark)
+        return [testcase_list,[]]
+
+    def replace_conf_xml(self, benchmark):
+        with open(lib_path+"/benchmarking/mod/bobject/.template_config.xml",'r') as infile:
+            with open(benchmark["configfile"],'w+') as outfile:
+                line = infile.read()
+
+                # Using worker to identify if it is prepare stage
+                # for workers more than 0
+                if benchmark["worker"] == "0":
+                    match = re.compile("\{\{description\}\}")
+                    line = match.sub("INIT-PREPARE",line)
+
+                    match = re.compile("<workstage name=\"main\">\n.*\n.*\n.*\n</workstage>\n")
+                    line = match.sub('',line)
+
+                    match = re.compile("\{\{workers\}\}")
+                    line = match.sub("100",line)
+                else:
+                    match = re.compile("\{\{description\}\}")
+                    line = match.sub( "%s-%s" % (benchmark["iopattern"]["type"], benchmark["iopattern"]["ratio"]),line)
+                    match = re.compile("<workstage name=\"init\">\n.*\n</workstage>\n")
+                    line = match.sub('',line)
+                    match = re.compile("<workstage name=\"prepare\">\n.*\n</workstage>\n")
+                    line = match.sub('',line)
+
+
+                match = re.compile("\{\{section_name\}\}")
+                line = match.sub(benchmark["section_name"],line)
+                match = re.compile("\{\{auth_username\}\}")
+                line = match.sub(benchmark["auth_username"],line)
+                match = re.compile("\{\{auth_passwd\}\}")
+                line = match.sub(benchmark["auth_password"],line)
+                match = re.compile("\{\{cluster_ip\}\}")
+                line = match.sub(benchmark["cosbench_controller_cluster_url"],line)
+                match = re.compile("\{\{size\}\}")
+                line = match.sub(benchmark["size"]["complete"],line)
+                match = re.compile("\{\{workers\}\}")
+                line = match.sub(benchmark["worker"],line)
+                match = re.compile("\{\{rampup\}\}")
+                line = match.sub(benchmark["rampup"],line)
+                match = re.compile("\{\{runtime\}\}")
+                line = match.sub(benchmark["runtime"],line)
+                match = re.compile("\{\{rw\}\}")
+                line = match.sub(benchmark["iopattern"]["type"],line)
+                match = re.compile("\{\{rw_ratio\}\}")
+                line = match.sub(benchmark["iopattern"]["ratio"],line)
+                match = re.compile("\{\{containers\}\}")
+                line = match.sub(benchmark["container"]["complete"],line)
+                match = re.compile("\{\{objects\}\}")
+                line = match.sub(benchmark["objecter"]["complete"],line)
+                match = re.compile("\{\{size_value\}\}")
+                line = match.sub(benchmark["size"]["size_value"],line)
+                match = re.compile("\{\{size_unit\}\}")
+                line = match.sub(benchmark["size"]["size_unit"],line)
+
+                outfile.write(line)

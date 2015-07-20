@@ -42,8 +42,6 @@ class Config():
                         cur_conf_section[key] = value[:-1]
                     else:
                         cur_conf_section[key] = value
-                    if re.search(',', cur_conf_section[key]):
-                        cur_conf_section[key] = cur_conf_section[key].split(",")
 
     def dump(self, key=""):
         pp = pprint.PrettyPrinter(indent=4)
@@ -68,10 +66,10 @@ class Config():
 
     def get_list(self,key):
         if key in self.conf_data:
-            if type(self.conf_data[key]) == str:
-                return [self.conf_data[key]]
+            if re.search(',', self.conf_data[key]):
+                return self.conf_data[key].split(",")
             else:
-                return self.conf_data[key]
+                return [self.conf_data[key]]
         else:
             print "%s not defined in all.conf" % key
 
@@ -117,6 +115,7 @@ class IPHandler:
         for ip in ipaddrlist:
             if self.addressInNetwork(self.dottedQuadToNum(ip),network):
                 return ip
+        return ip
 
 
 def get_list( string ):
@@ -156,6 +155,19 @@ def printout(level, content, screen = True):
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
             print content
+
+def remote_dir_exist( user, node, path ):
+    stdout, stderr = pdsh(user, [node] ,"test -d %s; echo $?" % path, option = "check_return")
+    res = format_pdsh_return(stdout)
+    for node, returncode in res.items():
+        return int(returncode) == 0
+
+def remote_file_exist( user, node ,path):
+    user = "root"
+    stdout, stderr = pdsh(user, [node], "test -f %s; echo $?" % path, "check_return")
+    res = format_pdsh_return(stdout)
+    for node, returncode in res.items():
+        return int(returncode) == 0
 
 def pdsh(user, nodes, command, option="error_check", nodie=False):
     _nodes = []
@@ -240,7 +252,7 @@ def scp(user, node, localfile, remotefile):
         sys.exit()
 
 def rscp(user, node, localfile, remotefile):
-    args = ['scp', '%s@%s:%s' % (user, node, remotefile), localfile]
+    args = ['scp', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
     #print('rscp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:

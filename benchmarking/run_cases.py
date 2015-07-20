@@ -61,7 +61,6 @@ def main(args):
             for line in f.readlines():
                 p = line.split()
                 testcase_list.append({"engine":p[0],"parameter":p[1:]})
-    
         for testcase in testcase_list:
             if testcase["engine"] == "qemurbd":
                 benchmark = qemurbd.QemuRbd()
@@ -71,10 +70,8 @@ def main(args):
                 benchmark = fiocephfs.FioCephFS()
             if testcase["engine"] == "cosbench":
                 benchmark = cosbench.Cosbench()
-    
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
-    
             try:
                 benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:

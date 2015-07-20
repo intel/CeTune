@@ -5,7 +5,7 @@ import itertools
 class QemuRbd(Benchmark):
     def load_parameter(self):
         super(self.__class__, self).load_parameter()
-        self.cluster["vclient"] = self.all_conf_data.get("list_vclient")
+        self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         self.benchmark["vdisk"] = self.all_conf_data.get("run_file")
 
         rbd_num_per_client = self.cluster["rbd_num_per_client"]
@@ -21,12 +21,11 @@ class QemuRbd(Benchmark):
         self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
         self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
 
-        res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
-	if not res[1]:
+        if common.remote_dir_exist( self.cluster["user"], self.cluster["head"], self.cluster["dest_dir"] ):
             common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
             sys.exit()
-      
-	common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
+
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def prepare_images(self):
         user =  self.cluster["user"]
@@ -131,7 +130,7 @@ class QemuRbd(Benchmark):
                    common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix))
 
     def run(self):
-        super(self.__class__, self).run() 
+        super(self.__class__, self).run()
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
@@ -184,22 +183,16 @@ class QemuRbd(Benchmark):
     
     def wait_workload_to_stop(self):
         common.printout("LOG","Waiting Workload to complete its work")
-        user = self.cluster["user"]
-        stop_flag = 0
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
         max_check_times = 30
         cur_check = 0
-        while not stop_flag:
-            stop_flag = 1
-            for client in self.benchmark["distribution"]:
-                nodes = self.benchmark["distribution"][client]
-                res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
-                if not res[1]:
-                    stop_flag = 0
-                    common.printout("WARNING","FIO stills run on %s" % str(res[0].split('\n')))
-            if stop_flag or cur_check > max_check_times:
-                break;
-            cur_check += 1
+        while self.check_fio_pgrep(nodes):
+            if cur_check > max_check_times:
+                break
             time.sleep(10)
+            cur_check += 1
         common.printout("LOG","Workload completed")
 
     def stop_data_collecters(self):
@@ -232,7 +225,7 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             for node in nodes:
-                common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
+                common.pdsh(user, [head], "mkdir -p %s/%s" % (dest_dir, node))
                 common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
     def generate_benchmark_cases(self):
@@ -251,7 +244,7 @@ class QemuRbd(Benchmark):
         test_config["disk"] = self.all_conf_data.get_list('run_file')
         testcase_list = []
         for testcase in itertools.product(*(test_config.values())):
-            testcase_list.append('\t'.join('%8s' % t for t in testcase))
+            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
 
         fio_list = []
         fio_list.append("[global]")
@@ -259,10 +252,15 @@ class QemuRbd(Benchmark):
         fio_list.append("    time_based")
         for element in itertools.product(test_config["io_pattern"], test_config["record_size"], test_config["queue_depth"], test_config["rbd_volume_size"], test_config["warmup_time"], test_config["runtime"], test_config["disk"]):
             io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk = element
+            io_pattern_fio = io_pattern
+            if io_pattern == "seqread":
+                io_pattern_fio = "read"
+            if io_pattern == "seqwrite":
+                io_pattern_fio = "write"
             disk_name = disk.split('/')[-1]
             fio_template = []
             fio_template.append("[qemurbd-%s-%s-qd%s-%s-%s-%s-%s]" % (io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk_name))
-            fio_template.append("    rw=%s" % io_pattern)
+            fio_template.append("    rw=%s" % io_pattern_fio)
             fio_template.append("    bs=%s" % record_size)
             fio_template.append("    iodepth=%s" % queue_depth)
             fio_template.append("    ramp_time=%s" % warmup_time)
@@ -277,7 +275,7 @@ class QemuRbd(Benchmark):
             if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
                 fio_template.append("    iodepth_batch_submit=8")
                 fio_template.append("    iodepth_batch_complete=8")
-                fio_template.append("    rate=60")
+                fio_template.append("    rate=60m")
             if io_pattern in ["randrw", "readwrite", "rw"]:
                 try:
                     rwmixread = self.all_conf_data.get('rwmixread')

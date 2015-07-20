@@ -17,15 +17,13 @@ class Benchmark(object):
 
     def go(self, testcase, tuning):
         self.load_parameter()
+        self.get_runid()
 
         self.benchmark = self.parse_benchmark_cases(testcase)
         self.benchmark["tuning_section"] = tuning
 
         self.prepare_result_dir()
-        try:
-            common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
-        except TypeError:
-            common.printout("LOG","RUNID: %s, RESULT_DIR: %s" % (",".join(self.cosbench["cosbench_run_id"]), self.cluster["dest_dir"]))
+        common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
         self.cal_run_job_distribution()
         self.prerun_check()
         self.prepare_run()
@@ -47,15 +45,8 @@ class Benchmark(object):
         self.set_runid()
 
         common.printout("LOG","Post Process Result Data")
-        #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.cluster["dest_dir"], True)
         try:
             analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
-        #except TypeError:
-        #    print "Going to Cosbench Analyser"
-        #    print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
-            #python analyzer.py --path /mnt/data/run_res/ process_data
-            for test_id in self.cosbench["cosbench_run_id"]:
-                analyzer.main(['--path', "%s/%s" %(self.cluster["dest_dir"],test_id), 'process_data'])
         except:
             common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
 
@@ -135,7 +126,6 @@ class Benchmark(object):
         common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "for waittime in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; ceph --admin-daemon $path perf dump >> ${res_file}; echo ',' >> ${res_file}; done; sleep 1; done" % (time, dest_dir), option="force")
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
@@ -269,8 +259,10 @@ class Benchmark(object):
         planned_space = common.size_to_Kbytes(planed_space)
         common.printout("WARNING","Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space))
         if cur_space < planned_space:
+            print False
             return False
         else:
+            print True
             return True
 
     def generate_benchmark_cases(self):

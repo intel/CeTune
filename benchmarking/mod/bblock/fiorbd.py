@@ -159,7 +159,7 @@ class FioRbd(Benchmark):
         test_config["disk"] = ["fiorbd"]
         testcase_list = []
         for testcase in itertools.product(*(test_config.values())):
-            testcase_list.append('\t'.join('%8s' % t for t in testcase))
+            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
 
         fio_list = []
         fio_list.append("[global]")
@@ -167,9 +167,14 @@ class FioRbd(Benchmark):
         fio_list.append("    time_based")
         for element in itertools.product(test_config["engine"], test_config["io_pattern"], test_config["record_size"], test_config["queue_depth"], test_config["rbd_volume_size"], test_config["warmup_time"], test_config["runtime"], test_config["disk"]):
             engine, io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk = element
+            io_pattern_fio = io_pattern
+            if io_pattern == "seqread":
+                io_pattern_fio = "read"
+            if io_pattern == "seqwrite":
+                io_pattern_fio = "write"
             fio_template = []
             fio_template.append("[%s-%s-%s-qd%s-%s-%s-%s-%s]" % (engine, io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk))
-            fio_template.append("    rw=%s" % io_pattern)
+            fio_template.append("    rw=%s" % io_pattern_fio)
             fio_template.append("    bs=%s" % record_size)
             fio_template.append("    iodepth=%s" % queue_depth)
             fio_template.append("    ramp_time=%s" % warmup_time)
@@ -185,7 +190,7 @@ class FioRbd(Benchmark):
             if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
                 fio_template.append("    iodepth_batch_submit=8")
                 fio_template.append("    iodepth_batch_complete=8")
-                fio_template.append("    rate=60")
+                fio_template.append("    rate=60m")
             if io_pattern in ["randrw", "readwrite", "rw"]:
                 try:
                     rwmixread = self.all_conf_data.get('rwmixread')

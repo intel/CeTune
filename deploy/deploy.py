@@ -377,7 +377,7 @@ def main(args):
     if args.operation == "uninstall_binary":
         mydeploy = Deploy()
         mydeploy.uninstall_binary()
-    if args.operaton == "deploy_rgw":
+    if args.operation == "deploy_rgw":
         if args.config:
             mydeploy = Deploy(args.config)
         else:
