@@ -1,6 +1,6 @@
-###Cephperf: A user friendly framework to profile and tune Ceph performance
+###CeTune: A Ceph Profiling and Tuning Framework
 
-#####We will maintain a performance profiling and tuning framework named "Cephperf". Cephperf comprises five function components:
+#####We will maintain a performance profiling and tuning framework named "CeTune". CeTune comprises five function components:
 > (1)Deployment, support installing ceph from binary pkg and source codes, and deploying ceph using ceph-deploy or mkcephfs
 
 > (2)Workload generator, generates well defined use cases and automatically evaluate the RBD, object, and CephFS performance with various pluggable workloads
@@ -18,7 +18,8 @@
 > (4) The Tuner, dynamically injects args and compares the performance to identify best tuning knobs.
 
 > (5) the Visualizer, automatically presents the data w/ a web GUI.
->> a.    using cephperf in daily work to evaluate the major Ceph release performance, data will be shown on a [public portal](https://01.org/cephperf) for users/developer reference.
+>> a.    using CeTune in daily work to evaluate the major Ceph release performance, data will be shown on a [public portal](https://01.org/cephperf) for users/developer reference.
 
 #####Any question please contact
-Chendi.Xue <chendi.xue@intel.com> or <xuechendi@gmail.com>
+Jian Zhang <jian.zhang@intel.com>
+Chendi Xue <chendi.xue@intel.com> 
