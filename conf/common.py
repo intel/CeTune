@@ -117,7 +117,6 @@ class IPHandler:
                 return ip
         return ip
 
-
 def get_list( string ):
     res = []
     if isinstance(string, str):
@@ -475,3 +474,13 @@ def return_os_id(user, nodes):
     stdout, stderr = pdsh(user, nodes, "lsb_release -i | awk -F: '{print $2}'", option="check_return")
     res = format_pdsh_return(stdout)
     return res
+
+def add_to_hosts( nodes ):
+    for node, ip in nodes.items():
+        res = bash("grep '%s' /etc/hosts" % str(ip)).strip()
+        if node in res:
+            continue
+        if res != "":
+            bash("sed -i 's/%s/%s %s/g' /etc/hosts" % (res, res, node))
+        else:
+            bash("echo %s %s >> /etc/hosts" % (str(ip), node))

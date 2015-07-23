@@ -11,9 +11,10 @@ import argparse
 import yaml
 from ceph_deploy import cli
 from threading import Thread
+import deploy_rgw
 
 pp = pprint.PrettyPrinter(indent=4)
-class Deploy:
+class Deploy(object):
     def __init__(self, tunings=""):
         self.all_conf_data = common.Config("../conf/all.conf")
         self.cluster = {}
@@ -187,6 +188,16 @@ class Deploy:
         common.pdsh( user, mons, " killall -9 ceph-mon", option="check_return")
         common.printout("LOG","Shutting down osd daemon")
         common.pdsh( user, osds, " killall -9 ceph-osd", option="check_return")
+
+    def distribute_hosts(self, node_ip_bond):
+        user = self.cluster["user"]
+        nodes = []
+        nodes.extend(self.cluster["clients"])
+        nodes.extend(sorted(self.cluster["osds"]))
+
+        common.add_to_hosts(node_ip_bond)
+        for node in nodes:
+            common.scp( user, node, '/etc/hosts', '/etc/hosts')
 
     def distribute_conf(self):
         user = self.cluster["user"]
@@ -378,11 +389,11 @@ def main(args):
         mydeploy = Deploy()
         mydeploy.uninstall_binary()
     if args.operation == "deploy_rgw":
-        if args.config:
-            mydeploy = Deploy(args.config)
-        else:
-            mydeploy = Rgw()
-        mydeploy.gen_cephconf()
+        mydeploy = deploy_rgw.Deploy_RGW()
+        mydeploy.deploy()
+    if args.operation == "start_rgw":
+        mydeploy = deploy_rgw.Deploy_RGW()
+        mydeploy.start_rgw()
 
 if __name__ == '__main__':
     import sys
