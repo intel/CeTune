@@ -28,6 +28,7 @@ class Cosbench(Benchmark):
         self.cosbench["auth_url"] = "http://%s/auth/v1.0;retry=9" % self.cosbench["cosbench_controller_cluster_url"]
         self.cosbench["proxy"] = self.all_conf_data.get("cosbench_controller_proxy")
         self.cluster["testjob_distribution"] = copy.deepcopy(self.cosbench["cosbench_driver"])
+        self.cosbench["cosbench_version"] = self.all_conf_data.get("cosbench_version")
 
     def parse_conobj_script(self, string):
         m = re.findall("(\w{1})\((\d+),(\d+)\)", string)
@@ -114,7 +115,8 @@ class Cosbench(Benchmark):
     def deploy_cosbench(self):
         common.printout('LOG', "Start to install cosbench on controllers and clients")
         cosbench_nodes = copy.deepcopy([self.cosbench["cosbench_controller"]])
-        cosbench_nodes.extend(self.cosbench["cosbench_driver"])
+        cosbench_nodes = common.unique_extend(cosbench_nodes, self.cosbench["cosbench_driver"])
+        cosbench_nodes
         # before deploy cosbench, need to check
         # if curl installed
         stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"curl --version; echo $?",'check_return')
@@ -137,13 +139,26 @@ class Cosbench(Benchmark):
             sys.exit()
 
         count = 0
-        stdout,stderr = common.pdsh(self.cluster["user"],cosbench_nodes,"mkdir -p %s" %(self.cosbench['cosbench_folder']),'check_return' )
-        for node in cosbench_nodes:
-            common.scp(self.cluster["user"],node,"%s/cosbench" %(this_file_path),os.path.dirname(self.cosbench["cosbench_folder"]))
-        common.printout('LOG', "Succeeded in installing cosbench on controllers and clients")
+        # check cosbench version and generate url
+        tmp_dir = self.cluster["tmp_dir"]
+        release_url_prefix = "https://github.com/intel-cloud/cosbench/releases/download/"
+        version = self.cosbench["cosbench_version"]
+        if version[0] == 'v':
+            version = version[1:]
+        common.printout('LOG', "Start to download cosbench codes, it may take 5 min, pls wait")
+        stdout = common.bash("cd %s; rm -f %s.zip; wget %sv%s/%s.zip; echo $?" % ( version, tmp_dir, release_url_prefix, version, version))
+        if int(stdout) == 0:
+            common.printout("LOG", "Cosbench version %s downloaded successfully" % version)
+        else:
+            common.printout("ERROR", "Cosbench version %s downloaded failed" % version)
+            sys.exit()
 
-        # start cosbench daemon
-        self.restart_cosbench_daemon()
+        for node in cosbench_nodes:
+            common.printout('LOG', "install cosbench to %s" % node)
+            common.scp(self.cluster["user"],node,"%s/%s.zip" %(tmp_dir, version), tmp_dir)
+        common.printout('LOG', "Unzip cosbench zip")
+        common.pdsh(self.cluster["user"], cosbench_nodes, "cd %s;rm -rf cosbench; unzip %s.zip; mv %s %s" % ( tmp_dir, version, version, self.cosbench["cosbench_folder"]))
+        common.printout('LOG', "Succeeded in installing cosbench on controllers and clients")
 
     def restart_cosbench_daemon(self):
         # distribute hosts file cosbench nodes
@@ -154,12 +169,13 @@ class Cosbench(Benchmark):
             common.scp(self.cluster["user"], node, "/etc/hosts", "/etc/hosts" )
 
         for driver in self.cosbench["cosbench_driver"]:
-            stdout,stderr = common.pdsh(self.cluster["user"],[driver],"cd %s;sh stop-driver.sh; http_proxy=%s sh start-driver.sh" %( self.cosbench["cosbench_folder"], self.cosbench["proxy"]),'console|check_return')
-        stdout,stderr = common.pdsh(self.cluster["user"],[self.cosbench["cosbench_controller"]],"cd %s;sh stop-controller.sh; http_proxy=%s sh start-controller.sh" %(self.cosbench["cosbench_folder"],self.cosbench["proxy"]),'check_return')
+            stdout,stderr = common.pdsh(self.cluster["user"],[driver],"cd %s;chmod +x *.sh; ./stop-driver.sh; http_proxy=%s ./start-driver.sh" %( self.cosbench["cosbench_folder"], self.cosbench["proxy"]),'console|check_return')
+        stdout,stderr = common.pdsh(self.cluster["user"],[self.cosbench["cosbench_controller"]],"cd %s;chmod +x *.sh; ./stop-controller.sh; http_proxy=%s ./start-controller.sh" %(self.cosbench["cosbench_folder"],self.cosbench["proxy"]),'check_return')
 
     def prerun_check(self):
-        cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
-        cosbench_server.extend(self.cosbench["cosbench_controller"])
+        cosbench_server = []
+        cosbench_server.append(self.cosbench["cosbench_controller"])
+        cosbench_server = common.unique_extend( cosbench_server, self.cosbench["cosbench_driver"] )
 
         common.printout("LOG", "check if cosbench installed")
         # check if cosbench installed

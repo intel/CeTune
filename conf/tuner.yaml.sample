@@ -1,0 +1,36 @@
+testjob1:
+  workstages: ["benchmark"]
+  version: "hammer"
+  disk:
+    read_ahead_kb: 2048
+  pool:
+    rbd:
+      size: 2
+      pg_num: 8194
+  global:
+    mon_pg_warn_max_per_osd: 1000
+    ms_dispatch_throttle_bytes: 1048576000
+    ms_nocrc: true
+    objecter_infilght_op_bytes: 1048576000
+    objecter_inflight_ops: 10240
+    throttler_perf_counter: false
+  osd:
+    filestore_fd_cache_shards: 32
+    filestore_fd_cache_size: 64
+    filestore_max_inline_xattr_size: 254
+    filestore_max_inline_xattrs: 6
+    filestore_max_sync_interval: 10
+    filestore_omap_header_cache_size: 409600
+    filestore_queue_committing_max_bytes: 1048576000
+    filestore_queue_committing_max_ops: 5000
+    filestore_queue_max_bytes: 1048576000
+    filestore_queue_max_ops: 500
+    filestore_wbthrottle_enable: false
+    journal_max_write_bytes: 1048576000
+    journal_max_write_entries: 1000
+    journal_queue_max_bytes: 1048576000
+    journal_queue_max_ops: 3000
+    osd_client_message_cap: 0
+    osd_client_message_size_cap: 0
+    osd_enable_op_tracker: false
+    osd_op_num_shards: 10

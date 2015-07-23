@@ -162,7 +162,6 @@ def remote_dir_exist( user, node, path ):
         return int(returncode) == 0
 
 def remote_file_exist( user, node ,path):
-    user = "root"
     stdout, stderr = pdsh(user, [node], "test -f %s; echo $?" % path, "check_return")
     res = format_pdsh_return(stdout)
     for node, returncode in res.items():
@@ -243,8 +242,10 @@ def bash(command, force=False, option="", nodie=False):
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
+    printout("CONSOLE", args, screen=False)
     #print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    printout("CONSOLE", stdout, screen=False)
     if stderr:
         print('scp: %s' % args)
         printout("ERROR",stderr+"\n")
