@@ -20,7 +20,7 @@ class Tuner:
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
-        self.cluster["mons"] = self.all_conf_data.get_list("list_mon") 
+        self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
@@ -33,9 +33,9 @@ class Tuner:
         self.cluster["user"] = self.all_conf_data.get("user")
 
     def run(self):
-        user = self.cluster["user"] 
-        controller = self.cluster["head"] 
-        osds = self.cluster["osds"] 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
+        osds = self.cluster["osds"]
         pwd = os.path.abspath(os.path.join('..'))
         for section in self.worksheet:
             for work in self.worksheet[section]['workstages']:
@@ -54,8 +54,8 @@ class Tuner:
                     common.printout("ERROR","Unknown tuner workstage %s" % work)
 
     def handle_disk(self, option="get", param={'read_ahead_kb':2048, 'max_sectors_kb':512, 'scheduler':'deadline'}, fs_params=""):
-        user = self.cluster["user"] 
-        osds = self.cluster["osds"] 
+        user = self.cluster["user"]
+        osds = self.cluster["osds"]
 
         disk_data = {}
         disk_data = common.MergableDict()
@@ -82,17 +82,17 @@ class Tuner:
                        stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{}  sh -c "echo %s > /sys/block/\'{}\'/queue/%s"' % (device, str(value), key), option="check_return")
 
     def get_version(self):
-        user = self.cluster["user"] 
-        osds = self.cluster["osds"] 
-        clients = self.cluster["client"] 
+        user = self.cluster["user"]
+        osds = self.cluster["osds"]
+        clients = self.cluster["client"]
 
-        stdout, stderr = common.pdsh(user, osds, 'ceph -v', option="check_return") 
+        stdout, stderr = common.pdsh(user, osds, 'ceph -v', option="check_return")
         res = common.format_pdsh_return(stdout)
         osd_version = res
-        stdout, stderr = common.pdsh(user, clients, 'rbd -v', option="check_return") 
+        stdout, stderr = common.pdsh(user, clients, 'rbd -v', option="check_return")
         res = common.format_pdsh_return(stdout)
         rbd_version = res
-        stdout, stderr = common.pdsh(user, clients, 'rados -v', option="check_return") 
+        stdout, stderr = common.pdsh(user, clients, 'rados -v', option="check_return")
         res = common.format_pdsh_return(stdout)
         rados_version = res
         # merge config diff
@@ -112,10 +112,10 @@ class Tuner:
         return ceph_version.get()
 
     def get_osd_config(self):
-        user = self.cluster["user"] 
-        osds = self.cluster["osds"] 
+        user = self.cluster["user"]
+        osds = self.cluster["osds"]
 
-        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; ceph --admin-daemon $path config show', option="check_return") 
+        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return")
         res = common.format_pdsh_return(stdout)
         # merge config diff
         osd_config = common.MergableDict()
@@ -124,10 +124,10 @@ class Tuner:
         return osd_config.get()
 
     def get_mon_config(self):
-        user = self.cluster["user"] 
-        mons = self.cluster["mons"] 
+        user = self.cluster["user"]
+        mons = self.cluster["mons"]
 
-        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; ceph --admin-daemon $path config show', option="check_return") 
+        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return")
         res = common.format_pdsh_return(stdout)
         mon_config = common.MergableDict()
         for node in res:
@@ -135,10 +135,10 @@ class Tuner:
         return mon_config.get()
 
     def get_pool_config(self):
-        user = self.cluster["user"] 
-        controller = self.cluster["head"] 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
 
-        stdout, stderr = common.pdsh(user, [controller], 'ceph osd dump | grep pool', option="check_return") 
+        stdout, stderr = common.pdsh(user, [controller], 'timeout 5 ceph osd dump | grep pool', option="check_return")
         res = common.format_pdsh_return(stdout)
         pool_config = {}
         for node in res:
@@ -153,11 +153,11 @@ class Tuner:
 
     def dump_config(self):
     # check ceph config and os config meet request
-        user = self.cluster["user"] 
-        controller = self.cluster["head"] 
-        mons = self.cluster["mons"] 
-        osds = self.cluster["osds"] 
-        clients = self.cluster["client"] 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
+        mons = self.cluster["mons"]
+        osds = self.cluster["osds"]
+        clients = self.cluster["client"]
 
         config = {}
         #get [system] config
@@ -177,8 +177,8 @@ class Tuner:
         return config
 
     def apply_version(self, jobname):
-        user = self.cluster["user"] 
-        controller = self.cluster["head"] 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
         pwd = os.path.abspath(os.path.join('..'))
         cur_version = self.get_version()
         version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer'}
@@ -276,14 +276,14 @@ class Tuner:
                 for param_name, param_data in self.worksheet[jobname]['disk'].items():
                     param[param_name] = param_data
                 if param != {}:
-                    self.handle_disk( option="set", param=param ) 
+                    self.handle_disk( option="set", param=param )
                 else:
-                    self.handle_disk( option="set" ) 
+                    self.handle_disk( option="set" )
 
         if no_check:
             return
 
-        #wait ceph health to be OK       
+        #wait ceph health to be OK
         waitcount = 0
         try:
             while not self.check_health() and waitcount < 300:
@@ -300,8 +300,8 @@ class Tuner:
             sys.exit()
 
     def handle_pool(self, option="set", param = {}):
-        user = self.cluster["user"] 
-        controller = self.cluster["head"] 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
         if option == "create":
             if 'name' in param and 'pg_num' in param:
                 common.printout("LOG","create ceph pool %s, pg_num is %s" % (param['name'], str(param['pg_num'])))
@@ -320,16 +320,16 @@ class Tuner:
                 pool = param['name']
                 common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
-         
+
         if option == "delete_all":
             cur_pools = get_pool_config()
             for pool in cur_pools:
                 common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
-        
+
     def check_health(self):
-        user = self.cluster["user"] 
-        controller = self.cluster["head"] 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
         check_count = 0
         stdout, stderr = common.pdsh(user, [controller], 'ceph health', option="check_return")
         if "HEALTH_OK" in stdout:

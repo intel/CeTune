@@ -109,7 +109,7 @@ class FioCephFS(Benchmark):
         test_config["disk"] = ["fiocephfs"]
         testcase_list = []
         for testcase in itertools.product(*(test_config.values())):
-            testcase_list.append('\t'.join('%8s' % t for t in testcase))
+            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
 
         fio_list = []
         fio_list.append("[global]")

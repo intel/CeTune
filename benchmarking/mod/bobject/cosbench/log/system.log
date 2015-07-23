@@ -1,0 +1,719 @@
+2015-07-10 11:19:22,608 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:19:51,181 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:19:51,196 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:19:51,197 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:19:51,199 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:19:51,199 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:20:57,703 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:20:57,717 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:20:57,718 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:20:57,720 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:20:57,721 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:21:04,259 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:23:04,456 [INFO] [WorkloadProcessor] - begin to process workload w1
+2015-07-10 11:23:04,457 [INFO] [WorkloadProcessor] - begin to run stage s1-init
+2015-07-10 11:23:04,458 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:23:04,458 [INFO] [WorkloadProcessor] - START WORK: init
+2015-07-10 11:23:04,045 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is 45 mSec
+2015-07-10 11:23:04,045 [INFO] [StageRunner] - successfully booted all tasks in stage s1-init
+2015-07-10 11:23:04,117 [INFO] [StageRunner] - successfully submitted all tasks in stage s1-init
+2015-07-10 11:23:04,135 [INFO] [MissionHandler] - mission MD75FCE35A9 has been authed successfully
+2015-07-10 11:23:04,136 [INFO] [StageRunner] - successfully authenticated all tasks in stage s1-init
+2015-07-10 11:23:04,341 [INFO] [StageRunner] - successfully launched all tasks in stage s1-init
+2015-07-10 11:23:04,474 [INFO] [MissionHandler] - mission MD75FCE35A9 has been executed successfully
+2015-07-10 11:23:09,355 [INFO] [StageRunner] - successfully queried all tasks in stage s1-init
+2015-07-10 11:23:09,363 [INFO] [MissionHandler] - mission MD75FCE35A9 has been closed successfully
+2015-07-10 11:23:09,440 [INFO] [StageRunner] - successfully closed all tasks in stage s1-init
+2015-07-10 11:23:09,446 [INFO] [StageRunner] - acceptable failure ratio of work s1-init-init = 0.0
+2015-07-10 11:23:09,447 [INFO] [StageRunner] - real failure ratio of work s1-init-init = N/A
+2015-07-10 11:23:09,447 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s1-init - work init
+2015-07-10 11:23:11,842 [INFO] [WorkloadProcessor] - END WORK:   init, Time elapsed: 0:0::7
+2015-07-10 11:23:11,843 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:23:11,843 [INFO] [WorkloadProcessor] - successfully ran stage s1-init
+2015-07-10 11:23:11,843 [INFO] [WorkloadProcessor] - begin to run stage s2-prepare
+2015-07-10 11:23:11,843 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:23:11,844 [INFO] [WorkloadProcessor] - START WORK: prepare
+2015-07-10 11:23:09,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is 0 mSec
+2015-07-10 11:23:09,001 [INFO] [StageRunner] - successfully booted all tasks in stage s2-prepare
+2015-07-10 11:23:09,011 [INFO] [StageRunner] - successfully submitted all tasks in stage s2-prepare
+2015-07-10 11:23:09,024 [INFO] [MissionHandler] - mission M675FCF4037 has been authed successfully
+2015-07-10 11:23:09,025 [INFO] [StageRunner] - successfully authenticated all tasks in stage s2-prepare
+2015-07-10 11:23:09,228 [INFO] [StageRunner] - successfully launched all tasks in stage s2-prepare
+2015-07-10 11:23:25,625 [INFO] [MissionHandler] - mission M675FCF4037 has been executed successfully
+2015-07-10 11:23:29,262 [INFO] [StageRunner] - successfully queried all tasks in stage s2-prepare
+2015-07-10 11:23:29,265 [INFO] [MissionHandler] - mission M675FCF4037 has been closed successfully
+2015-07-10 11:23:29,317 [INFO] [StageRunner] - successfully closed all tasks in stage s2-prepare
+2015-07-10 11:23:29,318 [INFO] [StageRunner] - acceptable failure ratio of work s2-prepare-prepare = 0.0
+2015-07-10 11:23:29,318 [INFO] [StageRunner] - real failure ratio of work s2-prepare-prepare = 0.0
+2015-07-10 11:23:29,318 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s2-prepare - work prepare
+2015-07-10 11:23:31,729 [INFO] [WorkloadProcessor] - END WORK:   prepare, Time elapsed: 0:0::19
+2015-07-10 11:23:31,729 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:23:31,730 [INFO] [WorkloadProcessor] - successfully ran stage s2-prepare
+2015-07-10 11:23:31,730 [INFO] [WorkloadProcessor] - begin to run stage s3-main
+2015-07-10 11:23:31,730 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:23:31,730 [INFO] [WorkloadProcessor] - START WORK: main
+2015-07-10 11:23:30,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is 1 mSec
+2015-07-10 11:23:30,000 [INFO] [StageRunner] - successfully booted all tasks in stage s3-main
+2015-07-10 11:23:30,016 [INFO] [StageRunner] - successfully submitted all tasks in stage s3-main
+2015-07-10 11:23:30,033 [INFO] [MissionHandler] - mission M275FD461A1 has been authed successfully
+2015-07-10 11:23:30,034 [INFO] [StageRunner] - successfully authenticated all tasks in stage s3-main
+2015-07-10 11:23:30,237 [INFO] [StageRunner] - successfully launched all tasks in stage s3-main
+2015-07-10 11:23:47,769 [WARN] [OperatorContext] - heavy atomic op overhead detected: 0.545586ms
+2015-07-10 11:23:47,769 [WARN] [OperatorContext] - heavy atomic op overhead detected: 0.642831ms
+2015-07-10 11:23:47,769 [WARN] [OperatorContext] - heavy atomic op overhead detected: 0.651661ms
+2015-07-10 11:24:04,685 [INFO] [StageRunner] - begin to cancel stage s3-main
+2015-07-10 11:24:04,685 [INFO] [WorkloadProcessor] - begin to cancel workload w1
+2015-07-10 11:24:04,974 [INFO] [StageRunner] - stage s3-main has been cancelled
+2015-07-10 11:24:05,217 [INFO] [SimpleWorkloadArchiver] - workload w1 has been successfully archived
+2015-07-10 11:24:05,217 [INFO] [WorkloadProcessor] - successfully cancelled workload w1
+2015-07-10 11:24:33,772 [INFO] [WorkloadProcessor] - begin to process workload w2
+2015-07-10 11:24:33,772 [INFO] [WorkloadProcessor] - begin to run stage s1-init
+2015-07-10 11:24:33,773 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:24:33,773 [INFO] [WorkloadProcessor] - START WORK: init
+2015-07-10 11:24:31,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is -1002 mSec
+2015-07-10 11:24:31,000 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 11:24:31,001 [INFO] [StageRunner] - successfully booted all tasks in stage s1-init
+2015-07-10 11:24:31,224 [INFO] [StageRunner] - successfully submitted all tasks in stage s1-init
+2015-07-10 11:24:31,284 [INFO] [MissionHandler] - mission MA75FE34D3D has been authed successfully
+2015-07-10 11:24:31,285 [INFO] [StageRunner] - successfully authenticated all tasks in stage s1-init
+2015-07-10 11:24:31,488 [INFO] [StageRunner] - successfully launched all tasks in stage s1-init
+2015-07-10 11:24:32,772 [INFO] [MissionHandler] - mission MA75FE34D3D has been executed successfully
+2015-07-10 11:24:36,494 [INFO] [StageRunner] - successfully queried all tasks in stage s1-init
+2015-07-10 11:24:36,502 [INFO] [MissionHandler] - mission MA75FE34D3D has been closed successfully
+2015-07-10 11:24:36,508 [INFO] [StageRunner] - successfully closed all tasks in stage s1-init
+2015-07-10 11:24:36,508 [INFO] [StageRunner] - acceptable failure ratio of work s1-init-init = 0.0
+2015-07-10 11:24:36,508 [INFO] [StageRunner] - real failure ratio of work s1-init-init = N/A
+2015-07-10 11:24:36,508 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s1-init - work init
+2015-07-10 11:24:38,989 [INFO] [WorkloadProcessor] - END WORK:   init, Time elapsed: 0:0::5
+2015-07-10 11:24:38,989 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:24:38,989 [INFO] [WorkloadProcessor] - successfully ran stage s1-init
+2015-07-10 11:24:38,989 [INFO] [WorkloadProcessor] - begin to run stage s2-main
+2015-07-10 11:24:38,990 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:24:38,990 [INFO] [WorkloadProcessor] - START WORK: main
+2015-07-10 11:24:36,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is -1002 mSec
+2015-07-10 11:24:36,000 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 11:24:36,000 [INFO] [StageRunner] - successfully booted all tasks in stage s2-main
+2015-07-10 11:24:36,055 [INFO] [StageRunner] - successfully submitted all tasks in stage s2-main
+2015-07-10 11:24:36,063 [INFO] [MissionHandler] - mission M675FE486A0 has been authed successfully
+2015-07-10 11:24:36,063 [INFO] [StageRunner] - successfully authenticated all tasks in stage s2-main
+2015-07-10 11:24:36,267 [INFO] [StageRunner] - successfully launched all tasks in stage s2-main
+2015-07-10 11:31:42,351 [INFO] [MissionHandler] - mission M675FE486A0 has been executed successfully
+2015-07-10 11:31:46,566 [INFO] [StageRunner] - successfully queried all tasks in stage s2-main
+2015-07-10 11:31:46,573 [INFO] [MissionHandler] - mission M675FE486A0 has been closed successfully
+2015-07-10 11:31:46,580 [INFO] [StageRunner] - successfully closed all tasks in stage s2-main
+2015-07-10 11:31:46,581 [INFO] [StageRunner] - acceptable failure ratio of work s2-main-10MB = 0.2
+2015-07-10 11:31:46,581 [INFO] [StageRunner] - real failure ratio of work s2-main-10MB = 0.0
+2015-07-10 11:31:46,581 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s2-main - work 10MB
+2015-07-10 11:31:48,781 [INFO] [WorkloadProcessor] - END WORK:   main, Time elapsed: 0:7::9
+2015-07-10 11:31:48,782 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 11:31:48,782 [INFO] [WorkloadProcessor] - successfully ran stage s2-main
+2015-07-10 11:31:48,877 [INFO] [SimpleWorkloadArchiver] - workload w2 has been successfully archived
+2015-07-10 11:31:48,877 [INFO] [WorkloadProcessor] - sucessfully processed workload w2
+2015-07-10 11:35:37,813 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:35:39,718 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:35:39,733 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:35:39,734 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:35:39,736 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:35:39,737 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:46:22,149 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:46:24,081 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 11:46:24,096 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:46:24,097 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 11:46:24,099 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 11:46:24,100 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:26:20,205 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:26:22,150 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:26:22,164 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:26:22,165 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:26:22,167 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:26:22,168 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:27:45,002 [INFO] [WorkloadProcessor] - begin to process workload w3
+2015-07-10 12:27:45,003 [INFO] [WorkloadProcessor] - begin to run stage s1-init
+2015-07-10 12:27:45,003 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 12:27:45,003 [INFO] [WorkloadProcessor] - START WORK: init
+2015-07-10 12:27:45,227 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.252:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:57)
+	at com.intel.cosbench.controller.tasklet.Bootor.execute(Bootor.java:45)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:27:45,227 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.251:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:57)
+	at com.intel.cosbench.controller.tasklet.Bootor.execute(Bootor.java:45)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:27:45,046 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is 46 mSec
+2015-07-10 12:27:45,046 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver3 is 46 mSec
+2015-07-10 12:27:45,047 [ERROR] [StageRunner] - detected tasks [t2, t4] have encountered errors
+2015-07-10 12:27:45,047 [INFO] [StageRunner] - begin to terminate stage s1-init
+2015-07-10 12:27:45,048 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.251:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:27:45,049 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.252:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:27:45,049 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:72)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:27:45,050 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:72)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:27:45,058 [ERROR] [AbstractCommandTasklet] - driver report error: HTTP 400 - unrecognized request: org.apache.catalina.connector.RequestFacade@3d8fe9b5
+2015-07-10 12:27:45,058 [ERROR] [AbstractCommandTasklet] - driver report error: HTTP 400 - unrecognized request: org.apache.catalina.connector.RequestFacade@8423321
+2015-07-10 12:27:45,058 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:81)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:27:45,058 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:81)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:27:45,059 [INFO] [StageRunner] - stage s1-init has been terminated
+2015-07-10 12:27:45,060 [ERROR] [WorkloadProcessor] - detected stage s1-init encountered error
+2015-07-10 12:27:45,061 [INFO] [WorkloadProcessor] - begin to terminate workload w3
+2015-07-10 12:27:45,161 [INFO] [SimpleWorkloadArchiver] - workload w3 has been successfully archived
+2015-07-10 12:27:45,161 [INFO] [WorkloadProcessor] - successfully terminated workload w3
+2015-07-10 12:30:43,846 [INFO] [WorkloadProcessor] - begin to process workload w4
+2015-07-10 12:30:43,846 [INFO] [WorkloadProcessor] - begin to run stage s1-init
+2015-07-10 12:30:43,846 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 12:30:43,847 [INFO] [WorkloadProcessor] - START WORK: init
+2015-07-10 12:30:41,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is 0 mSec
+2015-07-10 12:30:41,000 [INFO] [StageRunner] - successfully booted all tasks in stage s1-init
+2015-07-10 12:30:41,041 [INFO] [StageRunner] - successfully submitted all tasks in stage s1-init
+2015-07-10 12:30:41,060 [INFO] [MissionHandler] - mission M3763AC83E1 has been authed successfully
+2015-07-10 12:30:41,061 [INFO] [StageRunner] - successfully authenticated all tasks in stage s1-init
+2015-07-10 12:30:41,266 [INFO] [StageRunner] - successfully launched all tasks in stage s1-init
+2015-07-10 12:30:41,400 [INFO] [MissionHandler] - mission M3763AC83E1 has been executed successfully
+2015-07-10 12:30:46,275 [INFO] [StageRunner] - successfully queried all tasks in stage s1-init
+2015-07-10 12:30:46,284 [INFO] [MissionHandler] - mission M3763AC83E1 has been closed successfully
+2015-07-10 12:30:46,365 [INFO] [StageRunner] - successfully closed all tasks in stage s1-init
+2015-07-10 12:30:46,372 [INFO] [StageRunner] - acceptable failure ratio of work s1-init-init = 0.0
+2015-07-10 12:30:46,373 [INFO] [StageRunner] - real failure ratio of work s1-init-init = N/A
+2015-07-10 12:30:46,373 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s1-init - work init
+2015-07-10 12:30:48,767 [INFO] [WorkloadProcessor] - END WORK:   init, Time elapsed: 0:0::4
+2015-07-10 12:30:48,768 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 12:30:48,768 [INFO] [WorkloadProcessor] - successfully ran stage s1-init
+2015-07-10 12:30:48,769 [INFO] [WorkloadProcessor] - begin to run stage s2-prepare
+2015-07-10 12:30:48,769 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 12:30:48,769 [INFO] [WorkloadProcessor] - START WORK: prepare
+2015-07-10 12:30:46,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is -1002 mSec
+2015-07-10 12:30:46,000 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 12:30:46,000 [INFO] [StageRunner] - successfully booted all tasks in stage s2-prepare
+2015-07-10 12:30:46,012 [INFO] [StageRunner] - successfully submitted all tasks in stage s2-prepare
+2015-07-10 12:30:46,025 [INFO] [MissionHandler] - mission M8763ADDBB6 has been authed successfully
+2015-07-10 12:30:46,026 [INFO] [StageRunner] - successfully authenticated all tasks in stage s2-prepare
+2015-07-10 12:30:46,230 [INFO] [StageRunner] - successfully launched all tasks in stage s2-prepare
+2015-07-10 12:31:02,635 [INFO] [MissionHandler] - mission M8763ADDBB6 has been executed successfully
+2015-07-10 12:31:06,250 [INFO] [StageRunner] - successfully queried all tasks in stage s2-prepare
+2015-07-10 12:31:06,253 [INFO] [MissionHandler] - mission M8763ADDBB6 has been closed successfully
+2015-07-10 12:31:06,314 [INFO] [StageRunner] - successfully closed all tasks in stage s2-prepare
+2015-07-10 12:31:06,315 [INFO] [StageRunner] - acceptable failure ratio of work s2-prepare-prepare = 0.0
+2015-07-10 12:31:06,315 [INFO] [StageRunner] - real failure ratio of work s2-prepare-prepare = 0.0
+2015-07-10 12:31:06,315 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s2-prepare - work prepare
+2015-07-10 12:31:08,731 [INFO] [WorkloadProcessor] - END WORK:   prepare, Time elapsed: 0:0::19
+2015-07-10 12:31:08,732 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 12:31:08,732 [INFO] [WorkloadProcessor] - successfully ran stage s2-prepare
+2015-07-10 12:31:08,732 [INFO] [WorkloadProcessor] - begin to run stage s3-main
+2015-07-10 12:31:08,733 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 12:31:08,733 [INFO] [WorkloadProcessor] - START WORK: main
+2015-07-10 12:31:08,743 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.251:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:57)
+	at com.intel.cosbench.controller.tasklet.Bootor.execute(Bootor.java:45)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:31:08,743 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.252:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:57)
+	at com.intel.cosbench.controller.tasklet.Bootor.execute(Bootor.java:45)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:31:06,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is -1002 mSec
+2015-07-10 12:31:06,001 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 12:31:06,006 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver3 is 2006 mSec
+2015-07-10 12:31:06,006 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 12:31:06,006 [ERROR] [StageRunner] - detected tasks [t2, t4] have encountered errors
+2015-07-10 12:31:06,007 [INFO] [StageRunner] - begin to terminate stage s3-main
+2015-07-10 12:31:06,008 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.251:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:31:06,009 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:72)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:31:06,008 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+org.apache.http.conn.HttpHostConnectException: Connection to http://192.168.5.252:17088 refused
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:158)
+	at org.apache.http.impl.conn.AbstractPoolEntry.open(AbstractPoolEntry.java:150)
+	at org.apache.http.impl.conn.AbstractPooledConnAdapter.open(AbstractPooledConnAdapter.java:121)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:575)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:425)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.net.ConnectException: Connection refused
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:339)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:200)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:182)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:579)
+	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:148)
+	... 17 more
+2015-07-10 12:31:06,010 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:72)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:31:06,012 [ERROR] [AbstractCommandTasklet] - driver report error: HTTP 400 - unrecognized request: org.apache.catalina.connector.RequestFacade@3e5073bf
+2015-07-10 12:31:06,013 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:81)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:31:06,013 [ERROR] [AbstractCommandTasklet] - driver report error: HTTP 400 - unrecognized request: org.apache.catalina.connector.RequestFacade@8423321
+2015-07-10 12:31:06,013 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:81)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 12:31:06,014 [INFO] [StageRunner] - stage s3-main has been terminated
+2015-07-10 12:31:06,014 [ERROR] [WorkloadProcessor] - detected stage s3-main encountered error
+2015-07-10 12:31:06,015 [INFO] [WorkloadProcessor] - begin to terminate workload w4
+2015-07-10 12:31:06,160 [INFO] [SimpleWorkloadArchiver] - workload w4 has been successfully archived
+2015-07-10 12:31:06,161 [INFO] [WorkloadProcessor] - successfully terminated workload w4
+2015-07-10 12:34:03,474 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:34:04,469 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:34:04,483 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:34:04,484 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:34:04,486 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:34:04,487 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:34:24,763 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:34:26,793 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:34:26,808 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:34:26,809 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:34:26,811 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:34:26,811 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:37:21,790 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:37:23,739 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:37:23,754 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:37:23,755 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:37:23,757 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:37:23,757 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:46:18,168 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 12:46:18,183 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:46:18,184 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:46:18,187 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 12:46:18,187 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 12:57:48,289 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 13:09:21,181 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 13:09:21,195 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 13:09:21,196 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 13:09:21,198 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 13:09:21,199 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 13:09:27,145 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 14:20:39,589 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 15:42:41,501 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 15:42:43,534 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 15:42:43,548 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 15:42:43,549 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 15:42:43,550 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 15:42:43,552 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 15:42:43,552 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 15:42:43,557 [DEBUG] [SimpleWorkloadArchiver] - workload count has been retrieved as 4
+2015-07-10 15:42:43,560 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 15:45:09,310 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 15:45:11,281 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 15:45:11,296 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 15:45:11,297 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 15:45:11,298 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 15:45:11,299 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 15:45:11,300 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 15:45:11,305 [DEBUG] [SimpleWorkloadArchiver] - workload count has been retrieved as 4
+2015-07-10 15:45:11,308 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:07:49,515 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:07:51,442 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:07:51,456 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:07:51,457 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:07:51,459 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:07:51,460 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:07:51,460 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:07:51,465 [DEBUG] [SimpleWorkloadArchiver] - workload count has been retrieved as 4
+2015-07-10 16:07:51,468 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:10:10,833 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:10:12,823 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:10:12,837 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:10:12,838 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:10:12,839 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:10:12,840 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:10:12,841 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:10:12,846 [DEBUG] [SimpleWorkloadArchiver] - workload count has been retrieved as 4
+2015-07-10 16:10:12,849 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:13:29,747 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:13:29,762 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:13:29,763 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:13:29,764 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:13:29,765 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:13:29,766 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:13:29,771 [DEBUG] [SimpleWorkloadArchiver] - workload count has been retrieved as 4
+2015-07-10 16:13:29,774 [DEBUG] [RAMWorkloadRepository] - will hold 100 workloads in RAM
+2015-07-10 16:13:45,852 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:22:14,723 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:22:16,687 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-10 16:22:16,702 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:22:16,703 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:22:16,705 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-10 16:22:16,705 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-10 16:26:33,945 [INFO] [WorkloadProcessor] - begin to process workload w5
+2015-07-10 16:26:33,946 [INFO] [WorkloadProcessor] - begin to run stage s1-init
+2015-07-10 16:26:33,946 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 16:26:33,946 [INFO] [WorkloadProcessor] - START WORK: init
+2015-07-10 16:26:34,043 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver2 is 41 mSec
+2015-07-10 16:26:34,043 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is 43 mSec
+2015-07-10 16:26:34,043 [INFO] [StageRunner] - successfully booted all tasks in stage s1-init
+2015-07-10 16:26:34,540 [INFO] [StageRunner] - successfully submitted all tasks in stage s1-init
+2015-07-10 16:26:34,606 [INFO] [MissionHandler] - mission M97712BFAE4 has been authed successfully
+2015-07-10 16:26:34,631 [INFO] [StageRunner] - successfully authenticated all tasks in stage s1-init
+2015-07-10 16:26:34,836 [INFO] [StageRunner] - successfully launched all tasks in stage s1-init
+2015-07-10 16:26:35,085 [INFO] [MissionHandler] - mission M97712BFAE4 has been executed successfully
+2015-07-10 16:26:39,853 [INFO] [StageRunner] - successfully queried all tasks in stage s1-init
+2015-07-10 16:26:39,862 [ERROR] [AbstractCommandTasklet] - driver report error: HTTP 409 - no mission handler
+2015-07-10 16:26:39,864 [INFO] [MissionHandler] - mission M97712BFAE4 has been closed successfully
+2015-07-10 16:26:39,941 [ERROR] [StageRunner] - detected tasks [t2] have encountered errors
+2015-07-10 16:26:39,941 [INFO] [StageRunner] - begin to terminate stage s1-init
+2015-07-10 16:26:39,942 [ERROR] [AbstractHttpTasklet] - fail to POST driver
+java.lang.IllegalStateException: Manager is shut down.
+	at org.apache.http.impl.conn.SingleClientConnManager.assertStillUp(SingleClientConnManager.java:175)
+	at org.apache.http.impl.conn.SingleClientConnManager.getConnection(SingleClientConnManager.java:209)
+	at org.apache.http.impl.conn.SingleClientConnManager$1.getConnection(SingleClientConnManager.java:190)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:401)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:820)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:754)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:732)
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:60)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 16:26:39,943 [ERROR] [Aborter] - fail to abort driver
+com.intel.cosbench.controller.tasklet.TaskletException
+	at com.intel.cosbench.controller.tasklet.AbstractHttpTasklet.issueHttpRequest(AbstractHttpTasklet.java:72)
+	at com.intel.cosbench.controller.tasklet.AbstractCommandTasklet.issueCommand(AbstractCommandTasklet.java:71)
+	at com.intel.cosbench.controller.tasklet.Aborter.executeAbort(Aborter.java:53)
+	at com.intel.cosbench.controller.tasklet.Aborter.execute(Aborter.java:42)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:47)
+	at com.intel.cosbench.controller.tasklet.AbstractTasklet.call(AbstractTasklet.java:1)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+2015-07-10 16:26:39,972 [INFO] [StageRunner] - stage s1-init has been terminated
+2015-07-10 16:26:42,338 [ERROR] [WorkloadProcessor] - detected stage s1-init encountered error
+2015-07-10 16:26:42,338 [INFO] [WorkloadProcessor] - begin to terminate workload w5
+2015-07-10 16:26:42,427 [INFO] [SimpleWorkloadArchiver] - workload w5 has been successfully archived
+2015-07-10 16:26:42,427 [INFO] [WorkloadProcessor] - successfully terminated workload w5
+2015-07-10 16:28:42,052 [INFO] [WorkloadProcessor] - begin to process workload w6
+2015-07-10 16:28:42,053 [INFO] [WorkloadProcessor] - begin to run stage s1-init
+2015-07-10 16:28:42,053 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 16:28:42,053 [INFO] [WorkloadProcessor] - START WORK: init
+2015-07-10 16:28:42,002 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is -72 mSec
+2015-07-10 16:28:42,003 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver2 is -65 mSec
+2015-07-10 16:28:42,003 [INFO] [StageRunner] - successfully booted all tasks in stage s1-init
+2015-07-10 16:28:42,068 [INFO] [StageRunner] - successfully submitted all tasks in stage s1-init
+2015-07-10 16:28:42,076 [INFO] [MissionHandler] - mission ME7714B3D59 has been authed successfully
+2015-07-10 16:28:42,079 [INFO] [StageRunner] - successfully authenticated all tasks in stage s1-init
+2015-07-10 16:28:42,282 [INFO] [StageRunner] - successfully launched all tasks in stage s1-init
+2015-07-10 16:28:42,331 [INFO] [MissionHandler] - mission ME7714B3D59 has been executed successfully
+2015-07-10 16:28:47,291 [INFO] [StageRunner] - successfully queried all tasks in stage s1-init
+2015-07-10 16:28:47,298 [INFO] [MissionHandler] - mission ME7714B3D59 has been closed successfully
+2015-07-10 16:28:47,335 [INFO] [StageRunner] - successfully closed all tasks in stage s1-init
+2015-07-10 16:28:47,339 [INFO] [StageRunner] - acceptable failure ratio of work s1-init-init = 0.0
+2015-07-10 16:28:47,340 [INFO] [StageRunner] - real failure ratio of work s1-init-init = N/A
+2015-07-10 16:28:47,340 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s1-init - work init
+2015-07-10 16:28:49,783 [INFO] [WorkloadProcessor] - END WORK:   init, Time elapsed: 0:0::7
+2015-07-10 16:28:49,784 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 16:28:49,784 [INFO] [WorkloadProcessor] - successfully ran stage s1-init
+2015-07-10 16:28:49,785 [INFO] [WorkloadProcessor] - begin to run stage s2-main
+2015-07-10 16:28:49,785 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 16:28:49,785 [INFO] [WorkloadProcessor] - START WORK: main
+2015-07-10 16:28:47,000 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver1 is -1002 mSec
+2015-07-10 16:28:47,000 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 16:28:47,005 [INFO] [AbstractCommandTasklet] - time drift between controller and driver-driver2 is -998 mSec
+2015-07-10 16:28:47,006 [WARN] [AbstractCommandTasklet] - time drift is still longer than tolerable time drift 300 mSec after 3 times of synchronization
+2015-07-10 16:28:47,006 [INFO] [StageRunner] - successfully booted all tasks in stage s2-main
+2015-07-10 16:28:47,049 [INFO] [StageRunner] - successfully submitted all tasks in stage s2-main
+2015-07-10 16:28:47,056 [INFO] [MissionHandler] - mission MF7714C76D1 has been authed successfully
+2015-07-10 16:28:47,058 [INFO] [StageRunner] - successfully authenticated all tasks in stage s2-main
+2015-07-10 16:28:47,262 [INFO] [StageRunner] - successfully launched all tasks in stage s2-main
+2015-07-10 16:35:50,156 [INFO] [MissionHandler] - mission MF7714C76D1 has been executed successfully
+2015-07-10 16:35:52,650 [INFO] [StageRunner] - successfully queried all tasks in stage s2-main
+2015-07-10 16:35:52,655 [INFO] [MissionHandler] - mission MF7714C76D1 has been closed successfully
+2015-07-10 16:35:52,680 [INFO] [StageRunner] - successfully closed all tasks in stage s2-main
+2015-07-10 16:35:52,681 [INFO] [StageRunner] - acceptable failure ratio of work s2-main-10MB = 0.2
+2015-07-10 16:35:52,681 [INFO] [StageRunner] - real failure ratio of work s2-main-10MB = 0.0
+2015-07-10 16:35:52,681 [INFO] [StageRunner] - successfully reach the goal of acceptable failure ratio in stage s2-main - work 10MB
+2015-07-10 16:35:54,782 [INFO] [WorkloadProcessor] - END WORK:   main, Time elapsed: 0:7::4
+2015-07-10 16:35:54,782 [INFO] [WorkloadProcessor] - ============================================
+2015-07-10 16:35:54,783 [INFO] [WorkloadProcessor] - successfully ran stage s2-main
+2015-07-10 16:35:54,934 [INFO] [SimpleWorkloadArchiver] - workload w6 has been successfully archived
+2015-07-10 16:35:54,935 [INFO] [WorkloadProcessor] - sucessfully processed workload w6
+2015-07-13 10:44:01,846 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-13 10:44:02,778 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log
+2015-07-13 10:44:02,792 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-13 10:44:02,793 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-13 10:44:02,795 [INFO] [SimpleWorkloadArchiver] - using /opt/cosbench/archive for storing workload archives
+2015-07-13 10:44:02,796 [INFO] [SimpleWorkloadLoader] - loading workload archives from /opt/cosbench/archive
+2015-07-13 10:44:14,545 [INFO] [Log4jLogManager] - will append log to file /opt/cosbench/log/system.log

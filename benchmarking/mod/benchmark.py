@@ -17,17 +17,15 @@ class Benchmark(object):
 
     def go(self, testcase, tuning):
         self.load_parameter()
+        self.get_runid()
 
         self.benchmark = self.parse_benchmark_cases(testcase)
         self.benchmark["tuning_section"] = tuning
 
         self.prepare_result_dir()
-        try:
-            common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
-        except TypeError:
-            common.printout("LOG","RUNID: %s, RESULT_DIR: %s" % (",".join(self.cosbench["cosbench_run_id"]), self.cluster["dest_dir"]))
+        common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
         self.cal_run_job_distribution()
-        self.prerun_check() 
+        self.prerun_check()
         self.prepare_run()
 
         common.printout("LOG","Run Benchmark Status: collect system metrics and run benchmark")
@@ -47,18 +45,11 @@ class Benchmark(object):
         self.set_runid()
 
         common.printout("LOG","Post Process Result Data")
-        #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.cluster["dest_dir"], True)
         try:
             analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
-        #except TypeError:
-        #    print "Going to Cosbench Analyser"
-        #    print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
-            #python analyzer.py --path /mnt/data/run_res/ process_data 
-        #    for test_id in self.cosbench["cosbench_run_id"]:
-        #        analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
         except:
             common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
-        
+
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
@@ -94,7 +85,7 @@ class Benchmark(object):
         #2. stop data collecters process and workload
         self.stop_workload()
         self.stop_data_collecters()
-        
+
         #3. collect after run data
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
@@ -105,7 +96,7 @@ class Benchmark(object):
 
     def prepare_run(self):
         self.stop_data_collecters()
-        
+
     def cleanup(self):
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
@@ -120,14 +111,14 @@ class Benchmark(object):
     def run(self):
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         common.printout("LOG","This test will run %d secs until finish." % waittime)
-        
+
         #drop page cache
         user = self.cluster["user"]
         time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
         common.pdsh(user, nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
-        
+
         #send command to ceph cluster
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
         common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
@@ -135,7 +126,6 @@ class Benchmark(object):
         common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "for waittime in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; ceph --admin-daemon $path perf dump >> ${res_file}; echo ',' >> ${res_file}; done; sleep 1; done" % (time, dest_dir), option="force")
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
@@ -144,7 +134,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
         common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
-        
+
     def archive(self):
         user = self.cluster["user"]
         head = self.cluster["head"]
@@ -166,7 +156,7 @@ class Benchmark(object):
         for node in self.cluster["osd"]:
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
-        
+
         #collect client data
         for node in self.benchmark["distribution"].keys():
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
@@ -220,7 +210,7 @@ class Benchmark(object):
             end_vclient_num = start_vclient_num + vclient_total
             self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
             start_vclient_num = end_vclient_num
-            client_num += 1 
+            client_num += 1
 
     def cal_run_job_distribution(self):
          number = int(self.benchmark["instance_number"])
@@ -229,9 +219,9 @@ class Benchmark(object):
               volume_max_per_client = number / client_total + 1
          else:
               volume_max_per_client = number / client_total
-         
+
          self.benchmark["distribution"] = {}
-	 remained_instance_num = number
+         remained_instance_num = number
          for client in self.cluster["testjob_distribution"]:
              if not remained_instance_num:
                  break
@@ -269,8 +259,10 @@ class Benchmark(object):
         planned_space = common.size_to_Kbytes(planed_space)
         common.printout("WARNING","Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space))
         if cur_space < planned_space:
+            print False
             return False
         else:
+            print True
             return True
 
     def generate_benchmark_cases(self):

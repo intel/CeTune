@@ -1,5 +1,5 @@
 #/usr/bin/python
-import subprocess
+from conf import common
 import shutil
 
 import re
@@ -7,12 +7,6 @@ import sys
 import os
 lib_path =  os.path.dirname((os.path.abspath(__file__)))
 sys.path.append(lib_path)
-
-def remote_file_exist(host,path):
-    proc = subprocess.Popen(
-        ['ssh',host,'test  %s' % path])
-    proc.wait()
-    return proc.returncode == 0
 
 def read_test_id(test_file):
     with open(lib_path +"/"+ test_file,'r') as f:
@@ -27,12 +21,12 @@ def update_test_id(test_file,runid):
 
 def replace_conf_xml(rw,size,workers,config_middle,cluster_ip):
     suffix = "w.xml"
-
     unit = size[-2:]
     size_num = size[:-2]
     container_num = re.search('[0-9]+',config_middle).group(0)
     object_num = container_num
     config_file_name = "%s_%scon_%sobj_%s_%s%s" %(rw,container_num,object_num,size,workers,suffix)
+
     print "config_file_name is "+config_file_name
     with open(lib_path+"/.template_config.xml",'r') as infile:
         with open(lib_path+"/configs/"+config_file_name,'w+') as outfile:
@@ -55,10 +49,9 @@ def replace_conf_xml(rw,size,workers,config_middle,cluster_ip):
                 line = match.sub(rw,line)
                 match = re.compile("\{\{workers\}\}")
                 line = match.sub(workers,line)
-                       
+
                 # for workers more than 0
                 if workers != "0":
-                    
                     match = re.compile("\{\{main\}\}")
                     line = match.sub("main",line)
                     match = re.compile("\{\{description\}\}")
