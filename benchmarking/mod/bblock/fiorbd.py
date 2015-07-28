@@ -6,7 +6,7 @@ class FioRbd(Benchmark):
     def load_parameter(self):
         super(self.__class__, self).load_parameter()
         self.cluster["rbdlist"] = self.get_rbd_list()
-        if self.cluster["rbdlist"] == []:
+        if len(self.cluster["rbdlist"]) < int(self.all_conf_data.get("rbd_volume_count")):
             self.prepare_images()
 
         rbd_num_per_client = self.cluster["rbd_num_per_client"]
