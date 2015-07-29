@@ -1,4 +1,4 @@
-from ..benchmark import *
+fromu..benchmark import *
 from collections import OrderedDict
 import itertools
 
@@ -139,10 +139,11 @@ class QemuRbd(Benchmark):
         nodes = []
         for client in self.benchmark["distribution"]:
             nodes.extend(self.benchmark["distribution"][client])
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (waittime, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (waittime, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (waittime, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (waittime, dest_dir))
+        common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
         fio_job_num_total = 0
         for node in nodes:
@@ -156,11 +157,23 @@ class QemuRbd(Benchmark):
         if not fio_job_num_total:
             common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
             raise KeyboardInterrupt
-        
+
         common.printout("LOG","FIO Jobs starts on %s" % str(nodes))
+
+        self.chkpoint_to_log("fio start")
+
         while self.check_fio_pgrep(nodes):
             time.sleep(5)
-        
+
+    def chkpoint_to_log(self, log_str):
+        super(self.__class__, self).chkpoint_to_log(log_str)
+        dest_dir = self.cluster["tmp_dir"]
+        user = self.cluster["user"]
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+        common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
+
     def cleanup(self):
         super(self.__class__, self).cleanup()
         #1. clean the tmp res dir
@@ -198,20 +211,21 @@ class QemuRbd(Benchmark):
     def stop_data_collecters(self):
         super(self.__class__, self).stop_data_collecters()
         user = self.cluster["user"]
+        dest_dir = self.cluster["tmp_dir"]
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
-            common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-            common.pdsh(user, nodes, "killall -9 mpstat", option = "check_return")
-            common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
-            common.pdsh(user, nodes, "killall -9 top", option = "check_return")
+            common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
 
     def stop_workload(self):
         user = self.cluster["user"]
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-            common.pdsh(user, nodes, "killall -9 dd", option = "check_return")
         common.printout("LOG","Workload stopped, detaching rbd volume from vclient")
+        self.chkpoint_to_log("fio stop")
         try:
             self.detach_images()
         except KeyboardInterrupt:

@@ -114,26 +114,28 @@ class Benchmark(object):
 
         #drop page cache
         user = self.cluster["user"]
-        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
         common.pdsh(user, nodes, "echo '3' > /proc/sys/vm/drop_caches && sync")
 
         #send command to ceph cluster
-        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "for waittime in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; ceph --admin-daemon $path perf dump >> ${res_file}; echo ',' >> ${res_file}; done; sleep 1; done" % (time, dest_dir), option="force")
+        common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; while true; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep 1; done" % ('%s', dest_dir, dest_dir), option="force")
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
     def archive(self):
         user = self.cluster["user"]
@@ -171,17 +173,20 @@ class Benchmark(object):
         #2. clean running process
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
-        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+        dest_dir = self.cluster["tmp_dir"]
+        common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' fio stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt; echo `date +%s`' interrupt stop' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt; echo `date +%s`' interrup stop' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
     def tuning(self):
         pass
@@ -279,3 +284,12 @@ class Benchmark(object):
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
+        self.cluster["run_time_extend"] = 100
+
+    def chkpoint_to_log(self, log_str):
+        dest_dir = self.cluster["tmp_dir"]
+        user = self.cluster["user"]
+        nodes = []
+        nodes.extend(self.cluster["osd"])
+        nodes.extend(self.benchmark["distribution"].keys())
+        common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))

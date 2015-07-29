@@ -429,7 +429,7 @@ def size_to_Kbytes(size, dest_unit='KB'):
     else:
         for i in range(dest_unit_index, space_unit_index):
             space_num /= 1024.0
-    return '%.3f' % space_num
+    return float('%.3f' % space_num)
 
 def time_to_sec(fio_runtime, dest_unit='sec'):
     res = re.search('(\d+.*\d*)(\wsec)', fio_runtime)

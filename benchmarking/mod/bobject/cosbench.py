@@ -289,12 +289,12 @@ class Cosbench(Benchmark):
         nodes.extend(self.rgw["rgw_server"])
 
         self.cosbench["run_name"] = {}
-        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (waittime, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (waittime, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (waittime, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (waittime, dest_dir))
-        common.pdsh(user, nodes, "for waittime in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; ceph --admin-daemon $path perf dump >> ${res_file}; echo ',' >> ${res_file}; done; sleep 1; done" % (waittime, dest_dir), option="force")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;"  % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; while true; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep 1; done" % ('%s', dest_dir, dest_dir), option="force")
 
         run_command ="http_proxy=%s sh %s/cli.sh submit %s " % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.benchmark["configfile"])
         stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], run_command, option="check_return")
@@ -305,9 +305,18 @@ class Cosbench(Benchmark):
 
         common.printout("LOG", "Cosbench job start, in cosbench scope the job num will be %s" % m.group(1))
         common.printout("LOG", "You can monitor runtime status and results on http://%s:19088/controller" % self.cosbench["cosbench_controller_admin_url"])
+        self.chkpoint_to_log("cosbench start")
         self.cosbench["cosbench_job_id"] = m.group(1)
         while self.check_cosbench_testjob_running( self.cosbench["cosbench_controller"], self.cosbench["cosbench_job_id"] ):
             time.sleep(5)
+
+    def chkpoint_to_log(self, log_str):
+        super(self.__class__, self).chkpoint_to_log(log_str)
+        dest_dir = self.cluster["tmp_dir"]
+        user = self.cluster["user"]
+        nodes = []
+        nodes.extend(self.rgw["rgw_server"])
+        common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
 
     def check_cosbench_testjob_running(self, node, runid ):
         user = self.cluster["user"]
@@ -323,6 +332,7 @@ class Cosbench(Benchmark):
         user = self.cluster["user"]
         controller = self.cosbench["cosbench_controller"]
         common.pdsh( user, [controller], 'http_proxy=%s sh %s/cli.sh cancel %s' % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]), option="console")
+        self.chkpoint_to_log("cosbench stop")
 
     def wait_workload_to_stop(self):
         common.printout("LOG","Waiting Workload to complete its work")

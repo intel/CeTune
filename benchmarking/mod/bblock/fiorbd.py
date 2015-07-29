@@ -107,9 +107,10 @@ class FioRbd(Benchmark):
             common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
             raise KeyboardInterrupt
         common.printout("LOG","%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())))
+        self.chkpoint_to_log("fio start")
         while self.check_fio_pgrep(self.benchmark["distribution"].keys()):
             time.sleep(5)
-        
+
     def prepare_run(self):
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
@@ -142,6 +143,7 @@ class FioRbd(Benchmark):
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+        self.chkpoint_to_log("fio stop")
 
     def generate_benchmark_cases(self):
         engine = self.all_conf_data.get_list('benchmark_engine')
