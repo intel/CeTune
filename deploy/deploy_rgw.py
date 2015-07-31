@@ -134,7 +134,6 @@ class Deploy_RGW(Deploy) :
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.buckets 8192 8192', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.buckets.index 1024 1024', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .log 512 512')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool set .rgw.buckets.index crush_ruleset 1', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.gc 512 512', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw 512 512', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.control 512 512', 'check_return')
