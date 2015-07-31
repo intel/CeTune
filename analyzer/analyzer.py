@@ -10,6 +10,8 @@ import pprint
 import re
 import yaml
 from collections import OrderedDict
+import json
+import numpy
 
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
@@ -68,11 +70,32 @@ class Analyzer:
                 system, fio = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
                 self.result["fio"].update(fio)
-        view = visualizer.Visualizer(self.result)
+
+        # switch result format for visualizer
+        # desired format
+        '''
+         result = {
+             tab1: {
+                 table1: { 
+                     row1: {
+                         column1: [value], column2: [value] , ...
+                           }
+                     }
+                 }
+             },
+             tab2: {}
+             tab3: {}
+             ...
+             tabn: {}
+        }
+        '''
+        result = self.format_result_for_visualizer( self.result )
+        result = self.summary_result( result )
+        common.printout("LOG","Write analyzed results into result.json")
+        with open('%s/result.json' % dest_dir, 'w') as f:
+            json.dump(result, f, indent=4)
+        view = visualizer.Visualizer(result, dest_dir)
         output = view.generate_summary_page()
-        with open("%s/%s.html" % (dest_dir, self.result["session_name"]), 'w') as f:
-            f.write(output)
-        common.bash("cp -r %s %s" % ("../visualizer/include/", dest_dir))
         common.bash("scp -r %s %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
 
         remote_bak, remote_dir = self.cluster["dest_dir_remote_bak"].split(':')
@@ -82,6 +105,100 @@ class Analyzer:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
         common.bash("scp -r ../visualizer/include %s" % (self.cluster["dest_dir_remote_bak"]))
+
+    def format_result_for_visualizer(self, data):
+        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
+        rampup = int(res.group(8))
+        runtime = int(res.group(9))
+        phase_name_map = {"cpu": "sar", "memory": "sar", "nic": "sar", "osd": "iostat", "journal": "iostat", "vdisk": "iostat" }
+
+        output = OrderedDict()
+        output["summary"] = OrderedDict()
+        for node_type in sorted(data.keys()):
+            if not isinstance(data[node_type], dict):
+                output[node_type] = data[node_type]
+                continue
+            output[node_type] = OrderedDict()
+            for node in sorted(data[node_type].keys()):
+                for field_type in sorted(data[node_type][node].keys()):
+                    if field_type == "phase":
+                        continue
+                    if field_type not in output[node_type]:
+                        output[node_type][field_type] = OrderedDict()
+                    if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
+                        start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
+                        end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
+                        benchmark_active_time = end - start
+                        if benchmark_active_time > (rampup + runtime):
+                            runtime_end = start + rampup + runtime
+                        else:
+                            runtime_end = end
+                        runtime_start = start + rampup
+                        output[node_type][field_type][node] = OrderedDict()
+                        for colume_name, colume_data in data[node_type][node][field_type].items():
+                            if isinstance(colume_data, list):
+                                colume_data = colume_data[runtime_start:runtime_end]
+                            output[node_type][field_type][node][colume_name] = colume_data
+                    else:
+                        output[node_type][field_type][node] = data[node_type][node][field_type]
+
+        return output
+
+    def summary_result(self, data):
+        # generate summary
+        data["summary"]["run_id"] = {}
+        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
+        if not res:
+            common.printout("ERROR", "Unable to get result infomation")
+            return data
+        data["summary"]["run_id"][res.group(1)] = OrderedDict()
+        tmp_data = data["summary"]["run_id"][res.group(1)]
+        tmp_data["op_size"] = res.group(5)
+        tmp_data["op_type"] = res.group(4)
+        tmp_data["QD"] = res.group(6)
+        tmp_data["engine"] = res.group(3)
+        tmp_data["serverNum"] = 0
+        tmp_data["clientNum"] = 0
+        tmp_data["rbdNum"] = res.group(2)
+        tmp_data["runtime"] = "%d sec" % data["runtime"]
+        tmp_data["fio_iops"] = 0
+        tmp_data["fio_bw"] = 0
+        tmp_data["fio_latency"] = 0
+        tmp_data["osd_iops"] = 0
+        tmp_data["osd_bw"] = 0
+        tmp_data["osd_latency"] = 0
+        rbd_count = 0
+        osd_node_count = 0
+        try:
+            for node, node_data in data["fio"]["fio"].items():
+                rbd_count += 1
+                tmp_data["fio_iops"] += float(node_data["iops"])
+                tmp_data["fio_bw"] += float(node_data["bw"])
+                tmp_data["fio_latency"] += float(node_data["lat"])
+            tmp_data["fio_iops"] = "%.3f" % (tmp_data["fio_iops"])
+            tmp_data["fio_bw"] = "%.3f MB/s" % (tmp_data["fio_bw"])
+            tmp_data["fio_latency"] = "%.3f msec" % (tmp_data["fio_latency"]/rbd_count)
+        except:
+            pass
+        if tmp_data["op_type"] in ["randread", "seqread"]:
+            for node, node_data in data["ceph"]["osd"].items():
+                osd_node_count += 1
+                tmp_data["osd_iops"] += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
+                tmp_data["osd_bw"] += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
+                tmp_data["osd_latency"] += numpy.mean(node_data["r_await"])
+        if tmp_data["op_type"] in ["randwrite", "seqwrite"]:
+            for node, node_data in data["ceph"]["osd"].items():
+                osd_node_count += 1
+                tmp_data["osd_iops"] += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
+                tmp_data["osd_bw"] += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
+                tmp_data["osd_latency"] += numpy.mean(node_data["w_await"])
+        tmp_data["osd_iops"] = "%.3f" % (tmp_data["osd_iops"])
+        tmp_data["osd_bw"] = "%.3f MB/s" % (tmp_data["osd_bw"])
+        tmp_data["osd_latency"] = "%.3f msec" % (tmp_data["osd_latency"]/osd_node_count)
+
+        tmp_data["serverNum"] = osd_node_count
+        tmp_data["clientNum"] = len(data["client"]["cpu"])
+        return data
 
     def _process_data(self, node_name):
         result = {}
@@ -98,6 +215,9 @@ class Analyzer:
             if '_iostat.txt' in dir_name:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
+            if '_process_log.txt' in dir_name:
+                res = self.process_log_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
+                result.update(res)
 #            if '.asok.txt' in dir_name:
 #                try:
 #                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
@@ -108,6 +228,45 @@ class Analyzer:
 #                except:
 #                    pass
         return [result, fio_result]
+
+    def process_log_data(self, path):
+        result = {}
+        result["phase"] = {}
+        with open( path, 'r') as f:
+            lines = f.readlines()
+
+        benchmark_tool = ["fio", "cosbench"]
+        tmp = {}
+        benchmark = {}
+
+        for line in lines:
+            try:
+                time, tool, status = line.split()
+            except:
+                continue
+            if tool not in tmp:
+               tmp[tool] = {}
+            if tool in benchmark_tool:
+                benchmark[status] = time
+            else:
+                tmp[tool][status] = time
+
+        for tool in tmp:
+            result["phase"][tool] = {}
+            result["phase"][tool]["start"] = 0
+            try:
+                result["phase"][tool]["stop"] = int(tmp[tool]["stop"]) - int(tmp[tool]["start"])
+            except:
+                result["phase"][tool]["stop"] = None
+            try:
+                result["phase"][tool]["benchmark_start"] = int(benchmark["start"]) - int(tmp[tool]["start"])
+            except:
+                result["phase"][tool]["benchmark_start"] = None
+            try:
+                result["phase"][tool]["benchmark_stop"] = int(benchmark["stop"]) - int(tmp[tool]["start"])
+            except:
+                result["phase"][tool]["benchmark_stop"] = None
+        return result
 
     def process_cosbench_data(self,path):
         result = {}

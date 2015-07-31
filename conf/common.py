@@ -295,7 +295,7 @@ def _decode_list(data):
     return rv
 
 def _decode_dict(data):
-    rv = {}
+    rv = OrderedDict()
     for key, value in data.iteritems():
         if isinstance(key, unicode):
             key = key.encode('utf-8')

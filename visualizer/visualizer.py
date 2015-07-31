@@ -6,59 +6,53 @@ from conf import common
 import os, sys
 import time
 import pprint
-import numpy
 import re
 from collections import OrderedDict
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as pyplot
+import json
+import yaml
+import numpy
 
 pp = pprint.PrettyPrinter(indent=4)
 class Visualizer:
-    def __init__(self, result):
+    def __init__(self, result, path=None):
         self.result = result
         self.output = []
+        if path:
+            self.path = path
 
     def generate_summary_page(self):
         #0. framework
         common.bash("rm -f ../visualizer/include/pic/*")
-        output = [] 
+        common.bash("rm -f ../visualizer/include/csv/*")
+        output = []
         output.append("<div id='tabs'>")
         output.append("<ul>")
-        output.append("<li><a href=\"#summary\">Summary</a></li>")
-        output.append("<li><a href=\"#fio\">FIO</a></li>")
-        output.append("<li><a href=\"#ceph\">Ceph</a></li>")
-        output.append("<li><a href=\"#vclient\">VClient</a></li>")
-        output.append("<li><a href=\"#client\">Client</a></li>")
+        for node_type, node_data in self.result.items():
+            if not isinstance(node_data, dict):
+                continue
+            output.append("<li><a href=\"#%s\">%s</a></li>" % (node_type, node_type))
         output.append("</ul>")
-        #1. summary page
-        output.append("<div id='summary'>")
-        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-\S+-(\w+)$',self.result["session_name"])
-        if res:
-            common.printout("LOG","Generating summary view")
-            output.extend(self.generate_summary_view(res))
-        output.append("</div>")
 
-        #1. fio info
-        common.printout("LOG","Generating fio view")
-        output.extend(self.generate_node_view('fio'))
-        #2. ceph info
-        common.printout("LOG","Generating ceph view")
-        output.extend(self.generate_node_view('ceph'))
-        #3. vclient info
-        common.printout("LOG","Generating vclient view")
-        output.extend(self.generate_node_view('vclient'))
-        #3. client info
-        common.printout("LOG","Generating client view")
-        output.extend(self.generate_node_view('client'))
+        for node_type, node_data in self.result.items():
+            if not isinstance(node_data, dict):
+                continue
+            common.printout("LOG","Generating %s view" % node_type)
+            output.extend(self.generate_node_view(node_type))
 
         output.append("</div>")
         output.append("<script>")
         output.append("$( \"#tabs\" ).tabs();")
+        output.append("$( \"button\" ).button();")
         output.append("$( \".cetune_pic\" ).hide();")
         output.append("$( \".cetune_table a\" ).click(function(){$(this).parents('.cetune_table').parent().children('.cetune_pic').hide();var id=$(this).attr('id'); $(this).parents('.cetune_table').parent().children('#'+id+'_pic').fadeIn()});")
         output.append("</script>")
-        return self.add_html_framework(output)
+        output = self.add_html_framework(output)
+        with open("%s/%s.html" % (self.path, self.result["session_name"]), 'w') as f:
+            f.write(output)
+        common.bash("cp -r %s %s" % ("../visualizer/include/", self.path))
 
     def generate_history_view(self, remote_host, remote_dir, user='root', session_id=""):
         output = []
@@ -110,7 +104,7 @@ class Visualizer:
             output.append(res[remote_host])
             output.append(" </tbody>")
             output.append("<script>")
-            output.append("$(\".cetune_table tr\").click(function(){var path=$(this).attr('href'); window.location=path})")
+            output.append("$(\".cetune_table tr\").dblclick(function(){var path=$(this).attr('href'); window.location=path})")
             output.append("</script>")
         return self.add_html_framework(output)
 
@@ -118,10 +112,10 @@ class Visualizer:
         output = []
         output.append("<html lang='us'>")
         output.append("<head>")
-	output.append("<meta charset=\"utf-8\">")
-	output.append("<title>CeTune HTML Visualizer</title>")
-	output.append("<link href=\"./include/jquery/jquery-ui.css\" rel=\"stylesheet\">")
-	output.append("<link href=\"./include/css/common.css\" rel=\"stylesheet\">")
+        output.append("<meta charset=\"utf-8\">")
+        output.append("<title>CeTune HTML Visualizer</title>")
+        output.append("<link href=\"./include/jquery/jquery-ui.css\" rel=\"stylesheet\">")
+        output.append("<link href=\"./include/css/common.css\" rel=\"stylesheet\">")
         output.append("<script src=\"./include/jquery/external/jquery/jquery.js\"></script>")
         output.append("<script src=\"./include/jquery/jquery-ui.js\"></script>")
         output.append("</head>")
@@ -130,108 +124,34 @@ class Visualizer:
         output.append("</body>")
         return "\n".join(output)
 
-    def generate_summary_view(self, res):
-        data = {}
-        data[res.group(1)]=OrderedDict()
-        tmp = data[res.group(1)]
-        tmp["op_size"] = res.group(4)
-        tmp["op_type"] = res.group(3)
-        tmp["QD"] = res.group(5)
-        tmp["engine"] = res.group(6)
-        tmp["serverNum"] = len(self.result["ceph"])
-        tmp["clientNum"] = len(self.result["client"])
-        tmp["rbdNum"] = res.group(2)
-        tmp["runtime"] = "%d sec" % self.result["runtime"]
-        tmp["fio_iops"] = 0
-        tmp["fio_bw"] = 0
-        tmp["fio_latency"] = 0
-        tmp["osd_iops"] = 0
-        tmp["osd_bw"] = 0
-        tmp["osd_latency"] = 0
-        rbd_count = len(self.result["fio"])
-        osd_node_count = len(self.result["ceph"])
-        try:
-            for node, node_data in self.result["fio"].items():
-                tmp["fio_iops"] += float(node_data["fio"]["iops"])
-                tmp["fio_bw"] += float(node_data["fio"]["bw"])
-                tmp["fio_latency"] += float(node_data["fio"]["lat"])
-            tmp["fio_iops"] = "%.3f" % (tmp["fio_iops"])
-            tmp["fio_bw"] = "%.3f MB/s" % (tmp["fio_bw"])
-            tmp["fio_latency"] = "%.3f msec" % (tmp["fio_latency"]/rbd_count)
-        except:
-            pass
-        if tmp["op_type"] in ["randread", "seqread"]:
-            for node, node_data in self.result["ceph"].items():
-                tmp["osd_iops"] += numpy.mean(node_data["osd"]["r/s"])*int(node_data["osd"]["disk_num"])
-                tmp["osd_bw"] += numpy.mean(node_data["osd"]["rMB/s"])*int(node_data["osd"]["disk_num"])
-                tmp["osd_latency"] += numpy.mean(node_data["osd"]["r_await"])
-        if tmp["op_type"] in ["randwrite", "seqwrite"]:
-            for node, node_data in self.result["ceph"].items():
-                tmp["osd_iops"] += numpy.mean(node_data["osd"]["w/s"])*int(node_data["osd"]["disk_num"])
-                tmp["osd_bw"] += numpy.mean(node_data["osd"]["wMB/s"])*int(node_data["osd"]["disk_num"])
-                tmp["osd_latency"] += numpy.mean(node_data["osd"]["w_await"])
-        tmp["osd_iops"] = "%.3f" % (tmp["osd_iops"])
-        tmp["osd_bw"] = "%.3f MB/s" % (tmp["osd_bw"])
-        tmp["osd_latency"] = "%.3f msec" % (tmp["osd_latency"]/osd_node_count)
-        output = []
-        output.extend( self.generate_table_from_json(data,'cetune_table', 'runid') )
-        return output
-
     def generate_node_view(self, node_type):
         output = []
-        if node_type == 'ceph':
-            #node_show_list = ["osd", "journal", "cpu", "memory", "nic", "perfcounter_osd", "perfcounter_filestore", "perfcounter_objecter"]
-            node_show_list = ["osd", "journal", "cpu", "memory", "nic"]
-        elif node_type == 'vclient':
-            node_show_list = ["vdisk","cpu", "memory", "nic"]
-        elif node_type == 'client':
-            node_show_list = ["cpu", "memory", "nic"]
-        elif node_type == 'fio':
-            node_show_list = ["fio"]
-        else:
-            return False
-        
+        if len(self.result[node_type].keys()) == 0:
+            return output
         output.append("<div id='%s'>" % node_type)
-        for field in node_show_list:
-            if len(self.result[node_type].keys()) == 0:
-                break
+        for field_type, field_data in self.result[node_type].items():
             data = OrderedDict()
             chart_data = OrderedDict()
-            for node in self.result[node_type].keys():
-                node_data = OrderedDict()
-                if "perfcounter" in field:
-                    if not field in self.result[node_type][node]:
-                        continue
-                    for subnode in self.result[node_type][node][field].keys():
-                        data[subnode] = OrderedDict()
-                        node_data[subnode] = self.result[node_type][node][field][subnode]
-                else:
+            for node, node_data in field_data.items():
+                if node not in data:
                     data[node] = OrderedDict()
-                    node_data[node] = self.result[node_type][node][field]
-                for node, tmp in node_data.items():
-                    try:
-                        for key, value in tmp.items():
-                            if not isinstance(value, list):
-                                data[node][key] = value
-                            else:
-                                data[node][key] = "%.3f" % numpy.mean(value)
-                                if key not in chart_data:
-                                    chart_data[key] = OrderedDict()
-                                chart_data[key][node] = value
-                    except:
-                        pass
-            output.extend( self.generate_table_from_json(data,'cetune_table', field) )
-            if node_type == 'ceph':
-                append_table = True
-            else:
-                append_table = False
-            output.extend( self.generate_line_chart(chart_data, node_type, field, append_table) )
+                for key, value in node_data.items():
+                    if not isinstance(value, list):
+                        data[node][key] = value
+                    else:
+                        data[node][key] = "%.3f" % numpy.mean(value)
+                        if key not in chart_data:
+                            chart_data[key] = OrderedDict()
+                        chart_data[key][node] = value
+            output.extend( self.generate_table_from_json(data,'cetune_table', field_type) )
+            output.extend( self.generate_line_chart(chart_data, node_type, field_type ) )
         output.append("</div>")
         return output
 
-    def generate_line_chart(self, data, node_type, field, append_table=False):
+    def generate_line_chart(self, data, node_type, field, append_table=True):
         output = []
         common.bash("mkdir -p ../visualizer/include/pic")
+        common.bash("mkdir -p ../visualizer/include/csv")
         common.printout("LOG","generate %s line chart" % node_type)
         for field_column, field_data in data.items():
             pyplot.figure(figsize=(9, 4))
@@ -247,14 +167,19 @@ class Visualizer:
             pyplot.savefig('../visualizer/include/pic/%s' % pic_name) 
             pyplot.close()
             line_table = []
-            if append_table:
-                line_table = self.generate_line_table_from_json(field_data,'line_table',field_column)
-            output.append("<div class='cetune_pic' id='%s_%s_pic'><img src='./include/pic/%s' alt='%s' style='height:400px; width:1000px'>%s</div>" % (field, re.sub('[/%]','',field_column), pic_name, field_column, "\n".join(line_table)))
+            csv = self.generate_csv_from_json(field_data,'line_table',field_column)
+            csv_name = '%s_%s_%s.csv' % (node_type, field, re.sub('[/%]','',field_column))
+            with open( '../visualizer/include/csv/%s' % csv_name, 'w' ) as f:
+                f.write( csv )
+#output.append("<div class='cetune_pic' id='%s_%s_pic'><button><a href='./include/csv/%s'>Download detail csv table</a></button><img src='./include/pic/%s' alt='%s' style='height:400px; width:1000px'></div>" % (field, re.sub('[/%]','',field_column), csv_name, pic_name, field_column))
+            output.append("<div class='cetune_pic' id='%s_%s_pic'><img src='./include/pic/%s' alt='%s' style='height:400px; width:1000px'><button><a href='./include/csv/%s'>Download detail csv table</a></button></div>" % (field, re.sub('[/%]','',field_column), pic_name, field_column, csv_name))
         return output
 
         #4. vclient info
     def generate_table_from_json(self, data, classname, node_type):
         output = []
+        if len(data) == 0:
+            return output
         output.append("<table class='%s'>" % classname)
         output.append("<thead>")
         output.append("<tr>")
@@ -274,37 +199,33 @@ class Visualizer:
         output.append("</table>")
         return output
 
-    def generate_line_table_from_json(self, data, classname, node_type):
+    def generate_csv_from_json(self, data, classname, node_type):
         output = []
-        output.append("<table class='%s'>" % classname)
-        output.append("<thead>")
-        output.append("<tr>")
-        output.append("<th>%s</th>" % node_type)
-        for key in data.keys():
-            output.append("<th><a id='%s_%s' href='#'>%s</a></th>" % (node_type, re.sub('[/%]','',key), key))
-        output.append("<tr>")
-        output.append("</thead>")
-        output.append("<tbody>")
+        output.append(node_type+","+",".join(data.keys()))
         for i in range(0, len(data[data.keys()[0]])):
-            output.append("<tr>")
-            output.append("<td>%s</td>" % i)
+            tmp = []
+            tmp.append(str(i))
             for node, node_data in data.items():
                 try:
-                    output.append("<td>%s</td>" % node_data[i])
+                    tmp.append(str(node_data[i]))
                 except:
-                    output.append("<td></td>")
-            output.append("</tr>")
-        output.append("</tbody>")
-        output.append("</table>")
-        return output
+                    tmp.append("Null")
+            output.append( ",".join(tmp) )
+        return "\n".join( output )
 
 def main(args):
     parser = argparse.ArgumentParser(description='Analyzer tool')
     parser.add_argument(
         'operation',
         )
+    parser.add_argument(
+        '--path',
+        )
     args = parser.parse_args(args)
-    process = Visualizer({})
+    result = OrderedDict()
+    if args.path:
+        result.update(json.load(open('%s/result.json' % args.path), object_pairs_hook=OrderedDict))
+    process = Visualizer(result, args.path)
     func = getattr(process, args.operation)
     if func:
         func()
