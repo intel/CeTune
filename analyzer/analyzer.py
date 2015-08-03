@@ -30,12 +30,12 @@ class Analyzer:
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["osd_daemon_num"] = 0
-        self.result = {}
+        self.result = OrderedDict()
+        self.result["cosbench"] = OrderedDict()
+        self.result["fio"] = OrderedDict()
         self.result["ceph"] = OrderedDict()
         self.result["client"] = OrderedDict()
         self.result["vclient"] = OrderedDict()
-        self.result["cosbench"] = OrderedDict()
-        self.result["fio"] = OrderedDict()
         self.get_validate_runtime()
         self.result["runtime"] = int(float(self.validate_time))
 
@@ -100,6 +100,7 @@ class Analyzer:
 
         remote_bak, remote_dir = self.cluster["dest_dir_remote_bak"].split(':')
         output = view.generate_history_view(remote_bak, remote_dir, user, self.result["session_name"])
+
         common.printout("LOG","History view generated, copy to remote")
         with open("%s/cetune_history.html" % dest_dir, 'w') as f:
             f.write(output)
@@ -114,9 +115,11 @@ class Analyzer:
 
         output = OrderedDict()
         output["summary"] = OrderedDict()
-        for node_type in sorted(data.keys()):
+        for node_type in data.keys():
             if not isinstance(data[node_type], dict):
                 output[node_type] = data[node_type]
+                continue
+            if data[node_type] == {}:
                 continue
             output[node_type] = OrderedDict()
             for node in sorted(data[node_type].keys()):
