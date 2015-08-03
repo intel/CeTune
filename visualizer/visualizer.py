@@ -54,7 +54,7 @@ class Visualizer:
             f.write(output)
         common.bash("cp -r %s %s" % ("../visualizer/include/", self.path))
 
-    def generate_history_view(self, remote_host, remote_dir, user='root', session_id=""):
+    def generate_history_view(self, remote_host="192.168.3.101", remote_dir="/share/chendi_new/CeTune_demo/", user='root', session_id="232-80-fiorbd-seqwrite-64k-qd64-40g-0-100-fiorbd"):
         output = []
         stdout, stderr = common.pdsh(user, [remote_host], "cat %s/cetune_history.html" % remote_dir, option="check_return")
         res = common.format_pdsh_return(stdout)
@@ -64,7 +64,7 @@ class Visualizer:
         if output == []:
             stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
         else:
-            stdout, stderr = common.pdsh(user, [remote_host], "cd %s/%s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % (remote_dir, session_id), option="check_return")
+            stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./%s | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % (remote_dir, session_id), option="check_return")
         res = common.format_pdsh_return(stdout)
         if remote_host not in res:
             common.printout("ERROR","Generating history view failed")
