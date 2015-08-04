@@ -265,10 +265,8 @@ class Benchmark(object):
         planned_space = common.size_to_Kbytes(planed_space)
         common.printout("WARNING","Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space))
         if cur_space < planned_space:
-            print False
             return False
         else:
-            print True
             return True
 
     def generate_benchmark_cases(self):
