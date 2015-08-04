@@ -153,20 +153,24 @@ class Deploy(object):
             f.write(output)
 
     def redeploy(self):
-        #self.gen_cephconf()
         common.printout("LOG","ceph.conf file generated")
         self.cleanup()
         common.printout("LOG","Killed ceph-mon, ceph-osd and cleaned mon dir")
 
-        common.printout("LOG","Started to mkfs.xfs on osd devices")
-        self.make_osd_fs()
-        common.printout("LOG","Succeded in mkfs.xfs on osd devices")
-        #self.distribute_conf()
+        ceph_conf_distributed = True
+        for node in self.cluster["osds"].keys():
+            ceph_conf_distributed = common.remote_file_exist( self.cluster["user"], node, '/etc/ceph/ceph.conf')
+        if not ceph_conf_distributed:
+            self.gen_cephconf()
+            self.distribute_conf()
         #print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
 
         common.printout("LOG","Started to build mon daemon")
         self.make_mon()
         common.printout("LOG","Succeeded in building mon daemon")
+        common.printout("LOG","Started to mkfs.xfs on osd devices")
+        self.make_osd_fs()
+        common.printout("LOG","Succeded in mkfs.xfs on osd devices")
         common.printout("LOG","Started to build osd daemon")
         self.make_osd()
         common.printout("LOG","Succeeded in building osd daemon")

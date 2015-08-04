@@ -7,6 +7,7 @@ from benchmarking.mod.benchmark import *
 from conf import common
 import itertools
 from collections import OrderedDict
+from deploy import *
 
 class Cosbench(Benchmark):
     def load_parameter(self):
@@ -185,7 +186,9 @@ class Cosbench(Benchmark):
         common.printout("LOG", "check if rgw is running")
         # check if rgw is running
         if not self.check_rgw_runing():
-            sys.exit()
+            run_deploy.main(['restart_rgw'])
+            if not self.check_rgw_runing():
+                sys.exit()
 
         common.printout("LOG", "check if cosbench is running")
         # check if cosbench is running
@@ -280,6 +283,7 @@ class Cosbench(Benchmark):
         if not common.remote_file_exist( user, self.cosbench["cosbench_controller"], self.benchmark["configfile"] ):
             common.pdsh( user, self.cosbench["cosbench_controller"], "mkdir -p %s" % self.cosbench["cosbench_config_dir"])
             common.scp( user, self.cosbench["cosbench_controller"], self.benchmark["configfile"], self.benchmark["configfile"])
+        self.cleanup()
 
     def run(self):
         super(self.__class__, self).run()
@@ -349,10 +353,11 @@ class Cosbench(Benchmark):
         common.printout("LOG","Workload completed")
 
     def cleanup(self):
+        super(self.__class__, self).cleanup()
         cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
         cosbench_server.append(self.cosbench["cosbench_controller"])
         ceph_nodes = copy.deepcopy(self.cluster["osd"])
-        ceph_nodes.append(self.rgw["rgw_server"])
+        ceph_nodes.extend(self.rgw["rgw_server"])
         dest_dir = self.cluster["tmp_dir"]
         user = self.cluster["user"]
         common.pdsh(user, ceph_nodes, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))

@@ -269,10 +269,14 @@ class Analyzer:
                 result["phase"][tool]["stop"] = None
             try:
                 result["phase"][tool]["benchmark_start"] = int(benchmark["start"]) - int(tmp[tool]["start"])
+                if result["phase"][tool]["benchmark_start"] < 0:
+                    result["phase"][tool]["benchmark_start"] = 0
             except:
                 result["phase"][tool]["benchmark_start"] = None
             try:
                 result["phase"][tool]["benchmark_stop"] = int(benchmark["stop"]) - int(tmp[tool]["start"])
+                if result["phase"][tool]["benchmark_stop"] < 0:
+                    result["phase"][tool]["benchmark_stop"] = 0
             except:
                 result["phase"][tool]["benchmark_stop"] = None
         return result

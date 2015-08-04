@@ -20,6 +20,10 @@ class Deploy_RGW(Deploy) :
         ip_handler = common.IPHandler()
         for node in self.cluster['rgw']:
             self.cluster["rgw_ip_bond"][node] = ip_handler.getIpByHostInSubnet(node, cluster_network)
+        self.cluster["auth_username"] = self.all_conf_data.get("cosbench_auth_username")
+        self.cluster["auth_password"] = self.all_conf_data.get("cosbench_auth_password")
+        self.cluster["proxy"] = self.all_conf_data.get("cosbench_controller_proxy")
+        self.cluster["auth_url"] = "http://%s/auth/v1.0;retry=9" % self.cluster["rgw"][0]
 
     def deploy(self):
         self.rgw_dependency_install()
@@ -38,8 +42,9 @@ class Deploy_RGW(Deploy) :
 
     def restart_rgw(self):
         common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/radosgw restart; /etc/init.d/haproxy restart', option="console")
-#common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`; for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done; /etc/init.d/haproxy restart'%(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]), option="console")
+        stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/radosgw restart; /etc/init.d/haproxy restart', option="console|check_return")
+        if not self.check_rgw_runing():
+            self.deploy()
 
     def check_if_rgw_installed(self):
         stdout,stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'curl localhost','check_return')
@@ -49,6 +54,26 @@ class Deploy_RGW(Deploy) :
         else:
             common.printout("LOG","radosgw is installed correctly")
             return True
+
+    def check_rgw_runing(self):
+        user = self.cluster["user"]
+        stdout, stderr = common.bash("http_proxy=%s curl -D - -H 'X-Auth-User: %s' -H 'X-Auth-Key: %s' %s" % (self.cluster["proxy"], self.cluster["auth_username"], self.cluster["auth_password"], self.cluster["auth_url"]), True, option="console")
+        if re.search('(refused|error)', stderr):
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            return False
+        if re.search('Failed', stderr):
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            return False
+        if re.search('Service Unavailable', stdout):
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            return False
+        if re.search('Error', stdout):
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            return False
+        if re.search("AccessDenied", stdout):
+            common.printout("[ERROR]","Cosbench connect to Radosgw Auth Failed")
+            return False
+        return True
 
     def distribute_conf(self):
         super(self.__class__, self).distribute_conf()
