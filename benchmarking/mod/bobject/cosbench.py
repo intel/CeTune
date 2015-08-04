@@ -44,7 +44,7 @@ class Cosbench(Benchmark):
         self.benchmark["container"] = self.parse_conobj_script( self.benchmark["container"] )
         self.benchmark["objecter"] = self.parse_conobj_script( self.benchmark["objecter"] )
 
-        self.benchmark["section_name"] = "cosbench-%s-%scon-%sobj-%s-%sw" % (self.benchmark["iopattern"], self.benchmark["container"]["max"], self.benchmark["objecter"]["max"], self.benchmark["block_size"], self.benchmark["worker"])
+        self.benchmark["section_name"] = "%s-cosbench-%s-%s-%scon-%sobj-%s-%s-cosbench" % (self.benchmark["worker"], self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["container"]["max"], self.benchmark["objecter"]["max"], self.benchmark["rampup"], self.benchmark["runtime"])
         self.benchmark["dirname"] = "%s-%s" % ( str(self.runid), self.benchmark["section_name"])
         self.benchmark["configfile"] = "%s/%s.xml" % (self.cosbench["cosbench_config_dir"], self.benchmark["section_name"])
         self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
@@ -235,6 +235,9 @@ class Cosbench(Benchmark):
         user = self.cluster["user"]
         stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], "http_proxy=%s curl -D - -H 'X-Auth-User: %s' -H 'X-Auth-Key: %s' %s" % (self.cosbench["proxy"], self.cosbench["auth_username"], self.cosbench["auth_password"], self.cosbench["auth_url"]), option = "check_return|console")
         if re.search('(refused|error)', stderr):
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            return False
+        if re.search('Failed', stderr):
             common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
             return False
         if re.search('Service Unavailable', stdout):
@@ -441,7 +444,7 @@ class Cosbench(Benchmark):
                 benchmark["size"]["size_value"] = "128"
                 benchmark["size"]["size_unit"] = KB
 
-            benchmark["section_name"] = "cosbench-%s-%scon-%sobj-%s-%sw" % (benchmark["iopattern"]["type"], benchmark["container"]["max"], benchmark["objecter"]["max"], benchmark["size"]["complete"], benchmark["worker"])
+            benchmark["section_name"] = "%s-cosbench-%s-%s-%scon-%sobj-%s-%s-cosbench" % (benchmark["worker"], benchmark["iopattern"]["type"], benchmark["size"]["complete"], benchmark["container"]["max"], benchmark["objecter"]["max"], benchmark["rampup"], benchmark["runtime"])
             benchmark["configfile"] = "%s/%s.xml" % (benchmark["cosbench_config_dir"], benchmark["section_name"])
 
             # check if config dir and config file exists

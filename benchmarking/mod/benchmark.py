@@ -174,6 +174,7 @@ class Benchmark(object):
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
         dest_dir = self.cluster["tmp_dir"]
+        common.pdsh(user, nodes, "ps aux | grep asok | awk '{print $2}' | while read pid;do kill -9 $pid;done; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' fio stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")

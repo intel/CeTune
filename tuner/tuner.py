@@ -2,7 +2,7 @@ import os,sys
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from conf import common
-from deploy import deploy
+from deploy import *
 from benchmarking import *
 import os, sys
 import time
@@ -44,7 +44,7 @@ class Tuner:
                     self.apply_version(section)
                     self.apply_tuning(section, no_check=True)
                     common.printout("LOG","Start to redeploy ceph")
-                    deploy.main(['redeploy'])
+                    run_deploy.main(['redeploy'])
                     self.apply_tuning(section)
                 elif work == "benchmark":
                     common.printout("LOG","start to run performance test")
@@ -199,8 +199,8 @@ class Tuner:
             version_match = False
         if not version_match:
             common.printout("LOG","Current ceph version not match testjob version, need reinstall")
-            deploy.main(['uninstall_binary'])
-            deploy.main(['install_binary', '--version', planed_version])
+            run_deploy.main(['uninstall_binary'])
+            run_deploy.main(['install_binary', '--version', planed_version])
 
     def check_tuning(self, jobname):
         if not self.cur_tuning:
@@ -265,12 +265,12 @@ class Tuner:
                         continue
                     tuning[section_name] = section
                 common.printout("LOG","Apply osd and mon tuning to ceph.conf")
-                deploy.main(['--config', str(tuning), 'gen_cephconf'])
+                run_deploy.main(['--config', str(tuning), 'gen_cephconf'])
                 common.printout("LOG","Distribute ceph.conf")
-                deploy.main(['distribute_conf'])
+                run_deploy.main(['distribute_conf'])
                 if not no_check:
                     common.printout("LOG","Restart ceph cluster")
-                    deploy.main(['restart'])
+                    run_deploy.main(['restart'])
             if tuning_key == 'disk':
                 param = {}
                 for param_name, param_data in self.worksheet[jobname]['disk'].items():

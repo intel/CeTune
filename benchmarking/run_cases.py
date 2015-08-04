@@ -7,7 +7,7 @@ from conf import common
 from mod import *
 from mod.bblock import *
 from mod.bobject import *
-from  mod.bcephfs import *
+from mod.bcephfs import *
 
 def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')

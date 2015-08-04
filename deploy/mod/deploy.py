@@ -11,7 +11,6 @@ import argparse
 import yaml
 from ceph_deploy import cli
 from threading import Thread
-import deploy_rgw
 
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy(object):
@@ -352,49 +351,3 @@ class Deploy(object):
                 common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console")
                 common.printout("LOG","Started osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
-
-def main(args):
-    parser = argparse.ArgumentParser(description='Deploy tool')
-    parser.add_argument(
-        'operation',
-        help = 'only support redeploy now',
-        )
-    parser.add_argument(
-        '--config',
-        )
-    parser.add_argument(
-        '--version',
-        )
-    args = parser.parse_args(args)
-    if args.operation == "redeploy":
-        mydeploy = Deploy()
-        mydeploy.redeploy()
-    if args.operation == "restart":
-        mydeploy = Deploy()
-        mydeploy.cleanup()
-        mydeploy.startup()
-    if args.operation == "distribute_conf":
-        mydeploy = Deploy()
-        mydeploy.distribute_conf()
-    if args.operation == "gen_cephconf":
-        if args.config:
-            mydeploy = Deploy(args.config)
-        else:
-            mydeploy = Deploy()
-        mydeploy.gen_cephconf()
-    if args.operation == "install_binary":
-        mydeploy = Deploy()
-        mydeploy.install_binary(args.version)
-    if args.operation == "uninstall_binary":
-        mydeploy = Deploy()
-        mydeploy.uninstall_binary()
-    if args.operation == "deploy_rgw":
-        mydeploy = deploy_rgw.Deploy_RGW()
-        mydeploy.deploy()
-    if args.operation == "start_rgw":
-        mydeploy = deploy_rgw.Deploy_RGW()
-        mydeploy.start_rgw()
-
-if __name__ == '__main__':
-    import sys
-    main(sys.argv[1:])

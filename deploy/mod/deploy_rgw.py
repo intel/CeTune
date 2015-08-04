@@ -38,7 +38,8 @@ class Deploy_RGW(Deploy) :
 
     def restart_rgw(self):
         common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/radosgw restart; /etc/init.d/haproxy restart')
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/radosgw restart; /etc/init.d/haproxy restart', option="console")
+#common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`; for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done; /etc/init.d/haproxy restart'%(self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]), option="console")
 
     def check_if_rgw_installed(self):
         stdout,stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'curl localhost','check_return')

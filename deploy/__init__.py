@@ -1,1 +1,1 @@
-__all__ = ['deploy','deploy_rgw']
+__all__ = ['run_deploy']

@@ -12,6 +12,7 @@ import yaml
 from collections import OrderedDict
 import json
 import numpy
+import copy
 
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
@@ -31,8 +32,7 @@ class Analyzer:
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["osd_daemon_num"] = 0
         self.result = OrderedDict()
-        self.result["cosbench"] = OrderedDict()
-        self.result["fio"] = OrderedDict()
+        self.result["workload"] = OrderedDict()
         self.result["ceph"] = OrderedDict()
         self.result["client"] = OrderedDict()
         self.result["vclient"] = OrderedDict()
@@ -51,25 +51,20 @@ class Analyzer:
         for dir_name in os.listdir(dest_dir):
             if not os.path.isdir("%s/%s" % (dest_dir, dir_name)):
                 continue
-            if dir_name == 'cosbench':
-                self.result["cosbench"][dir_name]={}
-                system, fio = self._process_data(dir_name)
-                self.result["cosbench"][dir_name]=system
-
             if dir_name in self.cluster["osds"]:
                 self.result["ceph"][dir_name]={}
-                system, fio = self._process_data(dir_name)
+                system, workload = self._process_data(dir_name)
                 self.result["ceph"][dir_name]=system
             if dir_name in self.cluster["client"]:
                 self.result["client"][dir_name]={}
-                system, fio = self._process_data(dir_name)
+                system, workload = self._process_data(dir_name)
                 self.result["client"][dir_name]=system
-                self.result["fio"].update(fio)
+                self.result["workload"].update(workload)
             if dir_name in self.cluster["vclient"]:
                 self.result["vclient"][dir_name]={}
-                system, fio = self._process_data(dir_name)
+                system, workload = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
-                self.result["fio"].update(fio)
+                self.result["workload"].update(workload)
 
         # switch result format for visualizer
         # desired format
@@ -108,26 +103,29 @@ class Analyzer:
         common.bash("scp -r ../visualizer/include %s" % (self.cluster["dest_dir_remote_bak"]))
 
     def format_result_for_visualizer(self, data):
+        output_sort = OrderedDict()
+        output_sort["summary"] = OrderedDict()
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
+        if not res:
+            return output_sort
         rampup = int(res.group(8))
         runtime = int(res.group(9))
         phase_name_map = {"cpu": "sar", "memory": "sar", "nic": "sar", "osd": "iostat", "journal": "iostat", "vdisk": "iostat" }
 
-        output = OrderedDict()
-        output["summary"] = OrderedDict()
         for node_type in data.keys():
             if not isinstance(data[node_type], dict):
-                output[node_type] = data[node_type]
+                output_sort[node_type] = data[node_type]
                 continue
             if data[node_type] == {}:
                 continue
-            output[node_type] = OrderedDict()
+            output = {}
+            output_sort[node_type] = OrderedDict()
             for node in sorted(data[node_type].keys()):
                 for field_type in sorted(data[node_type][node].keys()):
                     if field_type == "phase":
                         continue
-                    if field_type not in output[node_type]:
-                        output[node_type][field_type] = OrderedDict()
+                    if field_type not in output:
+                        output[field_type] = OrderedDict()
                     if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
                         start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
                         end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
@@ -137,18 +135,21 @@ class Analyzer:
                         else:
                             runtime_end = end
                         runtime_start = start + rampup
-                        output[node_type][field_type][node] = OrderedDict()
+                        output[field_type][node] = OrderedDict()
                         for colume_name, colume_data in data[node_type][node][field_type].items():
                             if isinstance(colume_data, list):
                                 colume_data = colume_data[runtime_start:runtime_end]
-                            output[node_type][field_type][node][colume_name] = colume_data
+                            output[field_type][node][colume_name] = colume_data
                     else:
-                        output[node_type][field_type][node] = data[node_type][node][field_type]
+                        output[field_type][node] = data[node_type][node][field_type]
+            for key in sorted(output.keys()):
+                output_sort[node_type][key] = copy.deepcopy( output[key] )
 
-        return output
+        return output_sort
 
     def summary_result(self, data):
         # generate summary
+        benchmark_tool = ["fio", "cosbench"]
         data["summary"]["run_id"] = {}
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
@@ -162,34 +163,38 @@ class Analyzer:
         tmp_data["engine"] = res.group(3)
         tmp_data["serverNum"] = 0
         tmp_data["clientNum"] = 0
-        tmp_data["rbdNum"] = res.group(2)
-        tmp_data["runtime"] = "%d sec" % data["runtime"]
-        tmp_data["fio_iops"] = 0
-        tmp_data["fio_bw"] = 0
-        tmp_data["fio_latency"] = 0
+        tmp_data["worker"] = res.group(2)
+        tmp_data["runtime"] = "%d sec" % (data["runtime"])
+        tmp_data["workload_iops"] = 0
+        tmp_data["workload_bw"] = 0
+        tmp_data["workload_latency"] = 0
         tmp_data["osd_iops"] = 0
         tmp_data["osd_bw"] = 0
         tmp_data["osd_latency"] = 0
         rbd_count = 0
         osd_node_count = 0
         try:
-            for node, node_data in data["fio"]["fio"].items():
+            for engine_candidate in data["workload"].keys():
+                if engine_candidate in benchmark_tool:
+                    engine = engine_candidate
+            for node, node_data in data["workload"][engine].items():
                 rbd_count += 1
-                tmp_data["fio_iops"] += float(node_data["iops"])
-                tmp_data["fio_bw"] += float(node_data["bw"])
-                tmp_data["fio_latency"] += float(node_data["lat"])
-            tmp_data["fio_iops"] = "%.3f" % (tmp_data["fio_iops"])
-            tmp_data["fio_bw"] = "%.3f MB/s" % (tmp_data["fio_bw"])
-            tmp_data["fio_latency"] = "%.3f msec" % (tmp_data["fio_latency"]/rbd_count)
+                tmp_data["workload_iops"] += ( float(node_data["read_iops"]) + float(node_data["write_iops"]) )
+                tmp_data["workload_bw"] += ( float(node_data["read_bw"]) + float(node_data["write_bw"]) )
+                tmp_data["workload_latency"] += ( float(node_data["read_lat"]) + float(node_data["write_lat"]) )
+            tmp_data["workload_iops"] = "%.3f" % (tmp_data["workload_iops"])
+            tmp_data["workload_bw"] = "%.3f MB/s" % (tmp_data["workload_bw"])
+            if rbd_count > 0:
+                tmp_data["workload_latency"] = "%.3f msec" % (tmp_data["workload_latency"]/rbd_count)
         except:
             pass
-        if tmp_data["op_type"] in ["randread", "seqread"]:
+        if tmp_data["op_type"] in ["randread", "seqread", "read"]:
             for node, node_data in data["ceph"]["osd"].items():
                 osd_node_count += 1
                 tmp_data["osd_iops"] += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
                 tmp_data["osd_bw"] += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
                 tmp_data["osd_latency"] += numpy.mean(node_data["r_await"])
-        if tmp_data["op_type"] in ["randwrite", "seqwrite"]:
+        if tmp_data["op_type"] in ["randwrite", "seqwrite", "write"]:
             for node, node_data in data["ceph"]["osd"].items():
                 osd_node_count += 1
                 tmp_data["osd_iops"] += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
@@ -197,7 +202,8 @@ class Analyzer:
                 tmp_data["osd_latency"] += numpy.mean(node_data["w_await"])
         tmp_data["osd_iops"] = "%.3f" % (tmp_data["osd_iops"])
         tmp_data["osd_bw"] = "%.3f MB/s" % (tmp_data["osd_bw"])
-        tmp_data["osd_latency"] = "%.3f msec" % (tmp_data["osd_latency"]/osd_node_count)
+        if osd_node_count > 0:
+            tmp_data["osd_latency"] = "%.3f msec" % (tmp_data["osd_latency"]/osd_node_count)
 
         tmp_data["serverNum"] = osd_node_count
         tmp_data["clientNum"] = len(data["client"]["cpu"])
@@ -205,16 +211,16 @@ class Analyzer:
 
     def _process_data(self, node_name):
         result = {}
-        fio_result = {}
+        workload_result = {}
         dest_dir = self.cluster["dest_dir"]
         for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
             common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
-            if '_cosbench.csv' in dir_name:
-                result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name)))
+            if 'cosbench' in dir_name:
+                workload_result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name))
             if '_sar.txt' in dir_name:
                 result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
             if '_fio.txt' in dir_name:
-                fio_result.update(self.process_fio_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name))
+                workload_result.update(self.process_fio_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name))
             if '_iostat.txt' in dir_name:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
@@ -230,7 +236,7 @@ class Analyzer:
 #                        result[key].update(value)
 #                except:
 #                    pass
-        return [result, fio_result]
+        return [result, workload_result]
 
     def process_log_data(self, path):
         result = {}
@@ -271,26 +277,34 @@ class Analyzer:
                 result["phase"][tool]["benchmark_stop"] = None
         return result
 
-    def process_cosbench_data(self,path):
+    def process_cosbench_data(self, path, dirname):
         result = {}
-        keys = common.bash("head -n 1 %s" %(path))
-        print 'keys are '+keys
+        result["cosbench"] = OrderedDict()
+        result["cosbench"]["cosbench"] = OrderedDict([("read_lat",0), ("read_bw",0), ("read_iops",0), ("write_lat",0), ("write_bw",0), ("write_iops",0), ("lat_unit",'msec'), ('runtime_unit','sec'), ('bw_unit','MB/s')])
+        tmp = result
+        keys = common.bash("head -n 1 %s/%s.csv" %(path, dirname))
         keys = keys.split(',')
-        values = common.bash('tail -n 1 %s' %(path) )
-        print 'values are '+values
+        values = common.bash('tail -n 1 %s/%s.csv' %(path, dirname) )
         values = values.split(',')
         size = len(keys)
         for i in range(size):
-            result[keys[i]] = values[i]
+            tmp[keys[i]] = {}
+            tmp[keys[i]]["detail"] = {}
+            tmp[keys[i]]["detail"]["value"] = values[i]
+        tmp = result["cosbench"]["cosbench"]
+        io_pattern = result["Op-Type"]["detail"]["value"]
+        tmp["%s_lat" % io_pattern] = result["Avg-ResTime"]["detail"]["value"]
+        tmp["%s_bw" % io_pattern] = common.size_to_Kbytes('%s%s' % (result["Bandwidth"]["detail"]["value"], 'B'), 'MB')
+        tmp["%s_iops" % io_pattern] = result["Throughput"]["detail"]["value"]
         return result
 
     def get_validate_runtime(self):
         self.validate_time = 0
         dest_dir = self.cluster["dest_dir"]
         stdout = common.bash( 'grep " runt=.*" -r %s' % (dest_dir) )
-        fio_runtime = re.search('runt=\s*(\d+\wsec)', stdout)
-        if fio_runtime:
-            validate_time = common.time_to_sec(fio_runtime.group(1), 'sec')
+        fio_runtime_list = re.findall('runt=\s*(\d+\wsec)', stdout)
+        for fio_runtime in fio_runtime_list:
+            validate_time = common.time_to_sec(fio_runtime, 'sec')
             if validate_time < self.validate_time or self.validate_time == 0:
                 self.validate_time = validate_time
 
@@ -344,32 +358,57 @@ class Analyzer:
 
     def process_fio_data(self, path, dirname):
         result = {}
-        stdout = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path)
-        fio_data = {}
+        stdout, stderr = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
+        fio_data_rw = {}
+        fio_data_rw["read"] = {}
+        fio_data_rw["write"] = {}
         for data in re.split(',|\n|:',stdout):
             try:
                 key, value = data.split("=")
-                fio_data[key.strip()] = value.strip()
+                if key.strip() not in fio_data:
+                    fio_data[key.strip()] = []
+                    fio_data[key.strip()].append( value.strip() )
             except:
                 if 'lat' in data:
                     res = re.search('lat\s*\((\w+)\)',data)
-                    fio_data['lat_unit'] = res.group(1)
+                    if 'lat_unit' not in fio_data:
+                        fio_data['lat_unit'] = []
+                    fio_data['lat_unit'].append( res.group(1) )
+                if "read" in data:
+                    fio_data = fio_data_rw["read"]
+                if "write" in data:
+                    fio_data = fio_data_rw["write"]
+
         output_fio_data = OrderedDict()
-        try:
-            output_fio_data['lat'] = common.time_to_sec("%s%s" % (fio_data['avg'], fio_data['lat_unit']),'msec')
-            output_fio_data['iops'] = fio_data['iops']
-            res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'])
-            if res:
-                output_fio_data['bw'] = common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB')
-            output_fio_data['runtime'] = common.time_to_sec(fio_data['runt'], 'sec')
-            output_fio_data['lat_unit'] = 'msec'
-            output_fio_data['runtime_unit'] = 'sec'
-            output_fio_data['bw_unit'] = 'MB/s'
-        except:
-            pass
+        output_fio_data['read_lat'] = 0
+        output_fio_data['read_iops'] = 0
+        output_fio_data['read_bw'] = 0
+        output_fio_data['read_runtime'] = 0
+        output_fio_data['write_lat'] = 0
+        output_fio_data['write_iops'] = 0
+        output_fio_data['write_bw'] = 0
+        output_fio_data['write_runtime'] = 0
+        output_fio_data['lat_unit'] = 'msec'
+        output_fio_data['runtime_unit'] = 'sec'
+        output_fio_data['bw_unit'] = 'MB/s'
+        for io_pattern in ['read', 'write']:
+            if fio_data_rw[io_pattern] != {}:
+                first_item = fio_data_rw[io_pattern].keys()[0]
+            else:
+                continue
+            list_len = len(fio_data_rw[io_pattern][first_item])
+            for index in range(0, list_len):
+                fio_data = fio_data_rw[io_pattern]
+                output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
+                output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
+                res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
+                if res:
+                    output_fio_data['%s_bw' % io_pattern] += float( common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
+                output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
+            output_fio_data['%s_lat' % io_pattern] /= list_len
+            output_fio_data['%s_runtime' % io_pattern] /= list_len
         result[dirname] = {}
         result[dirname]["fio"] = output_fio_data
-        #print result
         return result
 
     def process_lttng_data(self, path):

@@ -1,4 +1,4 @@
-fromu..benchmark import *
+from ..benchmark import *
 from collections import OrderedDict
 import itertools
 
