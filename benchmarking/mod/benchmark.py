@@ -9,28 +9,23 @@ from analyzer import *
 lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 class Benchmark(object):
-    def __init__(self, testcase):
+    def __init__(self):
         self.all_conf_data = common.Config(lib_path+"/conf/all.conf")
         self.benchmark = {}
-        self.benchmark = copy.deepcopy(testcase)
         self.cluster = {}
-        self.cluster["user"] = self.all_conf_data.get("user")
-        self.cluster["head"] = self.all_conf_data.get("head")
-        self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
-        self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
-        self.cluster["client"] = self.all_conf_data.get_list("list_client")
-        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
-        self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
         self.pwd = os.path.abspath(os.path.join('..'))
 
-    def go(self):
+    def go(self, testcase, tuning):
+        self.load_parameter()
+        self.get_runid()
+
+        self.benchmark = self.parse_benchmark_cases(testcase)
+        self.benchmark["tuning_section"] = tuning
+
         self.prepare_result_dir()
-        try:
-            common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.benchmark["dir"]))
-        except TypeError:
-            common.printout("LOG","RUNID: %s, RESULT_DIR: %s" % (",".join(self.cosbench["cosbench_run_id"]), self.cluster["dest_dir"]))
+        common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
         self.cal_run_job_distribution()
-        self.prerun_check() 
+        self.prerun_check()
         self.prepare_run()
 
         common.printout("LOG","Run Benchmark Status: collect system metrics and run benchmark")
@@ -50,18 +45,11 @@ class Benchmark(object):
         self.set_runid()
 
         common.printout("LOG","Post Process Result Data")
-        #common.bash("cd ../post-processing; bash post_processing.sh %s" % self.benchmark["dir"], True)
         try:
-            analyzer.main(['--path', self.benchmark["dir"], 'process_data'])
-        #except TypeError:
-        #    print "Going to Cosbench Analyser"
-        #    print "dest_dir is "+ self.cluster["dest_dir"]#self.cosbench["data_dir"]
-            #python analyzer.py --path /mnt/data/run_res/ process_data 
-        #    for test_id in self.cosbench["cosbench_run_id"]:
-        #        analyzer.main(['--path', "%s/%s_cosbench" %(self.cluster["dest_dir"],test_id), 'process_data'])
+            analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
         except:
-            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.benchmark["dir"])
-        
+            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
+
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
@@ -97,7 +85,7 @@ class Benchmark(object):
         #2. stop data collecters process and workload
         self.stop_workload()
         self.stop_data_collecters()
-        
+
         #3. collect after run data
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
@@ -108,7 +96,7 @@ class Benchmark(object):
 
     def prepare_run(self):
         self.stop_data_collecters()
-        
+
     def cleanup(self):
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
@@ -123,35 +111,36 @@ class Benchmark(object):
     def run(self):
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         common.printout("LOG","This test will run %d secs until finish." % waittime)
-        
+
         #drop page cache
         user = self.cluster["user"]
-        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
-        common.pdsh(user, nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
-        
+        common.pdsh(user, nodes, "echo '3' > /proc/sys/vm/drop_caches && sync")
+
         #send command to ceph cluster
-        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &"  % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "for waittime in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; ceph --admin-daemon $path perf dump >> ${res_file}; echo ',' >> ${res_file}; done; sleep 1; done" % (time, dest_dir), option="force")
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
+        common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep 1; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, '%s', dest_dir), option="force")
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 -n %d > %s/`hostname`_top.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 %d > %s/`hostname`_mpstat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 %d > %s/`hostname`_iostat.txt &" % (time, dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 %d > %s/`hostname`_sar.txt &" % (time, dest_dir))
-        
+        common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+
     def archive(self):
         user = self.cluster["user"]
         head = self.cluster["head"]
-        dest_dir = self.benchmark["dir"]
+        dest_dir = self.cluster["dest_dir"]
         #collect all.conf
         try:
             common.rscp(user, head, "%s/" % (dest_dir), "%s/conf/all.conf" % self.pwd)
@@ -169,7 +158,7 @@ class Benchmark(object):
         for node in self.cluster["osd"]:
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
-        
+
         #collect client data
         for node in self.benchmark["distribution"].keys():
             common.pdsh(user, ["%s@%s" % (user, head)], "mkdir -p %s/%s" % (dest_dir, node))
@@ -184,17 +173,21 @@ class Benchmark(object):
         #2. clean running process
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
-        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+        dest_dir = self.cluster["tmp_dir"]
+        stdout, stderr = common.pdsh(user, nodes, "echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; ps aux | grep asok |awk '{print $2}'| while read pid;do kill $pid;done" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt; echo `date +%s`' interrupt stop' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt; echo `date +%s`' interrup stop' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
     def tuning(self):
         pass
@@ -223,7 +216,7 @@ class Benchmark(object):
             end_vclient_num = start_vclient_num + vclient_total
             self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
             start_vclient_num = end_vclient_num
-            client_num += 1 
+            client_num += 1
 
     def cal_run_job_distribution(self):
          number = int(self.benchmark["instance_number"])
@@ -232,9 +225,9 @@ class Benchmark(object):
               volume_max_per_client = number / client_total + 1
          else:
               volume_max_per_client = number / client_total
-         
+
          self.benchmark["distribution"] = {}
-	 remained_instance_num = number
+         remained_instance_num = number
          for client in self.cluster["testjob_distribution"]:
              if not remained_instance_num:
                  break
@@ -275,3 +268,27 @@ class Benchmark(object):
             return False
         else:
             return True
+
+    def generate_benchmark_cases(self):
+        return [[],[]]
+
+    def parse_benchmark_cases(self):
+        pass
+
+    def load_parameter(self):
+        self.cluster["user"] = self.all_conf_data.get("user")
+        self.cluster["head"] = self.all_conf_data.get("head")
+        self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
+        self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
+        self.cluster["client"] = self.all_conf_data.get_list("list_client")
+        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
+        self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
+        self.cluster["run_time_extend"] = 100
+
+    def chkpoint_to_log(self, log_str):
+        dest_dir = self.cluster["tmp_dir"]
+        user = self.cluster["user"]
+        nodes = []
+        nodes.extend(self.cluster["osd"])
+        nodes.extend(self.benchmark["distribution"].keys())
+        common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))

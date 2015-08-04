@@ -3,65 +3,80 @@ import os, sys
 
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 sys.path.append(lib_path)
-print sys.path
 from conf import common
 from mod import *
 from mod.bblock import *
 from mod.bobject import *
-from  mod.bcephfs import *
+from mod.bcephfs import *
 
 def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')
     parser.add_argument(
-        'engine',
-        help = 'Choose the engine: qemurbd, fiorbd, fiocephfs, cosbench',
+        '--tuning',
         )
     parser.add_argument(
-        '--tuning',
+        '--option',
         )
     args = parser.parse_args(args)
     testcase_list = []
-    print args
     try:
         tuning_section = args.tuning
     except:
         tuning_section = ""
-    with open("../conf/cases.conf", "r") as f:
-        for line in f.readlines():
-            p = line.split()
-            testcase_list.append({
-                "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
-                "block_size":p[3], "qd":p[4], "rampup":p[5], 
-                "runtime":p[6], "vdisk":p[7], "output_dir":p[8], "tuning_section": tuning_section
-            }) 
-    if args.engine == "qemurbd":
+    try:
+        option = args.option
+    except:
+        option = "benchmark"
+
+    if option == "gen_case":
+        testcase_list = []
+        benchmark = qemurbd.QemuRbd()
+        testcases, benchmark_engine_config = benchmark.generate_benchmark_cases()
+        testcase_list.extend(testcases)
+        fio_list = benchmark_engine_config
+
+        benchmark = fiorbd.FioRbd()
+        testcases, benchmark_engine_config = benchmark.generate_benchmark_cases()
+        testcase_list.extend(testcases)
+        fio_list.extend( benchmark_engine_config )
+
+        benchmark = fiocephfs.FioCephFS()
+        testcases, benchmark_engine_config = benchmark.generate_benchmark_cases()
+        testcase_list.extend(testcases)
+        fio_list.extend( benchmark_engine_config )
+
+        benchmark = cosbench.Cosbench()
+        testcases, benchmark_engine_config = benchmark.generate_benchmark_cases()
+        testcase_list.extend(testcases)
+
+        with open("../conf/cases.conf", "w") as f:
+            f.write( '\n'.join(testcase_list) + "\n" )
+
+        if len(fio_list) > 0:
+            with open("../conf/fio.conf", "w") as f:
+                f.write( '\n'.join(fio_list) + "\n" )
+
+    else:
+        with open("../conf/cases.conf", "r") as f:
+            for line in f.readlines():
+                p = line.split()
+                testcase_list.append({"engine":p[0],"parameter":p[1:]})
         for testcase in testcase_list:
-            benchmark = qemurbd.QemuRbd(testcase)
+            if testcase["engine"] == "qemurbd":
+                benchmark = qemurbd.QemuRbd()
+            if testcase["engine"] == "fiorbd":
+                benchmark = fiorbd.FioRbd()
+            if testcase["engine"] == "fiocephfs":
+                benchmark = fiocephfs.FioCephFS()
+            if testcase["engine"] == "cosbench":
+                benchmark = cosbench.Cosbench()
+            if not benchmark:
+                common.printout("ERROR","Unknown benchmark engine")
             try:
-                benchmark.go()
+                benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
                 common.printout("WARNING","Caught KeyboardInterrupt Interruption")
-    if args.engine == "fiorbd":
-        for testcase in testcase_list:
-            benchmark = fiorbd.FioRbd(testcase)
-            try:
-                benchmark.go()
-            except KeyboardInterrupt:
-                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
-    if args.engine == "fiocephfs":
-        for testcase in testcase_list:
-            benchmark = fiocephfs.FioCephFS(testcase)
-            try:
-                benchmark.go()
-            except KeyboardInterrupt:
-                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
-    if args.engine == "cosbench":
-        for testcase in testcase_list:
-            benchmark = cosbench.Cosbench(None)
-            try:
-                benchmark.go()
-            except KeyboardInterrupt:
-                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
+
 if __name__ == '__main__':
     import sys
     main(sys.argv[1:])

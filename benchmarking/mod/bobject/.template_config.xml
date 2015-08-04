@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workload name="{{rw}}{{config_middle}}{{size}}_{{workers}}w" description="{{description}}">
+<workload name="{{section_name}}" description="{{description}}">
 <storage type="swift" config="timeout=300000" />
-<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://{{cluster_ip}}/auth/v1.0" />
+<auth type="swauth" config="username={{auth_username}};password={{auth_passwd}};url=http://{{cluster_ip}}/auth/v1.0;retry=9" />
 <workflow>
-<workstage name="{{main}}">
-<work name="{{size}}" workers="{{workers}}" rampup="90" runtime="300" rampdown="30">
-<operation type="{{rw}}" ratio="100" config="containers=u(1,100);objects=u(1,100);cprefix={{size}}-{{rw}}"/>
+<workstage name="init">
+<work type="init" workers="{{workers}}" config="containers={{containers}};cprefix={{size}}-{{rw}}"/>
+</workstage>
+<workstage name="prepare">
+<work type="prepare" workers="{{workers}}" config="containers={{containers}};objects={{objects}};cprefix={{size}}-{{rw}};sizes=c({{size_value}}){{size_unit}}"/>
+</workstage>
+<workstage name="main">
+<work name="{{size}}" workers="{{workers}}" rampup="{{rampup}}" runtime="{{runtime}}" rampdown="30">
+<operation type="{{rw}}" ratio="{{rw_ratio}}" config="containers={{containers}};objects={{objects}};cprefix={{size}}-{{rw}};sizes=c({{size_value}}){{size_unit}}"/>
 </work>
 </workstage>
 </workflow>

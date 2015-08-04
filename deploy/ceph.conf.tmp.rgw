@@ -277,3 +277,58 @@
     cluster addr = 10.10.5.114
     osd journal = /dev/sdf5
     devs = /dev/sdm1
+[client.radosgw.client01-1]
+host = client01
+keyring = /etc/ceph/ceph.client.radosgw.keyring
+rgw cache enabled = true
+rgw cache lru size = 100000
+rgw thread pool size = 256
+rgw enable ops log = false
+log file = /var/log/radosgw/client.radosgw.client01-1.log
+rgw frontends =civetweb port=7481
+rgw override bucket index max shards = 8
+
+[client.radosgw.client01-2]
+host = client01
+keyring = /etc/ceph/ceph.client.radosgw.keyring
+rgw cache enabled = true
+rgw cache lru size = 100000
+rgw thread pool size = 256
+rgw enable ops log = false
+log file = /var/log/radosgw/client.radosgw.client01-2.log
+rgw frontends =civetweb port=7482
+rgw override bucket index max shards = 8
+
+[client.radosgw.client01-3]
+host = client01
+keyring = /etc/ceph/ceph.client.radosgw.keyring
+rgw cache enabled = true
+rgw cache lru size = 100000
+rgw thread pool size = 256
+rgw enable ops log = false
+log file = /var/log/radosgw/client.radosgw.client01-3.log
+rgw frontends =civetweb port=7483
+rgw override bucket index max shards = 8
+
+[client.radosgw.client01-4]
+host = client01
+keyring = /etc/ceph/ceph.client.radosgw.keyring
+rgw cache enabled = true
+rgw cache lru size = 100000
+rgw thread pool size = 256
+rgw enable ops log = false
+log file = /var/log/radosgw/client.radosgw.client01-4.log
+rgw frontends =civetweb port=7484
+rgw override bucket index max shards = 8
+
+[client.radosgw.client01-5]
+host = client01
+keyring = /etc/ceph/ceph.client.radosgw.keyring
+rgw cache enabled = true
+rgw cache lru size = 100000
+rgw thread pool size = 256
+rgw enable ops log = false
+log file = /var/log/radosgw/client.radosgw.client01-5.log
+rgw frontends =civetweb port=7485
+rgw override bucket index max shards = 8
+

@@ -13,7 +13,7 @@ from ceph_deploy import cli
 from threading import Thread
 
 pp = pprint.PrettyPrinter(indent=4)
-class Deploy:
+class Deploy(object):
     def __init__(self, tunings=""):
         self.all_conf_data = common.Config("../conf/all.conf")
         self.cluster = {}
@@ -44,16 +44,16 @@ class Deploy:
         else:
             for osd in self.all_conf_data.get_list("list_ceph"):
                 self.cluster["osds"][osd] = socket.gethostbyname(osd)
-            for mon in self.all_conf_data.get_list("list_mon"): 
+            for mon in self.all_conf_data.get_list("list_mon"):
                 self.cluster["mons"][mon] = socket.gethostbyname(mon)
 
         for osd in self.cluster["osds"]:
             self.cluster[osd] = self.all_conf_data.get_list(osd)
 
-        self.cluster["fs"] = "xfs"        
-        self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"        
+        self.cluster["fs"] = "xfs"
+        self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"
         self.cluster["mount_opts"] = "-o inode64,noatime,logbsize=256k"
-        
+
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
 
@@ -88,12 +88,12 @@ class Deploy:
         pkg_type = "release"
         if ":" in version:
             try:
-                pkg_type, version = version.split(":") 
+                pkg_type, version = version.split(":")
             except:
                 common.printout("ERROR", "Please check version, received $s" % version)
 
         user = self.cluster["user"]
-        node_os_dict = common.return_os_id(user, need_to_install_nodes) 
+        node_os_dict = common.return_os_id(user, need_to_install_nodes)
         for node in need_to_install_nodes:
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
@@ -103,7 +103,7 @@ class Deploy:
         installed, non_installed = self.check_ceph_installed()
         user = self.cluster["user"]
         nodes = installed.keys()
-        node_os_dict = common.return_os_id(user, nodes) 
+        node_os_dict = common.return_os_id(user, nodes)
         for node in nodes:
             common.bash("ceph-deploy purge %s" % (node), option="console")
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
@@ -121,11 +121,11 @@ class Deploy:
         need_to_install_nodes = []
         stdout, stderr = common.pdsh(user, nodes, "ceph -v", option = "check_return")
         if stderr:
-            err = common.format_pdsh_return(stderr) 
+            err = common.format_pdsh_return(stderr)
             need_to_install_nodes = err.keys()
         res = common.format_pdsh_return(stdout)
         return [res, need_to_install_nodes]
-    
+
     def gen_cephconf(self):
         cephconf = []
         for section in self.cluster["ceph_conf"]:
@@ -153,20 +153,24 @@ class Deploy:
             f.write(output)
 
     def redeploy(self):
-        #self.gen_cephconf()
         common.printout("LOG","ceph.conf file generated")
         self.cleanup()
         common.printout("LOG","Killed ceph-mon, ceph-osd and cleaned mon dir")
 
-        common.printout("LOG","Started to mkfs.xfs on osd devices")
-        self.make_osd_fs()
-        common.printout("LOG","Succeded in mkfs.xfs on osd devices")
-        #self.distribute_conf()
+        ceph_conf_distributed = True
+        for node in self.cluster["osds"].keys():
+            ceph_conf_distributed = common.remote_file_exist( self.cluster["user"], node, '/etc/ceph/ceph.conf')
+        if not ceph_conf_distributed:
+            self.gen_cephconf()
+            self.distribute_conf()
         #print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
 
         common.printout("LOG","Started to build mon daemon")
-        self.make_mon()        
+        self.make_mon()
         common.printout("LOG","Succeeded in building mon daemon")
+        common.printout("LOG","Started to mkfs.xfs on osd devices")
+        self.make_osd_fs()
+        common.printout("LOG","Succeded in mkfs.xfs on osd devices")
         common.printout("LOG","Started to build osd daemon")
         self.make_osd()
         common.printout("LOG","Succeeded in building osd daemon")
@@ -188,6 +192,16 @@ class Deploy:
         common.printout("LOG","Shutting down osd daemon")
         common.pdsh( user, osds, " killall -9 ceph-osd", option="check_return")
 
+    def distribute_hosts(self, node_ip_bond):
+        user = self.cluster["user"]
+        nodes = []
+        nodes.extend(self.cluster["clients"])
+        nodes.extend(sorted(self.cluster["osds"]))
+
+        common.add_to_hosts(node_ip_bond)
+        for node in nodes:
+            common.scp( user, node, '/etc/hosts', '/etc/hosts')
+
     def distribute_conf(self):
         user = self.cluster["user"]
         clients = self.cluster["clients"]
@@ -207,7 +221,7 @@ class Deploy:
         mount_opts = self.cluster['mount_opts']
         osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
         osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
-        
+
         self.cluster["ceph_conf"]["global"]["osd_data"]
         stdout, stderr = common.pdsh( user, osds, 'mount -l', option="check_return" )
         mount_list = {}
@@ -297,7 +311,7 @@ class Deploy:
             common.pdsh(user, [mon], 'mkdir -p %s/%s' % (mon_basedir, mon_filename))
             common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="console")
             common.pdsh(user, [mon], 'cp %s/keyring %s/%s/keyring' % (mon_basedir, mon_basedir, mon_filename))
-            
+
         # Start the mons
         for mon, addr in mons.items():
             common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
@@ -334,50 +348,10 @@ class Deploy:
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
-                lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
-                #lttng_prefix = ""
+                #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
+                lttng_prefix = ""
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
                 common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console")
                 common.printout("LOG","Started osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
-
-def main(args):
-    parser = argparse.ArgumentParser(description='Deploy tool')
-    parser.add_argument(
-        'operation',
-        help = 'only support redeploy now',
-        )
-    parser.add_argument(
-        '--config',
-        )
-    parser.add_argument(
-        '--version',
-        )
-    args = parser.parse_args(args)
-    if args.operation == "redeploy":
-        mydeploy = Deploy()
-        mydeploy.redeploy()
-    if args.operation == "restart":
-        mydeploy = Deploy()
-        mydeploy.cleanup()
-        mydeploy.startup()
-    if args.operation == "distribute_conf":
-        mydeploy = Deploy()
-        mydeploy.distribute_conf()
-    if args.operation == "gen_cephconf":
-        if args.config:
-            mydeploy = Deploy(args.config)
-        else:
-            mydeploy = Deploy()
-        mydeploy.gen_cephconf()
-    if args.operation == "install_binary":
-        mydeploy = Deploy()
-        mydeploy.install_binary(args.version)
-    if args.operation == "uninstall_binary":
-        mydeploy = Deploy()
-        mydeploy.uninstall_binary()
-
-if __name__ == '__main__':
-    import sys
-    main(sys.argv[1:])

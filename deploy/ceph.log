@@ -1,0 +1,1879 @@
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): ceph-deploy install client02
+[ceph_deploy.install][DEBUG ] Installing stable version giant on cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] installing ceph on client02
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] ca-certificates is already the newest version.
+[client02][DEBUG ] You might want to run 'apt-get -f install' to correct these:
+[client02][DEBUG ] The following packages have unmet dependencies:
+[client02][DEBUG ]  linux-image-generic : Depends: linux-image-extra-3.13.0-54-generic but it is not going to be installed
+[client02][WARNING] E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+[client02][ERROR ] RuntimeError: command returned non-zero exit status: 100
+[ceph_deploy][ERROR ] RuntimeError: Failed to execute command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): ceph-deploy install client02
+[ceph_deploy.install][DEBUG ] Installing stable version giant on cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] installing ceph on client02
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] ca-certificates is already the newest version.
+[client02][DEBUG ] You might want to run 'apt-get -f install' to correct these:
+[client02][DEBUG ] The following packages have unmet dependencies:
+[client02][DEBUG ]  linux-image-generic : Depends: linux-image-extra-3.13.0-54-generic but it is not going to be installed
+[client02][WARNING] E: Unmet dependencies. Try 'apt-get -f install' with no packages (or specify a solution).
+[client02][ERROR ] RuntimeError: command returned non-zero exit status: 100
+[ceph_deploy][ERROR ] RuntimeError: Failed to execute command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): ceph-deploy install client02
+[ceph_deploy.install][DEBUG ] Installing stable version giant on cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] installing ceph on client02
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] ca-certificates is already the newest version.
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils libjs-jquery linux-cloud-tools-3.13.0-49
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-49-generic linux-cloud-tools-3.13.0-51
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51-generic linux-cloud-tools-3.13.0-52
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52-generic linux-cloud-tools-3.13.0-53
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53-generic linux-headers-3.13.0-32
+[client02][DEBUG ]   linux-headers-3.13.0-32-generic linux-headers-3.13.0-48
+[client02][DEBUG ]   linux-headers-3.13.0-48-generic linux-headers-3.13.0-49
+[client02][DEBUG ]   linux-headers-3.13.0-49-generic linux-headers-3.13.0-51
+[client02][DEBUG ]   linux-headers-3.13.0-51-generic linux-headers-3.13.0-52
+[client02][DEBUG ]   linux-headers-3.13.0-52-generic linux-headers-3.13.0-53
+[client02][DEBUG ]   linux-headers-3.13.0-53-generic linux-image-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-3.13.0-48-generic linux-image-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-3.13.0-51-generic linux-image-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-3.13.0-53-generic linux-image-extra-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-48-generic linux-image-extra-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-51-generic linux-image-extra-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-53-generic python-flask python-itsdangerous
+[client02][DEBUG ]   python-jinja2 python-markupsafe python-rados python-rbd python-werkzeug
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 137 not upgraded.
+[client02][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] --2015-06-19 11:57:40--  https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] Resolving child-prc.intel.com (child-prc.intel.com)... 172.16.213.225
+[client02][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|172.16.213.225|:913... connected.
+[client02][WARNING] Proxy request sent, awaiting response... 301 Moved Permanently
+[client02][WARNING] Location: https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc [following]
+[client02][WARNING] --2015-06-19 11:57:41--  https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|172.16.213.225|:913... connected.
+[client02][WARNING] Proxy request sent, awaiting response... 200 OK
+[client02][WARNING] Length: 1752 (1.7K) [text/plain]
+[client02][WARNING] Saving to: ‘release.asc’
+[client02][WARNING] 
+[client02][WARNING]      0K .                                                     100% 14.1M=0s
+[client02][WARNING] 
+[client02][WARNING] 2015-06-19 11:57:42 (14.1 MB/s) - ‘release.asc’ saved [1752/1752]
+[client02][WARNING] 
+[client02][INFO  ] Running command: apt-key add release.asc
+[client02][DEBUG ] OK
+[client02][DEBUG ] add deb repo to sources.list
+[client02][INFO  ] Running command: apt-get -q update
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty InRelease
+[client02][DEBUG ] Get:1 http://ceph.com trusty InRelease [6,855 B]
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-security InRelease
+[client02][DEBUG ] Get:2 http://ceph.com trusty/main amd64 Packages [6,935 B]
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-updates InRelease
+[client02][DEBUG ] Get:3 http://ceph.com trusty/main i386 Packages [789 B]
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-proposed InRelease
+[client02][DEBUG ] Ign http://ppa.launchpad.net trusty InRelease
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-backports InRelease
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release.gpg
+[client02][DEBUG ] Get:4 http://linux-ftp.sc.intel.com trusty-security Release.gpg [933 B]
+[client02][DEBUG ] Get:5 http://ppa.launchpad.net trusty Release.gpg [316 B]
+[client02][DEBUG ] Get:6 http://linux-ftp.sc.intel.com trusty-updates Release.gpg [933 B]
+[client02][DEBUG ] Get:7 http://linux-ftp.sc.intel.com trusty-proposed Release.gpg [933 B]
+[client02][DEBUG ] Get:8 http://ppa.launchpad.net trusty Release [15.1 kB]
+[client02][DEBUG ] Get:9 http://linux-ftp.sc.intel.com trusty-backports Release.gpg [933 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release
+[client02][DEBUG ] Get:10 http://ppa.launchpad.net trusty/main amd64 Packages [3,871 B]
+[client02][DEBUG ] Ign http://ceph.com trusty/main Translation-en_US
+[client02][DEBUG ] Get:11 http://linux-ftp.sc.intel.com trusty-security Release [63.5 kB]
+[client02][DEBUG ] Ign http://ceph.com trusty/main Translation-en
+[client02][DEBUG ] Get:12 http://ppa.launchpad.net trusty/main i386 Packages [3,864 B]
+[client02][DEBUG ] Get:13 http://linux-ftp.sc.intel.com trusty-updates Release [63.5 kB]
+[client02][DEBUG ] Get:14 http://ppa.launchpad.net trusty/main Translation-en [2,422 B]
+[client02][DEBUG ] Get:15 http://linux-ftp.sc.intel.com trusty-proposed Release [211 kB]
+[client02][DEBUG ] Get:16 http://linux-ftp.sc.intel.com trusty-backports Release [63.5 kB]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Translation-en
+[client02][DEBUG ] Get:17 http://linux-ftp.sc.intel.com trusty-security/main Sources [84.9 kB]
+[client02][DEBUG ] Get:18 http://linux-ftp.sc.intel.com trusty-security/restricted Sources [2,061 B]
+[client02][DEBUG ] Get:19 http://linux-ftp.sc.intel.com trusty-security/universe Sources [25.7 kB]
+[client02][DEBUG ] Get:20 http://linux-ftp.sc.intel.com trusty-security/multiverse Sources [2,333 B]
+[client02][DEBUG ] Get:21 http://linux-ftp.sc.intel.com trusty-security/main amd64 Packages [297 kB]
+[client02][DEBUG ] Get:22 http://linux-ftp.sc.intel.com trusty-security/restricted amd64 Packages [8,875 B]
+[client02][DEBUG ] Get:23 http://linux-ftp.sc.intel.com trusty-security/universe amd64 Packages [108 kB]
+[client02][DEBUG ] Get:24 http://linux-ftp.sc.intel.com trusty-security/multiverse amd64 Packages [3,686 B]
+[client02][DEBUG ] Get:25 http://linux-ftp.sc.intel.com trusty-security/main i386 Packages [283 kB]
+[client02][DEBUG ] Get:26 http://linux-ftp.sc.intel.com trusty-security/restricted i386 Packages [8,846 B]
+[client02][DEBUG ] Get:27 http://linux-ftp.sc.intel.com trusty-security/universe i386 Packages [108 kB]
+[client02][DEBUG ] Get:28 http://linux-ftp.sc.intel.com trusty-security/multiverse i386 Packages [3,841 B]
+[client02][DEBUG ] Get:29 http://linux-ftp.sc.intel.com trusty-security/main Translation-en [153 kB]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Translation-en
+[client02][DEBUG ] Get:30 http://linux-ftp.sc.intel.com trusty-security/universe Translation-en [60.9 kB]
+[client02][DEBUG ] Get:31 http://linux-ftp.sc.intel.com trusty-updates/main Sources [207 kB]
+[client02][DEBUG ] Get:32 http://linux-ftp.sc.intel.com trusty-updates/restricted Sources [3,433 B]
+[client02][DEBUG ] Get:33 http://linux-ftp.sc.intel.com trusty-updates/universe Sources [120 kB]
+[client02][DEBUG ] Get:34 http://linux-ftp.sc.intel.com trusty-updates/multiverse Sources [5,143 B]
+[client02][DEBUG ] Get:35 http://linux-ftp.sc.intel.com trusty-updates/main amd64 Packages [541 kB]
+[client02][DEBUG ] Get:36 http://linux-ftp.sc.intel.com trusty-updates/restricted amd64 Packages [11.8 kB]
+[client02][DEBUG ] Get:37 http://linux-ftp.sc.intel.com trusty-updates/universe amd64 Packages [286 kB]
+[client02][DEBUG ] Get:38 http://linux-ftp.sc.intel.com trusty-updates/multiverse amd64 Packages [12.0 kB]
+[client02][DEBUG ] Get:39 http://linux-ftp.sc.intel.com trusty-updates/main i386 Packages [528 kB]
+[client02][DEBUG ] Get:40 http://linux-ftp.sc.intel.com trusty-updates/restricted i386 Packages [11.8 kB]
+[client02][DEBUG ] Get:41 http://linux-ftp.sc.intel.com trusty-updates/universe i386 Packages [287 kB]
+[client02][DEBUG ] Get:42 http://linux-ftp.sc.intel.com trusty-updates/multiverse i386 Packages [12.1 kB]
+[client02][DEBUG ] Get:43 http://linux-ftp.sc.intel.com trusty-updates/main Translation-en [259 kB]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Translation-en
+[client02][DEBUG ] Get:44 http://linux-ftp.sc.intel.com trusty-updates/universe Translation-en [150 kB]
+[client02][DEBUG ] Get:45 http://linux-ftp.sc.intel.com trusty-proposed/main Sources [133 kB]
+[client02][DEBUG ] Get:46 http://linux-ftp.sc.intel.com trusty-proposed/restricted Sources [28 B]
+[client02][DEBUG ] Get:47 http://linux-ftp.sc.intel.com trusty-proposed/universe Sources [25.0 kB]
+[client02][DEBUG ] Get:48 http://linux-ftp.sc.intel.com trusty-proposed/multiverse Sources [28 B]
+[client02][DEBUG ] Get:49 http://linux-ftp.sc.intel.com trusty-proposed/main amd64 Packages [162 kB]
+[client02][DEBUG ] Get:50 http://linux-ftp.sc.intel.com trusty-proposed/restricted amd64 Packages [28 B]
+[client02][DEBUG ] Get:51 http://linux-ftp.sc.intel.com trusty-proposed/universe amd64 Packages [21.8 kB]
+[client02][DEBUG ] Get:52 http://linux-ftp.sc.intel.com trusty-proposed/multiverse amd64 Packages [28 B]
+[client02][DEBUG ] Get:53 http://linux-ftp.sc.intel.com trusty-proposed/main i386 Packages [156 kB]
+[client02][DEBUG ] Get:54 http://linux-ftp.sc.intel.com trusty-proposed/restricted i386 Packages [28 B]
+[client02][DEBUG ] Get:55 http://linux-ftp.sc.intel.com trusty-proposed/universe i386 Packages [22.0 kB]
+[client02][DEBUG ] Get:56 http://linux-ftp.sc.intel.com trusty-proposed/multiverse i386 Packages [28 B]
+[client02][DEBUG ] Get:57 http://linux-ftp.sc.intel.com trusty-proposed/main Translation-en [66.2 kB]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Translation-en
+[client02][DEBUG ] Get:58 http://linux-ftp.sc.intel.com trusty-proposed/universe Translation-en [15.9 kB]
+[client02][DEBUG ] Get:59 http://linux-ftp.sc.intel.com trusty-backports/main Sources [5,851 B]
+[client02][DEBUG ] Get:60 http://linux-ftp.sc.intel.com trusty-backports/restricted Sources [28 B]
+[client02][DEBUG ] Get:61 http://linux-ftp.sc.intel.com trusty-backports/universe Sources [27.0 kB]
+[client02][DEBUG ] Get:62 http://linux-ftp.sc.intel.com trusty-backports/multiverse Sources [1,898 B]
+[client02][DEBUG ] Get:63 http://linux-ftp.sc.intel.com trusty-backports/main amd64 Packages [6,256 B]
+[client02][DEBUG ] Get:64 http://linux-ftp.sc.intel.com trusty-backports/restricted amd64 Packages [28 B]
+[client02][DEBUG ] Get:65 http://linux-ftp.sc.intel.com trusty-backports/universe amd64 Packages [30.2 kB]
+[client02][DEBUG ] Get:66 http://linux-ftp.sc.intel.com trusty-backports/multiverse amd64 Packages [1,245 B]
+[client02][DEBUG ] Get:67 http://linux-ftp.sc.intel.com trusty-backports/main i386 Packages [6,285 B]
+[client02][DEBUG ] Get:68 http://linux-ftp.sc.intel.com trusty-backports/restricted i386 Packages [28 B]
+[client02][DEBUG ] Get:69 http://linux-ftp.sc.intel.com trusty-backports/universe i386 Packages [30.3 kB]
+[client02][DEBUG ] Get:70 http://linux-ftp.sc.intel.com trusty-backports/multiverse i386 Packages [1,249 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Translation-en
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/main Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/multiverse Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/restricted Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/universe Translation-en_US
+[client02][DEBUG ] Fetched 4,740 kB in 22s (209 kB/s)
+[client02][DEBUG ] Reading package lists...
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] gdisk is already the newest version.
+[client02][DEBUG ] Some packages could not be installed. This may mean that you have
+[client02][DEBUG ] requested an impossible situation or if you are using the unstable
+[client02][DEBUG ] distribution that some required packages have not yet been created
+[client02][DEBUG ] or been moved out of Incoming.
+[client02][DEBUG ] The following information may help to resolve the situation:
+[client02][DEBUG ] 
+[client02][DEBUG ] The following packages have unmet dependencies:
+[client02][DEBUG ]  ceph-common : Depends: librbd1 (= 0.87.2-1trusty) but 0.93-1100-geb8e228-1trusty is to be installed
+[client02][WARNING] E: Unable to correct problems, you have held broken packages.
+[client02][ERROR ] RuntimeError: command returned non-zero exit status: 100
+[ceph_deploy][ERROR ] RuntimeError: Failed to execute command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): ceph-deploy install --release hammer client02
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] installing ceph on client02
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] ca-certificates is already the newest version.
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils libjs-jquery linux-cloud-tools-3.13.0-49
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-49-generic linux-cloud-tools-3.13.0-51
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51-generic linux-cloud-tools-3.13.0-52
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52-generic linux-cloud-tools-3.13.0-53
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53-generic linux-headers-3.13.0-32
+[client02][DEBUG ]   linux-headers-3.13.0-32-generic linux-headers-3.13.0-48
+[client02][DEBUG ]   linux-headers-3.13.0-48-generic linux-headers-3.13.0-49
+[client02][DEBUG ]   linux-headers-3.13.0-49-generic linux-headers-3.13.0-51
+[client02][DEBUG ]   linux-headers-3.13.0-51-generic linux-headers-3.13.0-52
+[client02][DEBUG ]   linux-headers-3.13.0-52-generic linux-headers-3.13.0-53
+[client02][DEBUG ]   linux-headers-3.13.0-53-generic linux-image-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-3.13.0-48-generic linux-image-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-3.13.0-51-generic linux-image-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-3.13.0-53-generic linux-image-extra-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-48-generic linux-image-extra-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-51-generic linux-image-extra-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-53-generic python-flask python-itsdangerous
+[client02][DEBUG ]   python-jinja2 python-markupsafe python-rados python-rbd python-werkzeug
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 147 not upgraded.
+[client02][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] --2015-06-19 11:59:46--  https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] Resolving child-prc.intel.com (child-prc.intel.com)... 10.239.4.80
+[client02][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.80|:913... connected.
+[client02][WARNING] Proxy request sent, awaiting response... 301 Moved Permanently
+[client02][WARNING] Location: https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc [following]
+[client02][WARNING] --2015-06-19 11:59:47--  https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.80|:913... connected.
+[client02][WARNING] Proxy request sent, awaiting response... 200 OK
+[client02][WARNING] Length: 1752 (1.7K) [text/plain]
+[client02][WARNING] Saving to: ‘release.asc’
+[client02][WARNING] 
+[client02][WARNING]      0K .                                                     100% 52.0M=0s
+[client02][WARNING] 
+[client02][WARNING] 2015-06-19 11:59:51 (52.0 MB/s) - ‘release.asc’ saved [1752/1752]
+[client02][WARNING] 
+[client02][INFO  ] Running command: apt-key add release.asc
+[client02][DEBUG ] OK
+[client02][DEBUG ] add deb repo to sources.list
+[client02][INFO  ] Running command: apt-get -q update
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty InRelease
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-security InRelease
+[client02][DEBUG ] Get:1 http://ceph.com trusty InRelease [6,855 B]
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-updates InRelease
+[client02][DEBUG ] Get:2 http://ceph.com trusty/main amd64 Packages [7,325 B]
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-proposed InRelease
+[client02][DEBUG ] Ign http://ppa.launchpad.net trusty InRelease
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-backports InRelease
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release.gpg
+[client02][DEBUG ] Get:3 http://ceph.com trusty/main i386 Packages [789 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release.gpg
+[client02][DEBUG ] Hit http://ppa.launchpad.net trusty Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security Release
+[client02][DEBUG ] Hit http://ppa.launchpad.net trusty Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Sources
+[client02][DEBUG ] Hit http://ppa.launchpad.net trusty/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main amd64 Packages
+[client02][DEBUG ] Hit http://ppa.launchpad.net trusty/main i386 Packages
+[client02][DEBUG ] Ign http://ceph.com trusty/main Translation-en_US
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted amd64 Packages
+[client02][DEBUG ] Ign http://ceph.com trusty/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main i386 Packages
+[client02][DEBUG ] Hit http://ppa.launchpad.net trusty/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Translation-en
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/main Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/multiverse Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/restricted Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/universe Translation-en_US
+[client02][DEBUG ] Fetched 15.0 kB in 16s (914 B/s)
+[client02][DEBUG ] Reading package lists...
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] gdisk is already the newest version.
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils linux-cloud-tools-3.13.0-49 linux-cloud-tools-3.13.0-49-generic
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51 linux-cloud-tools-3.13.0-51-generic
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52 linux-cloud-tools-3.13.0-52-generic
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53 linux-cloud-tools-3.13.0-53-generic
+[client02][DEBUG ]   linux-headers-3.13.0-32 linux-headers-3.13.0-32-generic
+[client02][DEBUG ]   linux-headers-3.13.0-48 linux-headers-3.13.0-48-generic
+[client02][DEBUG ]   linux-headers-3.13.0-49 linux-headers-3.13.0-49-generic
+[client02][DEBUG ]   linux-headers-3.13.0-51 linux-headers-3.13.0-51-generic
+[client02][DEBUG ]   linux-headers-3.13.0-52 linux-headers-3.13.0-52-generic
+[client02][DEBUG ]   linux-headers-3.13.0-53 linux-headers-3.13.0-53-generic
+[client02][DEBUG ]   linux-image-3.13.0-32-generic linux-image-3.13.0-48-generic
+[client02][DEBUG ]   linux-image-3.13.0-49-generic linux-image-3.13.0-51-generic
+[client02][DEBUG ]   linux-image-3.13.0-52-generic linux-image-3.13.0-53-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-32-generic linux-image-extra-3.13.0-48-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-49-generic linux-image-extra-3.13.0-51-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-52-generic linux-image-extra-3.13.0-53-generic
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] The following extra packages will be installed:
+[client02][DEBUG ]   libcephfs1 librados-dev librados2 librbd-dev librbd1 python-cephfs
+[client02][DEBUG ]   python-rados python-rbd
+[client02][DEBUG ] Recommended packages:
+[client02][DEBUG ]   btrfs-tools libradosstriper1 ceph-fuse
+[client02][DEBUG ] The following NEW packages will be installed:
+[client02][DEBUG ]   ceph ceph-common ceph-fs-common ceph-mds libcephfs1 python-cephfs
+[client02][DEBUG ] The following packages will be upgraded:
+[client02][DEBUG ]   librados-dev librados2 librbd-dev librbd1 python-rados python-rbd
+[client02][DEBUG ] 6 upgraded, 6 newly installed, 0 to remove and 147 not upgraded.
+[client02][DEBUG ] Need to get 105 MB of archives.
+[client02][DEBUG ] After this operation, 123 MB of additional disk space will be used.
+[client02][DEBUG ] Get:1 http://ceph.com/debian-hammer/ trusty/main librbd-dev amd64 0.94.2-1trusty [36.1 MB]
+[client02][DEBUG ] Get:2 http://ceph.com/debian-hammer/ trusty/main librbd1 amd64 0.94.2-1trusty [2,393 kB]
+[client02][DEBUG ] Get:3 http://ceph.com/debian-hammer/ trusty/main librados-dev amd64 0.94.2-1trusty [33.2 MB]
+[client02][DEBUG ] Get:4 http://ceph.com/debian-hammer/ trusty/main librados2 amd64 0.94.2-1trusty [2,295 kB]
+[client02][DEBUG ] Get:5 http://ceph.com/debian-hammer/ trusty/main python-rados amd64 0.94.2-1trusty [796 kB]
+[client02][DEBUG ] Get:6 http://ceph.com/debian-hammer/ trusty/main libcephfs1 amd64 0.94.2-1trusty [2,531 kB]
+[client02][DEBUG ] Get:7 http://ceph.com/debian-hammer/ trusty/main python-cephfs amd64 0.94.2-1trusty [787 kB]
+[client02][DEBUG ] Get:8 http://ceph.com/debian-hammer/ trusty/main python-rbd amd64 0.94.2-1trusty [791 kB]
+[client02][DEBUG ] Get:9 http://ceph.com/debian-hammer/ trusty/main ceph-common amd64 0.94.2-1trusty [5,927 kB]
+[client02][DEBUG ] Get:10 http://ceph.com/debian-hammer/ trusty/main ceph amd64 0.94.2-1trusty [11.3 MB]
+[client02][DEBUG ] Get:11 http://ceph.com/debian-hammer/ trusty/main ceph-fs-common amd64 0.94.2-1trusty [804 kB]
+[client02][DEBUG ] Get:12 http://ceph.com/debian-hammer/ trusty/main ceph-mds amd64 0.94.2-1trusty [7,631 kB]
+[client02][DEBUG ] Fetched 105 MB in 31s (3,342 kB/s)
+[client02][DEBUG ] (Reading database ... 296714 files and directories currently installed.)
+[client02][DEBUG ] Preparing to unpack .../librbd-dev_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking librbd-dev (0.94.2-1trusty) over (0.93-1100-geb8e228-1trusty) ...
+[client02][DEBUG ] Preparing to unpack .../librbd1_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking librbd1 (0.94.2-1trusty) over (0.93-1100-geb8e228-1trusty) ...
+[client02][DEBUG ] Preparing to unpack .../librados-dev_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking librados-dev (0.94.2-1trusty) over (0.93-1100-geb8e228-1trusty) ...
+[client02][DEBUG ] Preparing to unpack .../librados2_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking librados2 (0.94.2-1trusty) over (0.93-1100-geb8e228-1trusty) ...
+[client02][DEBUG ] Preparing to unpack .../python-rados_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking python-rados (0.94.2-1trusty) over (0.93-1100-geb8e228-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package libcephfs1.
+[client02][DEBUG ] Preparing to unpack .../libcephfs1_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking libcephfs1 (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package python-cephfs.
+[client02][DEBUG ] Preparing to unpack .../python-cephfs_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking python-cephfs (0.94.2-1trusty) ...
+[client02][DEBUG ] Preparing to unpack .../python-rbd_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking python-rbd (0.94.2-1trusty) over (0.93-1100-geb8e228-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph-common.
+[client02][DEBUG ] Preparing to unpack .../ceph-common_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph.
+[client02][DEBUG ] Preparing to unpack .../ceph_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph-fs-common.
+[client02][DEBUG ] Preparing to unpack .../ceph-fs-common_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph-fs-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph-mds.
+[client02][DEBUG ] Preparing to unpack .../ceph-mds_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph-mds (0.94.2-1trusty) ...
+[client02][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][DEBUG ] Setting up librados2 (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up librados-dev (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up librbd1 (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up librbd-dev (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up python-rados (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up libcephfs1 (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up python-cephfs (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up python-rbd (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up ceph-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up ceph-fs-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][DEBUG ] Setting up ceph (0.94.2-1trusty) ...
+[client02][DEBUG ] ceph-all start/running
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][DEBUG ] Setting up ceph-mds (0.94.2-1trusty) ...
+[client02][DEBUG ] ceph-mds-all start/running
+[client02][DEBUG ] Processing triggers for libc-bin (2.19-0ubuntu6.6) ...
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][INFO  ] Running command: ceph --version
+[client02][DEBUG ] ceph version 0.94.2 (5fb85614ca8f354284c713a2f9c610860720bbf3)
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): /usr/local/bin/ceph-deploy purge client02
+[ceph_deploy.install][INFO  ] note that some dependencies *will not* be removed because they can cause issues with qemu-kvm
+[ceph_deploy.install][INFO  ] like: librbd1 and librados2
+[ceph_deploy.install][DEBUG ] Purging from cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] purging host ... client02
+[client02][INFO  ] Running command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils libcephfs1 libjs-jquery linux-cloud-tools-3.13.0-49
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-49-generic linux-cloud-tools-3.13.0-51
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51-generic linux-cloud-tools-3.13.0-52
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52-generic linux-cloud-tools-3.13.0-53
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53-generic linux-headers-3.13.0-32
+[client02][DEBUG ]   linux-headers-3.13.0-32-generic linux-headers-3.13.0-48
+[client02][DEBUG ]   linux-headers-3.13.0-48-generic linux-headers-3.13.0-49
+[client02][DEBUG ]   linux-headers-3.13.0-49-generic linux-headers-3.13.0-51
+[client02][DEBUG ]   linux-headers-3.13.0-51-generic linux-headers-3.13.0-52
+[client02][DEBUG ]   linux-headers-3.13.0-52-generic linux-headers-3.13.0-53
+[client02][DEBUG ]   linux-headers-3.13.0-53-generic linux-image-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-3.13.0-48-generic linux-image-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-3.13.0-51-generic linux-image-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-3.13.0-53-generic linux-image-extra-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-48-generic linux-image-extra-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-51-generic linux-image-extra-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-53-generic python-cephfs python-flask
+[client02][DEBUG ]   python-itsdangerous python-jinja2 python-markupsafe python-rados python-rbd
+[client02][DEBUG ]   python-werkzeug
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] The following packages will be REMOVED:
+[client02][DEBUG ]   ceph* ceph-common* ceph-fs-common* ceph-mds*
+[client02][DEBUG ] 0 upgraded, 0 newly installed, 4 to remove and 147 not upgraded.
+[client02][DEBUG ] After this operation, 117 MB disk space will be freed.
+[client02][DEBUG ] (Reading database ... 296952 files and directories currently installed.)
+[client02][DEBUG ] Removing ceph-mds (0.94.2-1trusty) ...
+[client02][DEBUG ] ceph-mds-all stop/waiting
+[client02][DEBUG ] /etc/init.d/ceph: ceph conf /etc/ceph/ceph.conf not found; system is not configured.
+[client02][DEBUG ] Purging configuration files for ceph-mds (0.94.2-1trusty) ...
+[client02][DEBUG ] Removing ceph (0.94.2-1trusty) ...
+[client02][DEBUG ] ceph-all stop/waiting
+[client02][DEBUG ] /etc/init.d/ceph: ceph conf /etc/ceph/ceph.conf not found; system is not configured.
+[client02][DEBUG ] Purging configuration files for ceph (0.94.2-1trusty) ...
+[client02][DEBUG ] Removing ceph-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Purging configuration files for ceph-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Removing ceph-fs-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client02][WARNING] debconf: unable to initialize frontend: Dialog
+[client02][WARNING] debconf: (TERM is not set, so the dialog frontend is not usable.)
+[client02][WARNING] debconf: falling back to frontend: Readline
+[client02][WARNING] debconf: unable to initialize frontend: Readline
+[client02][WARNING] debconf: (This frontend requires a controlling tty.)
+[client02][WARNING] debconf: falling back to frontend: Teletype
+[client02][DEBUG ] Processing triggers for libc-bin (2.19-0ubuntu6.6) ...
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): ceph-deploy install --release hammer client02
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] installing ceph on client02
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] ca-certificates is already the newest version.
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils libcephfs1 libjs-jquery linux-cloud-tools-3.13.0-49
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-49-generic linux-cloud-tools-3.13.0-51
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51-generic linux-cloud-tools-3.13.0-52
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52-generic linux-cloud-tools-3.13.0-53
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53-generic linux-headers-3.13.0-32
+[client02][DEBUG ]   linux-headers-3.13.0-32-generic linux-headers-3.13.0-48
+[client02][DEBUG ]   linux-headers-3.13.0-48-generic linux-headers-3.13.0-49
+[client02][DEBUG ]   linux-headers-3.13.0-49-generic linux-headers-3.13.0-51
+[client02][DEBUG ]   linux-headers-3.13.0-51-generic linux-headers-3.13.0-52
+[client02][DEBUG ]   linux-headers-3.13.0-52-generic linux-headers-3.13.0-53
+[client02][DEBUG ]   linux-headers-3.13.0-53-generic linux-image-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-3.13.0-48-generic linux-image-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-3.13.0-51-generic linux-image-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-3.13.0-53-generic linux-image-extra-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-48-generic linux-image-extra-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-51-generic linux-image-extra-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-53-generic python-cephfs python-flask
+[client02][DEBUG ]   python-itsdangerous python-jinja2 python-markupsafe python-rados python-rbd
+[client02][DEBUG ]   python-werkzeug
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 147 not upgraded.
+[client02][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] --2015-06-19 12:55:05--  https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] Resolving child-prc.intel.com (child-prc.intel.com)... 10.239.4.80
+[client02][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.80|:913... connected.
+[client02][WARNING] Proxy request sent, awaiting response... 301 Moved Permanently
+[client02][WARNING] Location: https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc [following]
+[client02][WARNING] --2015-06-19 12:55:06--  https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client02][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.80|:913... connected.
+[client02][WARNING] Proxy request sent, awaiting response... 200 OK
+[client02][WARNING] Length: 1752 (1.7K) [text/plain]
+[client02][WARNING] Saving to: ‘release.asc’
+[client02][WARNING] 
+[client02][WARNING]      0K .                                                     100% 53.2M=0s
+[client02][WARNING] 
+[client02][WARNING] 2015-06-19 12:55:08 (53.2 MB/s) - ‘release.asc’ saved [1752/1752]
+[client02][WARNING] 
+[client02][INFO  ] Running command: apt-key add release.asc
+[client02][DEBUG ] OK
+[client02][DEBUG ] add deb repo to sources.list
+[client02][INFO  ] Running command: apt-get -q update
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty InRelease
+[client02][DEBUG ] Hit http://ceph.com trusty InRelease
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-security InRelease
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-updates InRelease
+[client02][DEBUG ] Hit http://ceph.com trusty/main amd64 Packages
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-proposed InRelease
+[client02][DEBUG ] Ign http://ppa.launchpad.net trusty InRelease
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-backports InRelease
+[client02][DEBUG ] Hit http://ceph.com trusty/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed Release.gpg
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release.gpg
+[client02][DEBUG ] Get:1 http://ppa.launchpad.net trusty Release.gpg [316 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security Release
+[client02][DEBUG ] Get:2 http://ppa.launchpad.net trusty Release [15.1 kB]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Sources
+[client02][DEBUG ] Get:3 http://ppa.launchpad.net trusty/main amd64 Packages [3,864 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe amd64 Packages
+[client02][DEBUG ] Get:4 http://ppa.launchpad.net trusty/main i386 Packages [3,867 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main i386 Packages
+[client02][DEBUG ] Get:5 http://ppa.launchpad.net trusty/main Translation-en [2,422 B]
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted amd64 Packages
+[client02][DEBUG ] Ign http://ceph.com trusty/main Translation-en_US
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse amd64 Packages
+[client02][DEBUG ] Ign http://ceph.com trusty/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Sources
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse amd64 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse i386 Packages
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Translation-en
+[client02][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Translation-en
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/main Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/multiverse Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/restricted Translation-en_US
+[client02][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty/universe Translation-en_US
+[client02][DEBUG ] Fetched 25.5 kB in 16s (1,563 B/s)
+[client02][DEBUG ] Reading package lists...
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] gdisk is already the newest version.
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils linux-cloud-tools-3.13.0-49 linux-cloud-tools-3.13.0-49-generic
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51 linux-cloud-tools-3.13.0-51-generic
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52 linux-cloud-tools-3.13.0-52-generic
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53 linux-cloud-tools-3.13.0-53-generic
+[client02][DEBUG ]   linux-headers-3.13.0-32 linux-headers-3.13.0-32-generic
+[client02][DEBUG ]   linux-headers-3.13.0-48 linux-headers-3.13.0-48-generic
+[client02][DEBUG ]   linux-headers-3.13.0-49 linux-headers-3.13.0-49-generic
+[client02][DEBUG ]   linux-headers-3.13.0-51 linux-headers-3.13.0-51-generic
+[client02][DEBUG ]   linux-headers-3.13.0-52 linux-headers-3.13.0-52-generic
+[client02][DEBUG ]   linux-headers-3.13.0-53 linux-headers-3.13.0-53-generic
+[client02][DEBUG ]   linux-image-3.13.0-32-generic linux-image-3.13.0-48-generic
+[client02][DEBUG ]   linux-image-3.13.0-49-generic linux-image-3.13.0-51-generic
+[client02][DEBUG ]   linux-image-3.13.0-52-generic linux-image-3.13.0-53-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-32-generic linux-image-extra-3.13.0-48-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-49-generic linux-image-extra-3.13.0-51-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-52-generic linux-image-extra-3.13.0-53-generic
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] Recommended packages:
+[client02][DEBUG ]   btrfs-tools libradosstriper1 ceph-fuse
+[client02][DEBUG ] The following NEW packages will be installed:
+[client02][DEBUG ]   ceph ceph-common ceph-fs-common ceph-mds
+[client02][DEBUG ] 0 upgraded, 4 newly installed, 0 to remove and 147 not upgraded.
+[client02][DEBUG ] Need to get 0 B/25.6 MB of archives.
+[client02][DEBUG ] After this operation, 117 MB of additional disk space will be used.
+[client02][DEBUG ] Selecting previously unselected package ceph-common.
+[client02][DEBUG ] (Reading database ... 296725 files and directories currently installed.)
+[client02][DEBUG ] Preparing to unpack .../ceph-common_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph.
+[client02][DEBUG ] Preparing to unpack .../ceph_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph-fs-common.
+[client02][DEBUG ] Preparing to unpack .../ceph-fs-common_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph-fs-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Selecting previously unselected package ceph-mds.
+[client02][DEBUG ] Preparing to unpack .../ceph-mds_0.94.2-1trusty_amd64.deb ...
+[client02][DEBUG ] Unpacking ceph-mds (0.94.2-1trusty) ...
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client02][DEBUG ] Setting up ceph-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Setting up ceph-fs-common (0.94.2-1trusty) ...
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][DEBUG ] Setting up ceph (0.94.2-1trusty) ...
+[client02][DEBUG ] ceph-all start/running
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][DEBUG ] Setting up ceph-mds (0.94.2-1trusty) ...
+[client02][DEBUG ] ceph-mds-all start/running
+[client02][DEBUG ] Processing triggers for libc-bin (2.19-0ubuntu6.6) ...
+[client02][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client02][INFO  ] Running command: ceph --version
+[client02][DEBUG ] ceph version 0.94.2 (5fb85614ca8f354284c713a2f9c610860720bbf3)
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): /usr/local/bin/ceph-deploy purge client02
+[ceph_deploy.install][INFO  ] note that some dependencies *will not* be removed because they can cause issues with qemu-kvm
+[ceph_deploy.install][INFO  ] like: librbd1 and librados2
+[ceph_deploy.install][DEBUG ] Purging from cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] purging host ... client02
+[client02][INFO  ] Running command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils libcephfs1 libjs-jquery linux-cloud-tools-3.13.0-49
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-49-generic linux-cloud-tools-3.13.0-51
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51-generic linux-cloud-tools-3.13.0-52
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52-generic linux-cloud-tools-3.13.0-53
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53-generic linux-cloud-tools-3.13.0-54
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-54-generic linux-headers-3.13.0-32
+[client02][DEBUG ]   linux-headers-3.13.0-32-generic linux-headers-3.13.0-48
+[client02][DEBUG ]   linux-headers-3.13.0-48-generic linux-headers-3.13.0-49
+[client02][DEBUG ]   linux-headers-3.13.0-49-generic linux-headers-3.13.0-51
+[client02][DEBUG ]   linux-headers-3.13.0-51-generic linux-headers-3.13.0-52
+[client02][DEBUG ]   linux-headers-3.13.0-52-generic linux-headers-3.13.0-53
+[client02][DEBUG ]   linux-headers-3.13.0-53-generic linux-headers-3.13.0-54
+[client02][DEBUG ]   linux-headers-3.13.0-54-generic linux-image-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-3.13.0-48-generic linux-image-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-3.13.0-51-generic linux-image-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-3.13.0-53-generic linux-image-3.13.0-54-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-32-generic linux-image-extra-3.13.0-48-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-49-generic linux-image-extra-3.13.0-51-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-52-generic linux-image-extra-3.13.0-53-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-54-generic python-cephfs python-flask
+[client02][DEBUG ]   python-itsdangerous python-jinja2 python-markupsafe python-rados python-rbd
+[client02][DEBUG ]   python-werkzeug
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] The following packages will be REMOVED:
+[client02][DEBUG ]   ceph* ceph-common* ceph-fs-common* ceph-mds*
+[client02][DEBUG ] 0 upgraded, 0 newly installed, 4 to remove and 161 not upgraded.
+[client02][DEBUG ] 3 not fully installed or removed.
+[client02][DEBUG ] After this operation, 123 MB disk space will be freed.
+[client02][DEBUG ] (Reading database ... 326632 files and directories currently installed.)
+[client02][DEBUG ] Removing ceph-mds (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] ceph-mds-all stop/waiting
+[client02][DEBUG ] /etc/init.d/ceph: ceph conf /etc/ceph/ceph.conf not found; system is not configured.
+[client02][DEBUG ] Purging configuration files for ceph-mds (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] Removing ceph (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] ceph-all stop/waiting
+[client02][DEBUG ] /etc/init.d/ceph: ceph conf /etc/ceph/ceph.conf not found; system is not configured.
+[client02][DEBUG ] Purging configuration files for ceph (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] Removing ceph-common (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] Purging configuration files for ceph-common (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] Removing ceph-fs-common (9.0.1-1036-gedd3542-1trusty) ...
+[client02][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client02][WARNING] debconf: unable to initialize frontend: Dialog
+[client02][WARNING] debconf: (TERM is not set, so the dialog frontend is not usable.)
+[client02][WARNING] debconf: falling back to frontend: Readline
+[client02][WARNING] debconf: unable to initialize frontend: Readline
+[client02][WARNING] debconf: (This frontend requires a controlling tty.)
+[client02][WARNING] debconf: falling back to frontend: Teletype
+[client02][DEBUG ] Processing triggers for libc-bin (2.19-0ubuntu6.6) ...
+[client02][DEBUG ] Setting up linux-image-extra-3.13.0-55-generic (3.13.0-55.94) ...
+[client02][WARNING] run-parts: executing /etc/kernel/postinst.d/apt-auto-removal 3.13.0-55-generic /boot/vmlinuz-3.13.0-55-generic
+[client02][WARNING] run-parts: executing /etc/kernel/postinst.d/dkms 3.13.0-55-generic /boot/vmlinuz-3.13.0-55-generic
+[client02][WARNING] run-parts: executing /etc/kernel/postinst.d/initramfs-tools 3.13.0-55-generic /boot/vmlinuz-3.13.0-55-generic
+[client02][WARNING] update-initramfs: Generating /boot/initrd.img-3.13.0-55-generic
+[client02][WARNING] 
+[client02][WARNING] gzip: stdout: No space left on device
+[client02][WARNING] E: mkinitramfs failure cpio 141 gzip 1
+[client02][WARNING] update-initramfs: failed for /boot/initrd.img-3.13.0-55-generic with 1.
+[client02][WARNING] run-parts: /etc/kernel/postinst.d/initramfs-tools exited with return code 1
+[client02][WARNING] dpkg: error processing package linux-image-extra-3.13.0-55-generic (--configure):
+[client02][WARNING]  subprocess installed post-installation script returned error exit status 1
+[client02][WARNING] dpkg: dependency problems prevent configuration of linux-image-generic:
+[client02][WARNING]  linux-image-generic depends on linux-image-extra-3.13.0-55-generic; however:
+[client02][WARNING]   Package linux-image-extra-3.13.0-55-generic is not configured yet.
+[client02][WARNING] 
+[client02][WARNING] dpkg: error processing package linux-image-generic (--configure):
+[client02][WARNING]  dependency problems - leaving unconfigured
+[client02][WARNING] dpkg: dependency problems prevent configuration of linux-generic:
+[client02][WARNING]  linux-generic depends on linux-image-generic (= 3.13.0.55.62); however:
+[client02][WARNING]   Package linux-image-generic is not configured yet.
+[client02][WARNING] 
+[client02][WARNING] dpkg: error processing package linux-generic (--configure):
+[client02][WARNING]  dependency problems - leaving unconfigured
+[client02][WARNING] No apport report written because the error message indicates its a followup error from a previous failure.
+[client02][WARNING] No apport report written because the error message indicates its a followup error from a previous failure.
+[client02][WARNING] Errors were encountered while processing:
+[client02][WARNING]  linux-image-extra-3.13.0-55-generic
+[client02][WARNING]  linux-image-generic
+[client02][WARNING]  linux-generic
+[client02][WARNING] E: Sub-process /usr/bin/dpkg returned an error code (1)
+[client02][ERROR ] RuntimeError: command returned non-zero exit status: 100
+[ceph_deploy][ERROR ] RuntimeError: Failed to execute command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.22): ceph-deploy install --release hammer client02
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client02
+[ceph_deploy.install][DEBUG ] Detecting platform for host client02 ...
+[client02][DEBUG ] connected to host: client02 
+[client02][DEBUG ] detect platform information from remote host
+[client02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client02][INFO  ] installing ceph on client02
+[client02][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client02][DEBUG ] Reading package lists...
+[client02][DEBUG ] Building dependency tree...
+[client02][DEBUG ] Reading state information...
+[client02][DEBUG ] ca-certificates is already the newest version.
+[client02][DEBUG ] The following packages were automatically installed and are no longer required:
+[client02][DEBUG ]   keyutils libcephfs1 libjs-jquery linux-cloud-tools-3.13.0-49
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-49-generic linux-cloud-tools-3.13.0-51
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-51-generic linux-cloud-tools-3.13.0-52
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-52-generic linux-cloud-tools-3.13.0-53
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-53-generic linux-cloud-tools-3.13.0-54
+[client02][DEBUG ]   linux-cloud-tools-3.13.0-54-generic linux-headers-3.13.0-32
+[client02][DEBUG ]   linux-headers-3.13.0-32-generic linux-headers-3.13.0-48
+[client02][DEBUG ]   linux-headers-3.13.0-48-generic linux-headers-3.13.0-49
+[client02][DEBUG ]   linux-headers-3.13.0-49-generic linux-headers-3.13.0-51
+[client02][DEBUG ]   linux-headers-3.13.0-51-generic linux-headers-3.13.0-52
+[client02][DEBUG ]   linux-headers-3.13.0-52-generic linux-headers-3.13.0-53
+[client02][DEBUG ]   linux-headers-3.13.0-53-generic linux-headers-3.13.0-54
+[client02][DEBUG ]   linux-headers-3.13.0-54-generic linux-image-3.13.0-32-generic
+[client02][DEBUG ]   linux-image-3.13.0-48-generic linux-image-3.13.0-49-generic
+[client02][DEBUG ]   linux-image-3.13.0-51-generic linux-image-3.13.0-52-generic
+[client02][DEBUG ]   linux-image-3.13.0-53-generic linux-image-3.13.0-54-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-32-generic linux-image-extra-3.13.0-48-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-49-generic linux-image-extra-3.13.0-51-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-52-generic linux-image-extra-3.13.0-53-generic
+[client02][DEBUG ]   linux-image-extra-3.13.0-54-generic python-cephfs python-flask
+[client02][DEBUG ]   python-itsdangerous python-jinja2 python-markupsafe python-rados python-rbd
+[client02][DEBUG ]   python-werkzeug
+[client02][DEBUG ] Use 'apt-get autoremove' to remove them.
+[client02][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 161 not upgraded.
+[client02][DEBUG ] 3 not fully installed or removed.
+[client02][DEBUG ] After this operation, 0 B of additional disk space will be used.
+[client02][DEBUG ] Setting up linux-image-extra-3.13.0-55-generic (3.13.0-55.94) ...
+[client02][WARNING] run-parts: executing /etc/kernel/postinst.d/apt-auto-removal 3.13.0-55-generic /boot/vmlinuz-3.13.0-55-generic
+[client02][WARNING] run-parts: executing /etc/kernel/postinst.d/dkms 3.13.0-55-generic /boot/vmlinuz-3.13.0-55-generic
+[client02][WARNING] run-parts: executing /etc/kernel/postinst.d/initramfs-tools 3.13.0-55-generic /boot/vmlinuz-3.13.0-55-generic
+[client02][WARNING] update-initramfs: Generating /boot/initrd.img-3.13.0-55-generic
+[client02][WARNING] 
+[client02][WARNING] gzip: stdout: No space left on device
+[client02][WARNING] E: mkinitramfs failure cpio 141 gzip 1
+[client02][WARNING] update-initramfs: failed for /boot/initrd.img-3.13.0-55-generic with 1.
+[client02][WARNING] run-parts: /etc/kernel/postinst.d/initramfs-tools exited with return code 1
+[client02][WARNING] dpkg: error processing package linux-image-extra-3.13.0-55-generic (--configure):
+[client02][WARNING]  subprocess installed post-installation script returned error exit status 1
+[client02][WARNING] dpkg: dependency problems prevent configuration of linux-image-generic:
+[client02][WARNING]  linux-image-generic depends on linux-image-extra-3.13.0-55-generic; however:
+[client02][WARNING]   Package linux-image-extra-3.13.0-55-generic is not configured yet.
+[client02][WARNING] 
+[client02][WARNING] dpkg: error processing package linux-image-generic (--configure):
+[client02][WARNING]  dependency problems - leaving unconfigured
+[client02][WARNING] dpkg: dependency problems prevent configuration of linux-generic:
+[client02][WARNING]  linux-generic depends on linux-image-generic (= 3.13.0.55.62); however:
+[client02][WARNING]   Package linux-image-generic is not configured yet.
+[client02][WARNING] 
+[client02][WARNING] dpkg: error processing package linux-generic (--configure):
+[client02][WARNING]  dependency problems - leaving unconfigured
+[client02][WARNING] No apport report written because the error message indicates its a followup error from a previous failure.
+[client02][WARNING] No apport report written because the error message indicates its a followup error from a previous failure.
+[client02][WARNING] Errors were encountered while processing:
+[client02][WARNING]  linux-image-extra-3.13.0-55-generic
+[client02][WARNING]  linux-image-generic
+[client02][WARNING]  linux-generic
+[client02][WARNING] E: Sub-process /usr/bin/dpkg returned an error code (1)
+[client02][ERROR ] RuntimeError: command returned non-zero exit status: 100
+[ceph_deploy][ERROR ] RuntimeError: Failed to execute command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.25): /usr/local/bin/ceph-deploy purge aceph01
+[ceph_deploy.install][INFO  ] note that some dependencies *will not* be removed because they can cause issues with qemu-kvm
+[ceph_deploy.install][INFO  ] like: librbd1 and librados2
+[ceph_deploy.install][DEBUG ] Purging from cluster ceph hosts aceph01
+[ceph_deploy.install][DEBUG ] Detecting platform for host aceph01 ...
+[aceph01][DEBUG ] connected to host: aceph01 
+[aceph01][DEBUG ] detect platform information from remote host
+[aceph01][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[aceph01][INFO  ] purging host ... aceph01
+[aceph01][INFO  ] Running command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common radosgw
+[aceph01][DEBUG ] Reading package lists...
+[aceph01][DEBUG ] Building dependency tree...
+[aceph01][DEBUG ] Reading state information...
+[aceph01][DEBUG ] Package 'ceph' is not installed, so not removed
+[aceph01][DEBUG ] Package 'ceph-common' is not installed, so not removed
+[aceph01][DEBUG ] Package 'ceph-fs-common' is not installed, so not removed
+[aceph01][DEBUG ] Package 'ceph-mds' is not installed, so not removed
+[aceph01][DEBUG ] Package 'radosgw' is not installed, so not removed
+[aceph01][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 83 not upgraded.
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.25): /usr/local/bin/ceph-deploy purge aceph02
+[ceph_deploy.install][INFO  ] note that some dependencies *will not* be removed because they can cause issues with qemu-kvm
+[ceph_deploy.install][INFO  ] like: librbd1 and librados2
+[ceph_deploy.install][DEBUG ] Purging from cluster ceph hosts aceph02
+[ceph_deploy.install][DEBUG ] Detecting platform for host aceph02 ...
+[aceph02][DEBUG ] connected to host: aceph02 
+[aceph02][DEBUG ] detect platform information from remote host
+[aceph02][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[aceph02][INFO  ] purging host ... aceph02
+[aceph02][INFO  ] Running command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common radosgw
+[aceph02][DEBUG ] Reading package lists...
+[aceph02][DEBUG ] Building dependency tree...
+[aceph02][DEBUG ] Reading state information...
+[aceph02][DEBUG ] Package 'ceph' is not installed, so not removed
+[aceph02][DEBUG ] Package 'ceph-common' is not installed, so not removed
+[aceph02][DEBUG ] Package 'ceph-fs-common' is not installed, so not removed
+[aceph02][DEBUG ] Package 'ceph-mds' is not installed, so not removed
+[aceph02][DEBUG ] Package 'radosgw' is not installed, so not removed
+[aceph02][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 86 not upgraded.
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.25): /usr/local/bin/ceph-deploy purge aceph03
+[ceph_deploy.install][INFO  ] note that some dependencies *will not* be removed because they can cause issues with qemu-kvm
+[ceph_deploy.install][INFO  ] like: librbd1 and librados2
+[ceph_deploy.install][DEBUG ] Purging from cluster ceph hosts aceph03
+[ceph_deploy.install][DEBUG ] Detecting platform for host aceph03 ...
+[aceph03][DEBUG ] connected to host: aceph03 
+[aceph03][DEBUG ] detect platform information from remote host
+[aceph03][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[aceph03][INFO  ] purging host ... aceph03
+[aceph03][INFO  ] Running command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common radosgw
+[aceph03][DEBUG ] Reading package lists...
+[aceph03][DEBUG ] Building dependency tree...
+[aceph03][DEBUG ] Reading state information...
+[aceph03][DEBUG ] Package 'ceph' is not installed, so not removed
+[aceph03][DEBUG ] Package 'ceph-common' is not installed, so not removed
+[aceph03][DEBUG ] Package 'ceph-fs-common' is not installed, so not removed
+[aceph03][DEBUG ] Package 'ceph-mds' is not installed, so not removed
+[aceph03][DEBUG ] Package 'radosgw' is not installed, so not removed
+[aceph03][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 86 not upgraded.
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.25): /usr/local/bin/ceph-deploy purge aceph04
+[ceph_deploy.install][INFO  ] note that some dependencies *will not* be removed because they can cause issues with qemu-kvm
+[ceph_deploy.install][INFO  ] like: librbd1 and librados2
+[ceph_deploy.install][DEBUG ] Purging from cluster ceph hosts aceph04
+[ceph_deploy.install][DEBUG ] Detecting platform for host aceph04 ...
+[aceph04][DEBUG ] connected to host: aceph04 
+[aceph04][DEBUG ] detect platform information from remote host
+[aceph04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[aceph04][INFO  ] purging host ... aceph04
+[aceph04][INFO  ] Running command: apt-get -q remove -f -y --force-yes --purge ceph ceph-mds ceph-common ceph-fs-common radosgw
+[aceph04][DEBUG ] Reading package lists...
+[aceph04][DEBUG ] Building dependency tree...
+[aceph04][DEBUG ] Reading state information...
+[aceph04][DEBUG ] Package 'ceph' is not installed, so not removed
+[aceph04][DEBUG ] Package 'ceph-common' is not installed, so not removed
+[aceph04][DEBUG ] Package 'ceph-fs-common' is not installed, so not removed
+[aceph04][DEBUG ] Package 'ceph-mds' is not installed, so not removed
+[aceph04][DEBUG ] Package 'radosgw' is not installed, so not removed
+[aceph04][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 86 not upgraded.
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client04
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client04
+[ceph_deploy.install][DEBUG ] Detecting platform for host client04 ...
+[client04][DEBUG ] connected to host: client04 
+[client04][DEBUG ] detect platform information from remote host
+[client04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client04][INFO  ] installing ceph on client04
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] ca-certificates is already the newest version.
+[client04][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 285 not upgraded.
+[client04][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[ceph_deploy][ERROR ] KeyboardInterrupt
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client04
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client04
+[ceph_deploy.install][DEBUG ] Detecting platform for host client04 ...
+[client04][DEBUG ] connected to host: client04 
+[client04][DEBUG ] detect platform information from remote host
+[client04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client04][INFO  ] installing ceph on client04
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] ca-certificates is already the newest version.
+[client04][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 285 not upgraded.
+[client04][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[ceph_deploy][ERROR ] KeyboardInterrupt
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client04
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client04
+[ceph_deploy.install][DEBUG ] Detecting platform for host client04 ...
+[client04][DEBUG ] connected to host: client04 
+[client04][DEBUG ] detect platform information from remote host
+[client04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client04][INFO  ] installing ceph on client04
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] ca-certificates is already the newest version.
+[client04][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 285 not upgraded.
+[client04][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[ceph_deploy][ERROR ] KeyboardInterrupt
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client04
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client04
+[ceph_deploy.install][DEBUG ] Detecting platform for host client04 ...
+[client04][DEBUG ] connected to host: client04 
+[client04][DEBUG ] detect platform information from remote host
+[client04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client04][INFO  ] installing ceph on client04
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] ca-certificates is already the newest version.
+[client04][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 285 not upgraded.
+[client04][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client04][WARNING] --2015-07-29 15:33:20--  https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client04][WARNING] Resolving child-prc.intel.com (child-prc.intel.com)... 10.239.4.160
+[client04][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.160|:913... connected.
+[client04][WARNING] Proxy request sent, awaiting response... 301 Moved Permanently
+[client04][WARNING] Location: https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc [following]
+[client04][WARNING] --2015-07-29 15:33:21--  https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client04][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.160|:913... connected.
+[client04][WARNING] Proxy request sent, awaiting response... 200 OK
+[client04][WARNING] Length: 1752 (1.7K) [text/plain]
+[client04][WARNING] Saving to: 'release.asc'
+[client04][WARNING] 
+[client04][WARNING]      0K .                                                     100% 42.9M=0s
+[client04][WARNING] 
+[client04][WARNING] 2015-07-29 15:33:26 (42.9 MB/s) - 'release.asc' saved [1752/1752]
+[client04][WARNING] 
+[client04][INFO  ] Running command: apt-key add release.asc
+[client04][DEBUG ] OK
+[client04][DEBUG ] add deb repo to sources.list
+[client04][INFO  ] Running command: apt-get -q update
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-security InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-updates InRelease
+[client04][DEBUG ] Ign http://ppa.launchpad.net trusty InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-proposed InRelease
+[client04][DEBUG ] Ign http://debian.datastax.com stable InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-backports InRelease
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty Release.gpg
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release.gpg
+[client04][DEBUG ] Get:1 http://linux-ftp.sc.intel.com trusty-security Release.gpg [933 B]
+[client04][DEBUG ] Hit http://debian.datastax.com stable Release.gpg
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty Release
+[client04][DEBUG ] Get:2 http://linux-ftp.sc.intel.com trusty-updates Release.gpg [933 B]
+[client04][DEBUG ] Get:3 http://linux-ftp.sc.intel.com trusty-proposed Release.gpg [933 B]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release.gpg
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty/main amd64 Packages
+[client04][DEBUG ] Get:4 http://ceph.com trusty InRelease [6855 B]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release
+[client04][DEBUG ] Hit http://debian.datastax.com stable Release
+[client04][DEBUG ] Get:5 http://linux-ftp.sc.intel.com trusty-security Release [63.5 kB]
+[client04][DEBUG ] Get:6 http://linux-ftp.sc.intel.com trusty-updates Release [63.5 kB]
+[client04][DEBUG ] Get:7 http://ceph.com trusty/main amd64 Packages [7371 B]
+[client04][DEBUG ] Hit http://debian.datastax.com stable/main amd64 Packages
+[client04][DEBUG ] Get:8 http://linux-ftp.sc.intel.com trusty-proposed Release [211 kB]
+[client04][DEBUG ] Hit http://debian.datastax.com stable/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Sources
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty/main Translation-en
+[client04][DEBUG ] Get:9 http://ceph.com trusty/main i386 Packages [778 B]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse i386 Packages
+[client04][DEBUG ] Ign http://debian.datastax.com stable/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Translation-en
+[client04][DEBUG ] Ign http://ceph.com trusty/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Translation-en
+[client04][DEBUG ] Get:10 http://linux-ftp.sc.intel.com trusty-security/main Sources [88.6 kB]
+[client04][DEBUG ] Get:11 http://linux-ftp.sc.intel.com trusty-security/restricted Sources [2061 B]
+[client04][DEBUG ] Get:12 http://linux-ftp.sc.intel.com trusty-security/universe Sources [28.1 kB]
+[client04][DEBUG ] Get:13 http://linux-ftp.sc.intel.com trusty-security/multiverse Sources [2334 B]
+[client04][DEBUG ] Get:14 http://linux-ftp.sc.intel.com trusty-security/main amd64 Packages [320 kB]
+[client04][DEBUG ] Get:15 http://linux-ftp.sc.intel.com trusty-security/restricted amd64 Packages [8875 B]
+[client04][DEBUG ] Get:16 http://linux-ftp.sc.intel.com trusty-security/universe amd64 Packages [111 kB]
+[client04][DEBUG ] Get:17 http://linux-ftp.sc.intel.com trusty-security/multiverse amd64 Packages [3683 B]
+[client04][DEBUG ] Get:18 http://linux-ftp.sc.intel.com trusty-security/main i386 Packages [304 kB]
+[client04][DEBUG ] Get:19 http://linux-ftp.sc.intel.com trusty-security/restricted i386 Packages [8846 B]
+[client04][DEBUG ] Get:20 http://linux-ftp.sc.intel.com trusty-security/universe i386 Packages [111 kB]
+[client04][DEBUG ] Get:21 http://linux-ftp.sc.intel.com trusty-security/multiverse i386 Packages [3838 B]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Translation-en
+[client04][DEBUG ] Get:22 http://linux-ftp.sc.intel.com trusty-updates/main Sources [226 kB]
+[client04][DEBUG ] Get:23 http://linux-ftp.sc.intel.com trusty-updates/restricted Sources [3433 B]
+[client04][DEBUG ] Get:24 http://linux-ftp.sc.intel.com trusty-updates/universe Sources [130 kB]
+[client04][DEBUG ] Get:25 http://linux-ftp.sc.intel.com trusty-updates/multiverse Sources [5138 B]
+[client04][DEBUG ] Get:26 http://linux-ftp.sc.intel.com trusty-updates/main amd64 Packages [594 kB]
+[client04][DEBUG ] Get:27 http://linux-ftp.sc.intel.com trusty-updates/restricted amd64 Packages [11.8 kB]
+[client04][DEBUG ] Get:28 http://linux-ftp.sc.intel.com trusty-updates/universe amd64 Packages [300 kB]
+[client04][DEBUG ] Get:29 http://linux-ftp.sc.intel.com trusty-updates/multiverse amd64 Packages [12.0 kB]
+[client04][DEBUG ] Get:30 http://linux-ftp.sc.intel.com trusty-updates/main i386 Packages [576 kB]
+[client04][DEBUG ] Get:31 http://linux-ftp.sc.intel.com trusty-updates/restricted i386 Packages [11.8 kB]
+[client04][DEBUG ] Get:32 http://linux-ftp.sc.intel.com trusty-updates/universe i386 Packages [301 kB]
+[client04][DEBUG ] Get:33 http://linux-ftp.sc.intel.com trusty-updates/multiverse i386 Packages [12.1 kB]
+[client04][DEBUG ] Get:34 http://linux-ftp.sc.intel.com trusty-updates/main Translation-en [286 kB]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Translation-en
+[client04][DEBUG ] Get:35 http://linux-ftp.sc.intel.com trusty-updates/universe Translation-en [159 kB]
+[client04][DEBUG ] Get:36 http://linux-ftp.sc.intel.com trusty-proposed/main Sources [126 kB]
+[client04][DEBUG ] Get:37 http://linux-ftp.sc.intel.com trusty-proposed/restricted Sources [3638 B]
+[client04][DEBUG ] Get:38 http://linux-ftp.sc.intel.com trusty-proposed/universe Sources [26.6 kB]
+[client04][DEBUG ] Get:39 http://linux-ftp.sc.intel.com trusty-proposed/multiverse Sources [28 B]
+[client04][DEBUG ] Get:40 http://linux-ftp.sc.intel.com trusty-proposed/main amd64 Packages [165 kB]
+[client04][DEBUG ] Get:41 http://linux-ftp.sc.intel.com trusty-proposed/restricted amd64 Packages [14.5 kB]
+[client04][DEBUG ] Get:42 http://linux-ftp.sc.intel.com trusty-proposed/universe amd64 Packages [24.8 kB]
+[client04][DEBUG ] Get:43 http://linux-ftp.sc.intel.com trusty-proposed/multiverse amd64 Packages [28 B]
+[client04][DEBUG ] Get:44 http://linux-ftp.sc.intel.com trusty-proposed/main i386 Packages [156 kB]
+[client04][DEBUG ] Get:45 http://linux-ftp.sc.intel.com trusty-proposed/restricted i386 Packages [14.2 kB]
+[client04][DEBUG ] Get:46 http://linux-ftp.sc.intel.com trusty-proposed/universe i386 Packages [24.8 kB]
+[client04][DEBUG ] Get:47 http://linux-ftp.sc.intel.com trusty-proposed/multiverse i386 Packages [28 B]
+[client04][DEBUG ] Get:48 http://linux-ftp.sc.intel.com trusty-proposed/main Translation-en [70.1 kB]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Translation-en
+[client04][DEBUG ] Get:49 http://linux-ftp.sc.intel.com trusty-proposed/universe Translation-en [17.3 kB]
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Translation-en
+[client04][DEBUG ] Fetched 4616 kB in 22s (206 kB/s)
+[client04][DEBUG ] Reading package lists...
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] The following extra packages will be installed:
+[client04][DEBUG ]   libcephfs1 libjs-jquery librados-dev librados2 librbd1 python-cephfs
+[client04][DEBUG ]   python-flask python-itsdangerous python-jinja2 python-markupsafe
+[client04][DEBUG ]   python-rados python-rbd python-werkzeug
+[client04][DEBUG ] Suggested packages:
+[client04][DEBUG ]   javascript-common python-flask-doc python-jinja2-doc ipython python-genshi
+[client04][DEBUG ]   python-lxml python-greenlet python-redis python-pylibmc python-memcache
+[client04][DEBUG ]   python-werkzeug-doc
+[client04][DEBUG ] Recommended packages:
+[client04][DEBUG ]   btrfs-tools libradosstriper1 ceph-fuse python-blinker python-pyinotify
+[client04][DEBUG ] The following NEW packages will be installed:
+[client04][DEBUG ]   ceph ceph-common ceph-fs-common ceph-mds libcephfs1 libjs-jquery librbd1
+[client04][DEBUG ]   python-cephfs python-flask python-itsdangerous python-jinja2
+[client04][DEBUG ]   python-markupsafe python-rados python-rbd python-werkzeug
+[client04][DEBUG ] The following packages will be upgraded:
+[client04][DEBUG ]   gdisk librados-dev librados2
+[client04][DEBUG ] 3 upgraded, 15 newly installed, 0 to remove and 283 not upgraded.
+[client04][DEBUG ] Need to get 69.2 MB of archives.
+[client04][DEBUG ] After this operation, 136 MB of additional disk space will be used.
+[client04][DEBUG ] Get:1 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty-updates/main gdisk amd64 0.8.8-1ubuntu0.1 [185 kB]
+[client04][DEBUG ] Get:2 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main libjs-jquery all 1.7.2+dfsg-2ubuntu1 [78.8 kB]
+[client04][DEBUG ] Get:3 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty-updates/main python-werkzeug all 0.9.4+dfsg-1.1ubuntu2 [236 kB]
+[client04][DEBUG ] Get:4 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-markupsafe amd64 0.18-1build2 [14.3 kB]
+[client04][DEBUG ] Get:5 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-jinja2 all 2.7.2-2 [161 kB]
+[client04][DEBUG ] Get:6 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-itsdangerous all 0.22+dfsg1-1build1 [11.5 kB]
+[client04][DEBUG ] Get:7 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-flask all 0.10.1-2build1 [51.7 kB]
+[client04][DEBUG ] Get:8 http://ceph.com/debian-hammer/ trusty/main librados-dev amd64 0.94.2-1trusty [33.2 MB]
+[ceph_deploy][ERROR ] KeyboardInterrupt
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client04
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client04
+[ceph_deploy.install][DEBUG ] Detecting platform for host client04 ...
+[client04][DEBUG ] connected to host: client04 
+[client04][DEBUG ] detect platform information from remote host
+[client04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client04][INFO  ] installing ceph on client04
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client04][WARNING] E: Could not get lock /var/lib/dpkg/lock - open (11: Resource temporarily unavailable)
+[client04][WARNING] E: Unable to lock the administration directory (/var/lib/dpkg/), is another process using it?
+[client04][ERROR ] RuntimeError: command returned non-zero exit status: 100
+[ceph_deploy][ERROR ] RuntimeError: Failed to execute command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client04
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client04
+[ceph_deploy.install][DEBUG ] Detecting platform for host client04 ...
+[client04][DEBUG ] connected to host: client04 
+[client04][DEBUG ] detect platform information from remote host
+[client04][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client04][INFO  ] installing ceph on client04
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] ca-certificates is already the newest version.
+[client04][DEBUG ] 0 upgraded, 0 newly installed, 0 to remove and 286 not upgraded.
+[client04][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client04][WARNING] --2015-07-29 15:38:44--  https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client04][WARNING] Resolving child-prc.intel.com (child-prc.intel.com)... 10.239.4.160
+[client04][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.160|:913... connected.
+[client04][WARNING] Proxy request sent, awaiting response... 301 Moved Permanently
+[client04][WARNING] Location: https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc [following]
+[client04][WARNING] --2015-07-29 15:38:45--  https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client04][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|10.239.4.160|:913... connected.
+[client04][WARNING] Proxy request sent, awaiting response... 200 OK
+[client04][WARNING] Length: 1752 (1.7K) [text/plain]
+[client04][WARNING] Saving to: 'release.asc'
+[client04][WARNING] 
+[client04][WARNING]      0K .                                                     100% 43.3M=0s
+[client04][WARNING] 
+[client04][WARNING] 2015-07-29 15:38:52 (43.3 MB/s) - 'release.asc' saved [1752/1752]
+[client04][WARNING] 
+[client04][INFO  ] Running command: apt-key add release.asc
+[client04][DEBUG ] OK
+[client04][DEBUG ] add deb repo to sources.list
+[client04][INFO  ] Running command: apt-get -q update
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty InRelease
+[client04][DEBUG ] Hit http://ceph.com trusty InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-security InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-updates InRelease
+[client04][DEBUG ] Hit http://ceph.com trusty/main amd64 Packages
+[client04][DEBUG ] Ign http://ppa.launchpad.net trusty InRelease
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-proposed InRelease
+[client04][DEBUG ] Hit http://ceph.com trusty/main i386 Packages
+[client04][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-backports InRelease
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty Release.gpg
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release.gpg
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security Release.gpg
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty Release
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates Release.gpg
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed Release.gpg
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release.gpg
+[client04][DEBUG ] Ign http://ceph.com trusty/main Translation-en
+[client04][DEBUG ] Ign http://debian.datastax.com stable InRelease
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release
+[client04][DEBUG ] Hit http://debian.datastax.com stable Release.gpg
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security Release
+[client04][DEBUG ] Hit http://debian.datastax.com stable Release
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates Release
+[client04][DEBUG ] Hit http://debian.datastax.com stable/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed Release
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main i386 Packages
+[client04][DEBUG ] Hit http://debian.datastax.com stable/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Translation-en
+[client04][DEBUG ] Ign http://debian.datastax.com stable/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/universe Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/universe Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Sources
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse amd64 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse i386 Packages
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Translation-en
+[client04][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Translation-en
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty/main i386 Packages
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty/main Translation-en
+[client04][DEBUG ] Hit http://ppa.launchpad.net trusty/main amd64 Packages
+[client04][DEBUG ] Reading package lists...
+[client04][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+[client04][DEBUG ] Reading package lists...
+[client04][DEBUG ] Building dependency tree...
+[client04][DEBUG ] Reading state information...
+[client04][DEBUG ] The following extra packages will be installed:
+[client04][DEBUG ]   libcephfs1 libjs-jquery librados-dev librados2 librbd1 python-cephfs
+[client04][DEBUG ]   python-flask python-itsdangerous python-jinja2 python-markupsafe
+[client04][DEBUG ]   python-rados python-rbd python-werkzeug
+[client04][DEBUG ] Suggested packages:
+[client04][DEBUG ]   javascript-common python-flask-doc python-jinja2-doc ipython python-genshi
+[client04][DEBUG ]   python-lxml python-greenlet python-redis python-pylibmc python-memcache
+[client04][DEBUG ]   python-werkzeug-doc
+[client04][DEBUG ] Recommended packages:
+[client04][DEBUG ]   btrfs-tools libradosstriper1 ceph-fuse python-blinker python-pyinotify
+[client04][DEBUG ] The following NEW packages will be installed:
+[client04][DEBUG ]   ceph ceph-common ceph-fs-common ceph-mds libcephfs1 libjs-jquery librbd1
+[client04][DEBUG ]   python-cephfs python-flask python-itsdangerous python-jinja2
+[client04][DEBUG ]   python-markupsafe python-rados python-rbd python-werkzeug
+[client04][DEBUG ] The following packages will be upgraded:
+[client04][DEBUG ]   gdisk librados-dev librados2
+[client04][DEBUG ] 3 upgraded, 15 newly installed, 0 to remove and 283 not upgraded.
+[client04][DEBUG ] Need to get 68.5 MB/69.2 MB of archives.
+[client04][DEBUG ] After this operation, 136 MB of additional disk space will be used.
+[client04][DEBUG ] Get:1 http://ceph.com/debian-hammer/ trusty/main librados-dev amd64 0.94.2-1trusty [33.2 MB]
+[client04][DEBUG ] Get:2 http://ceph.com/debian-hammer/ trusty/main librados2 amd64 0.94.2-1trusty [2295 kB]
+[client04][DEBUG ] Get:3 http://ceph.com/debian-hammer/ trusty/main librbd1 amd64 0.94.2-1trusty [2393 kB]
+[client04][DEBUG ] Get:4 http://ceph.com/debian-hammer/ trusty/main python-rados amd64 0.94.2-1trusty [796 kB]
+[client04][DEBUG ] Get:5 http://ceph.com/debian-hammer/ trusty/main libcephfs1 amd64 0.94.2-1trusty [2531 kB]
+[client04][DEBUG ] Get:6 http://ceph.com/debian-hammer/ trusty/main python-cephfs amd64 0.94.2-1trusty [787 kB]
+[client04][DEBUG ] Get:7 http://ceph.com/debian-hammer/ trusty/main python-rbd amd64 0.94.2-1trusty [791 kB]
+[client04][DEBUG ] Get:8 http://ceph.com/debian-hammer/ trusty/main ceph-common amd64 0.94.2-1trusty [5927 kB]
+[client04][DEBUG ] Get:9 http://ceph.com/debian-hammer/ trusty/main ceph amd64 0.94.2-1trusty [11.3 MB]
+[client04][DEBUG ] Get:10 http://ceph.com/debian-hammer/ trusty/main ceph-fs-common amd64 0.94.2-1trusty [804 kB]
+[client04][DEBUG ] Get:11 http://ceph.com/debian-hammer/ trusty/main ceph-mds amd64 0.94.2-1trusty [7631 kB]
+[client04][DEBUG ] Fetched 64.0 MB in 2min 40s (398 kB/s)
+[client04][DEBUG ] (Reading database ... 87795 files and directories currently installed.)
+[client04][DEBUG ] Preparing to unpack .../librados-dev_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking librados-dev (0.94.2-1trusty) over (0.93-510-ga74223b-1trusty) ...
+[client04][DEBUG ] Preparing to unpack .../librados2_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking librados2 (0.94.2-1trusty) over (0.93-510-ga74223b-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package librbd1.
+[client04][DEBUG ] Preparing to unpack .../librbd1_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking librbd1 (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package python-rados.
+[client04][DEBUG ] Preparing to unpack .../python-rados_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking python-rados (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package libcephfs1.
+[client04][DEBUG ] Preparing to unpack .../libcephfs1_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking libcephfs1 (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package python-cephfs.
+[client04][DEBUG ] Preparing to unpack .../python-cephfs_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking python-cephfs (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package python-rbd.
+[client04][DEBUG ] Preparing to unpack .../python-rbd_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking python-rbd (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package ceph-common.
+[client04][DEBUG ] Preparing to unpack .../ceph-common_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking ceph-common (0.94.2-1trusty) ...
+[client04][DEBUG ] Preparing to unpack .../gdisk_0.8.8-1ubuntu0.1_amd64.deb ...
+[client04][DEBUG ] Unpacking gdisk (0.8.8-1ubuntu0.1) over (0.8.8-1build1) ...
+[client04][DEBUG ] Selecting previously unselected package libjs-jquery.
+[client04][DEBUG ] Preparing to unpack .../libjs-jquery_1.7.2+dfsg-2ubuntu1_all.deb ...
+[client04][DEBUG ] Unpacking libjs-jquery (1.7.2+dfsg-2ubuntu1) ...
+[client04][DEBUG ] Selecting previously unselected package python-werkzeug.
+[client04][DEBUG ] Preparing to unpack .../python-werkzeug_0.9.4+dfsg-1.1ubuntu2_all.deb ...
+[client04][DEBUG ] Unpacking python-werkzeug (0.9.4+dfsg-1.1ubuntu2) ...
+[client04][DEBUG ] Selecting previously unselected package python-markupsafe.
+[client04][DEBUG ] Preparing to unpack .../python-markupsafe_0.18-1build2_amd64.deb ...
+[client04][DEBUG ] Unpacking python-markupsafe (0.18-1build2) ...
+[client04][DEBUG ] Selecting previously unselected package python-jinja2.
+[client04][DEBUG ] Preparing to unpack .../python-jinja2_2.7.2-2_all.deb ...
+[client04][DEBUG ] Unpacking python-jinja2 (2.7.2-2) ...
+[client04][DEBUG ] Selecting previously unselected package python-itsdangerous.
+[client04][DEBUG ] Preparing to unpack .../python-itsdangerous_0.22+dfsg1-1build1_all.deb ...
+[client04][DEBUG ] Unpacking python-itsdangerous (0.22+dfsg1-1build1) ...
+[client04][DEBUG ] Selecting previously unselected package python-flask.
+[client04][DEBUG ] Preparing to unpack .../python-flask_0.10.1-2build1_all.deb ...
+[client04][DEBUG ] Unpacking python-flask (0.10.1-2build1) ...
+[client04][DEBUG ] Selecting previously unselected package ceph.
+[client04][DEBUG ] Preparing to unpack .../ceph_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking ceph (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package ceph-fs-common.
+[client04][DEBUG ] Preparing to unpack .../ceph-fs-common_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking ceph-fs-common (0.94.2-1trusty) ...
+[client04][DEBUG ] Selecting previously unselected package ceph-mds.
+[client04][DEBUG ] Preparing to unpack .../ceph-mds_0.94.2-1trusty_amd64.deb ...
+[client04][DEBUG ] Unpacking ceph-mds (0.94.2-1trusty) ...
+[client04][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client04][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client04][DEBUG ] ureadahead will be reprofiled on next reboot
+[client04][DEBUG ] Processing triggers for doc-base (0.10.5) ...
+[client04][DEBUG ] Processing 1 changed doc-base file...
+[client04][DEBUG ] Setting up librados2 (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up librados-dev (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up librbd1 (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up python-rados (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up libcephfs1 (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up python-cephfs (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up python-rbd (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up ceph-common (0.94.2-1trusty) ...
+[client04][DEBUG ] Setting up gdisk (0.8.8-1ubuntu0.1) ...
+[client04][DEBUG ] Setting up libjs-jquery (1.7.2+dfsg-2ubuntu1) ...
+[client04][DEBUG ] Setting up python-werkzeug (0.9.4+dfsg-1.1ubuntu2) ...
+[client04][DEBUG ] Setting up python-markupsafe (0.18-1build2) ...
+[client04][DEBUG ] Setting up python-jinja2 (2.7.2-2) ...
+[client04][DEBUG ] Setting up python-itsdangerous (0.22+dfsg1-1build1) ...
+[client04][DEBUG ] Setting up python-flask (0.10.1-2build1) ...
+[client04][DEBUG ] Setting up ceph-fs-common (0.94.2-1trusty) ...
+[client04][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client04][DEBUG ] Setting up ceph (0.94.2-1trusty) ...
+[client04][DEBUG ] ceph-all start/running
+[client04][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client04][DEBUG ] Setting up ceph-mds (0.94.2-1trusty) ...
+[client04][DEBUG ] ceph-mds-all start/running
+[client04][DEBUG ] Processing triggers for libc-bin (2.19-0ubuntu6) ...
+[client04][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client04][INFO  ] Running command: ceph --version
+[client04][DEBUG ] ceph version 0.94.2 (5fb85614ca8f354284c713a2f9c610860720bbf3)
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer client03
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts client03
+[ceph_deploy.install][DEBUG ] Detecting platform for host client03 ...
+[client03][DEBUG ] connected to host: client03 
+[client03][DEBUG ] detect platform information from remote host
+[client03][DEBUG ] detect machine type
+[ceph_deploy.install][INFO  ] Distro info: Ubuntu 14.04 trusty
+[client03][INFO  ] installing ceph on client03
+[client03][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive apt-get -q install --assume-yes ca-certificates
+[client03][DEBUG ] Reading package lists...
+[client03][DEBUG ] Building dependency tree...
+[client03][DEBUG ] Reading state information...
+[client03][DEBUG ] The following packages will be upgraded:
+[client03][DEBUG ]   ca-certificates
+[client03][DEBUG ] 1 upgraded, 0 newly installed, 0 to remove and 263 not upgraded.
+[client03][DEBUG ] Need to get 189 kB of archives.
+[client03][DEBUG ] After this operation, 20.5 kB of additional disk space will be used.
+[client03][DEBUG ] Get:1 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty-security/main ca-certificates all 20141019ubuntu0.14.04.1 [189 kB]
+[client03][DEBUG ] Preconfiguring packages ...
+[client03][DEBUG ] Fetched 189 kB in 1s (169 kB/s)
+[client03][DEBUG ] (Reading database ... 83243 files and directories currently installed.)
+[client03][DEBUG ] Preparing to unpack .../ca-certificates_20141019ubuntu0.14.04.1_all.deb ...
+[client03][DEBUG ] Unpacking ca-certificates (20141019ubuntu0.14.04.1) over (20130906ubuntu2) ...
+[client03][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client03][DEBUG ] Setting up ca-certificates (20141019ubuntu0.14.04.1) ...
+[client03][DEBUG ] Processing triggers for ca-certificates (20141019ubuntu0.14.04.1) ...
+[client03][DEBUG ] Updating certificates in /etc/ssl/certs... 17 added, 8 removed; done.
+[client03][DEBUG ] Running hooks in /etc/ca-certificates/update.d....
+[client03][DEBUG ] Adding debian:ACCVRAIZ1.pem
+[client03][DEBUG ] Adding debian:Atos_TrustedRoot_2011.pem
+[client03][DEBUG ] Adding debian:DigiCert_Assured_ID_Root_G2.pem
+[client03][DEBUG ] Adding debian:DigiCert_Assured_ID_Root_G3.pem
+[client03][DEBUG ] Adding debian:DigiCert_Global_Root_G2.pem
+[client03][DEBUG ] Adding debian:DigiCert_Global_Root_G3.pem
+[client03][DEBUG ] Adding debian:DigiCert_Trusted_Root_G4.pem
+[client03][DEBUG ] Adding debian:E-Tugra_Certification_Authority.pem
+[client03][DEBUG ] Adding debian:QuoVadis_Root_CA_1_G3.pem
+[client03][DEBUG ] Adding debian:QuoVadis_Root_CA_2_G3.pem
+[client03][DEBUG ] Adding debian:QuoVadis_Root_CA_3_G3.pem
+[client03][DEBUG ] Adding debian:SG_TRUST_SERVICES_RACINE.pem
+[client03][DEBUG ] Adding debian:T-TeleSec_GlobalRoot_Class_2.pem
+[client03][DEBUG ] Adding debian:TWCA_Global_Root_CA.pem
+[client03][DEBUG ] Adding debian:TeliaSonera_Root_CA_v1.pem
+[client03][DEBUG ] Adding debian:WoSign.pem
+[client03][DEBUG ] Adding debian:WoSign_China.pem
+[client03][DEBUG ] Removing debian:Entrust.net_Secure_Server_CA.pem
+[client03][DEBUG ] Removing debian:Firmaprofesional_Root_CA.pem
+[client03][DEBUG ] Removing debian:RSA_Root_Certificate_1.pem
+[client03][DEBUG ] Removing debian:TDC_Internet_Root_CA.pem
+[client03][DEBUG ] Removing debian:TDC_OCES_Root_CA.pem
+[client03][DEBUG ] Removing debian:ValiCert_Class_1_VA.pem
+[client03][DEBUG ] Removing debian:ValiCert_Class_2_VA.pem
+[client03][DEBUG ] Removing debian:Wells_Fargo_Root_CA.pem
+[client03][DEBUG ] done.
+[client03][DEBUG ] done.
+[client03][INFO  ] Running command: wget -O release.asc https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client03][WARNING] --2015-07-29 15:43:55--  https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client03][WARNING] Resolving child-prc.intel.com (child-prc.intel.com)... 172.16.213.225
+[client03][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|172.16.213.225|:913... connected.
+[client03][WARNING] Proxy request sent, awaiting response... 301 Moved Permanently
+[client03][WARNING] Location: https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc [following]
+[client03][WARNING] --2015-07-29 15:44:01--  https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc
+[client03][WARNING] Connecting to child-prc.intel.com (child-prc.intel.com)|172.16.213.225|:913... connected.
+[client03][WARNING] Proxy request sent, awaiting response... 200 OK
+[client03][WARNING] Length: 1752 (1.7K) [text/plain]
+[client03][WARNING] Saving to: 'release.asc'
+[client03][WARNING] 
+[client03][WARNING]      0K .                                                     100% 43.5M=0s
+[client03][WARNING] 
+[client03][WARNING] 2015-07-29 15:44:04 (43.5 MB/s) - 'release.asc' saved [1752/1752]
+[client03][WARNING] 
+[client03][INFO  ] Running command: apt-key add release.asc
+[client03][DEBUG ] OK
+[client03][DEBUG ] add deb repo to sources.list
+[client03][INFO  ] Running command: apt-get -q update
+[client03][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty InRelease
+[client03][DEBUG ] Get:1 http://ceph.com trusty InRelease [6855 B]
+[client03][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-security InRelease
+[client03][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-updates InRelease
+[client03][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-proposed InRelease
+[client03][DEBUG ] Ign http://linux-ftp.sc.intel.com trusty-backports InRelease
+[client03][DEBUG ] Get:2 http://ceph.com trusty/main amd64 Packages [7371 B]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release.gpg
+[client03][DEBUG ] Get:3 http://linux-ftp.sc.intel.com trusty-security Release.gpg [933 B]
+[client03][DEBUG ] Get:4 http://ceph.com trusty/main i386 Packages [778 B]
+[client03][DEBUG ] Get:5 http://linux-ftp.sc.intel.com trusty-updates Release.gpg [933 B]
+[client03][DEBUG ] Get:6 http://linux-ftp.sc.intel.com trusty-proposed Release.gpg [933 B]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release.gpg
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty Release
+[client03][DEBUG ] Get:7 http://linux-ftp.sc.intel.com trusty-security Release [63.5 kB]
+[client03][DEBUG ] Ign http://ceph.com trusty/main Translation-en
+[client03][DEBUG ] Get:8 http://linux-ftp.sc.intel.com trusty-updates Release [63.5 kB]
+[client03][DEBUG ] Get:9 http://linux-ftp.sc.intel.com trusty-proposed Release [211 kB]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports Release
+[client03][DEBUG ] Ign http://ppa.launchpad.net trusty InRelease
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/main Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/multiverse Translation-en
+[client03][DEBUG ] Hit http://ppa.launchpad.net trusty Release.gpg
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/restricted Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty/universe Translation-en
+[client03][DEBUG ] Get:10 http://linux-ftp.sc.intel.com trusty-security/main Sources [88.6 kB]
+[client03][DEBUG ] Hit http://ppa.launchpad.net trusty Release
+[client03][DEBUG ] Get:11 http://linux-ftp.sc.intel.com trusty-security/restricted Sources [2061 B]
+[client03][DEBUG ] Hit http://ppa.launchpad.net trusty/main amd64 Packages
+[client03][DEBUG ] Get:12 http://linux-ftp.sc.intel.com trusty-security/universe Sources [28.1 kB]
+[client03][DEBUG ] Get:13 http://linux-ftp.sc.intel.com trusty-security/multiverse Sources [2334 B]
+[client03][DEBUG ] Hit http://ppa.launchpad.net trusty/main i386 Packages
+[client03][DEBUG ] Get:14 http://linux-ftp.sc.intel.com trusty-security/main amd64 Packages [320 kB]
+[client03][DEBUG ] Hit http://ppa.launchpad.net trusty/main Translation-en
+[client03][DEBUG ] Get:15 http://linux-ftp.sc.intel.com trusty-security/restricted amd64 Packages [8875 B]
+[client03][DEBUG ] Get:16 http://linux-ftp.sc.intel.com trusty-security/universe amd64 Packages [111 kB]
+[client03][DEBUG ] Get:17 http://linux-ftp.sc.intel.com trusty-security/multiverse amd64 Packages [3683 B]
+[client03][DEBUG ] Get:18 http://linux-ftp.sc.intel.com trusty-security/main i386 Packages [304 kB]
+[client03][DEBUG ] Get:19 http://linux-ftp.sc.intel.com trusty-security/restricted i386 Packages [8846 B]
+[client03][DEBUG ] Get:20 http://linux-ftp.sc.intel.com trusty-security/universe i386 Packages [111 kB]
+[client03][DEBUG ] Get:21 http://linux-ftp.sc.intel.com trusty-security/multiverse i386 Packages [3838 B]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/main Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/multiverse Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/restricted Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-security/universe Translation-en
+[client03][DEBUG ] Get:22 http://linux-ftp.sc.intel.com trusty-updates/main Sources [226 kB]
+[client03][DEBUG ] Get:23 http://linux-ftp.sc.intel.com trusty-updates/restricted Sources [3433 B]
+[client03][DEBUG ] Get:24 http://linux-ftp.sc.intel.com trusty-updates/universe Sources [130 kB]
+[client03][DEBUG ] Get:25 http://linux-ftp.sc.intel.com trusty-updates/multiverse Sources [5138 B]
+[client03][DEBUG ] Get:26 http://linux-ftp.sc.intel.com trusty-updates/main amd64 Packages [594 kB]
+[client03][DEBUG ] Get:27 http://linux-ftp.sc.intel.com trusty-updates/restricted amd64 Packages [11.8 kB]
+[client03][DEBUG ] Get:28 http://linux-ftp.sc.intel.com trusty-updates/universe amd64 Packages [300 kB]
+[client03][DEBUG ] Get:29 http://linux-ftp.sc.intel.com trusty-updates/multiverse amd64 Packages [12.0 kB]
+[client03][DEBUG ] Get:30 http://linux-ftp.sc.intel.com trusty-updates/main i386 Packages [576 kB]
+[client03][DEBUG ] Get:31 http://linux-ftp.sc.intel.com trusty-updates/restricted i386 Packages [11.8 kB]
+[client03][DEBUG ] Get:32 http://linux-ftp.sc.intel.com trusty-updates/universe i386 Packages [301 kB]
+[client03][DEBUG ] Get:33 http://linux-ftp.sc.intel.com trusty-updates/multiverse i386 Packages [12.1 kB]
+[client03][DEBUG ] Get:34 http://linux-ftp.sc.intel.com trusty-updates/main Translation-en [286 kB]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/multiverse Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-updates/restricted Translation-en
+[client03][DEBUG ] Get:35 http://linux-ftp.sc.intel.com trusty-updates/universe Translation-en [159 kB]
+[client03][DEBUG ] Get:36 http://linux-ftp.sc.intel.com trusty-proposed/main Sources [126 kB]
+[client03][DEBUG ] Get:37 http://linux-ftp.sc.intel.com trusty-proposed/restricted Sources [3638 B]
+[client03][DEBUG ] Get:38 http://linux-ftp.sc.intel.com trusty-proposed/universe Sources [26.6 kB]
+[client03][DEBUG ] Get:39 http://linux-ftp.sc.intel.com trusty-proposed/multiverse Sources [28 B]
+[client03][DEBUG ] Get:40 http://linux-ftp.sc.intel.com trusty-proposed/main amd64 Packages [165 kB]
+[client03][DEBUG ] Get:41 http://linux-ftp.sc.intel.com trusty-proposed/restricted amd64 Packages [14.5 kB]
+[client03][DEBUG ] Get:42 http://linux-ftp.sc.intel.com trusty-proposed/universe amd64 Packages [24.8 kB]
+[client03][DEBUG ] Get:43 http://linux-ftp.sc.intel.com trusty-proposed/multiverse amd64 Packages [28 B]
+[client03][DEBUG ] Get:44 http://linux-ftp.sc.intel.com trusty-proposed/main i386 Packages [156 kB]
+[client03][DEBUG ] Get:45 http://linux-ftp.sc.intel.com trusty-proposed/restricted i386 Packages [14.2 kB]
+[client03][DEBUG ] Get:46 http://linux-ftp.sc.intel.com trusty-proposed/universe i386 Packages [24.8 kB]
+[client03][DEBUG ] Get:47 http://linux-ftp.sc.intel.com trusty-proposed/multiverse i386 Packages [28 B]
+[client03][DEBUG ] Get:48 http://linux-ftp.sc.intel.com trusty-proposed/main Translation-en [70.1 kB]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/multiverse Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-proposed/restricted Translation-en
+[client03][DEBUG ] Get:49 http://linux-ftp.sc.intel.com trusty-proposed/universe Translation-en [17.3 kB]
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Sources
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse amd64 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse i386 Packages
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/main Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/multiverse Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/restricted Translation-en
+[client03][DEBUG ] Hit http://linux-ftp.sc.intel.com trusty-backports/universe Translation-en
+[client03][DEBUG ] Fetched 4616 kB in 16s (276 kB/s)
+[client03][DEBUG ] Reading package lists...
+[client03][INFO  ] Running command: env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -o Dpkg::Options::=--force-confnew --no-install-recommends --assume-yes install -- ceph ceph-mds ceph-common ceph-fs-common gdisk
+[client03][DEBUG ] Reading package lists...
+[client03][DEBUG ] Building dependency tree...
+[client03][DEBUG ] Reading state information...
+[client03][DEBUG ] The following extra packages will be installed:
+[client03][DEBUG ]   cryptsetup-bin libcephfs1 libcryptsetup4 libjs-jquery librados2 librbd1
+[client03][DEBUG ]   python-cephfs python-flask python-itsdangerous python-jinja2
+[client03][DEBUG ]   python-markupsafe python-rados python-rbd python-werkzeug
+[client03][DEBUG ] Suggested packages:
+[client03][DEBUG ]   javascript-common python-flask-doc python-jinja2-doc ipython python-genshi
+[client03][DEBUG ]   python-lxml python-greenlet python-redis python-pylibmc python-memcache
+[client03][DEBUG ]   python-werkzeug-doc
+[client03][DEBUG ] Recommended packages:
+[client03][DEBUG ]   btrfs-tools libradosstriper1 ceph-fuse python-blinker python-pyinotify
+[client03][DEBUG ] The following NEW packages will be installed:
+[client03][DEBUG ]   ceph ceph-common ceph-fs-common ceph-mds cryptsetup-bin libcephfs1
+[client03][DEBUG ]   libcryptsetup4 libjs-jquery librados2 librbd1 python-cephfs python-flask
+[client03][DEBUG ]   python-itsdangerous python-jinja2 python-markupsafe python-rados python-rbd
+[client03][DEBUG ]   python-werkzeug
+[client03][DEBUG ] The following packages will be upgraded:
+[client03][DEBUG ]   gdisk
+[client03][DEBUG ] 1 upgraded, 18 newly installed, 0 to remove and 263 not upgraded.
+[client03][DEBUG ] Need to get 36.1 MB of archives.
+[client03][DEBUG ] After this operation, 144 MB of additional disk space will be used.
+[client03][DEBUG ] Get:1 http://ceph.com/debian-hammer/ trusty/main librados2 amd64 0.94.2-1trusty [2295 kB]
+[client03][DEBUG ] Get:2 http://ceph.com/debian-hammer/ trusty/main librbd1 amd64 0.94.2-1trusty [2393 kB]
+[client03][DEBUG ] Get:3 http://ceph.com/debian-hammer/ trusty/main python-rados amd64 0.94.2-1trusty [796 kB]
+[client03][DEBUG ] Get:4 http://ceph.com/debian-hammer/ trusty/main libcephfs1 amd64 0.94.2-1trusty [2531 kB]
+[client03][DEBUG ] Get:5 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main libcryptsetup4 amd64 2:1.6.1-1ubuntu1 [77.0 kB]
+[client03][DEBUG ] Get:6 http://ceph.com/debian-hammer/ trusty/main python-cephfs amd64 0.94.2-1trusty [787 kB]
+[client03][DEBUG ] Get:7 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main cryptsetup-bin amd64 2:1.6.1-1ubuntu1 [80.4 kB]
+[client03][DEBUG ] Get:8 http://ceph.com/debian-hammer/ trusty/main python-rbd amd64 0.94.2-1trusty [791 kB]
+[client03][DEBUG ] Get:9 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty-updates/main gdisk amd64 0.8.8-1ubuntu0.1 [185 kB]
+[client03][DEBUG ] Get:10 http://ceph.com/debian-hammer/ trusty/main ceph-common amd64 0.94.2-1trusty [5927 kB]
+[client03][DEBUG ] Get:11 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main libjs-jquery all 1.7.2+dfsg-2ubuntu1 [78.8 kB]
+[client03][DEBUG ] Get:12 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty-updates/main python-werkzeug all 0.9.4+dfsg-1.1ubuntu2 [236 kB]
+[client03][DEBUG ] Get:13 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-markupsafe amd64 0.18-1build2 [14.3 kB]
+[client03][DEBUG ] Get:14 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-jinja2 all 2.7.2-2 [161 kB]
+[client03][DEBUG ] Get:15 http://ceph.com/debian-hammer/ trusty/main ceph amd64 0.94.2-1trusty [11.3 MB]
+[client03][DEBUG ] Get:16 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-itsdangerous all 0.22+dfsg1-1build1 [11.5 kB]
+[client03][DEBUG ] Get:17 http://linux-ftp.sc.intel.com/pub/mirrors/ubuntu/ trusty/main python-flask all 0.10.1-2build1 [51.7 kB]
+[client03][DEBUG ] Get:18 http://ceph.com/debian-hammer/ trusty/main ceph-fs-common amd64 0.94.2-1trusty [804 kB]
+[client03][DEBUG ] Get:19 http://ceph.com/debian-hammer/ trusty/main ceph-mds amd64 0.94.2-1trusty [7631 kB]
+[client03][DEBUG ] Fetched 36.1 MB in 5s (6447 kB/s)
+[client03][DEBUG ] Selecting previously unselected package librados2.
+[client03][DEBUG ] (Reading database ... 83252 files and directories currently installed.)
+[client03][DEBUG ] Preparing to unpack .../librados2_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking librados2 (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package librbd1.
+[client03][DEBUG ] Preparing to unpack .../librbd1_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking librbd1 (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package python-rados.
+[client03][DEBUG ] Preparing to unpack .../python-rados_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking python-rados (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package libcephfs1.
+[client03][DEBUG ] Preparing to unpack .../libcephfs1_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking libcephfs1 (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package python-cephfs.
+[client03][DEBUG ] Preparing to unpack .../python-cephfs_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking python-cephfs (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package python-rbd.
+[client03][DEBUG ] Preparing to unpack .../python-rbd_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking python-rbd (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package ceph-common.
+[client03][DEBUG ] Preparing to unpack .../ceph-common_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking ceph-common (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package libcryptsetup4.
+[client03][DEBUG ] Preparing to unpack .../libcryptsetup4_2%3a1.6.1-1ubuntu1_amd64.deb ...
+[client03][DEBUG ] Unpacking libcryptsetup4 (2:1.6.1-1ubuntu1) ...
+[client03][DEBUG ] Selecting previously unselected package cryptsetup-bin.
+[client03][DEBUG ] Preparing to unpack .../cryptsetup-bin_2%3a1.6.1-1ubuntu1_amd64.deb ...
+[client03][DEBUG ] Unpacking cryptsetup-bin (2:1.6.1-1ubuntu1) ...
+[client03][DEBUG ] Preparing to unpack .../gdisk_0.8.8-1ubuntu0.1_amd64.deb ...
+[client03][DEBUG ] Unpacking gdisk (0.8.8-1ubuntu0.1) over (0.8.8-1build1) ...
+[client03][DEBUG ] Selecting previously unselected package libjs-jquery.
+[client03][DEBUG ] Preparing to unpack .../libjs-jquery_1.7.2+dfsg-2ubuntu1_all.deb ...
+[client03][DEBUG ] Unpacking libjs-jquery (1.7.2+dfsg-2ubuntu1) ...
+[client03][DEBUG ] Selecting previously unselected package python-werkzeug.
+[client03][DEBUG ] Preparing to unpack .../python-werkzeug_0.9.4+dfsg-1.1ubuntu2_all.deb ...
+[client03][DEBUG ] Unpacking python-werkzeug (0.9.4+dfsg-1.1ubuntu2) ...
+[client03][DEBUG ] Selecting previously unselected package python-markupsafe.
+[client03][DEBUG ] Preparing to unpack .../python-markupsafe_0.18-1build2_amd64.deb ...
+[client03][DEBUG ] Unpacking python-markupsafe (0.18-1build2) ...
+[client03][DEBUG ] Selecting previously unselected package python-jinja2.
+[client03][DEBUG ] Preparing to unpack .../python-jinja2_2.7.2-2_all.deb ...
+[client03][DEBUG ] Unpacking python-jinja2 (2.7.2-2) ...
+[client03][DEBUG ] Selecting previously unselected package python-itsdangerous.
+[client03][DEBUG ] Preparing to unpack .../python-itsdangerous_0.22+dfsg1-1build1_all.deb ...
+[client03][DEBUG ] Unpacking python-itsdangerous (0.22+dfsg1-1build1) ...
+[client03][DEBUG ] Selecting previously unselected package python-flask.
+[client03][DEBUG ] Preparing to unpack .../python-flask_0.10.1-2build1_all.deb ...
+[client03][DEBUG ] Unpacking python-flask (0.10.1-2build1) ...
+[client03][DEBUG ] Selecting previously unselected package ceph.
+[client03][DEBUG ] Preparing to unpack .../ceph_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking ceph (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package ceph-fs-common.
+[client03][DEBUG ] Preparing to unpack .../ceph-fs-common_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking ceph-fs-common (0.94.2-1trusty) ...
+[client03][DEBUG ] Selecting previously unselected package ceph-mds.
+[client03][DEBUG ] Preparing to unpack .../ceph-mds_0.94.2-1trusty_amd64.deb ...
+[client03][DEBUG ] Unpacking ceph-mds (0.94.2-1trusty) ...
+[client03][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client03][DEBUG ] ureadahead will be reprofiled on next reboot
+[client03][DEBUG ] Processing triggers for man-db (2.6.7.1-1) ...
+[client03][DEBUG ] Processing triggers for doc-base (0.10.5) ...
+[client03][DEBUG ] Processing 1 changed doc-base file...
+[client03][DEBUG ] Setting up librados2 (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up librbd1 (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up python-rados (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up libcephfs1 (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up python-cephfs (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up python-rbd (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up ceph-common (0.94.2-1trusty) ...
+[client03][DEBUG ] Setting up libcryptsetup4 (2:1.6.1-1ubuntu1) ...
+[client03][DEBUG ] Setting up cryptsetup-bin (2:1.6.1-1ubuntu1) ...
+[client03][DEBUG ] Setting up gdisk (0.8.8-1ubuntu0.1) ...
+[client03][DEBUG ] Setting up libjs-jquery (1.7.2+dfsg-2ubuntu1) ...
+[client03][DEBUG ] Setting up python-werkzeug (0.9.4+dfsg-1.1ubuntu2) ...
+[client03][DEBUG ] Setting up python-markupsafe (0.18-1build2) ...
+[client03][DEBUG ] Setting up python-jinja2 (2.7.2-2) ...
+[client03][DEBUG ] Setting up python-itsdangerous (0.22+dfsg1-1build1) ...
+[client03][DEBUG ] Setting up python-flask (0.10.1-2build1) ...
+[client03][DEBUG ] Setting up ceph-fs-common (0.94.2-1trusty) ...
+[client03][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client03][DEBUG ] Setting up ceph (0.94.2-1trusty) ...
+[client03][DEBUG ] Installing new version of config file /etc/init.d/ceph ...
+[client03][DEBUG ] ceph-all start/running
+[client03][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client03][DEBUG ] Setting up ceph-mds (0.94.2-1trusty) ...
+[client03][DEBUG ] ceph-mds-all start/running
+[client03][DEBUG ] Processing triggers for libc-bin (2.19-0ubuntu6) ...
+[client03][DEBUG ] Processing triggers for ureadahead (0.100.0-16) ...
+[client03][WARNING] 
+[client03][WARNING] Configuration file '/etc/init.d/ceph'
+[client03][WARNING]  ==> File on system created by you or by a script.
+[client03][WARNING]  ==> File also in package provided by package maintainer.
+[client03][WARNING]  ==> Using new file as you requested.
+[client03][INFO  ] Running command: ceph --version
+[client03][DEBUG ] ceph version 0.94.2 (5fb85614ca8f354284c713a2f9c610860720bbf3)
+[ceph_deploy.conf][DEBUG ] found configuration file at: /root/.cephdeploy.conf
+[ceph_deploy.cli][INFO  ] Invoked (1.5.10): /usr/bin/ceph-deploy install --release hammer pdsh@client01
+[ceph_deploy.install][DEBUG ] Installing stable version hammer on cluster ceph hosts pdsh@client01
+[ceph_deploy.install][DEBUG ] Detecting platform for host pdsh@client01 ...
+[ceph_deploy][ERROR ] KeyboardInterrupt
+

@@ -1,1 +1,1 @@
-__all__ = ['deploy']
+__all__ = ['run_deploy']

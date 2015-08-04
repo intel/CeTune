@@ -63,7 +63,7 @@ case $1 in
         if [ "${lengine}" == 'qemurbd' -o "${lengine}" == 'fiorbd' -o "${lengine}" == 'fiocephfs' ] && [ "${ltype}" == 'single' -o "${ltype}" == 'all' ];then
             cd benchmarking
             #bash run_cases.sh ${ltype} ${lengine}
-            python run_cases.py --runtype ${ltype} --engine ${lengine}
+            python run_cases.py
             cd ..
         else
             echo "Wrong input! Please check your input!"

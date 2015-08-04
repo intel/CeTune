@@ -42,8 +42,6 @@ class Config():
                         cur_conf_section[key] = value[:-1]
                     else:
                         cur_conf_section[key] = value
-                    if re.search(',', cur_conf_section[key]):
-                        cur_conf_section[key] = cur_conf_section[key].split(",")
 
     def dump(self, key=""):
         pp = pprint.PrettyPrinter(indent=4)
@@ -55,7 +53,7 @@ class Config():
     def dump_to_file(self, output, key=""):
         with open(output, 'w') as f:
             f.write( self.dump(key) )
-        
+
     def get(self, key, dotry=False):
         if key in self.conf_data:
             return self.conf_data[key]
@@ -67,13 +65,13 @@ class Config():
                 return ""
 
     def get_list(self,key):
-	if key in self.conf_data:
-	    if type(self.conf_data[key]) == str:
-		return [self.conf_data[key]]
-	    else:
-		return self.conf_data[key]
-	else:
-	    print "%s not defined in all.conf" % key
+        if key in self.conf_data:
+            if re.search(',', self.conf_data[key]):
+                return self.conf_data[key].split(",")
+            else:
+                return [self.conf_data[key]]
+        else:
+            print "%s not defined in all.conf" % key
 
     def get_all(self):
         return self.conf_data
@@ -90,7 +88,7 @@ class IPHandler:
     def makeMask(self,n):
         "return a mask of n bits as a long integer"
         return (2L<<n-1) - 1
-    
+
     def dottedQuadToNum(self,ip):
         res = re.search(r'(\d+).(\d+).(\d+).(\d+)',ip)
         ip_hex = "%02x" % int(res.group(1))
@@ -98,14 +96,14 @@ class IPHandler:
         ip_hex += "%02x" % int(res.group(3))
         ip_hex += "%02x" % int(res.group(4))
         return int(ip_hex,16)
-    
+
     def networkMask(self,subnet):
-        "Convert a network address to a long integer" 
+        "Convert a network address to a long integer"
         res = re.search(r'(\d+.\d+.\d+.\d+)/(\d+)',subnet)
         ip = res.group(1)
         bits = int(res.group(2))
         return self.dottedQuadToNum(ip) & self.makeMask(bits)
-    
+
     def addressInNetwork(self,ip,net):
        "Is an address in a network"
        return ip & net == net
@@ -117,7 +115,7 @@ class IPHandler:
         for ip in ipaddrlist:
             if self.addressInNetwork(self.dottedQuadToNum(ip),network):
                 return ip
-
+        return ip
 
 def get_list( string ):
     res = []
@@ -156,50 +154,63 @@ def printout(level, content, screen = True):
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
             print content
-        
-    
+
+def remote_dir_exist( user, node, path ):
+    stdout, stderr = pdsh(user, [node] ,"test -d %s; echo $?" % path, option = "check_return")
+    res = format_pdsh_return(stdout)
+    for node, returncode in res.items():
+        return int(returncode) == 0
+
+def remote_file_exist( user, node ,path):
+    stdout, stderr = pdsh(user, [node], "test -f %s; echo $?" % path, "check_return")
+    res = format_pdsh_return(stdout)
+    for node, returncode in res.items():
+        return int(returncode) == 0
+
 def pdsh(user, nodes, command, option="error_check", nodie=False):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
-    args = ['pdsh', '-R', 'ssh', '-w', _nodes, command]
+    args = ['pdsh', '-R', 'exec', '-w', _nodes, 'ssh', '%h', command]
     printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if option == "force":
+    if "force" in option:
         return _subp
     stdout = []
     for line in iter(_subp.stdout.readline,""):
         stdout.append(line)
         if "console" in option:
             print line,
-    if "force" in option:
-        _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return _subp
 
+    returncode = _subp.poll()
+    #returncode = _subp.returncode
     _subp.stdout.close()
-    returncode = _subp.wait()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     printout("CONSOLE", stdout, screen=False)
 
     if "check_return" in option:
-        if returncode:
+        if returncode or "Connection timed out" in stderr:
             if stderr:
-                tmp_stderr = stderr.split('\n')
-                if "ssh exited with exit" in tmp_stderr[-2]:
-                    stderr = '\n'.join(tmp_stderr[:-2])
-                printout("ERROR",stderr, screen=False)
+                stderr_tmp = stderr.split('\n')
+                stderr_print = []
+                for line in stderr_tmp:
+                    if "ssh exited with exit code 255" not in line:
+                        stderr_print.append(line)
+                printout("ERROR",'\n'.join(stderr_print), screen=False)
         return [stdout, stderr]
     else:
-        if returncode:
+        if returncode or "Connection timed out" in stderr:
             if stderr:
-                tmp_stderr = stderr.split('\n')
-                if "ssh exited with exit" in tmp_stderr[-2]:
-                    stderr = '\n'.join(tmp_stderr[:-2])
+                stderr_tmp = stderr.split('\n')
+                stderr_print = []
+                for line in stderr_tmp:
+                    if "ssh exited with exit code 255" not in line:
+                        stderr_print.append(line)
                 print('pdsh: %s' % args)
-                printout("ERROR",stderr)
+                printout("ERROR",'\n'.join(stderr_print))
             if not nodie:
                 sys.exit()
 
@@ -213,8 +224,8 @@ def bash(command, force=False, option="", nodie=False):
         stdout.append(line)
         if "console" in option:
             print line,
+    returncode = _subp.poll()
     _subp.stdout.close()
-    returncode = _subp.wait()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     printout("CONSOLE", stdout, screen=False)
@@ -231,15 +242,17 @@ def bash(command, force=False, option="", nodie=False):
 
 def scp(user, node, localfile, remotefile):
     args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
+    printout("CONSOLE", args, screen=False)
     #print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    printout("CONSOLE", stdout, screen=False)
     if stderr:
         print('scp: %s' % args)
         printout("ERROR",stderr+"\n")
         sys.exit()
 
 def rscp(user, node, localfile, remotefile):
-    args = ['scp', '%s@%s:%s' % (user, node, remotefile), localfile]
+    args = ['scp', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
     #print('rscp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
@@ -256,8 +269,6 @@ def rrscp(user, node1, node1_file, node2,node2_file):
         print('scp: %s' % args)
         print bcolors.FAIL + "[ERROR]:"+stderr+"\n" + bcolors.ENDC
         sys.exit()
-
-
 
 def load_yaml_conf(yaml_path):
     config = {}
@@ -284,7 +295,7 @@ def _decode_list(data):
     return rv
 
 def _decode_dict(data):
-    rv = {}
+    rv = OrderedDict()
     for key, value in data.iteritems():
         if isinstance(key, unicode):
             key = key.encode('utf-8')
@@ -348,11 +359,11 @@ def check_if_adict_contains_bdict(adict, bdict):
             else:
                 if not str(adict[key]) == str(bdict[key]):
                     printout("LOG","Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])))
-                    return False 
+                    return False
         else:
             print key
             return False
-    return True      
+    return True
 
 class MergableDict:
     def __init__(self):
@@ -397,7 +408,7 @@ class MergableDict:
     def dump(self):
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(self.mergable_dict)
-       
+
     def get(self):
         return self.mergable_dict
 
@@ -418,8 +429,8 @@ def size_to_Kbytes(size, dest_unit='KB'):
     else:
         for i in range(dest_unit_index, space_unit_index):
             space_num /= 1024.0
-    return '%.3f' % space_num
-        
+    return float('%.3f' % space_num)
+
 def time_to_sec(fio_runtime, dest_unit='sec'):
     res = re.search('(\d+.*\d*)(\wsec)', fio_runtime)
     if not res:
@@ -464,3 +475,13 @@ def return_os_id(user, nodes):
     stdout, stderr = pdsh(user, nodes, "lsb_release -i | awk -F: '{print $2}'", option="check_return")
     res = format_pdsh_return(stdout)
     return res
+
+def add_to_hosts( nodes ):
+    for node, ip in nodes.items():
+        res = bash("grep '%s' /etc/hosts" % str(ip)).strip()
+        if node in res:
+            continue
+        if res != "":
+            bash("sed -i 's/%s/%s %s/g' /etc/hosts" % (res, res, node))
+        else:
+            bash("echo %s %s >> /etc/hosts" % (str(ip), node))

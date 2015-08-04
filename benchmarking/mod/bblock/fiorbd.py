@@ -1,10 +1,12 @@
 from ..benchmark import *
+from collections import OrderedDict
+import itertools
 
 class FioRbd(Benchmark):
-    def __init__(self, testcase):
-        super(self.__class__, self).__init__(testcase)
+    def load_parameter(self):
+        super(self.__class__, self).load_parameter()
         self.cluster["rbdlist"] = self.get_rbd_list()
-        if self.cluster["rbdlist"] == []:
+        if len(self.cluster["rbdlist"]) < int(self.all_conf_data.get("rbd_volume_count")):
             self.prepare_images()
 
         rbd_num_per_client = self.cluster["rbd_num_per_client"]
@@ -58,16 +60,16 @@ class FioRbd(Benchmark):
     def prepare_result_dir(self):
         #1. prepare result dir
         self.get_runid()
-        self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s-fiorbd" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
+        self.benchmark["section_name"] = "fiorbd-%s-%s-qd%s-%s-%s-%s-fiorbd" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
         self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
-        self.benchmark["dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
+        self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
 	
-        res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.benchmark["dir"]), option = "check_return")
+        res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
 	if not res[1]:
-            common.printout("ERROR","Output DIR %s exists" % (self.benchmark["dir"]))
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
             sys.exit()
 
-        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.benchmark["dir"]))
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def prerun_check(self):
         #1. check is vclient alive
@@ -95,7 +97,7 @@ class FioRbd(Benchmark):
         fio_job_num_total = 0
         for client in self.benchmark["distribution"]:
             rbdlist = ' '.join(self.benchmark["distribution"][client])
-            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, 'rbd', dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")         
+            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, 'rbd', dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
             fio_job_num_total += len(self.benchmark["distribution"][client])
         time.sleep(1)
         if not self.check_fio_pgrep(self.benchmark["distribution"].keys(), fio_job_num_total):
@@ -105,9 +107,10 @@ class FioRbd(Benchmark):
             common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
             raise KeyboardInterrupt
         common.printout("LOG","%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())))
+        self.chkpoint_to_log("fio start")
         while self.check_fio_pgrep(self.benchmark["distribution"].keys()):
             time.sleep(5)
-        
+
     def prepare_run(self):
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
@@ -140,3 +143,70 @@ class FioRbd(Benchmark):
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+        self.chkpoint_to_log("fio stop")
+
+    def generate_benchmark_cases(self):
+        engine = self.all_conf_data.get_list('benchmark_engine')
+        if "fiorbd" not in engine:
+            return [[],[]]
+        test_config = OrderedDict()
+        test_config["engine"] = ["fiorbd"]
+        test_config["vm_num"] = self.all_conf_data.get_list('run_vm_num')
+        test_config["rbd_volume_size"] = self.all_conf_data.get_list('run_size')
+        test_config["io_pattern"] = self.all_conf_data.get_list('run_io_pattern')
+        test_config["record_size"] = self.all_conf_data.get_list('run_record_size')
+        test_config["queue_depth"] = self.all_conf_data.get_list('run_queue_depth')
+        test_config["warmup_time"] = self.all_conf_data.get_list('run_warmup_time')
+        test_config["runtime"] = self.all_conf_data.get_list('run_time')
+        test_config["disk"] = ["fiorbd"]
+        testcase_list = []
+        for testcase in itertools.product(*(test_config.values())):
+            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
+
+        fio_list = []
+        fio_list.append("[global]")
+        fio_list.append("    direct=1")
+        fio_list.append("    time_based")
+        for element in itertools.product(test_config["engine"], test_config["io_pattern"], test_config["record_size"], test_config["queue_depth"], test_config["rbd_volume_size"], test_config["warmup_time"], test_config["runtime"], test_config["disk"]):
+            engine, io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk = element
+            io_pattern_fio = io_pattern
+            if io_pattern == "seqread":
+                io_pattern_fio = "read"
+            if io_pattern == "seqwrite":
+                io_pattern_fio = "write"
+            fio_template = []
+            fio_template.append("[%s-%s-%s-qd%s-%s-%s-%s-%s]" % (engine, io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk))
+            fio_template.append("    rw=%s" % io_pattern_fio)
+            fio_template.append("    bs=%s" % record_size)
+            fio_template.append("    iodepth=%s" % queue_depth)
+            fio_template.append("    ramp_time=%s" % warmup_time)
+            fio_template.append("    runtime=%s" % runtime)
+            fio_template.append("    ioengine=rbd")
+            fio_template.append("    clientname=admin")
+            fio_template.append("    pool=${POOLNAME}")
+            fio_template.append("    rbdname=${RBDNAME}")
+            if io_pattern in ["randread", "randwrite", "randrw"]:
+                fio_template.append("    iodepth_batch_submit=1")
+                fio_template.append("    iodepth_batch_complete=1")
+                fio_template.append("    rate_iops=100")
+            if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
+                fio_template.append("    iodepth_batch_submit=8")
+                fio_template.append("    iodepth_batch_complete=8")
+                fio_template.append("    rate=60m")
+            if io_pattern in ["randrw", "readwrite", "rw"]:
+                try:
+                    rwmixread = self.all_conf_data.get('rwmixread')
+                    fio_template.append("    rwmixread=%s" % rwmixread)
+                except:
+                    pass
+            fio_list.extend(fio_template)
+        return [testcase_list, fio_list]
+
+    def parse_benchmark_cases(self, testcase):
+        p = testcase
+        testcase_dict = {
+            "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
+            "block_size":p[3], "qd":p[4], "rampup":p[5], 
+            "runtime":p[6], "vdisk":p[7]
+        }
+        return testcase_dict
