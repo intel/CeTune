@@ -168,8 +168,8 @@ class Tuner:
 
         #get [osd] asok config diff
         #get [mon] asok config diff
-        config['global'] = self.get_osd_config()
-        config['global'].update(self.get_mon_config())
+        config['osd'] = self.get_osd_config()
+        config['mon'] = self.get_mon_config()
 
         #get [pool] information
         config['pool'] = self.get_pool_config()
@@ -206,18 +206,32 @@ class Tuner:
         if not self.cur_tuning:
             self.cur_tuning = self.dump_config()
         tuning_diff = []
+        key_list = {}
         for key in self.worksheet[jobname]:
-            tuning = self.worksheet[jobname][key]
-            if key in ['workstages', 'benchmark_engine']:
-                continue
-            if key in ["osd","mon"]:
-                key = "global"
+            if key == "global":
+                key_list["osd"] = "try"
+                key_list["mon"] = "try"
+            elif key not in ['workstages', 'benchmark_engine']:
+                key_list[key] = key
+        try_count = 0
+        if not len(key_list.keys()):
+            tuning_diff.append("global")
+        for key in key_list.keys():
+            if key_list[key] == 'try':
+                tuning = self.worksheet[jobname]["global"]
+            else:
+                tuning = self.worksheet[jobname][key]
             if key in self.cur_tuning:
                 res = common.check_if_adict_contains_bdict(self.cur_tuning[key], tuning)
                 if not res and key not in tuning_diff:
-                    tuning_diff.append(key)
+                    if key_list[key] != "try":
+                        tuning_diff.append(key)
+                    else:
+                        try_count += 1
             else:
                 tuning_diff.append(key)
+            if try_count == 2:
+                tuning_diff.append("global")
         for key in tuning_diff:
             common.printout("LOG","Tuning[%s] is not same with current configuration" % (key))
         return tuning_diff
@@ -258,7 +272,7 @@ class Tuner:
                         continue
                     if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                         self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
-            if tuning_key == 'global':
+            if tuning_key in ['global','osd','mon']:
                 tuning = {}
                 for section_name, section in self.worksheet[jobname].items():
                     if section_name in ["version","workstages","pool","benchmark_engine"]:
@@ -339,3 +353,4 @@ class Tuner:
 
 tuner = Tuner()
 tuner.run()
+#tuner.check_tuning('testjob1')
