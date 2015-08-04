@@ -55,6 +55,7 @@ class Analyzer:
                 self.result["ceph"][dir_name]={}
                 system, workload = self._process_data(dir_name)
                 self.result["ceph"][dir_name]=system
+                self.result["ceph"].update(workload)
             if dir_name in self.cluster["client"]:
                 self.result["client"][dir_name]={}
                 system, workload = self._process_data(dir_name)
@@ -227,15 +228,15 @@ class Analyzer:
             if '_process_log.txt' in dir_name:
                 res = self.process_log_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
                 result.update(res)
-#            if '.asok.txt' in dir_name:
-#                try:
-#                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
-#                    for key, value in res.items():
-#                        if not key in result:
-#                            result[key] = OrderedDict()
-#                        result[key].update(value)
-#                except:
-#                    pass
+            if '.asok.txt' in dir_name:
+                try:
+                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name))
+                    for key, value in res.items():
+                        if dir_name not in workload_result:
+                            workload_result[dir_name] = OrderedDict()
+                        workload_result[dir_name][key] = value
+                except:
+                    pass
         return [result, workload_result]
 
     def process_log_data(self, path):
@@ -424,24 +425,18 @@ class Analyzer:
     def process_blktrace_data(self, path):
         pass
 
-    def process_perfcounter_data(self, path, dirname):
+    def process_perfcounter_data(self, path):
         common.printout("LOG","loading %s" % path)
         perfcounter = []
-        try:
-            with open(path,"r") as fd:
-                data = fd.readlines()
-            if re.search('^,\n', data[0]):
-                if ',' in data[-1]:
-                    tmp_data = "[\n"+"\n".join(data[1:-1])+"]"
-                else:
-                    tmp_data = "[\n"+"\n".join(data[1:])+"]"
-            elif ',' in data[-1]:
-                tmp_data = "[\n"+"\n".join(data[:-1])+"]"
-            else:
-                tmp_data = "[\n"+"\n".join(data)+"]"
-            perfcounter = yaml.load(tmp_data)
-        except IOError as e:
-            raise
+        with open(path,"r") as fd:
+            data = fd.readlines()
+        for tmp_data in data:
+            if ',' == tmp_data[-2]:
+                tmp_data = tmp_data[:-2]
+            try:
+                perfcounter.append(json.loads(tmp_data, object_pairs_hook=OrderedDict))
+            except:
+                perfcounter.append({})
         if not len(perfcounter) > 0:
             return False
         result = common.MergableDict()
@@ -452,8 +447,7 @@ class Analyzer:
         output = OrderedDict()
         for key in ["osd", "filestore", "objecter"]:
             output["perfcounter_"+key] = {}
-            output["perfcounter_"+key][dirname] = {}
-            current = output["perfcounter_"+key][dirname]
+            current = output["perfcounter_"+key]
             if not key in result:
                 continue
             for param, data in result[key].items():
