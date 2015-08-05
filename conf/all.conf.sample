@@ -48,7 +48,7 @@ run_warmup_time=0
 run_time=100
 dest_dir=/mnt/data/
 dest_dir_remote_bak=192.168.3.101:/share/chendi_new/CeTune_demo/
-# only used in fio_rbd engine test scenario
+
 rbd_num_per_client=40,40
 
 #====================RGW CONFIGURATION===================
