@@ -239,8 +239,8 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             for node in nodes:
-                common.pdsh(user, [head], "mkdir -p %s/%s" % (dest_dir, node))
-                common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+                common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+                common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
     def generate_benchmark_cases(self):
         engine = self.all_conf_data.get_list('benchmark_engine')
