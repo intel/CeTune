@@ -244,6 +244,7 @@ class QemuRbd(Benchmark):
 
     def generate_benchmark_cases(self):
         engine = self.all_conf_data.get_list('benchmark_engine')
+        fio_capping = self.all_conf_data.get_list('fio_capping')
         if "qemurbd" not in engine:
             return [[],[]]
         test_config = OrderedDict()
@@ -285,11 +286,13 @@ class QemuRbd(Benchmark):
             if io_pattern in ["randread", "randwrite", "randrw"]:
                 fio_template.append("    iodepth_batch_submit=1")
                 fio_template.append("    iodepth_batch_complete=1")
-                fio_template.append("    rate_iops=100")
+                if fio_capping != "false":
+                    fio_template.append("    rate_iops=100")
             if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
                 fio_template.append("    iodepth_batch_submit=8")
                 fio_template.append("    iodepth_batch_complete=8")
-                fio_template.append("    rate=60m")
+                if fio_capping != "false":
+                    fio_template.append("    rate=60m")
             if io_pattern in ["randrw", "readwrite", "rw"]:
                 try:
                     rwmixread = self.all_conf_data.get('rwmixread')

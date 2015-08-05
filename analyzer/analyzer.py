@@ -131,7 +131,7 @@ class Analyzer:
                         start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
                         end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
                         benchmark_active_time = end - start
-                        if benchmark_active_time > (rampup + runtime):
+                        if benchmark_active_time > (rampup + runtime) or end <= 0:
                             runtime_end = start + rampup + runtime
                         else:
                             runtime_end = end
