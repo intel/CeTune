@@ -16,6 +16,8 @@ class Benchmark(object):
         self.pwd = os.path.abspath(os.path.join('..'))
 
     def go(self, testcase, tuning):
+        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
+        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
         self.load_parameter()
         self.get_runid()
 
