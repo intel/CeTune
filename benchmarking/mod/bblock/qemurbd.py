@@ -244,7 +244,7 @@ class QemuRbd(Benchmark):
 
     def generate_benchmark_cases(self):
         engine = self.all_conf_data.get_list('benchmark_engine')
-        fio_capping = self.all_conf_data.get_list('fio_capping')
+        fio_capping = self.all_conf_data.get('fio_capping')
         if "qemurbd" not in engine:
             return [[],[]]
         test_config = OrderedDict()

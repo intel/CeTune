@@ -102,18 +102,19 @@ class IPHandler:
         res = re.search(r'(\d+.\d+.\d+.\d+)/(\d+)',subnet)
         ip = res.group(1)
         bits = int(res.group(2))
-        return self.dottedQuadToNum(ip) & self.makeMask(bits)
+        netmask = self.makeMask(bits) << (32 - bits)
+        return [self.dottedQuadToNum(ip) & netmask, netmask]
 
-    def addressInNetwork(self,ip,net):
+    def addressToNetwork(self,ip,net):
        "Is an address in a network"
-       return ip & net == net
+       return ip & net
 
     def getIpByHostInSubnet(self, hostname, subnet ):
         "Get IP by hostname and filter with subnet"
         (hostname, aliaslist, ipaddrlist) = socket.gethostbyname_ex(hostname)
-        network = self.networkMask(subnet)
+        network, netmask = self.networkMask(subnet)
         for ip in ipaddrlist:
-            if self.addressInNetwork(self.dottedQuadToNum(ip),network):
+            if self.addressToNetwork(self.dottedQuadToNum(ip),netmask) == network:
                 return ip
         return ip
 
