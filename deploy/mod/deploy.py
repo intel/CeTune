@@ -9,7 +9,6 @@ import socket
 import uuid
 import argparse
 import yaml
-from ceph_deploy import cli
 from threading import Thread
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -20,6 +19,7 @@ class Deploy(object):
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["clients"] = self.all_conf_data.get_list("list_client")
+        self.cluster["monitor_network"] = self.all_conf_data.get("monitor_network", True)
         self.cluster["osds"] = {}
         self.cluster["mons"] = {}
         self.cluster["ceph_conf"] = {}
@@ -34,18 +34,29 @@ class Deploy(object):
             for key, value in self.all_conf_data.get("ceph_conf").items():
                 self.cluster["ceph_conf"]["global"][key] = value
 
+        ip_handler = common.IPHandler()
+        subnet = ""
+        monitor_subnet = ""
+        cluster_subnet = None
+        public_subnet = None
         if 'cluster_network' in self.cluster["ceph_conf"]["global"]:
-            subnet = self.cluster["ceph_conf"]["global"]['cluster_network']
-            ip_handler = common.IPHandler()
-            for osd in self.all_conf_data.get_list("list_ceph"):
-                self.cluster["osds"][osd] = ip_handler.getIpByHostInSubnet(osd, subnet)
-            for mon in self.all_conf_data.get_list("list_mon"):
-                self.cluster["mons"][mon] = ip_handler.getIpByHostInSubnet(mon, subnet)
-        else:
-            for osd in self.all_conf_data.get_list("list_ceph"):
-                self.cluster["osds"][osd] = socket.gethostbyname(osd)
-            for mon in self.all_conf_data.get_list("list_mon"):
-                self.cluster["mons"][mon] = socket.gethostbyname(mon)
+            cluster_subnet = self.cluster["ceph_conf"]["global"]['cluster_network']
+            subnet = cluster_subnet
+        if 'public_network' in self.cluster["ceph_conf"]["global"]:
+            public_subnet = self.cluster["ceph_conf"]["global"]['public_network']
+            subnet = public_subnet
+        if self.cluster['monitor_network'] != "":
+            monitor_subnet = self.cluster["monitor_network"]
+
+        if not cluster_subnet:
+            cluster_subnet = subnet
+        if not public_subnet:
+            public_subnet = subnet
+
+        for osd in self.all_conf_data.get_list("list_ceph"):
+            self.cluster["osds"][osd] = {"public":ip_handler.getIpByHostInSubnet(osd, public_subnet), "cluster":ip_handler.getIpByHostInSubnet(osd, cluster_subnet)}
+        for mon in self.all_conf_data.get_list("list_mon"):
+            self.cluster["mons"][mon] = ip_handler.getIpByHostInSubnet(mon, monitor_subnet)
 
         for osd in self.cluster["osds"]:
             self.cluster[osd] = self.all_conf_data.get_list(osd)
@@ -144,8 +155,8 @@ class Deploy(object):
                 cephconf.append("[osd.%d]\n" % osd_id)
                 osd_id += 1
                 cephconf.append("    host = %s\n" % osd)
-                cephconf.append("    public addr = %s\n" % self.cluster["osds"][osd])
-                cephconf.append("    cluster addr = %s\n" % self.cluster["osds"][osd])
+                cephconf.append("    public addr = %s\n" % self.cluster["osds"][osd]["public"])
+                cephconf.append("    cluster addr = %s\n" % self.cluster["osds"][osd]["cluster"])
                 cephconf.append("    osd journal = %s\n" % journal_device)
                 cephconf.append("    devs = %s\n" % osd_device)
         output = "".join(cephconf)
@@ -168,11 +179,8 @@ class Deploy(object):
         common.printout("LOG","Started to build mon daemon")
         self.make_mon()
         common.printout("LOG","Succeeded in building mon daemon")
-        common.printout("LOG","Started to mkfs.xfs on osd devices")
-        self.make_osd_fs()
-        common.printout("LOG","Succeded in mkfs.xfs on osd devices")
         common.printout("LOG","Started to build osd daemon")
-        self.make_osd()
+        self.make_osds()
         common.printout("LOG","Succeeded in building osd daemon")
 
     def startup(self):
@@ -214,15 +222,12 @@ class Deploy(object):
         for osd in osds:
             common.scp(user, osd, "../conf/ceph.conf", "/etc/ceph/")
 
-    def make_osd_fs(self):
+    def make_osds(self):
         user = self.cluster["user"]
         osds = sorted(self.cluster["osds"])
-        mkfs_opts = self.cluster['mkfs_opts']
-        mount_opts = self.cluster['mount_opts']
-        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+        mons = self.cluster["mons"]
+        osd_num = 0
 
-        self.cluster["ceph_conf"]["global"]["osd_data"]
         stdout, stderr = common.pdsh( user, osds, 'mount -l', option="check_return" )
         mount_list = {}
         for node, mount_list_tmp in common.format_pdsh_return(stdout).items():
@@ -231,56 +236,57 @@ class Deploy(object):
                 tmp = line.split()
                 mount_list[node][tmp[0]] = tmp[2]
 
-        osd_num = 0
-        for osd in osds:
-            for device_bundle in common.get_list(self.cluster[osd]):
-                osd_device = device_bundle[0]
-                journal_device = device_bundle[1]
-                common.printout("LOG","mkfs.xfs for %s on %s" % (osd_device, osd))
-                try:
-                    mounted_dir = mount_list[osd][osd_device]
-                    common.pdsh( user, [osd], 'umount %s' % osd_device )
-                    common.pdsh( user, [osd], 'rm -rf %s' % mounted_dir )
-                except:
-                    pass
-                common.pdsh( user, [osd], 'mkfs.xfs %s %s' % (mkfs_opts, osd_device))
-                osd_filedir = osd_filename.replace("$id", str(osd_num))
-                common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
-                common.pdsh( user, [osd], 'mount %s -t xfs %s %s/%s' % (mount_opts, osd_device, osd_basedir, osd_filedir))
-                osd_num += 1
-
-    def make_osd(self):
-        user = self.cluster["user"]
-        osds = sorted(self.cluster["osds"])
-        mons = self.cluster["mons"]
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
-        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_num = 0
-
         for osd in osds:
             for device_bundle_tmp in self.cluster[osd]:
                 device_bundle = common.get_list(device_bundle_tmp)
                 osd_device = device_bundle[0][0]
                 journal_device = device_bundle[0][1]
-
-                # Build the OSD
-                osduuid = str(uuid.uuid4())
-                osd_filedir = osd_filename.replace("$id",str(osd_num))
-                key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
-                common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="console")
-                common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="console")
-                common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="console")
-                common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console")
-
-                # Start the OSD
-                common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
-                pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
-                cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
-                cmd = 'ceph-run %s' % cmd
-                common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="console")
-                common.printout("LOG","Builded osd.%s daemon on %s" % (osd_num, osd))
+                self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
+                self.make_osd( osd, osd_num, osd_device, journal_device )
                 osd_num = osd_num+1
+
+    def make_osd_fs(self, osd, osd_num, osd_device, journal_device, mount_list):
+        user = self.cluster["user"]
+        mkfs_opts = self.cluster['mkfs_opts']
+        mount_opts = self.cluster['mount_opts']
+        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
+        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+
+        common.printout("LOG","mkfs.xfs for %s on %s" % (osd_device, osd))
+        try:
+            mounted_dir = mount_list[osd][osd_device]
+            common.pdsh( user, [osd], 'umount %s' % osd_device )
+            common.pdsh( user, [osd], 'rm -rf %s' % mounted_dir )
+        except:
+            pass
+        common.pdsh( user, [osd], 'mkfs.xfs %s %s' % (mkfs_opts, osd_device), option="console")
+        osd_filedir = osd_filename.replace("$id", str(osd_num))
+        common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
+        common.pdsh( user, [osd], 'mount %s -t xfs %s %s/%s' % (mount_opts, osd_device, osd_basedir, osd_filedir))
+
+    def make_osd(self, osd, osd_num, osd_device, journal_device):
+        user = self.cluster["user"]
+        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
+        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
+        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+
+        common.printout("LOG","start to build osd daemon for %s on %s" % (osd_device, osd))
+        # Build the OSD
+        osduuid = str(uuid.uuid4())
+        osd_filedir = osd_filename.replace("$id",str(osd_num))
+        key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
+        common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="console")
+        common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="console")
+        common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="console")
+        common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console")
+
+        # Start the OSD
+        common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
+        pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
+        cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
+        cmd = 'ceph-run %s' % cmd
+        common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="console")
+        common.printout("LOG","Builded osd.%s daemon on %s" % (osd_num, osd))
 
     def make_mon(self):
         user = self.cluster["user"]

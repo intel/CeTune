@@ -187,14 +187,19 @@ class Tuner:
         else:
             return
         if not cur_version == {}:
-            current_version_group = re.search('(\d+.\d+).\d',cur_version)
-            current_version = current_version_group.group(1)
-            version_match = False
-            if 'version' in self.worksheet[jobname]:
-                if current_version in version_map:
-                    version_match = ( version_map[current_version] == planed_version )
-            else:
-                version_match = True
+            if not isinstance(cur_version, list):
+                cur_version = [cur_version]
+            for cur_version_tmp in cur_version:
+                current_version_group = re.search('(\d+.\d+).\d',cur_version_tmp)
+                current_version = current_version_group.group(1)
+                version_match = False
+                if 'version' in self.worksheet[jobname]:
+                    if current_version in version_map:
+                        version_match = ( version_map[current_version] == planed_version )
+                else:
+                    version_match = True
+                if not version_match:
+                    break
         else:
             version_match = False
         if not version_match:

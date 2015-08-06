@@ -316,6 +316,8 @@ def format_pdsh_return(pdsh_res):
             node, output = line.split(':', 1)
         except:
             continue
+        if 'pdsh@' in node:
+            continue
         if node not in formatted_output:
             formatted_output[node] = []
         formatted_output[node].append(output)
