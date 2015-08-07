@@ -380,11 +380,11 @@ class Cosbench(Benchmark):
         ceph_nodes = []
         ceph_nodes.extend(self.rgw["rgw_server"])
         for node in ceph_nodes:
-            common.pdsh(user, [head], "mkdir -p %s/%s" % (dest_dir, node))
-            common.rscp(user, node, "%s/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+            common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
         cosbench_controller = self.cosbench["cosbench_controller"]
-        common.rscp(user, cosbench_controller, "%s/%s/"%(dest_dir, cosbench_controller), "%s/archive/%s-*"%(self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]))
+        common.rscp(user, cosbench_controller, "%s/raw/%s/"%(dest_dir, cosbench_controller), "%s/archive/%s-*"%(self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]))
 
     def parse_benchmark_cases(self, testcase):
         p = testcase

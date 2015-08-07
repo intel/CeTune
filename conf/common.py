@@ -112,11 +112,14 @@ class IPHandler:
     def getIpByHostInSubnet(self, hostname, subnet ):
         "Get IP by hostname and filter with subnet"
         (hostname, aliaslist, ipaddrlist) = socket.gethostbyname_ex(hostname)
-        network, netmask = self.networkMask(subnet)
+        try:
+            network, netmask = self.networkMask(subnet)
+        except:
+            return ipaddrlist[0]
         for ip in ipaddrlist:
             if self.addressToNetwork(self.dottedQuadToNum(ip),netmask) == network:
                 return ip
-        return ip
+        return ipaddrlist[0]
 
 def get_list( string ):
     res = []
@@ -316,6 +319,8 @@ def format_pdsh_return(pdsh_res):
         try:
             node, output = line.split(':', 1)
         except:
+            continue
+        if 'pdsh@' in node:
             continue
         if node not in formatted_output:
             formatted_output[node] = []

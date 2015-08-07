@@ -9,7 +9,6 @@ import socket
 import uuid
 import argparse
 import yaml
-from ceph_deploy import cli
 from threading import Thread
 from mod import *
 

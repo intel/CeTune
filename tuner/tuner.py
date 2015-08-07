@@ -86,29 +86,38 @@ class Tuner:
         osds = self.cluster["osds"]
         clients = self.cluster["client"]
 
+        version_dict = {}
         stdout, stderr = common.pdsh(user, osds, 'ceph -v', option="check_return")
         res = common.format_pdsh_return(stdout)
-        osd_version = res
+        version_dict["osd_version"] = res
         stdout, stderr = common.pdsh(user, clients, 'rbd -v', option="check_return")
         res = common.format_pdsh_return(stdout)
-        rbd_version = res
+        version_dict["rbd_version"] = res
         stdout, stderr = common.pdsh(user, clients, 'rados -v', option="check_return")
         res = common.format_pdsh_return(stdout)
-        rados_version = res
+        version_dict["rados_version"] = res
+
         # merge config diff
         ceph_version = common.MergableDict()
-        for node, res in osd_version.items():
-            raw_res = res.split()
-            version = raw_res[2]
+        for node in osds:
+            version_type = "osd_version"
+            if node in version_dict[version_type]:
+                res = version_dict[version_type][node]
+                raw_res = res.split()
+                version = raw_res[2]
+            else:
+                version = "" 
             ceph_version.update(version)
-        for node, res in rbd_version.items():
-            raw_res = res.split()
-            version = raw_res[2]
-            ceph_version.update(version)
-        for node, res in rados_version.items():
-            raw_res = res.split()
-            version = raw_res[2]
-            ceph_version.update(version)
+        for node in clients:
+            for version_type in ["rbd_version", "rados_version"]:
+                if node in version_dict[version_type]:
+                    res = version_dict[version_type][node]
+                    raw_res = res.split()
+                    version = raw_res[2]
+                else:
+                    print version_type
+                    version = "" 
+                ceph_version.update(version)
         return ceph_version.get()
 
     def get_osd_config(self):
@@ -187,14 +196,22 @@ class Tuner:
         else:
             return
         if not cur_version == {}:
-            current_version_group = re.search('(\d+.\d+).\d',cur_version)
-            current_version = current_version_group.group(1)
-            version_match = False
-            if 'version' in self.worksheet[jobname]:
-                if current_version in version_map:
-                    version_match = ( version_map[current_version] == planed_version )
-            else:
-                version_match = True
+            if not isinstance(cur_version, list):
+                cur_version = [cur_version]
+            for cur_version_tmp in cur_version:
+                current_version_group = re.search('(\d+.\d+).\d',cur_version_tmp)
+                if not current_version_group:
+                    version_match = False
+                    break
+                current_version = current_version_group.group(1)
+                version_match = False
+                if 'version' in self.worksheet[jobname]:
+                    if current_version in version_map:
+                        version_match = ( version_map[current_version] == planed_version )
+                else:
+                    version_match = True
+                if not version_match:
+                    break
         else:
             version_match = False
         if not version_match:
