@@ -147,7 +147,7 @@ class Cosbench(Benchmark):
         if version[0] == 'v':
             version = version[1:]
         common.printout('LOG', "Start to download cosbench codes, it may take 5 min, pls wait")
-        stdout = common.bash("cd %s; rm -f %s.zip; wget %sv%s/%s.zip; echo $?" % ( version, tmp_dir, release_url_prefix, version, version))
+        stdout = common.bash("cd %s; rm -f %s.zip; wget %sv%s/%s.zip; echo $?" % ( tmp_dir, version, release_url_prefix, version, version))
         if int(stdout) == 0:
             common.printout("LOG", "Cosbench version %s downloaded successfully" % version)
         else:
