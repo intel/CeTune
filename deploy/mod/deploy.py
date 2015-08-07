@@ -89,6 +89,14 @@ class Deploy(object):
 
     def install_binary(self, version="hammer"):
         installed, non_installed = self.check_ceph_installed()
+        uninstall_nodes=[]
+        version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94'}
+        for node, version in installed.items():
+            if version_map[version] not in version:
+                uninstall_nodes.append(node)
+                need_to_install_nodes.append(node)
+        if len(nodes):
+            self.uninstall_binary(uninsatll_nodes)
         need_to_install_nodes = non_installed
         common.printout("LOG", "Ceph already installed on below nodes")
         for node, value in installed.items():
@@ -110,12 +118,16 @@ class Deploy(object):
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
             common.bash("ceph-deploy install --%s %s %s 2>&1" % (pkg_type, version, node), option="console")
 
-    def uninstall_binary(self):
-        installed, non_installed = self.check_ceph_installed()
+    def uninstall_binary(self, nodes=[]):
+        if not len(nodes):
+            installed, non_installed = self.check_ceph_installed()
+            nodes = installed.keys()
         user = self.cluster["user"]
-        nodes = installed.keys()
         node_os_dict = common.return_os_id(user, nodes)
+        common.printout("LOG", "Uninstalled ceph on below nodes: %s" % str(nodes))
         for node in nodes:
+            if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
+                common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
             common.bash("ceph-deploy purge %s" % (node), option="console")
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
