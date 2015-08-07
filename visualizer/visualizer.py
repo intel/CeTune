@@ -18,10 +18,18 @@ import numpy
 pp = pprint.PrettyPrinter(indent=4)
 class Visualizer:
     def __init__(self, result, path=None):
+        if os.path.isdir('%s/%s' % ( path, 'conf' )):
+            all_path = '%s/%s' % ( path, 'conf' )
+        else:
+            all_path = path
+        self.all_conf_data = common.Config("%s/all.conf" % all_path)
         self.result = result
         self.output = []
         if path:
             self.path = path
+            self.session_name = os.path.basename(path.strip('/'))
+        self.dest_dir_remote_bak = self.all_conf_data.get("dest_dir_remote_bak")
+        self.user = self.all_conf_data.get("user")
 
     def generate_summary_page(self):
         #0. framework
@@ -53,59 +61,53 @@ class Visualizer:
         with open("%s/%s.html" % (self.path, self.result["session_name"]), 'w') as f:
             f.write(output)
         common.bash("cp -r %s %s" % ("../visualizer/include/", self.path))
+        common.printout("LOG","Session result generated, copy to remote")
+        common.bash("scp -r %s %s" % (self.path, self.dest_dir_remote_bak))
 
-    def generate_history_view(self, remote_host="192.168.3.101", remote_dir="/share/chendi_new/CeTune_demo/", user='root', session_id="232-80-fiorbd-seqwrite-64k-qd64-40g-0-100-fiorbd"):
-        output = []
-        stdout, stderr = common.pdsh(user, [remote_host], "cat %s/cetune_history.html" % remote_dir, option="check_return")
-        res = common.format_pdsh_return(stdout)
-        if res:
-            output = res[remote_host]
+        remote_bak, remote_dir = self.dest_dir_remote_bak.split(':')
+        output = self.generate_history_view(remote_bak, remote_dir, self.user, self.session_name)
+
+        common.printout("LOG","History view generated, copy to remote")
+        with open("%s/cetune_history.html" % self.path, 'w') as f:
+            f.write(output)
+        common.bash("scp -r %s/cetune_history.html %s" % (self.path, self.dest_dir_remote_bak))
+        common.bash("scp -r ../visualizer/include %s" % (self.dest_dir_remote_bak))
+
+    def generate_history_view(self, remote_host="192.168.3.101", remote_dir="/share/chendi_new/up_server/", user='root', session_id="177-80-qemurbd-seqwrite-64k-qd64-40g-100-400-vdb"):
         common.printout("LOG","Generating history view")
-        if output == []:
-            stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
-        else:
-            stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./%s | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % (remote_dir, session_id), option="check_return")
+        stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
         res = common.format_pdsh_return(stdout)
         if remote_host not in res:
             common.printout("ERROR","Generating history view failed")
             return False
-        if output != []:
-            try:
-                output = output.split('\n')
-                insert_index = output.index("  </tbody>")
-                output.insert(insert_index, res[remote_host])
-            except:
-                stdout, stderr = common.pdsh(user, [remote_host], "cd %s; grep \"cetune_table\" -rl ./ | sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
-                res = common.format_pdsh_return(stdout)
-                output = []
-        if output == []:
-            output.append("<h1>CeTune History Page</h1>")
-            output.append("<table class='cetune_table'>")
-            output.append(" <thead>")
-            output.append(" <tr>")
-            output.append(" <th>runid</th>")
-            output.append(" <th><a id='runid_op_size' href='#'>op_size</a></th>")
-            output.append(" <th><a id='runid_op_type' href='#'>op_type</a></th>")
-            output.append(" <th><a id='runid_QD' href='#'>QD</a></th>")
-            output.append(" <th><a id='runid_engine' href='#'>engine</a></th>")
-            output.append(" <th><a id='runid_serverNum' href='#'>serverNum</a></th>")
-            output.append(" <th><a id='runid_clientNum' href='#'>clientNum</a></th>")
-            output.append(" <th><a id='runid_rbdNum' href='#'>rbdNum</a></th>")
-            output.append(" <th><a id='runid_runtime' href='#'>runtime</a></th>")
-            output.append(" <th><a id='runid_fio_iops' href='#'>fio_iops</a></th>")
-            output.append(" <th><a id='runid_fio_bw' href='#'>fio_bw</a></th>")
-            output.append(" <th><a id='runid_fio_latency' href='#'>fio_latency</a></th>")
-            output.append(" <th><a id='runid_osd_iops' href='#'>osd_iops</a></th>")
-            output.append(" <th><a id='runid_osd_bw' href='#'>osd_bw</a></th>")
-            output.append(" <th><a id='runid_osd_latency' href='#'>osd_latency</a></th>")
-            output.append(" <tr>")
-            output.append(" </thead>")
-            output.append(" <tbody>")
-            output.append(res[remote_host])
-            output.append(" </tbody>")
-            output.append("<script>")
-            output.append("$(\".cetune_table tr\").dblclick(function(){var path=$(this).attr('href'); window.location=path})")
-            output.append("</script>")
+        output = []
+        output.append("<h1>CeTune History Page</h1>")
+        output.append("<table class='cetune_table'>")
+        output.append(" <thead>")
+        output.append(" <tr>")
+        output.append(" <th>runid</th>")
+        output.append(" <th><a id='runid_op_size' href='#'>op_size</a></th>")
+        output.append(" <th><a id='runid_op_type' href='#'>op_type</a></th>")
+        output.append(" <th><a id='runid_QD' href='#'>QD</a></th>")
+        output.append(" <th><a id='runid_engine' href='#'>engine</a></th>")
+        output.append(" <th><a id='runid_serverNum' href='#'>serverNum</a></th>")
+        output.append(" <th><a id='runid_clientNum' href='#'>clientNum</a></th>")
+        output.append(" <th><a id='runid_rbdNum' href='#'>rbdNum</a></th>")
+        output.append(" <th><a id='runid_runtime' href='#'>runtime</a></th>")
+        output.append(" <th><a id='runid_fio_iops' href='#'>fio_iops</a></th>")
+        output.append(" <th><a id='runid_fio_bw' href='#'>fio_bw</a></th>")
+        output.append(" <th><a id='runid_fio_latency' href='#'>fio_latency</a></th>")
+        output.append(" <th><a id='runid_osd_iops' href='#'>osd_iops</a></th>")
+        output.append(" <th><a id='runid_osd_bw' href='#'>osd_bw</a></th>")
+        output.append(" <th><a id='runid_osd_latency' href='#'>osd_latency</a></th>")
+        output.append(" <tr>")
+        output.append(" </thead>")
+        output.append(" <tbody>")
+        output.append(res[remote_host])
+        output.append(" </tbody>")
+        output.append("<script>")
+        output.append("$(\".cetune_table tr\").dblclick(function(){var path=$(this).attr('href'); window.location=path})")
+        output.append("</script>")
         return self.add_html_framework(output)
 
     def add_html_framework(self, maindata):

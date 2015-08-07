@@ -17,8 +17,17 @@ import copy
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
     def __init__(self, dest_dir):
-        self.all_conf_data = common.Config("%s/all.conf" % dest_dir)
         self.cluster = {}
+        if os.path.isdir('%s/%s' % ( dest_dir, 'conf' )):
+            self.cluster["dest_conf_dir"] = '%s/%s' % ( dest_dir, 'conf' )
+        else:
+            self.cluster["dest_conf_dir"] = dest_dir
+        if os.path.isdir('%s/%s' % ( dest_dir, 'raw' )):
+            self.cluster["dest_dir"] = '%s/%s' % ( dest_dir, 'raw' )
+        else:
+            self.cluster["dest_dir"] = dest_dir
+        self.cluster["dest_dir_root"] = dest_dir
+        self.all_conf_data = common.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
@@ -26,7 +35,6 @@ class Analyzer:
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         self.cluster["vclient_disk"] = self.all_conf_data.get_list("run_file")
-        self.cluster["dest_dir"] = dest_dir
         self.cluster["dest_dir_remote_bak"] = self.all_conf_data.get("dest_dir_remote_bak")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
@@ -42,7 +50,7 @@ class Analyzer:
     def process_data(self):
         user = self.cluster["user"]
         dest_dir = self.cluster["dest_dir"]
-        session_name = dest_dir.split('/')
+        session_name = self.cluster["dest_dir_root"].split('/')
         if session_name[-1] != '':
             self.result["session_name"] = session_name[-1]
         else:
@@ -87,21 +95,12 @@ class Analyzer:
         '''
         result = self.format_result_for_visualizer( self.result )
         result = self.summary_result( result )
+        dest_dir = self.cluster["dest_dir_root"]
         common.printout("LOG","Write analyzed results into result.json")
         with open('%s/result.json' % dest_dir, 'w') as f:
             json.dump(result, f, indent=4)
         view = visualizer.Visualizer(result, dest_dir)
         output = view.generate_summary_page()
-        common.bash("scp -r %s %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
-
-        remote_bak, remote_dir = self.cluster["dest_dir_remote_bak"].split(':')
-        output = view.generate_history_view(remote_bak, remote_dir, user, self.result["session_name"])
-
-        common.printout("LOG","History view generated, copy to remote")
-        with open("%s/cetune_history.html" % dest_dir, 'w') as f:
-            f.write(output)
-        common.bash("scp -r %s/cetune_history.html %s" % (dest_dir, self.cluster["dest_dir_remote_bak"]))
-        common.bash("scp -r ../visualizer/include %s" % (self.cluster["dest_dir_remote_bak"]))
 
     def format_result_for_visualizer(self, data):
         output_sort = OrderedDict()
