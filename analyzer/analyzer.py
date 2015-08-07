@@ -194,13 +194,19 @@ class Analyzer:
                 osd_node_count += 1
                 tmp_data["osd_iops"] += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
                 tmp_data["osd_bw"] += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
-                tmp_data["osd_latency"] += numpy.mean(node_data["r_await"])
+                lat_name = "r_await"
+                if lat_name not in node_data:
+                    lat_name = "await"
+                tmp_data["osd_latency"] += numpy.mean(node_data[lat_name])
         if tmp_data["op_type"] in ["randwrite", "seqwrite", "write"]:
             for node, node_data in data["ceph"]["osd"].items():
                 osd_node_count += 1
                 tmp_data["osd_iops"] += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
                 tmp_data["osd_bw"] += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
-                tmp_data["osd_latency"] += numpy.mean(node_data["w_await"])
+                lat_name = "w_await"
+                if lat_name not in node_data:
+                    lat_name = "await"
+                tmp_data["osd_latency"] += numpy.mean(node_data[lat_name])
         tmp_data["osd_iops"] = "%.3f" % (tmp_data["osd_iops"])
         tmp_data["osd_bw"] = "%.3f MB/s" % (tmp_data["osd_bw"])
         if osd_node_count > 0:
