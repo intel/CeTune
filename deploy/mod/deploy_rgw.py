@@ -245,6 +245,7 @@ class Deploy_RGW(Deploy) :
             server_lists.append("    stats hide-version")
             server_lists.append("    stats auth someuser:password")
             common.pdsh(self.cluster['user'], [rgw], "echo %s >> /etc/haproxy/haproxy.cfg" % "\n".join(server_lists) )
+        common.pdsh(self.cluster['user'], [rgw], "sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/haproxy" )
         common.pdsh(self.cluster['user'], [rgw], "/etc/init.d/haproxy restart" )
 
 def main(args):
