@@ -46,7 +46,7 @@ class QemuRbd(Benchmark):
             common.scp(user, client, "../vm-scripts/vdbs", dest_dir)
 
         #attach to vm
-        self.attach_images()
+        self.attach_images(self.cluster["testjob_distribution"])
 
         #start to init 
         fio_job_num_total = 0
@@ -102,13 +102,14 @@ class QemuRbd(Benchmark):
         common.printout("LOG","Prerun_check: check if sysstat installed")
         common.pdsh(user, nodes, "mpstat")
 
-    def attach_images(self):
+    def attach_images(self, to_attach_dict = None):
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
         dest_dir = self.cluster["tmp_dir"]
-        #for client in self.cluster["testjob_distribution"]:
-        for client in self.benchmark["distribution"]:
-            nodes = self.benchmark["distribution"][client]
+        if not to_attach_dict:
+            to_attach_dict = self.benchmark["distribution"]
+        for client in to_attach_dict:
+            nodes = to_attach_dict[client]
             for node in nodes:
                 common.printout("LOG","Attach rbd image to %s" % node)
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
