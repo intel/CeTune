@@ -30,6 +30,7 @@ class Cosbench(Benchmark):
         self.cosbench["proxy"] = self.all_conf_data.get("cosbench_controller_proxy")
         self.cluster["testjob_distribution"] = copy.deepcopy(self.cosbench["cosbench_driver"])
         self.cosbench["cosbench_version"] = self.all_conf_data.get("cosbench_version")
+        self.cluster["client"] = self.cosbench["cosbench_driver"]
 
     def parse_conobj_script(self, string):
         m = re.findall("(\w{1})\((\d+),(\d+)\)", string)
@@ -177,6 +178,12 @@ class Cosbench(Benchmark):
         cosbench_server = []
         cosbench_server.append(self.cosbench["cosbench_controller"])
         cosbench_server = common.unique_extend( cosbench_server, self.cosbench["cosbench_driver"] )
+
+        # check sysstat
+        nodes = []
+        nodes.extend(self.rgw["rgw_server"])
+        common.printout("LOG","Prerun_check: check if sysstat installed")
+        common.pdsh(self.cluster["user"], nodes, "mpstat")
 
         common.printout("LOG", "check if cosbench installed")
         # check if cosbench installed

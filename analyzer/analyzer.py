@@ -33,6 +33,7 @@ class Analyzer:
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
+        self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         self.cluster["vclient_disk"] = self.all_conf_data.get_list("run_file")
         self.cluster["dest_dir_remote_bak"] = self.all_conf_data.get("dest_dir_remote_bak")
@@ -42,6 +43,7 @@ class Analyzer:
         self.result = OrderedDict()
         self.result["workload"] = OrderedDict()
         self.result["ceph"] = OrderedDict()
+        self.result["rgw"] = OrderedDict()
         self.result["client"] = OrderedDict()
         self.result["vclient"] = OrderedDict()
         self.get_validate_runtime()
@@ -64,6 +66,11 @@ class Analyzer:
                 system, workload = self._process_data(dir_name)
                 self.result["ceph"][dir_name]=system
                 self.result["ceph"].update(workload)
+            if dir_name in self.cluster["rgw"]:
+                self.result["rgw"][dir_name]={}
+                system, workload = self._process_data(dir_name)
+                self.result["rgw"][dir_name]=system
+                self.result["rgw"].update(workload)
             if dir_name in self.cluster["client"]:
                 self.result["client"][dir_name]={}
                 system, workload = self._process_data(dir_name)
@@ -127,19 +134,22 @@ class Analyzer:
                     if field_type not in output:
                         output[field_type] = OrderedDict()
                     if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
-                        start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
-                        end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
-                        benchmark_active_time = end - start
-                        if benchmark_active_time > (rampup + runtime) or end <= 0:
-                            runtime_end = start + rampup + runtime
-                        else:
-                            runtime_end = end
-                        runtime_start = start + rampup
-                        output[field_type][node] = OrderedDict()
-                        for colume_name, colume_data in data[node_type][node][field_type].items():
-                            if isinstance(colume_data, list):
-                                colume_data = colume_data[runtime_start:runtime_end]
-                            output[field_type][node][colume_name] = colume_data
+                        try:
+                            start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
+                            end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
+                            benchmark_active_time = end - start
+                            if benchmark_active_time > (rampup + runtime) or end <= 0:
+                                runtime_end = start + rampup + runtime
+                            else:
+                                runtime_end = end
+                            runtime_start = start + rampup
+                            output[field_type][node] = OrderedDict()
+                            for colume_name, colume_data in data[node_type][node][field_type].items():
+                                if isinstance(colume_data, list):
+                                    colume_data = colume_data[runtime_start:runtime_end]
+                                output[field_type][node][colume_name] = colume_data
+                        except:
+                            output[field_type][node] = data[node_type][node][field_type]
                     else:
                         output[field_type][node] = data[node_type][node][field_type]
             for key in sorted(output.keys()):

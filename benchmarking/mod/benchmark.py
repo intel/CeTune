@@ -198,7 +198,7 @@ class Benchmark(object):
     def get_runid(self):
         self.runid = 0
         try:
-            with open(".run_number", "r") as f:
+            with open("%s/.run_number" % lib_path, "r") as f:
                 self.runid = int(f.read())
         except:
             pass
@@ -207,7 +207,7 @@ class Benchmark(object):
         if not self.runid:
            self.get_runid()
         self.runid = self.runid + 1
-        with open(".run_number", "w") as f:
+        with open("%s/.run_number" % lib_path, "w") as f:
             f.write(str(self.runid))
 
     def testjob_distribution(self, rbd_num_per_client, instance_list):
