@@ -24,6 +24,11 @@ def main(args):
     parser.add_argument(
         '--version',
         )
+    parser.add_argument(
+        '--with_rgw',
+        default = False,
+        action='store_true'
+        )
     args = parser.parse_args(args)
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
@@ -32,14 +37,26 @@ def main(args):
         mydeploy = deploy.Deploy()
         mydeploy.cleanup()
         mydeploy.startup()
-    if args.operation == "distribute_conf":
+        if args.with_rgw:
+            mydeploy = deploy_rgw.Deploy_RGW()
+            mydeploy.restart_rgw()
+    if args.operation == "startup":
         mydeploy = deploy.Deploy()
-        mydeploy.distribute_conf()
-    if args.operation == "gen_cephconf":
-        if args.config:
-            mydeploy = deploy.Deploy(args.config)
+        mydeploy.startup()
+    if args.operation == "distribute_conf":
+        if args.with_rgw:
+            mydeploy = deploy_rgw.Deploy_RGW()
         else:
             mydeploy = deploy.Deploy()
+        mydeploy.distribute_conf()
+    if args.operation == "gen_cephconf":
+        tuning = ""
+        if args.config:
+            tuning = args.config
+        if args.with_rgw:
+            mydeploy = deploy_rgw.Deploy_RGW(tuning)
+        else:
+            mydeploy = deploy.Deploy(tuning)
         mydeploy.gen_cephconf()
     if args.operation == "install_binary":
         mydeploy = deploy.Deploy()

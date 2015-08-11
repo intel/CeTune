@@ -10,7 +10,7 @@ lib_path = os.path.dirname(os.path.abspath(__file__))
 
 class Deploy_RGW(Deploy) :
     def __init__(self, tunings=""):
-        super(self.__class__, self).__init__()
+        super(self.__class__, self).__init__(tunings)
         self.cluster["rgw"] = self.all_conf_data.get_list('rgw_server')
         self.cluster['rgw_num'] = int(self.all_conf_data.get('rgw_num_per_server'))
         self.cluster['rgw_start_index'] = self.all_conf_data.get('rgw_start_index')
@@ -28,23 +28,31 @@ class Deploy_RGW(Deploy) :
     def deploy(self):
         self.rgw_dependency_install()
         self.rgw_install()
-        self.rgw_deploy()
-
+        self.gen_cephconf()
         self.distribute_conf()
+        self.restart()
+
+        self.rgw_deploy()
         self.create_pools()
         self.init_auth()
         self.configure_haproxy()
-
-        self.gen_cephconf()
-        self.distribute_conf()
-
         self.restart_rgw()
 
     def restart_rgw(self):
         common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
-        stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/radosgw restart; /etc/init.d/haproxy restart', option="console|check_return")
-        if not self.check_rgw_runing():
-            self.deploy()
+        #stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; /etc/init.d/radosgw restart; ', option="console|check_return")
+        common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
+        stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`;for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done;' % (self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]), option="console|check_return")
+        stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console|check_return")
+        wait_count = 30
+        while not self.check_rgw_runing():
+            if wait_count <= 0:
+                common.printout("ERROR","Unable to start radosgw, pls check")
+                sys.exit()
+            common.printout("WARNING","Radosgw is not able to be accessed by swift interface yet, need to wait, will time out in %d" % wait_count)
+            wait_count -= 1
+            time.sleep(1)
+        common.printout("LOG","Radosgw now is working")
 
     def check_if_rgw_installed(self):
         stdout,stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'curl localhost','check_return')
@@ -57,7 +65,7 @@ class Deploy_RGW(Deploy) :
 
     def check_rgw_runing(self):
         user = self.cluster["user"]
-        stdout, stderr = common.bash("http_proxy=%s curl -D - -H 'X-Auth-User: %s' -H 'X-Auth-Key: %s' %s" % (self.cluster["proxy"], self.cluster["auth_username"], self.cluster["auth_password"], self.cluster["auth_url"]), True, option="console")
+        stdout, stderr = common.bash("http_proxy=%s curl -D - -H 'X-Auth-User: %s' -H 'X-Auth-Key: %s' %s" % (self.cluster["proxy"], self.cluster["auth_username"], self.cluster["auth_password"], self.cluster["auth_url"]), True, option="check_return")
         if re.search('(refused|error)', stderr):
             common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
             return False
@@ -103,6 +111,7 @@ class Deploy_RGW(Deploy) :
         user = self.cluster["user"]
         rgw_nodes = self.cluster["rgw"]
         common.printout("LOG","Install radosgw: radosgw, radosgw-agent")
+        self.install_binary()
         os_type_list = common.return_os_id( user, rgw_nodes )
         for node, os_type in os_type_list.items():
             if "Ubuntu" in os_type:
@@ -198,7 +207,7 @@ class Deploy_RGW(Deploy) :
             conf.append("rgw enable ops log = false\n")
             conf.append("log file = /var/log/radosgw/client.radosgw.%s.log\n" %(host_id))
             conf.append("rgw frontends =civetweb port=%s\n" %(str(civetweb_port)))
-            conf.append("rgw override bucket index max shards = 8\n\n")
+            conf.append("rgw override bucket index max shards = 0\n\n")
             if rgw_index % rgw_ins_per_nodes == 0:
                 rgw_node_index += 1
             rgw_index += 1

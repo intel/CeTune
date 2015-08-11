@@ -21,6 +21,7 @@ class Tuner:
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
+        self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
@@ -47,6 +48,8 @@ class Tuner:
                     run_deploy.main(['redeploy'])
                     self.apply_tuning(section)
                 elif work == "benchmark":
+                    if not common.check_ceph_running( user, controller ):
+                        run_deploy.main(['restart'])
                     common.printout("LOG","start to run performance test")
                     self.apply_tuning(section)
                     run_cases.main(['--tuning', section])
@@ -296,12 +299,21 @@ class Tuner:
                         continue
                     tuning[section_name] = section
                 common.printout("LOG","Apply osd and mon tuning to ceph.conf")
-                run_deploy.main(['--config', str(tuning), 'gen_cephconf'])
+                if len(self.cluster["rgw"]):
+                    run_deploy.main(['--config', str(tuning), '--with_rgw', 'gen_cephconf'])
+                else:
+                    run_deploy.main(['--config', str(tuning), 'gen_cephconf'])
                 common.printout("LOG","Distribute ceph.conf")
-                run_deploy.main(['distribute_conf'])
+                if len(self.cluster["rgw"]):
+                    run_deploy.main(['--with_rgw','distribute_conf'])
+                else:
+                    run_deploy.main(['distribute_conf'])
                 if not no_check:
                     common.printout("LOG","Restart ceph cluster")
-                    run_deploy.main(['restart'])
+                    if len(self.cluster["rgw"]):
+                        run_deploy.main(['--with_rgw','restart'])
+                    else:
+                        run_deploy.main(['restart'])
             if tuning_key == 'disk':
                 param = {}
                 for param_name, param_data in self.worksheet[jobname]['disk'].items():

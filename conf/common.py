@@ -491,3 +491,14 @@ def add_to_hosts( nodes ):
             bash("sed -i 's/%s/%s %s/g' /etc/hosts" % (res, res, node))
         else:
             bash("echo %s %s >> /etc/hosts" % (str(ip), node))
+
+def check_ceph_running(user, node):
+    stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s 2>/dev/null 1>/dev/null; echo $?", option = "check_return")
+    res = format_pdsh_return(stdout)
+    ceph_is_up = False
+    if node in res:
+        if int(res[node]) == 0:
+            ceph_is_up = True
+    if not ceph_is_up:
+        return False
+    return True

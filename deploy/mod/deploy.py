@@ -19,6 +19,7 @@ class Deploy(object):
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["clients"] = self.all_conf_data.get_list("list_client")
+        self.cluster["rgws"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["monitor_network"] = self.all_conf_data.get("monitor_network", True)
         self.cluster["osds"] = {}
         self.cluster["mons"] = {}
@@ -91,12 +92,12 @@ class Deploy(object):
         installed, non_installed = self.check_ceph_installed()
         uninstall_nodes=[]
         version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94'}
-        for node, version in installed.items():
-            if version_map[version] not in version:
+        for node, version_code in installed.items():
+            if version_map[version] not in version_code:
                 uninstall_nodes.append(node)
                 need_to_install_nodes.append(node)
-        if len(nodes):
-            self.uninstall_binary(uninsatll_nodes)
+        if len(uninstall_nodes):
+            self.uninstall_binary(uninstall_nodes)
         need_to_install_nodes = non_installed
         common.printout("LOG", "Ceph already installed on below nodes")
         for node, value in installed.items():
@@ -137,10 +138,12 @@ class Deploy(object):
         mons = sorted(self.cluster["mons"])
         osds = sorted(self.cluster["osds"])
         clients = sorted(self.cluster["clients"])
+        rgws = sorted(self.cluster["rgws"])
         nodes = []
         nodes = common.unique_extend(nodes, mons)
         nodes = common.unique_extend(nodes, osds)
         nodes = common.unique_extend(nodes, clients)
+        nodes = common.unique_extend(nodes, rgws)
         need_to_install_nodes = []
         stdout, stderr = common.pdsh(user, nodes, "ceph -v", option = "check_return")
         if stderr:
@@ -194,6 +197,10 @@ class Deploy(object):
         common.printout("LOG","Started to build osd daemon")
         self.make_osds()
         common.printout("LOG","Succeeded in building osd daemon")
+
+    def restart(self):
+        self.cleanup()
+        self.startup()
 
     def startup(self):
         common.printout("LOG","Starting mon daemon")

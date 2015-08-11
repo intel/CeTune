@@ -434,7 +434,7 @@ class Cosbench(Benchmark):
                 rw_type, rw_ratio = benchmark["iopattern"].split(':')
             else:
                 rw_type = benchmark["iopattern"]
-                rw_ratio = 100
+                rw_ratio = "100"
             benchmark["iopattern"] = {}
             benchmark["iopattern"]["type"] = rw_type
             benchmark["iopattern"]["ratio"] = rw_ratio
