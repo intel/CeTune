@@ -36,12 +36,12 @@ class Config():
                         key, value = line.split("=")
                         key = key.strip()
                         value = value.strip()
+                        if( value[-1] == '\n' ):
+                            cur_conf_section[key] = value[:-1]
+                        else:
+                            cur_conf_section[key] = value
                     except:
                         pass
-                    if( value[-1] == '\n' ):
-                        cur_conf_section[key] = value[:-1]
-                    else:
-                        cur_conf_section[key] = value
 
     def dump(self, key=""):
         pp = pprint.PrettyPrinter(indent=4)
