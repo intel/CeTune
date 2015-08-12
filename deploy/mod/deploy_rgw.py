@@ -43,7 +43,7 @@ class Deploy_RGW(Deploy) :
         #stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; /etc/init.d/radosgw restart; ', option="console|check_return")
         common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
         stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`;for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done;' % (self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]), option="console|check_return")
-        stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console|check_return")
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console")
         wait_count = 30
         while not self.check_rgw_runing():
             if wait_count <= 0:
@@ -222,7 +222,7 @@ class Deploy_RGW(Deploy) :
         haproxy_per_rgw = {}
         haproxy_per_rgw[self.cluster['rgw'][rgw_node_index]] = []
         while (int(self.cluster["rgw_num"]) - rgw_index + 1) > 0:
-            haproxy_per_rgw[self.cluster['rgw'][rgw_node_index]].append("server web%d 127.0.0.1:%d check" % (rgw_index, 7480+rgw_index))
+            haproxy_per_rgw[self.cluster['rgw'][rgw_node_index]].append("    server web%d 127.0.0.1:%d check" % (rgw_index, 7480+rgw_index))
             if rgw_index % rgw_ins_per_nodes == 0:
                 rgw_node_index += 1
                 try:
@@ -233,7 +233,8 @@ class Deploy_RGW(Deploy) :
 
         haproxy_cfg = {}
         for rgw, value in haproxy_per_rgw.items():
-            common.pdsh(self.cluster['user'], [rgw], "awk 'BEGIN{skip=0}{if($1==\"frontend\")skip=1;if(skip==0)print}' /etc/haproxy/haproxy.cfg > /etc/haproxy_haproxy.cfg" )
+            common.pdsh(self.cluster['user'], [rgw], "awk 'BEGIN{skip=0}{if($1==\"frontend\")skip=1;if(skip==0)print}' /etc/haproxy/haproxy.cfg > /etc/haproxy/haproxy.cfg.bak" )
+            common.pdsh(self.cluster['user'], [rgw], "mv /etc/haproxy/haproxy.cfg.bak /etc/haproxy/haproxy.cfg" )
             haproxy_cfg[rgw] = []
             server_lists = haproxy_cfg[rgw]
             server_lists.append("frontend localnodes")
@@ -245,7 +246,7 @@ class Deploy_RGW(Deploy) :
             server_lists.append("    mode http")
             server_lists.append("    balance roundrobin")
             server_lists.append("    option forwardfor")
-            server_lists.append("    option httpchk HEAD / HTTP/1.1\r\nHost:localhost")
+            server_lists.append("    option httpchk HEAD / HTTP/1.1")
             server_lists.extend(value)
             server_lists.append("")
             server_lists.append("listen stats *:1936")
@@ -253,7 +254,7 @@ class Deploy_RGW(Deploy) :
             server_lists.append("    stats uri /")
             server_lists.append("    stats hide-version")
             server_lists.append("    stats auth someuser:password")
-            common.pdsh(self.cluster['user'], [rgw], "echo %s >> /etc/haproxy/haproxy.cfg" % "\n".join(server_lists) )
+            common.pdsh(self.cluster['user'], [rgw], "echo \"%s\" >> /etc/haproxy/haproxy.cfg" % "\n".join(server_lists) )
         common.pdsh(self.cluster['user'], [rgw], "sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/haproxy" )
         common.pdsh(self.cluster['user'], [rgw], "/etc/init.d/haproxy restart" )
 

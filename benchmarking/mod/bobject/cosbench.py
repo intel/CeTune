@@ -159,7 +159,9 @@ class Cosbench(Benchmark):
             common.printout('LOG', "install cosbench to %s" % node)
             common.scp(self.cluster["user"],node,"%s/%s.zip" %(tmp_dir, version), tmp_dir)
         common.printout('LOG', "Unzip cosbench zip")
-        common.pdsh(self.cluster["user"], cosbench_nodes, "cd %s;rm -rf cosbench; unzip %s.zip; mv %s %s" % ( tmp_dir, version, version, self.cosbench["cosbench_folder"]))
+        common.pdsh(self.cluster["user"], cosbench_nodes, "cd %s;rm -rf cosbench;" % ( tmp_dir ))
+        common.pdsh(self.cluster["user"], cosbench_nodes, "cd %s;unzip %s.zip;" % ( tmp_dir, version ))
+        common.pdsh(self.cluster["user"], cosbench_nodes, "cd %s;mv %s %s" % ( tmp_dir, version, self.cosbench["cosbench_folder"]))
         common.printout('LOG', "Succeeded in installing cosbench on controllers and clients")
 
     def restart_cosbench_daemon(self):
