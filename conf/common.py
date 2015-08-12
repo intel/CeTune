@@ -194,6 +194,7 @@ def pdsh(user, nodes, command, option="error_check", nodie=False):
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     printout("CONSOLE", stdout, screen=False)
+    printout("CONSOLE", stderr, screen=False)
 
     if "check_return" in option:
         if returncode or "Connection timed out" in stderr:
