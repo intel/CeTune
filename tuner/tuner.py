@@ -8,6 +8,7 @@ import os, sys
 import time
 import pprint
 import re
+import json
 
 pp = pprint.PrettyPrinter(indent=4)
 class Tuner:
@@ -219,7 +220,6 @@ class Tuner:
             version_match = False
         if not version_match:
             common.printout("LOG","Current ceph version not match testjob version, need reinstall")
-            run_deploy.main(['uninstall_binary'])
             run_deploy.main(['install_binary', '--version', planed_version])
 
     def check_tuning(self, jobname):
@@ -300,9 +300,9 @@ class Tuner:
                     tuning[section_name] = section
                 common.printout("LOG","Apply osd and mon tuning to ceph.conf")
                 if len(self.cluster["rgw"]):
-                    run_deploy.main(['--config', str(tuning), '--with_rgw', 'gen_cephconf'])
+                    run_deploy.main(['--config', json.dumps(tuning), '--with_rgw', 'gen_cephconf'])
                 else:
-                    run_deploy.main(['--config', str(tuning), 'gen_cephconf'])
+                    run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
                 common.printout("LOG","Distribute ceph.conf")
                 if len(self.cluster["rgw"]):
                     run_deploy.main(['--with_rgw','distribute_conf'])
@@ -381,5 +381,5 @@ class Tuner:
             return False
 
 tuner = Tuner()
-tuner.run()
-#tuner.check_tuning('testjob1')
+#tuner.run()
+tuner.apply_tuning('testjob1')

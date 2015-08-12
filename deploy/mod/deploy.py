@@ -8,8 +8,9 @@ import re
 import socket
 import uuid
 import argparse
-import yaml
+import json
 from threading import Thread
+from collections import OrderedDict
 
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy(object):
@@ -24,7 +25,7 @@ class Deploy(object):
         self.cluster["osds"] = {}
         self.cluster["mons"] = {}
         self.cluster["ceph_conf"] = {}
-        self.cluster["ceph_conf"]["global"] = {}
+        self.cluster["ceph_conf"]["global"] = OrderedDict()
         self.cluster["ceph_conf"]["global"]["auth_service_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_cluster_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
@@ -69,22 +70,24 @@ class Deploy(object):
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
 
-        tuning_dict = yaml.load(tunings)
+        tuning_dict = {}
+        if tunings != "":
+            tuning_dict = json.loads(tunings,object_pairs_hook=OrderedDict )
         if isinstance( tuning_dict, dict ):
-            for section_name, section in yaml.load(tunings).items():
+            for section_name, section in tuning_dict.items():
                 if section_name == 'global':
                     if 'global' not in self.cluster["ceph_conf"]:
-                        self.cluster["ceph_conf"]['global'] = {}
+                        self.cluster["ceph_conf"]['global'] = OrderedDict()
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['global'][key] = value
                 if section_name == 'mon':
                     if 'mon' not in self.cluster["ceph_conf"]:
-                        self.cluster["ceph_conf"]['mon'] = {}
+                        self.cluster["ceph_conf"]['mon'] = OrderedDict()
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['mon'][key] = value
                 if section_name == 'osd':
                     if 'osd' not in self.cluster["ceph_conf"]:
-                        self.cluster["ceph_conf"]['osd'] = {}
+                        self.cluster["ceph_conf"]['osd'] = OrderedDict()
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['osd'][key] = value
 
