@@ -381,5 +381,5 @@ class Tuner:
             return False
 
 tuner = Tuner()
-#tuner.run()
-tuner.apply_tuning('testjob1')
+tuner.run()
+#tuner.apply_tuning('testjob1')
