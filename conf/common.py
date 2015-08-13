@@ -1,7 +1,6 @@
 import time
 import datetime
 import os
-import errno
 import sys
 import re
 import subprocess

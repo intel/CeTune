@@ -67,8 +67,8 @@ function main {
     if [ -z "$5" ]; then
         ip_fix=201
     fi
-    mac_address_fix=10
-    mac_address_prefix="52:54:00:b2:3a:"
+    mac_address_fix=01
+    mac_address_prefix="52:54:00:b2:3c:"
     vm_num=0
     
     mkdir -p $img_path_prefix"/tmp"
@@ -96,17 +96,21 @@ function main {
         vm_num=$(( vm_num + 1 ))
         if [ "$vm_num" = "$vm_num_per_client" ];then
             vm_num=0
-    	    cpuset=$cpuset_start
+            cpuset=$cpuset_start
         fi
         mac_address_fix=$(( $mac_address_fix + 1 ))
-    
+        if [ "$mac_address_fix" = "100" ];then
+            mac_address_prefix="52:54:00:b2:3b:"
+            mac_address_fix=01
+        fi
+
         echo "copy tmp.img as $node"
     #===== edit vm img ======
         cp vclient.tmp.img $img_path
         echo "edit $node img"
         img_path_tmp=${img_path_prefix}"/tmp"
         mount -o loop,offset=1048576 ${img_path} ${img_path_tmp}
-        
+
         echo ${node} > ${img_path_tmp}/etc/hostname
         ip=$ip_prefix"."$ip_fix
         echo "auto eth0" >> ${img_path_tmp}/etc/network/interfaces

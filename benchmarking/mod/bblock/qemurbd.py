@@ -148,8 +148,8 @@ class QemuRbd(Benchmark):
 
         fio_job_num_total = 0
         for node in nodes:
-            common.pdsh(user, [node], "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf > /dev/null" % (dest_dir, self.benchmark["section_name"], dest_dir), option = "force")
-            fio_job_num_total += 1
+            common.pdsh(user, [node], "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf 2>%s/`hostname`_fio_errorlog.txt > /dev/null" % (dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
+            fio_job_num_total += 2
 
         time.sleep(1)
         if not self.check_fio_pgrep(nodes, fio_job_num_total):

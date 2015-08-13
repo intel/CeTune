@@ -23,6 +23,7 @@ class Tuner:
         self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
+        self.cluster["benchmark_engine"] = self.all_conf_data.get_list("benchmark_engine")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
@@ -293,24 +294,28 @@ class Tuner:
                     if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                         self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
             if tuning_key in ['global','osd','mon']:
+                if "cosbench" in self.cluster["benchmark_engine"]:
+                    with_rgw = True
+                else:
+                    with_rgw = False
                 tuning = {}
                 for section_name, section in self.worksheet[jobname].items():
                     if section_name in ["version","workstages","pool","benchmark_engine"]:
                         continue
                     tuning[section_name] = section
                 common.printout("LOG","Apply osd and mon tuning to ceph.conf")
-                if len(self.cluster["rgw"]):
+                if with_rgw:
                     run_deploy.main(['--config', json.dumps(tuning), '--with_rgw', 'gen_cephconf'])
                 else:
                     run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
                 common.printout("LOG","Distribute ceph.conf")
-                if len(self.cluster["rgw"]):
+                if with_rgw:
                     run_deploy.main(['--with_rgw','distribute_conf'])
                 else:
                     run_deploy.main(['distribute_conf'])
                 if not no_check:
                     common.printout("LOG","Restart ceph cluster")
-                    if len(self.cluster["rgw"]):
+                    if with_rgw:
                         run_deploy.main(['--with_rgw','restart'])
                     else:
                         run_deploy.main(['restart'])
