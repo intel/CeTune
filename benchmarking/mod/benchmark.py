@@ -119,7 +119,7 @@ class Benchmark(object):
         time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
-        common.pdsh(user, nodes, "echo '3' > /proc/sys/vm/drop_caches && sync")
+        common.pdsh(user, nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
 
         #send command to ceph cluster
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
