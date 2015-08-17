@@ -40,6 +40,10 @@ class Tuner:
         controller = self.cluster["head"]
         osds = self.cluster["osds"]
         pwd = os.path.abspath(os.path.join('..'))
+        if "cosbench" in self.cluster["benchmark_engine"]:
+            with_rgw = True
+        else:
+            with_rgw = False
         for section in self.worksheet:
             for work in self.worksheet[section]['workstages']:
                 if work == "deploy":
@@ -47,7 +51,10 @@ class Tuner:
                     self.apply_version(section)
                     self.apply_tuning(section, no_check=True)
                     common.printout("LOG","Start to redeploy ceph")
-                    run_deploy.main(['redeploy'])
+                    if with_rgw:
+                        run_deploy.main(['--with_rgw','redeploy'])
+                    else:
+                        run_deploy.main(['redeploy'])
                     self.apply_tuning(section)
                 elif work == "benchmark":
                     if not common.check_ceph_running( user, controller ):

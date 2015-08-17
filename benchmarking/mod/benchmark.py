@@ -241,19 +241,23 @@ class Benchmark(object):
              self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
              remained_instance_num = remained_instance_num - volume_num_upper_bound
 
-    def check_fio_pgrep(self, nodes, fio_job_num = 1):
+    def check_fio_pgrep(self, nodes, fio_node_num = 1):
         user =  self.cluster["user"]
         stdout, stderr = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
         res = common.format_pdsh_return(stdout)
         if res != []:
             fio_running_job_num = 0
+            fio_running_node_num = 0
             for node in res:
-                fio_running_job_num += len(str(res[node]).split('\n'))
-            if fio_running_job_num >= fio_job_num:
+                fio_running_node_num += 1
+                fio_running_job_num += len(str(res[node]).strip().split('\n'))
+            if fio_running_node_num >= fio_node_num:
                 common.printout("WARNING","%d fio job still runing" % fio_running_job_num)
                 return True
             else:
+                common.printout("WARNING","Expecting %d nodes run fio, detect %d node runing" % (fio_node_num, fio_running_node_num))
                 return False
+        common.printout("WARNING","Detect no fio job runing" % (fio_node_num, fio_running_node_num))
         return False
 
     def check_rbd_init_completed(self, planed_space):

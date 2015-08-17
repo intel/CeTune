@@ -43,6 +43,9 @@ def main(args):
     if args.operation == "startup":
         mydeploy = deploy.Deploy()
         mydeploy.startup()
+    if args.operation == "shutdown":
+        mydeploy = deploy.Deploy()
+        mydeploy.cleanup()
     if args.operation == "distribute_conf":
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
