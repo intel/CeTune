@@ -99,6 +99,7 @@ class FioRbd(Benchmark):
             rbdlist = ' '.join(self.benchmark["distribution"][client])
             res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, 'rbd', dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
             fio_job_num_total += len(self.benchmark["distribution"][client])
+        self.chkpoint_to_log("fio start")
         time.sleep(1)
         if not self.check_fio_pgrep(self.benchmark["distribution"].keys(), fio_job_num_total):
             common.printout("ERROR","Failed to start FIO process")
@@ -107,7 +108,6 @@ class FioRbd(Benchmark):
             common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
             raise KeyboardInterrupt
         common.printout("LOG","%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())))
-        self.chkpoint_to_log("fio start")
         while self.check_fio_pgrep(self.benchmark["distribution"].keys()):
             time.sleep(5)
 

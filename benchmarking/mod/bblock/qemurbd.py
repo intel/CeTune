@@ -155,6 +155,7 @@ class QemuRbd(Benchmark):
             common.pdsh(user, [node], "fio --output %s/`hostname`_fio.txt --section %s %s/fio.conf 2>%s/`hostname`_fio_errorlog.txt > /dev/null" % (dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
             fio_job_num_total += 1
 
+        self.chkpoint_to_log("fio start")
         time.sleep(5)
         if not self.check_fio_pgrep(nodes, fio_job_num_total, check_type = "nodenum"):
             common.printout("ERROR","Failed to start FIO process")
@@ -164,8 +165,6 @@ class QemuRbd(Benchmark):
             raise KeyboardInterrupt
 
         common.printout("LOG","FIO Jobs starts on %s" % str(nodes))
-
-        self.chkpoint_to_log("fio start")
 
         while self.check_fio_pgrep(nodes):
             time.sleep(5)
