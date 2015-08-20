@@ -97,6 +97,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt" % (dest_dir))
 
     def prepare_run(self):
+#        self.stop_workload()
         self.stop_data_collecters()
 
     def cleanup(self):
@@ -119,6 +120,7 @@ class Benchmark(object):
         time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
+        nodes.extend(self.benchmark["distribution"].keys())
         common.pdsh(user, nodes, "echo '1' > /proc/sys/vm/drop_caches && sync")
 
         #send command to ceph cluster
@@ -129,6 +131,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep 1; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, '%s', dest_dir), option="force")
+#        common.pdsh(user, nodes, "fatrace -o %s/`hostname`_fatrace.txt & echo `date +%s`' fatrace start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
@@ -156,7 +159,9 @@ class Benchmark(object):
         #collect tuner.yaml
         worksheet = common.load_yaml_conf("%s/conf/tuner.yaml" % self.pwd)
         if self.benchmark["tuning_section"] in worksheet:
-            common.write_yaml_file( "%s/conf/tuning.yaml" % dest_dir, {self.benchmark["tuning_section"]:worksheet[self.benchmark["tuning_section"]]})
+            common.write_yaml_file( "%s/conf/tuner.yaml" % dest_dir, {self.benchmark["tuning_section"]:worksheet[self.benchmark["tuning_section"]]})
+        else:
+            common.rscp(user, head, "%s/conf/tuner.yaml" % (dest_dir), "%s/conf/tuner.yaml" % (self.pwd) )
         #collect osd data
         for node in self.cluster["osd"]:
             common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
@@ -182,6 +187,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+#        common.pdsh(user, nodes, "killall -9 fatrace; echo `date +%s`' fatrace stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt; echo `date +%s`' interrupt stop' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
 
         #2. send command to client
@@ -241,7 +247,7 @@ class Benchmark(object):
              self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
              remained_instance_num = remained_instance_num - volume_num_upper_bound
 
-    def check_fio_pgrep(self, nodes, fio_node_num = 1):
+    def check_fio_pgrep(self, nodes, fio_node_num = 1, check_type="jobnum"):
         user =  self.cluster["user"]
         stdout, stderr = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
         res = common.format_pdsh_return(stdout)
@@ -251,11 +257,14 @@ class Benchmark(object):
             for node in res:
                 fio_running_node_num += 1
                 fio_running_job_num += len(str(res[node]).strip().split('\n'))
-            if fio_running_node_num >= fio_node_num:
+            if (check_type == "jobnum" and fio_running_job_num >= fio_node_num) or (check_type == "nodenum" and fio_running_node_num >= fio_node_num):
                 common.printout("WARNING","%d fio job still runing" % fio_running_job_num)
                 return True
             else:
-                common.printout("WARNING","Expecting %d nodes run fio, detect %d node runing" % (fio_node_num, fio_running_node_num))
+                if check_type == "nodenum":
+                    common.printout("WARNING","Expecting %d nodes run fio, detect %d node runing" % (fio_node_num, fio_running_node_num))
+                if check_type == "jobnum":
+                    common.printout("WARNING","Expecting %d nodes run fio, detect %d node runing" % (fio_node_num, fio_running_job_num))
                 return False
         common.printout("WARNING","Detect no fio job runing" % (fio_node_num, fio_running_node_num))
         return False

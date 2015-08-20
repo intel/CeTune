@@ -275,13 +275,16 @@ class Cosbench(Benchmark):
         return installed
 
     def stop_data_collectors(self):
+        super(self.__class__, self).stop_data_collecters()
         user = self.cluster["user"]
+        dest_dir = self.cluster["tmp_dir"]
         nodes = []
         nodes.extend(self.rgw["rgw_server"])
-        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 top;echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 mpstat;echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 sar;echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat;echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_stop.txt; echo `date +%s`' interrupt stop' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
 
     def prepare_run(self):
         super(self.__class__, self).prepare_run()

@@ -94,8 +94,12 @@ class QemuRbd(Benchmark):
         common.printout("LOG","Prerun_check: check if fio installed in vclient")
         common.pdsh(user, nodes, "fio -v")
         common.printout("LOG","Prerun_check: check if rbd volume attached")
-        stdout, stderr = common.pdsh(user, nodes, "df %s" % vdisk, option="check_return")
-        if stderr:
+        need_to_attach = False
+        stdout, stderr = common.pdsh(user, nodes, "fdisk -l %s" % vdisk, option="check_return")
+        res = common.format_pdsh_return(stdout)
+        if len(nodes) != len(res.keys()):
+            need_to_attach = True
+        if need_to_attach:
             common.printout("WARNING","vclients are not attached with rbd volume")
             self.attach_images()
             common.printout("WARNING","vclients attached rbd volume now")
@@ -152,7 +156,7 @@ class QemuRbd(Benchmark):
             fio_job_num_total += 1
 
         time.sleep(5)
-        if not self.check_fio_pgrep(nodes, fio_job_num_total):
+        if not self.check_fio_pgrep(nodes, fio_job_num_total, check_type = "nodenum"):
             common.printout("ERROR","Failed to start FIO process")
             raise KeyboardInterrupt
         if not fio_job_num_total:

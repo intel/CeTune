@@ -175,7 +175,7 @@ def pdsh(user, nodes, command, option="error_check", nodie=False):
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
-    args = ['pdsh', '-R', 'exec', '-w', _nodes, 'ssh', '%h', command]
+    args = ['pdsh', '-R', 'exec', '-w', _nodes, 'ssh', '%h', '-oConnectTimeout=15', command]
     printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -245,7 +245,7 @@ def bash(command, force=False, option="", nodie=False):
     return stdout
 
 def scp(user, node, localfile, remotefile):
-    args = ['scp', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
+    args = ['scp', '-oConnectTimeout=15', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
     printout("CONSOLE", args, screen=False)
     #print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
@@ -256,7 +256,7 @@ def scp(user, node, localfile, remotefile):
         sys.exit()
 
 def rscp(user, node, localfile, remotefile):
-    args = ['scp', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
+    args = ['scp', '-oConnectTimeout=15', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
     #print('rscp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
@@ -266,7 +266,7 @@ def rscp(user, node, localfile, remotefile):
 
 # scp from one remote machine to another remote machine
 def rrscp(user, node1, node1_file, node2,node2_file):
-    args = ['scp', '-r', '%s@%s:%s'%(user,node1,node1_file)  , '%s@%s:%s' % (user, node2, node2_file)]
+    args = ['scp', '-oConnectTimeout=15', '-r', '%s@%s:%s'%(user,node1,node1_file)  , '%s@%s:%s' % (user, node2, node2_file)]
     #print('scp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:

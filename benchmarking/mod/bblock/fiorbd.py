@@ -213,3 +213,13 @@ class FioRbd(Benchmark):
             "runtime":p[6], "vdisk":p[7]
         }
         return testcase_dict
+
+    def archive(self):
+        super(self.__class__, self).archive() 
+        user = self.cluster["user"]
+        head = self.cluster["head"]
+        dest_dir = self.cluster["dest_dir"]
+        #collect client data
+        for node in self.benchmark["distribution"].keys():
+            common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.log" % self.cluster["tmp_dir"])

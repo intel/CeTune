@@ -61,6 +61,7 @@ class Tuner:
                         run_deploy.main(['restart'])
                     common.printout("LOG","start to run performance test")
                     self.apply_tuning(section)
+                    time.sleep(3)
                     run_cases.main(['--tuning', section])
                 else:
                     common.printout("ERROR","Unknown tuner workstage %s" % work)
@@ -258,7 +259,7 @@ class Tuner:
                         try_count += 1
             else:
                 tuning_diff.append(key)
-            if try_count == 2:
+            if try_count >= 1:
                 tuning_diff.append("global")
         for key in tuning_diff:
             common.printout("LOG","Tuning[%s] is not same with current configuration" % (key))
