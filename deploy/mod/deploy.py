@@ -91,19 +91,34 @@ class Deploy(object):
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['osd'][key] = value
 
-    def install_binary(self, version="hammer"):
+    def install_binary(self, version=""):
         installed, non_installed = self.check_ceph_installed()
         uninstall_nodes=[]
+        need_to_install_nodes=[]
+        correctly_installed_nodes={}
+        installed_list = []
         version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94'}
         for node, version_code in installed.items():
+            if version == "":
+                installed_list = common.unique_extend( installed_list, [version_code])
+                continue;
             if version_map[version] not in version_code:
                 uninstall_nodes.append(node)
                 need_to_install_nodes.append(node)
+            else:
+                correctly_installed_nodes[node]=version_code
+        if len(installed_list) == 1:
+            for version_name, code in version_map.items():
+                if code in installed_list[0]:
+                    version = version_name
+        else:
+            common.printout("ERROR", "More than two versions of ceph installed, %s" % installed_list)
+            sys.exit()
         if len(uninstall_nodes):
             self.uninstall_binary(uninstall_nodes)
-        need_to_install_nodes = non_installed
+        need_to_install_nodes.extend(non_installed)
         common.printout("LOG", "Ceph already installed on below nodes")
-        for node, value in installed.items():
+        for node, value in correctly_installed_nodes.items():
             common.printout("LOG", "%s, installed version: %s" % (node, value))
         if len(need_to_install_nodes):
             common.printout("LOG", "Will start to install ceph on %s" % str(need_to_install_nodes))
@@ -134,6 +149,8 @@ class Deploy(object):
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
             common.bash("ceph-deploy purge %s" % (node), option="console")
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
+                common.pdsh(user, [node], "apt-get -f -y librbd1", option="console")
+                common.pdsh(user, [node], "apt-get -f -y librados2", option="console")
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
 
     def check_ceph_installed(self):
