@@ -4,39 +4,33 @@ sys.path.append(lib_path)
 from conf import common
 import web
 from web import form
+import json
 
 render = web.template.render('templates/')
+urls = (
+  '/', 'index',
+  '/configuration/(.+)', 'configuration',
+  '/monitor', 'monitor',
+  '/results', 'results'
+)
 
 class index:
     def GET(self):
-        return render.index()
-
-    def POST(self):
-        return web.data()
+        web.seeother('/static/index.html')
 
 class configuration:
     all_conf = common.Config("../conf/all.conf")
 
-    def GET(self):
-        cluster_conf = self.all_conf.get_all()
-        return self.dict_to_input_table(cluster_conf)
+    def GET(self, function_name = ""):
+        return common.eval_args( self, function_name, web.input() )
 
-    def dict_to_input_table(self, data):
-        output = []
-        output.append("<table class='CeTune_config'>")
-        output.append("<thead>")
-        output.append("<tr><th>all.conf</th><th>Cluster Configuration</th></tr>")
-        output.append("</thead>")
-        output.append("<tbody>")
-        for key, value in data.items():
-            if isinstance(value, list):
-                temp = []
-                for subvalue in value:
-                    temp.append("<li style='display:inline; margin:auto 20px auto 0px;  white-space:nowrap;'>"+subvalue+"</li>") 
-                value = "\n".join(temp)
-            output.append("<tr><th>"+key+"</th><td>"+str(value)+"</td></tr>")
-        output.append("</tbody>")
-        return "\n".join(output)
+    def get_group(self,request_type):
+        request_type_list = ["workflow","cluster","system","ceph","benchmark","analyzer"]
+        if request_type in request_type_list:
+            return self.all_conf.get_group(request_type)
+
+    def get_group_list(self):
+        return self.all_conf.get_group_list()
 
 class monitor:
     def GET(self):
@@ -46,12 +40,6 @@ class results:
     def GET(self):
         return render.results()
 
-urls = (
-  '/', 'index',
-  '/configuration', 'configuration',
-  '/monitor', 'monitor',
-  '/results', 'results'
-)
 
 if __name__ == "__main__":
     app = web.application(urls, globals())

@@ -22,9 +22,17 @@ class Config():
     def __init__(self, conf_path):
         self.conf_data = OrderedDict()
         cur_conf_section = self.conf_data
+        self.group = OrderedDict()
+        cur_group = "global"
+        self.group[cur_group] = []
         with open(conf_path, "r") as f:
             for line in f:
                 if re.search('^#', line):
+                    if "======" in line:
+                        cur_group_re = re.search('\w+', line)
+                        if cur_group_re:
+                            cur_group = cur_group_re.group(0)
+                        self.group[cur_group] = []
                     continue
                 section = re.search('^\[(\w+)\]', line)
                 if section:
@@ -35,10 +43,15 @@ class Config():
                         key, value = line.split("=")
                         key = key.strip()
                         value = value.strip()
+                        self.group[cur_group].append(key)
                         if( value[-1] == '\n' ):
-                            cur_conf_section[key] = value[:-1]
+                            self.conf_data[key] = value[:-1]
+                            if cur_conf_section != self.conf_data:
+                                cur_conf_section[key] = value[:-1]
                         else:
-                            cur_conf_section[key] = value
+                            self.conf_data[key] = value
+                            if cur_conf_section != self.conf_data:
+                                cur_conf_section[key] = value
                     except:
                         pass
 
@@ -75,8 +88,15 @@ class Config():
     def get_all(self):
         return self.conf_data
 
-    def get_all(self):
-        return self.conf_data
+    def get_group(self, request_type):
+        res = []
+        if request_type in self.group:
+            for key in self.group[request_type]:
+                res.append({"key":key,"value":self.get(key),"check":True,"dsc":""})
+        return res
+
+    def get_group_list(self):
+        return self.group
 
 class bcolors:
     HEADER = '\033[95m'
@@ -539,3 +559,14 @@ def check_ceph_running(user, node):
     if not ceph_is_up:
         return False
     return True
+
+def eval_args( obj, function_name, args ):
+    argv = {} 
+    for key, value in args.items():
+        argv[key] = value
+    argv = _decode_dict(argv)
+    if function_name != "":
+        func = getattr(obj, function_name)
+        if func:
+            res = func( **argv )
+    return json.dumps(res)
