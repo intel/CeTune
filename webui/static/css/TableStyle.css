@@ -1,0 +1,21 @@
+@charset "utf-8";
+/* CSS Document */
+
+#table_id{  margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left;border:1px solid #000;}
+#table_id tr{ border:1px solid  #000;}
+#table_id td:hover,#table_id td:altrow { background:#09F;}
+
+th{border:1px solid #000; background-color: #085EAB; color:#FFF;}
+tr{border:1px solid #000;}
+
+td{ height:30px;}
+.td_key_class{ border:1px solid #000; text-align:left; width:20%; background-color: #085EAB; color:#FFF; padding-left:5px;cursor:pointer; }
+.td_value_class{ border:1px solid #000; text-align:left;  width:80%; background-color:#FFF; padding-left:5px; cursor:pointer;}
+.checkbox_td_class{ background-color: #085EAB;}
+
+.altrow{ background:#09F;}
+
+.btn_okcancel_class{ padding:3px 5px 3px 5px; width:70px; margin-left:5px; font-family:Arial; font-weight:bold;
+                     background-color:#085EAB; color:#FFF; border-top:1px solid #666; border-left:1px solid #666; cursor:pointer;}
+.text_class{ background-color:#FFC; color: #000; border-top:1.5px solid #666; border-left:1.5px solid #666; font-weight:bold;}
+.label_class{ cursor:pointer;}

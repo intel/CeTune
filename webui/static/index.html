@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CeTune</title>
+
+<link rel="stylesheet" type="text/css" href="css/Style.css">
+<link rel="stylesheet" type="text/css" href="css/TableStyle.css">
+<link rel="stylesheet" type="text/css" href="js/jquery-ui-1.11.4/jquery-ui.css">
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/Common.js"></script>
+<script type="text/javascript" src="js/Script.js"></script>
+<script type="text/javascript" src="js/Dialog.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.11.4/jquery-ui.js"></script>
+</head>
+
+<body>
+<div id="div_top_id">
+  <div id="div_logo_id">
+    <div id="div_logo_intel_id"></div>
+    <div id="div_logo_ceph_id"></idv>
+  </div>
+</div>
+
+<div id="div_content_id">
+  <div id="div_menu_id">
+    <div id="div_menu_left_id"></div>
+    <div id="div_menu_middle_id">
+       <ul>
+         <li>Test Configuration</li>
+         <li>CeTune Status</li>
+         <li>Result Reports</li>
+       </ul>
+    </div>
+    <div id="div_menu_right_id"></div>
+  </div>
+  
+  <div id="div_Configuration_id" class = "div_tab_class">
+     <div id = "div_Configuration_left_id" class="div_content_left_class">
+         <div id="div_Configuration_left_top_id">
+            <p>CeTune</p>
+            <p>Executive Workflow</p>
+         </div>
+         <div id="div_Configuration_left_content_id">
+             <ul>
+                <li><a href="#" id='executive'>Executive Configuration</a></li>
+                <li><a href="#" id='cluster'>Cluster Configuration</a></li>
+                <li><a href="#" id='system'>System Tuning</a></li>
+                <li><a href="#" id='ceph'>Ceph Tuning</a></li>
+                <li><a href="#" id='benchmark'>Benchmark Configuration</a></li>
+                <li><a href="#" id='analyzer'>Analyzer Configuration</a></li>
+             </ul>
+         </div>
+         <div id="div_Configuration_left_execButton_id">
+             <input id="bnt_Confguration_exec_id" type="button" value="Executive" disabled="disabled"/>
+         </div>
+     </div>
+     
+     <div id = "div_Configuration_right_id" class="div_content_right_class">
+         <div id="div_Configuration_right_top_id">
+            <div id="div_Configuration_right_top_titel_id">Benchmark Configuration</div>
+            <div id="div_Configuration_right_top_button_id">              
+              <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
+              <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
+              <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>
+            </div>
+         </div>
+     </div>
+  </div>
+  
+  <div id="div_Status_id" class = "div_tab_class">
+     <!--<div id = "div_Status_left_id" class="div_content_left_class"></div>-->
+     <div id = "div_Status_right_id" class="div_content_right_class">
+       <textarea readonly id="text_Status_id" name="textarea">
+       </textarea>
+     </div>
+  </div>
+  
+  <div id="div_Reports_id" class = "div_tab_class">
+     <div id = "div_Reports_left_id" class="div_content_left_class"></div>
+     <div id = "div_Reports_right_id" class="div_content_right_class">div_Reports_id</div>
+  </div>
+  
+ 
+</div>
+
+<div id="div_buttom_id"></div>
+
+</body>
+
+
+<div id="dialog-form" title="Create new row">
+
+  <p class="validateTips">Add a new row for CeTune Config</p>
+  <form>
+    <fieldset>
+   
+      <label for="email" style="width:150px">Key:</label>
+      <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all">
+      
+      <br>
+      <label for="password" style="width:150px">Value:</label>
+      <input type="text" name="password" id="password" value="" class="text ui-widget-content ui-corner-all">
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+
+    </fieldset>
+
+  </form>
+
+</div>
+
+</html>
