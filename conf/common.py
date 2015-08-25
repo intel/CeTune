@@ -43,15 +43,14 @@ class Config():
                         key, value = line.split("=")
                         key = key.strip()
                         value = value.strip()
-                        self.group[cur_group].append(key)
                         if( value[-1] == '\n' ):
-                            self.conf_data[key] = value[:-1]
-                            if cur_conf_section != self.conf_data:
-                                cur_conf_section[key] = value[:-1]
-                        else:
-                            self.conf_data[key] = value
-                            if cur_conf_section != self.conf_data:
-                                cur_conf_section[key] = value
+                            value = value[:-1]
+                        if value != "":
+                            value = value.strip('"')
+                        self.group[cur_group].append(key)
+                        self.conf_data[key] = value
+                        if cur_conf_section != self.conf_data:
+                            cur_conf_section[key] = value
                     except:
                         pass
 
@@ -518,21 +517,12 @@ def unique_extend( list_data, new_list ):
             list_data.append( data )
     return list_data
 
-class shellEmulator():
-    def __init__(self):
-        self.kill_tailf = False
-
-    def tail_f(self, fd):
-        fd.seek(-1)
-        interval = 1.0
-        while not self.kill_tailf:
-            where = fd.tell()
-            line = fd.readline()
-            if not line:
-              time.sleep(interval)
-              fd.seek(where)
-            else:
-              yield line
+def tail_f(path):
+    line = ""
+    with open(path,'r') as fd:
+        lines = fd.read().split('\n')
+    #return "&#013;&#010;".join(lines[-200:])
+    return "\n".join(lines[-200:])
 
 def return_os_id(user, nodes):
     stdout, stderr = pdsh(user, nodes, "lsb_release -i | awk -F: '{print $2}'", option="check_return")

@@ -10,8 +10,8 @@ render = web.template.render('templates/')
 urls = (
   '/', 'index',
   '/configuration/(.+)', 'configuration',
-  '/monitor', 'monitor',
-  '/results', 'results'
+  '/monitor/(.+)', 'monitor',
+  '/results/(.+)', 'results'
 )
 
 class index:
@@ -32,13 +32,22 @@ class configuration:
     def get_group_list(self):
         return self.all_conf.get_group_list()
 
+    def set_conf(self, key, value):
+        return self.all_conf.set_conf(key, value)
+
+    def check_conf(self, key, value):
+        return self.all_conf.check_conf(key, value)
+
 class monitor:
-    def GET(self):
-        return render.monitor()
+    def GET(self, function_name = ""):
+        return common.eval_args( self, function_name, web.input() )
+
+    def tail_console(self):
+        return common.tail_f("console.log")
 
 class results:
-    def GET(self):
-        return render.results()
+    def GET(self, function_name = ""):
+        return common.eval_args( self, function_name, web.input() )
 
 
 if __name__ == "__main__":
