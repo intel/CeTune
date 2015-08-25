@@ -429,6 +429,7 @@ class Analyzer:
             output_fio_data['%s_runtime' % io_pattern] /= list_len
         result[dirname] = {}
         result[dirname]["fio"] = output_fio_data
+        #print result
         return result
 
     def process_lttng_data(self, path):
