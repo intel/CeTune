@@ -111,7 +111,7 @@ class Deploy(object):
             for version_name, code in version_map.items():
                 if code in installed_list[0]:
                     version = version_name
-        else:
+        elif len(installed_list) >= 2:
             common.printout("ERROR", "More than two versions of ceph installed, %s" % installed_list)
             sys.exit()
         if len(uninstall_nodes):
