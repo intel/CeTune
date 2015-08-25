@@ -261,8 +261,11 @@ class Tuner:
                 tuning_diff.append(key)
             if try_count >= 1:
                 tuning_diff.append("global")
+        tuning_diff_unique = []
         for key in tuning_diff:
-            common.printout("LOG","Tuning[%s] is not same with current configuration" % (key))
+            if key not in tuning_diff_unique:
+                tuning_diff_unique.append(key)
+                common.printout("LOG","Tuning[%s] is not same with current configuration" % (key))
         return tuning_diff
 
     def apply_tuning(self, jobname, no_check = False):
