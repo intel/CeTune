@@ -69,6 +69,8 @@ class Deploy(object):
 
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
+        self.cluster["ceph_conf"]["global"]["osd_mount_options"] = "rw,noatime,inode64,logbsize=256k"
+        self.cluster["ceph_conf"]["global"]["osd_mkfs_type"] = "xfs"
 
         tuning_dict = {}
         if tunings != "":
