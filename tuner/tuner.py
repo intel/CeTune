@@ -49,7 +49,6 @@ class Tuner:
                 if work == "deploy":
                     common.printout("LOG","Check ceph version, reinstall ceph if necessary")
                     self.apply_version(section)
-                    sys.exit()
                     self.apply_tuning(section, no_check=True)
                     common.printout("LOG","Start to redeploy ceph")
                     if with_rgw:
