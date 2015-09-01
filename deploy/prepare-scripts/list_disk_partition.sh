@@ -78,8 +78,14 @@ do
     echo "osd devices:"
     for item in $osd_list
     do
-        osd_disk=`echo $item | awk -F: {'print $1'} | sed 's/[0-9]//g'`
-        journal_disk=`echo $item | awk -F: {'print $2'} | sed 's/[0-9]//g'`
+        osd_disk=`echo $item | awk -F: {'print $1'} | sed 's/[0-9]\+$//g'`
+        journal_disk=`echo $item | awk -F: {'print $2'} | sed 's/[0-9]\+$//g'`
+        if [[ $osd_disk == *"nvme"* ]]; then
+            osd_disk=`echo $osd_disk | sed 's/p$//g'`
+        fi
+        if [[ $journal_disk == *"nvme"* ]]; then
+            journal_disk=`echo $journal_disk | sed 's/p$//g'`
+        fi
         echo $osd_disk >> tmp.osd
         echo $journal_disk >> tmp.journal
     done

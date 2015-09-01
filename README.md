@@ -18,10 +18,10 @@
   - All nodes are able to connect to yum/apt-get repository and also being able to wget/curl from ceph.com
   - package pre-installation:
     - Install to head:
-      - apt-get/yum install -y pip pdsh unzip expect sysstat curl openjdk-7-jre haproxy
-      - pip install pyyaml argparse matplotlib numpy
+      - apt-get/yum install -y python-pip pdsh unzip expect sysstat curl openjdk-7-jre haproxy python-matplotlib python-numpy
+      - pip install ceph-deploy pyyaml argparse
     - Install to workers
-      - apt-get/yum install -y pip unzip sysstat curl openjdk-7-jre haproxy
+      - apt-get/yum install -y python-pip unzip sysstat curl openjdk-7-jre haproxy
 
 - Configure:
   - conf/all.conf
