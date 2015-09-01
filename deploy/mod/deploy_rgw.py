@@ -39,9 +39,8 @@ class Deploy_RGW(Deploy) :
         self.restart_rgw()
 
     def restart_rgw(self):
-        common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
         #stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; /etc/init.d/radosgw restart; ', option="console|check_return")
-        common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall radosgw", "check_return")
+        common.pdsh(self.cluster['user'], self.cluster['rgw'], "killall -9 radosgw", "check_return")
         stdout, stderr = common.pdsh(self.cluster['user'],self.cluster['rgw'],'host_name=`hostname -s`;for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done;' % (self.cluster['rgw_index'][0],self.cluster['rgw_index'][-1]), option="console|check_return")
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console")
         wait_count = 30

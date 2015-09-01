@@ -59,7 +59,7 @@ class QemuRbd(Benchmark):
             fio_job_num_total += len(self.cluster["testjob_distribution"][client])
             nodes.extend(vclients)
         time.sleep(1)
-        if not self.check_fio_pgrep(nodes, fio_job_num_total):
+        if not self.check_fio_pgrep(nodes, fio_job_num_total, check_type = "nodenum"):
             common.printout("ERROR","Failed to start FIO process")
             common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
             raise KeyboardInterrupt

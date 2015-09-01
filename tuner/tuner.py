@@ -49,7 +49,6 @@ class Tuner:
                 if work == "deploy":
                     common.printout("LOG","Check ceph version, reinstall ceph if necessary")
                     self.apply_version(section)
-                    sys.exit()
                     self.apply_tuning(section, no_check=True)
                     common.printout("LOG","Start to redeploy ceph")
                     if with_rgw:
@@ -290,7 +289,8 @@ class Tuner:
                     new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
                 for cur_tuning_poolname in self.cur_tuning['pool'].keys():
                     if cur_tuning_poolname != new_poolname:
-                        self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
+#                        self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
+                        continue
                     else:
                         if self.cur_tuning['pool'][cur_tuning_poolname]['pg_num'] != new_pool_pg_num:
                             self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
