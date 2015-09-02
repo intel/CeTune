@@ -131,7 +131,7 @@ def get_list( string ):
         if re.search(":", value):
             res.append(value.split(':'))
         else:
-            res.append(value)
+            res.append([value,""])
     return res
 
 def printout(level, content, screen = True):

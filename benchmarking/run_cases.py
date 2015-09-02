@@ -8,6 +8,7 @@ from mod import *
 from mod.bblock import *
 from mod.bobject import *
 from mod.bcephfs import *
+from mod.generic import *
 
 def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')
@@ -49,6 +50,11 @@ def main(args):
         testcases, benchmark_engine_config = benchmark.generate_benchmark_cases()
         testcase_list.extend(testcases)
 
+        benchmark = generic.Generic()
+        testcases, benchmark_engine_config = benchmark.generate_benchmark_cases()
+        testcase_list.extend(testcases)
+        fio_list.extend( benchmark_engine_config )
+
         with open("../conf/cases.conf", "w") as f:
             f.write( '\n'.join(testcase_list) + "\n" )
 
@@ -70,6 +76,8 @@ def main(args):
                 benchmark = fiocephfs.FioCephFS()
             if testcase["engine"] == "cosbench":
                 benchmark = cosbench.Cosbench()
+            if testcase["engine"] == "generic":
+                benchmark = generic.Generic()
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
             try:

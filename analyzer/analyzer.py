@@ -350,10 +350,14 @@ class Analyzer:
         if node in self.cluster["osds"]:
             osd_list = []
             journal_list = []
-            for osd_journal in common.get_list( self.all_conf_data.get_list(node) ):
-               osd_list.append( osd_journal[0].split('/')[2] )
-               journal_list.append( osd_journal[1].split('/')[2] )
-            output_list = ["osd", "journal"]
+            output_list = []
+            for osd_journal in common.get_list(self.all_conf_data.get_list(node)):
+               if osd_journal[0] != "":
+                   osd_list.append( osd_journal[0].split('/')[2] )
+                   output_list = common.unique_extend(output_list, ['osd'])
+               if osd_journal[1] != "":
+                   journal_list.append( osd_journal[1].split('/')[2] )
+                   output_list = common.unique_extend(output_list, ['journal'])
         elif node in self.cluster["vclient"]:
             vdisk_list = []
             for disk in self.cluster["vclient_disk"]:
