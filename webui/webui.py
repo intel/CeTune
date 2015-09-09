@@ -6,6 +6,7 @@ import web
 from web import form
 import json
 from visualizer import *
+import re
 
 render = web.template.render('templates/')
 urls = (
@@ -44,7 +45,13 @@ class monitor:
         return common.eval_args( self, function_name, web.input() )
 
     def tail_console(self, timestamp):
-        return common.tail_f("console.log")
+        output = common.read_file_after_stamp("../conf/cetune_console.log", timestamp)
+        res = {}
+        re_res = re.search('\[(.+)\]\[',output[-1])
+        if re_res:
+            res["timestamp"] = re_res.group(1)
+        res["content"] = "&#013;&#010;".join(output[1:])
+        return res
 
 class results:
     def GET(self, function_name = ""):

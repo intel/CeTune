@@ -16,6 +16,7 @@ from collections import OrderedDict
 
 cetune_log_file = "../conf/cetune_process.log"
 cetune_error_file = "../conf/cetune_error.log"
+cetune_console_file = "../conf/cetune_console.log"
 no_die = False
 
 class Config():
@@ -161,12 +162,16 @@ def printout(level, content, screen = True):
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.FAIL + output + bcolors.ENDC
     if level == "LOG":
         output = "[LOG]: %s" % content
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.OKGREEN + output + bcolors.ENDC
     if level == "WARNING":
         output = "[WARNING]: %s" % content
@@ -178,6 +183,8 @@ def printout(level, content, screen = True):
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print content
 
 def remote_dir_exist( user, node, path ):
@@ -517,12 +524,15 @@ def unique_extend( list_data, new_list ):
             list_data.append( data )
     return list_data
 
-def tail_f(path):
-    line = ""
+def read_file_after_stamp(path, stamp = None):
+    lines = []
+    output = False
     with open(path,'r') as fd:
-        lines = fd.read().split('\n')
-    #return "&#013;&#010;".join(lines[-200:])
-    return "\n".join(lines[-200:])
+        for line in fd.readlines():
+            if output or stamp in line or not stamp :
+                output = True
+                lines.append(line.rstrip('\n'))
+    return lines
 
 def return_os_id(user, nodes):
     stdout, stderr = pdsh(user, nodes, "lsb_release -i | awk -F: '{print $2}'", option="check_return")
