@@ -5,6 +5,7 @@ from conf import common
 import web
 from web import form
 import json
+from visualizer import *
 
 render = web.template.render('templates/')
 urls = (
@@ -50,10 +51,28 @@ class results:
         return common.eval_args( self, function_name, web.input() )
 
     def get_summary(self):
-        return common.tail_f("console.log")
+        view = visualizer.Visualizer({})
+        output = view.generate_history_view("127.0.0.1","/mnt/data/","root",False)
+        html = ""
+        for line in output.split('\n'):
+            html += line.rstrip('\n')
+        return html
 
-    def get_detail(self, runid):
-        return common.tail_f("console.log")
+    def get_detail(self, session_name):
+        path = "%s/%s/%s.html" % ("/mnt/data", session_name, session_name)
+        output = False
+        html = ""
+        with open( path, 'r') as f:
+            for line in f.readlines():
+                if "<body>" in line:
+                    output = True
+                    continue
+                if "</body>" in line:
+                    output = False
+                    break
+                if output:
+                    html += line.rstrip('\n')
+        return html
 
 if __name__ == "__main__":
     app = web.application(urls, globals())

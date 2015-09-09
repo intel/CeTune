@@ -18,10 +18,13 @@ import numpy
 pp = pprint.PrettyPrinter(indent=4)
 class Visualizer:
     def __init__(self, result, path=None):
-        if os.path.isdir('%s/%s' % ( path, 'conf' )):
-            all_path = '%s/%s' % ( path, 'conf' )
+        if not path:
+            all_path = "../conf/"
         else:
-            all_path = path
+            if os.path.isdir('%s/%s' % ( path, 'conf' )):
+                all_path = '%s/%s' % ( path, 'conf' )
+            else:
+                all_path = path
         self.all_conf_data = common.Config("%s/all.conf" % all_path)
         self.result = result
         self.output = []
@@ -65,7 +68,7 @@ class Visualizer:
         common.bash("scp -r %s %s" % (self.path, self.dest_dir_remote_bak))
 
         remote_bak, remote_dir = self.dest_dir_remote_bak.split(':')
-        output = self.generate_history_view(remote_bak, remote_dir, self.user, self.session_name)
+        output = self.generate_history_view(remote_bak, remote_dir, self.user)
 
         common.printout("LOG","History view generated, copy to remote")
         with open("%s/cetune_history.html" % self.path, 'w') as f:
@@ -73,9 +76,9 @@ class Visualizer:
         common.bash("scp -r %s/cetune_history.html %s" % (self.path, self.dest_dir_remote_bak))
         common.bash("scp -r ../visualizer/include %s" % (self.dest_dir_remote_bak))
 
-    def generate_history_view(self, remote_host="192.168.3.101", remote_dir="/share/chendi_new/up_server/", user='root', session_id="177-80-qemurbd-seqwrite-64k-qd64-40g-100-400-vdb"):
+    def generate_history_view(self, remote_host="192.168.3.101", remote_dir="/share/chendi_new/up_server/", user='root', html_format=True):
         common.printout("LOG","Generating history view")
-        stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+        stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v path=\"$file\" -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\" id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
         res = common.format_pdsh_return(stdout)
         if remote_host not in res:
             common.printout("ERROR","Generating history view failed")
@@ -106,9 +109,12 @@ class Visualizer:
         output.append(res[remote_host])
         output.append(" </tbody>")
         output.append("<script>")
-        output.append("$(\".cetune_table tr\").dblclick(function(){var path=$(this).attr('href'); window.location=path})")
+        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
         output.append("</script>")
-        return self.add_html_framework(output)
+        if html_format:
+            return self.add_html_framework(output)
+        else:
+            return "".join(output)
 
     def add_html_framework(self, maindata):
         output = []
