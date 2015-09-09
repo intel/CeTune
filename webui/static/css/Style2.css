@@ -1,0 +1,20 @@
+@charset "utf-8";
+/* CSS Document */
+
+body{ margin:0;}
+.topbar{ width:100%; height:55px; background-color:#337ab7; border-bottom:1px solid #2e6da4; box-shadow:2px 2px 3px #aaa;}
+h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; line-height:1.1; font-size: 20px; color: #FFF; 
+     padding-top:15px; padding-left:30px; }
+a{ text-decoration:none; color:inherit;}
+.menubar{width:100%; height:25px; background: #000; margin:0; padding:0; border-bottom:1px solid #0CF;}
+.menubar ul{ list-style:none; font-size:13px; color:#FFF; margin:0; padding-top:6px;}
+.menubar ul li{ float:left; padding-left:15px;padding-right:15px; margin-left:5px; cursor:pointer;  
+				}
+				
+.mebubarClass{ background-color:#337ab7;   
+               border-top:1px solid   #0CF;
+			   border-left:1px solid  #0CF;
+			   border-right:1px solid  #0CF; 
+			   border-buttom:1px solid  #337ab7;
+			   height:19px;
+			   }

@@ -1,21 +1,31 @@
 @charset "utf-8";
 /* CSS Document */
 
-#table_id{  margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left;border:1px solid #000;}
-#table_id tr{ border:1px solid  #000;}
-#table_id td:hover,#table_id td:altrow { background:#09F;}
+#table_id,#table_benchmark_id{margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left;border:1px solid  #CCC;}
+#table_benchmark_id{ margin-top:15px;}
 
-th{border:1px solid #000; background-color: #085EAB; color:#FFF;}
-tr{border:1px solid #000;}
+#table_id tr{ border:1px solid #CCC;}
+#table_id tr:hover{ background: #FFC;}
+
+th{border:1px solid #CCC; color:#000; font-weight:bold;background-color: #E3E3E3;; 
+   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:30px;}
+tr{border:1px solid #CCC;}
 
 td{ height:30px;}
-.td_key_class{ border:1px solid #000; text-align:left; width:20%; background-color: #085EAB; color:#FFF; padding-left:5px;cursor:pointer; }
-.td_value_class{ border:1px solid #000; text-align:left;  width:80%; background-color:#FFF; padding-left:5px; cursor:pointer;}
-.checkbox_td_class{ background-color: #085EAB;}
+.td_key_class{ border:1px solid #CCC; text-align:left; width:20%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
+.td_Desc_class{border:1px solid #CCC; text-align:left; width:30%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
+.td_value_class{ border:1px solid #CCC; text-align:left; width:50%;  padding-left:5px; cursor:pointer; font-size:13px; }
+.checkbox_td_class{}
 
-.altrow{ background:#09F;}
+.td_class{ border:1px solid #CCC; text-align:left; width:auto;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
+
 
 .btn_okcancel_class{ padding:3px 5px 3px 5px; width:70px; margin-left:5px; font-family:Arial; font-weight:bold;
-                     background-color:#085EAB; color:#FFF; border-top:1px solid #666; border-left:1px solid #666; cursor:pointer;}
-.text_class{ background-color:#FFC; color: #000; border-top:1.5px solid #666; border-left:1.5px solid #666; font-weight:bold;}
+                     background-color: #D3D3D3; color:#000; border-top:1px solid #666; border-left:1px solid #666; cursor:pointer;}
+.text_class{ background-color: #F1F1F1; color: #000; border-top:1.5px solid #666; border-left:1.5px solid #666; font-weight:bold;}
 .label_class{ cursor:pointer;}
+
+.table_class tr.altrow{ background:#f0f0f0;}
+.error{ background: #FF0; color:#F00;}
+
+#div_benchmark_button_id{ margin-top:15px; }

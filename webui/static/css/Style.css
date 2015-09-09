@@ -1,31 +1,48 @@
 @charset "utf-8";
 /* CSS Document */
-body{ background-color:#085EAB; margin:0px; padding:0px;}
+body{ margin:0px; padding:0px;font-family: Helvetica, Arial, sans-serif;}
+#div_main_id{width:100%; height:auto;margin:0px; padding:0px; }
 
-#div_top_id{width:100%; height:160px; }
+#div_menu_id{ width:100%; height:25px;background: #000; margin:0; padding:0; border-bottom:1px solid #0CF;}
+#div_menu_id ul{ list-style:none; font-size:13px; color:#FFF; margin:0; padding-top:6px;}
+#div_menu_id ul li{ float:left; padding-left:15px;padding-right:15px; margin-left:5px; cursor:pointer;  }
+
+.tab_background_click{ 
+               font-weight:550;
+               background-color:#337ab7;   
+               border-top:1px solid   #0CF;
+			   border-left:1px solid  #0CF;
+			   border-right:1px solid  #0CF; 
+			   border-buttom:1px solid  #337ab7;
+			   height:19px;
+			   }
+/*#div_top_id{width:100%; height:160px; }
 #div_logo_id{ width:95%; height:160px; margin:0 auto;}
 #div_logo_intel_id{width:255px; height:160px; float:left; background-image:url(../image/intel_logo.png); position:absolute;}
-#div_logo_ceph_id{width: 454px; height:160px; float:right; background-image:url(../image/ceph_logo.png);position: relative;}
-
-#div_content_id{width:100%;height:600px;}
-#div_menu_id{ width:95%; height:44px; margin:0 auto;}
-#div_menu_left_id{width:1%; height:44px; float:left; background-image:url(../image/menu_left.png); background-repeat:no-repeat;}
-#div_menu_middle_id{width:98%; height:44px;float:left; background-image:url(../image/mune_middle.png); background-repeat:repeat;}
-#div_menu_right_id{width:1%; height:44px; float:left; background-image:url(../image/menu_right.png); background-repeat:no-repeat;}
-
-#div_menu_middle_id ul{ list-style:none; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:16px; font-weight:bold; color:#FFF;}
-#div_menu_middle_id ul li{ float: left; cursor:pointer; margin-top:10px; margin-left: 35px;padding-top:3px; padding-bottom:3px; padding-left:8px;padding-right:8px; }
+#div_logo_ceph_id{width: 454px; height:160px; float:right; background-image:url(../image/ceph_logo.png);position: relative;}*/
 
 
-.tab_background_click{background-image:url(../image/menu_button.png); filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";
+#div_top_id{ width:100%; height:55px; background-color:#337ab7; border-bottom:1px solid #2e6da4; box-shadow:2px 2px 3px #aaa;}
+#div_top_title_id{ float:left; width:50%; height:50px;}
+#div_top_status_id{ float:right; width:30%; height:50px;}
+
+#div_top_id h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; line-height:1.1; font-size: 20px; color: #FFF; 
+     padding-top:15px; padding-left:30px; }
+#div_top_id a{ text-decoration:none; color:inherit;}
+
+#div_top_stauts_id h1{ float:right;font-size:15px; color: #FFF;font-style:normal;font-weight:300; margin-right:20px;}
+
+#div_content_id{width:100%; margin-top:10px;}
+#img_top_id{ width:15px; height:15px; margin-right:5px;}
+/*.tab_background_click{background-image:url(../image/menu_button.png); filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";
       -moz-background-size:100% 100%; background-size:100% 100%;}
 .tab_background_mouseover{background-image:url(../image/menu_button.png); filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod='scale')";
-      -moz-background-size:100% 100%; background-size:100% 100%;}
+      -moz-background-size:100% 100%; background-size:100% 100%;}*/
  
-.div_tab_class{width:95%;height:600px; margin:0 auto;background-color:#FFF;}
-#div_Configuration_id{ display:block;}
-#div_Status_id{ display:none;}
-#div_Configuration_id{display:none;}
+.div_tab_class{width:95%;height:auto; margin:0 auto; background-color:#FFF; margin-bottom:15px;}
+#div_Configuration_id{ width:100%; display:block;}
+#div_Status_id{width:100%;  display:none;}
+#div_Reports_id{width:100%; display:none;}
 
 .tab_div_display{display:block;}
 
@@ -52,8 +69,11 @@ body{ background-color:#085EAB; margin:0px; padding:0px;}
 #div_Configuration_right_top_id{width:100%; height:50px; }
 #div_Configuration_right_top_titel_id{width:50%; height:50px; float:left; margin-top:10px; margin-left:15px;  color:#000; font-family:Arial; font-size:20px; font-weight:bold;}
 #div_Configuration_right_top_button_id{width:48%; height:50px; float:left; margin-top:10px;}
+#div_Configuration_right_table_id{width:100%; float:left;}
 .bnt_Confguration_tableOper_class{margin-top:0px; float:right;padding:5px 15px 5px 15px; cursor:pointer; background-color:#FC0; color:#630;font-family:Arial;font-weight:bold;}
 
 #div_Configuration_right_content_id{width:100%; height:300px; background-color:#099;}
 
-#text_Status_id{ margin:0 auto; width:95%; height:500px; margin-top:30px; background-color: #000; color:#0F0; font-size:12px; font-family:Arial; overflow:scroll;}
+#text_Status_id{ margin:0 auto; width:95%; height:500px; margin-top:30px; background-color: #000; color:#0F0; font-size:12px; font-family:Arial; overflow:auto; overflowX: auto;}
+
+.img_Configuration_class{ width:13px; height:13px; }

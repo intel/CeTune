@@ -42,13 +42,18 @@ class monitor:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
 
-    def tail_console(self):
+    def tail_console(self, timestamp):
         return common.tail_f("console.log")
 
 class results:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
 
+    def get_summary(self):
+        return common.tail_f("console.log")
+
+    def get_detail(self, runid):
+        return common.tail_f("console.log")
 
 if __name__ == "__main__":
     app = web.application(urls, globals())
