@@ -216,12 +216,12 @@ class Benchmark(object):
         with open("%s/.run_number" % lib_path, "w") as f:
             f.write(str(self.runid))
 
-    def testjob_distribution(self, rbd_num_per_client, instance_list):
+    def testjob_distribution(self, disk_num_per_client, instance_list):
         start_vclient_num = 0
         client_num = 0
         self.cluster["testjob_distribution"] = {}
         for client in self.cluster["client"]:
-            vclient_total = int(rbd_num_per_client[client_num])
+            vclient_total = int(disk_num_per_client[client_num])
             end_vclient_num = start_vclient_num + vclient_total
             self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
             start_vclient_num = end_vclient_num
@@ -297,8 +297,8 @@ class Benchmark(object):
         self.cluster["tmp_dir"] = self.all_conf_data.get("tmp_dir")
         self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
-        self.cluster["osd"] = self.all_conf_data.get_list("list_ceph")
-        self.cluster["rbd_num_per_client"] = self.all_conf_data.get_list("rbd_num_per_client")
+        self.cluster["osd"] = self.all_conf_data.get_list("list_server")
+        self.cluster["disk_num_per_client"] = self.all_conf_data.get_list("disk_num_per_client")
         self.cluster["run_time_extend"] = 100
 
     def chkpoint_to_log(self, log_str):

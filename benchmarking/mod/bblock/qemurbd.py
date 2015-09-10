@@ -8,10 +8,10 @@ class QemuRbd(Benchmark):
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         self.benchmark["vdisk"] = self.all_conf_data.get("run_file")
 
-        rbd_num_per_client = self.cluster["rbd_num_per_client"]
+        disk_num_per_client = self.cluster["disk_num_per_client"]
         self.volume_size = self.all_conf_data.get("volume_size")
         self.instance_list = self.cluster["vclient"]
-        self.testjob_distribution(rbd_num_per_client, self.instance_list)
+        self.testjob_distribution(disk_num_per_client, self.instance_list)
 
     def prepare_result_dir(self):
         #1. prepare result dir

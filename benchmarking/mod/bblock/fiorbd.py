@@ -9,10 +9,10 @@ class FioRbd(Benchmark):
         if len(self.cluster["rbdlist"]) < int(self.all_conf_data.get("rbd_volume_count")):
             self.prepare_images()
 
-        rbd_num_per_client = self.cluster["rbd_num_per_client"]
+        disk_num_per_client = self.cluster["disk_num_per_client"]
         instance_list = self.cluster["rbdlist"]
         self.volume_size = self.all_conf_data.get("volume_size")
-        self.testjob_distribution(rbd_num_per_client, instance_list)
+        self.testjob_distribution(disk_num_per_client, instance_list)
 
     def prepare_images(self):
         user =  self.cluster["user"]
@@ -26,10 +26,10 @@ class FioRbd(Benchmark):
             common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf")
         #start to init 
         dest_dir = self.cluster["tmp_dir"]
-        rbd_num_per_client = self.cluster["rbd_num_per_client"]
+        disk_num_per_client = self.cluster["disk_num_per_client"]
         self.cluster["rbdlist"] = self.get_rbd_list()
         instance_list = self.cluster["rbdlist"]
-        self.testjob_distribution(rbd_num_per_client, instance_list)
+        self.testjob_distribution(disk_num_per_client, instance_list)
         fio_job_num_total = 0
         clients = self.cluster["testjob_distribution"].keys()
         for client in self.cluster["testjob_distribution"]:

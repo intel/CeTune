@@ -65,8 +65,8 @@ fi
 
 command=$1
 
-echo "deploy_osd_servers: $list_ceph"
-osd_host_list=`echo $list_ceph | sed 's/,/ /g'`
+echo "deploy_osd_servers: $list_server"
+osd_host_list=`echo $list_server | sed 's/,/ /g'`
 index=0
 for host in $osd_host_list
 do

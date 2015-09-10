@@ -20,7 +20,7 @@ class Tuner:
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
-        self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
+        self.cluster["osds"] = self.all_conf_data.get_list("list_server")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["benchmark_engine"] = self.all_conf_data.get_list("benchmark_engine")

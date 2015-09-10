@@ -55,7 +55,7 @@ class Deploy(object):
         if not public_subnet:
             public_subnet = subnet
 
-        for osd in self.all_conf_data.get_list("list_ceph"):
+        for osd in self.all_conf_data.get_list("list_server"):
             self.cluster["osds"][osd] = {"public":ip_handler.getIpByHostInSubnet(osd, public_subnet), "cluster":ip_handler.getIpByHostInSubnet(osd, cluster_subnet)}
         for mon in self.all_conf_data.get_list("list_mon"):
             self.cluster["mons"][mon] = ip_handler.getIpByHostInSubnet(mon, monitor_subnet)

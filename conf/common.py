@@ -19,6 +19,26 @@ cetune_error_file = "../conf/cetune_error.log"
 cetune_console_file = "../conf/cetune_console.log"
 no_die = False
 
+class ConfigHandler():
+    def __init__(self):
+        all_conf = common.Config("../conf/all.conf")
+        tuner_conf = common.load_yaml_conf("../conf/tuner.conf")
+    def check_config_correction(self):
+        pass
+    def check_required_config(self):
+        pass
+    def list_required_config(self):
+        requested_list = {}
+        requested_list["cluster"] = ["head","user","list_server","list_client","list_mon","disk_num_per_client"]
+        requested_list["ceph_deploy"] = ["workstages"]
+        requested_list["workflow"] = ["workstages"]
+        requested_list["system"] = ["workstages"]
+        requested_list["ceph_tuning"] = ["workstages"]
+        requested_list["benchmark"] = ["workstages"]
+        requested_list["analyzer"] = ["workstages"]
+        
+
+
 class Config():
     def __init__(self, conf_path):
         self.conf_data = OrderedDict()
