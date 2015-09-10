@@ -7,10 +7,10 @@ class Generic(Benchmark):
         super(self.__class__, self).load_parameter()
         self.cluster["test_disks"] = self.all_conf_data.get_list("test_disks")
 
-        rbd_num_per_client = self.cluster["rbd_num_per_client"]
+        disk_num_per_client = self.cluster["disk_num_per_client"]
         instance_list = self.cluster["test_disks"]
         self.volume_size = self.all_conf_data.get("volume_size")
-        self.testjob_distribution(rbd_num_per_client, instance_list)
+        self.testjob_distribution(disk_num_per_client, instance_list)
 
     def prepare_images(self):
         user =  self.cluster["user"]
