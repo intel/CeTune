@@ -529,7 +529,7 @@ def read_file_after_stamp(path, stamp = None):
     output = False
     with open(path,'r') as fd:
         for line in fd.readlines():
-            if output or stamp in line or not stamp :
+            if output or not stamp or stamp in line:
                 output = True
                 lines.append(line.rstrip('\n'))
     return lines

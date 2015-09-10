@@ -44,13 +44,23 @@ class monitor:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
 
-    def tail_console(self, timestamp):
+    def tail_console(self, timestamp=None):
         output = common.read_file_after_stamp("../conf/cetune_console.log", timestamp)
         res = {}
         re_res = re.search('\[(.+)\]\[',output[-1])
         if re_res:
             res["timestamp"] = re_res.group(1)
-        res["content"] = "&#013;&#010;".join(output[1:])
+        res["content"] = []
+        for line in output[1:]:
+            color = "#999"
+            if "[LOG]" in line:
+                color = "#CCFF99"
+            if "[WARNING]" in line:
+                color = "yellow"
+            if "[ERROR]" in line:
+                color = "red"
+            res["content"].append("<div style='color:%s'>%s</div>" % (color, line))
+        res["content"] = "".join(res["content"])
         return res
 
 class results:
