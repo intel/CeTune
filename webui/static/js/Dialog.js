@@ -1,4 +1,11 @@
-// JavaScript Document
+/*********************************
+   JavaScript Document
+   Author: Sean,Lin
+   E-mail:  xiangx.lin@intel.com
+   Date:2015-09-10
+   Descrption: 
+**********************************/
+
  $(function() {
 
     var dialog, form,

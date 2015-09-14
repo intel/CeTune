@@ -21,15 +21,17 @@ class index:
         web.seeother('/static/index.html')
 
 class configuration:
-    all_conf = common.Config("../conf/all.conf")
+    conf = common.ConfigHandler()
 
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
+    def POST(self, function_name = ""):
+        print web.input()
+        return common.eval_args( self, function_name, web.input() )
 
     def get_group(self,request_type):
-        request_type_list = ["workflow","cluster","system","ceph","benchmark","analyzer"]
-        if request_type in request_type_list:
-            return self.all_conf.get_group(request_type)
+        web.header("Content-Type","application/json")
+        return json.dumps(self.conf.get_group(request_type))
 
     def get_group_list(self):
         return self.all_conf.get_group_list()
@@ -43,7 +45,11 @@ class configuration:
 class monitor:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
-
+    def POST(self, function_name = ""):
+        print web.input()
+        return common.eval_args( self, function_name, web.input() )
+    def cetune_status(self):
+        return "CeTune is running [Benchmark Status]"
     def tail_console(self, timestamp=None):
         output = common.read_file_after_stamp("../conf/cetune_console.log", timestamp)
         res = {}
@@ -61,10 +67,14 @@ class monitor:
                 color = "red"
             res["content"].append("<div style='color:%s'>%s</div>" % (color, line))
         res["content"] = "".join(res["content"])
-        return res
+        web.header("Content-Type","application/json")
+        return json.dumps(res)
 
 class results:
     def GET(self, function_name = ""):
+        return common.eval_args( self, function_name, web.input() )
+    def POST(self, function_name = ""):
+        print web.input()
         return common.eval_args( self, function_name, web.input() )
 
     def get_summary(self):
@@ -89,7 +99,25 @@ class results:
                     break
                 if output:
                     html += line.rstrip('\n')
+        web.header("Content-Type", "text/plain")
         return html
+
+    def get_detail_pic(self, session_name, pic_name):
+        web.header("Content-Type", "images/png")
+        path = "%s/%s/include/pic/%s" % ("/mnt/data", session_name, pic_name)
+        print path
+        return open( path, "rb" ).read()
+
+    def get_detail_csv(self, session_name, csv_name):
+        web.header("Content-Type", "text/csv")
+        path = "%s/%s/include/csv/%s" % ("/mnt/data", session_name, csv_name)
+        print path
+        web.header('Content-disposition', 'attachment; filename=%s_%s' % (session_name, csv_name))
+        return open( path, "r" ).read()
+
+class defaults_pic:
+    def GET(self):
+        return None
 
 if __name__ == "__main__":
     app = web.application(urls, globals())

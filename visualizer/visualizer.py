@@ -84,7 +84,7 @@ class Visualizer:
             common.printout("ERROR","Generating history view failed")
             return False
         output = []
-        output.append("<h1>CeTune History Page</h1>")
+        #output.append("<h1>CeTune History Page</h1>")
         output.append("<table class='cetune_table'>")
         output.append(" <thead>")
         output.append(" <tr>")

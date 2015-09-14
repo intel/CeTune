@@ -1,5 +1,10 @@
+/****************************************** 
+   CSS Document
+   Author: Sean,Lin
+   E-mail:  xiangx.lin@intel.com
+   Descrption: 
+ *******************************************/
 @charset "utf-8";
-/* CSS Document */
 
 #table_id,#table_benchmark_id{margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left;border:1px solid  #CCC;}
 #table_benchmark_id{ margin-top:15px;}
@@ -22,6 +27,7 @@ td{ height:30px;}
 
 .btn_okcancel_class{ padding:3px 5px 3px 5px; width:70px; margin-left:5px; font-family:Arial; font-weight:bold;
                      background-color: #D3D3D3; color:#000; border-top:1px solid #666; border-left:1px solid #666; cursor:pointer;}
+					 
 .text_class{ background-color: #F1F1F1; color: #000; border-top:1.5px solid #666; border-left:1.5px solid #666; font-weight:bold;}
 .label_class{ cursor:pointer;}
 

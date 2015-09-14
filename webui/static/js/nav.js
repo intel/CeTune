@@ -1,4 +1,11 @@
-// JavaScript Document
+/*********************************
+   JavaScript Document
+   Author: Sean,Lin
+   E-mail:  xiangx.lin@intel.com
+   Date:2015-09-10
+   Descrption: 
+**********************************/
+
 $(function(){
 	
  var allPanelGroupBodies = $('#dl_Configuration_left_nav_accordion_id > dd > div > ul');
@@ -11,20 +18,23 @@ $(function(){
     }
   });
   
-
-
+  var myPanelGroupHeader = $(this);
+	   myPanelGroupHeader.addClass("active");   
   
-
+  
   // mark the active panel group
   var activePanel = $('#dl_Configuration_left_nav_accordion_id > dd > div > ul > li > a.active');
+  
   activePanel.closest('div').find('h4').addClass('active');
   
-  $("#dl_Configuration_left_nav_accordion_id > dd > div > ul").eq(0).addClass('active');
-
-  
+ 
+  //$("#dl_Configuration_left_nav_accordion_id > dd > div > ul").eq(0).addClass('active');
+   $(".div_Configuration_left_nav_li_class > a").eq(0).addClass('active');
+  $("#dl_Configuration_left_nav_accordion_id > dd > div > ul").eq(0).slideDown(0);
+ 
   // dashboard click
   $('#dl_Configuration_left_nav_accordion_id > dt').click(function() {
-
+   
     var myDashHeader = $(this);
     var myDashWasActive = myDashHeader.hasClass("active");
 
@@ -91,22 +101,19 @@ $(function(){
 
 
 
-  /* panel selection
+   //panel selection
   $('#dl_Configuration_left_nav_accordion_id > dd > ul > li > a').click(function() {
       horizon.modals.modal_spinner(gettext("Loading"));
   });
 
   $('.div_Configuration_left_nav_li_class > a').click(function() {
-      horizon.modals.modal_spinner(gettext("Loading"));
+      //horizon.modals.modal_spinner(gettext("Loading"));
 	  var allPanelGroupHeaders = $('.div_Configuration_left_nav_li_class > a');
       allPanelGroupHeaders.removeClass("active");
 	  
 	   var myPanelGroupHeader = $(this);
-	   myPanelGroupHeader.addClass("active");
-	   
-	   cheak data
-	   
-  });*/
+	   myPanelGroupHeader.addClass("active");   
+  });
   
   
 

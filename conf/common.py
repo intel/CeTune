@@ -21,23 +21,99 @@ no_die = False
 
 class ConfigHandler():
     def __init__(self):
-        all_conf = common.Config("../conf/all.conf")
-        tuner_conf = common.load_yaml_conf("../conf/tuner.conf")
+        self.all_conf = Config("../conf/all.conf")
+        self.tuner_conf = TunerConfig("../conf/tuner.yaml")
+        request_lists = self.list_required_config()
+
+    def get_group(self, request_type):
+        res = []
+        res.extend(self.all_conf.get_group(request_type))
+        res.extend(self.tuner_conf.get_group(request_type))
+        return res
+
+    def get_group_config(self, request_type):
+        config_type = self.get_corresponde_conf( request_type )
+        if config_type == "tuner":
+            res = self.tuner_conf.get_group(request_type)
+        elif config_type == "all":
+            res = self.all_conf.get_group(request_type)
+
+    def get_corresponde_config(self, request_type):
+        key_to_file = {}
+        key_to_file["tuner"] = ["deploy_workflow","system","ceph_tuning","analyzer"]
+        key_to_file["all"] = ["cluster","ceph_hard_config","benchmark"]
+        for key, value in key_to_file.items():
+            if value == request_type:
+                return key
+        return None
+
     def check_config_correction(self):
         pass
+
     def check_required_config(self):
         pass
-    def list_required_config(self):
-        requested_list = {}
-        requested_list["cluster"] = ["head","user","list_server","list_client","list_mon","disk_num_per_client"]
-        requested_list["ceph_deploy"] = ["workstages"]
-        requested_list["workflow"] = ["workstages"]
-        requested_list["system"] = ["workstages"]
-        requested_list["ceph_tuning"] = ["workstages"]
-        requested_list["benchmark"] = ["workstages"]
-        requested_list["analyzer"] = ["workstages"]
-        
 
+    def list_required_config(self):
+        required_list = {}
+        required_list["workflow"] = ["workstages"]
+        required_list["system"] = ["disk|read_ahead_kb"]
+        required_list["ceph_tuning"] = ["pool|rbd|size","mon_pg_warn_max_per_osd"]
+        required_list["analyzer"] = ["workstages"]
+
+        required_list["cluster"] = ["head","user","list_server","list_client","list_mon","disk_num_per_client","rgw_server","rgw_start_index","rgw_num_per_server"]
+        required_list["ceph_hard_config"] = ["public_network","cluster_network","mon_data","osd_objectstore"]
+        required_list["benchmark"] = ["fio_capping","benchmark_engine","tmp_dir","dest_dir","dest_dir_remote_bak"]
+        return required_list
+        
+class TunerConfig():
+    def __init__(self, path):
+        self.tuner_conf = load_yaml_conf(path) 
+        self.tuner_conf = self.format_tuner_to_all(self.tuner_conf)
+
+    def get_group(self, request_type):
+        res = []
+        if request_type in self.tuner_conf:
+            for key, value in self.tuner_conf[request_type].items():
+                res.append({"key":key,"value":value,"check":True,"dsc":""})
+            #return self.tuner_conf[request_type]
+        return res
+
+    def group_list(self):
+        group_list = {}
+        group_list["workflow"] = ["workstages"]
+        group_list["system"] = ["disk"]
+        group_list["ceph_tuning"] = ["pool","global","osd","mon","client","radosgw"]
+        group_list["analyzer"] = ["analyzer"]
+        return group_list
+
+    def format_tuner_to_all(self, tuner, key=None):
+        group_list = self.group_list()
+        if not isinstance( tuner, dict ):
+            if isinstance( tuner, list ):
+                return [key, tuner]
+            else:
+                return [key, str(tuner)]
+        else:
+            output = OrderedDict()
+            for child_key in tuner:
+                for group in group_list:
+                    if child_key in group_list[group]:
+                        if group not in output:
+                            output[group] = OrderedDict()
+                        current = output[group]
+                        break
+                    else:
+                        current = output
+                if not key:
+                    new_key = child_key
+                else:
+                    new_key = "%s|%s" % (key, child_key)
+                res = self.format_tuner_to_all( tuner[child_key], new_key )
+                if isinstance(res, list):
+                    current[res[0]]=res[1]
+                else:
+                   current.update(res)
+            return output
 
 class Config():
     def __init__(self, conf_path):
@@ -589,4 +665,6 @@ def eval_args( obj, function_name, args ):
         func = getattr(obj, function_name)
         if func:
             res = func( **argv )
-    return json.dumps(res)
+    return res
+
+config_handler = ConfigHandler()

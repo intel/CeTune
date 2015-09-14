@@ -1,6 +1,14 @@
+<!--************************************
+   Author: Sean,Lin
+   E-mail:  xiangx.lin@intel.com
+   Date:2015-09-10
+   Descrption: 
+************************************-->
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>CeTune</title>
  
@@ -8,9 +16,6 @@
 <link rel="stylesheet" type="text/css" href="css/TableStyle.css">
 <link rel="stylesheet" type="text/css" href="css/NavStyle.css">
 <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.11.4/jquery-ui.css">
-
-
-
 
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/nav.js"></script>
@@ -26,9 +31,9 @@
 <div id="div_main_id">
    <div id="div_menu_id">
      <ul>
-      <li>Test Configuration</li>
-      <li>CeTune Status</li>
-      <li>Result Reports</li>
+      <li><a id="menu_Configuration_id">Test Configuration</a></li>
+      <li><a id="menu_Status_id">CeTune Status</a></li>
+      <li><a id="menu_Reports_id">Result Reports</a></li>
      </ul>
    </div>
 
@@ -36,14 +41,14 @@
     <div id="div_top_title_id">
        <h1><a href="#">CeTune</a></h1>
     </div>
-     <div id="div_top_stauts_id">
-      
+     <div id="div_top_status_id">
        <h1><a href="#"> <img id="img_top_id" src="image/progruss.jpg" />Benchmark is runing.....</a></h1>
     </div>
    </div>
 
-  
-  <div id="div_Configuration_id" class = "div_tab_class">
+ <div id="div_Content_id">
+   <div id="div_Configuration_id" class = "div_tab_class">
+     
      <div id = "div_Configuration_left_id" class="div_content_left_class">
         <div id ='div_sidebar_id'>
              <div>
@@ -56,18 +61,19 @@
                       <div>
                         <h4><div>Deploy</div></h4>            
                         <ul>           
-                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#"><img class="img_Configuration_class" src="image/config_OK.gif">Executvie Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="cluster" href="#"><img class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#"><img class="img_Configuration_class" src="image/config_OK.gif">System Tuning</a></li>      
+                          <li  class="div_Configuration_left_nav_li_class"><a id="cluster" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
                         </ul> 
                       </div>
                  
                       <div>
                         <h4><div>Benchmark</div></h4>            
                         <ul>           
-                           <li  class="div_Configuration_left_nav_li_class"><a id="ceph" href="#"><img class="img_Configuration_class" src="image/config_OK.gif">Ceph Tuning</a></li>
-                           <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#"><img class="img_Configuration_class" src="image/config_OK.gif">Benchmark Configuration</a></li>
-                           <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#"><img class="img_Configuration_class" src="image/config_OK.gif">Analyzer Configuration</a></li>           
+                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Executvie Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">System Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_tuning" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Tuning</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Benchmark Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Analyzer Configuration</a></li>           
                         </ul> 
                       </div>
                   
@@ -78,11 +84,14 @@
         </div>
          
          <div id="div_Configuration_left_execButton_id">
-             <input id="bnt_Confguration_exec_id" type="button" value="Executive" disabled="disabled"/>
-         </div>
-         
+             <input id="bnt_Configuration_exec_id" type="button" value="Executive" disabled="disabled"/>
+         </div>     
      </div>
+     
+     
+     
      <div id = "div_Configuration_right_id" class="div_content_right_class">
+
          <div id="div_Configuration_right_top_id">
             <div id="div_Configuration_right_top_titel_id">Benchmark Configuration</div>
             <div id="div_Configuration_right_top_button_id">              
@@ -90,173 +99,34 @@
               <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
               <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>
             </div>
-         </div>
-         <div id="div_Configuration_right_table_id">
+            <div id="div_Configuration_right_table_id">
+            </div>
+            <div id="div_Configuration_right_back_id">Runing</div>              
          </div>
      </div>
+     
+     
   </div>
   
-  <div id="div_Status_id" class = "div_tab_class">
+   <div id="div_Status_id" class = "div_tab_class">
      <!--<div id = "div_Status_left_id" class="div_content_left_class"></div>-->
-     <div id = "div_Status_right_id" class="div_content_right_class">
-       <textarea id="text_Status_id" name="textarea">
-        ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-          ---------------------------------------------------------------------------
-        $("#div_menu_middle_id ul li").click(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_click");
-		$(this).addClass("tab_background_click");
-		//show and hide the sub div
-		var index = $(this).index();
-		$(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();		
-	    })
-	     .mouseover(function(){
-	    $("#div_menu_middle_id ul li").removeClass("tab_background_mouseover");
-		$(this).addClass("tab_background_mouseover");
-		
-	     })
-       </textarea>
-     </div>
+      <div id="div_console_id">
+        
+      </div>
   </div>
   
-  <div id="div_Reports_id" class = "div_tab_class">
-     <div id = "div_Reports_left_id" class="div_content_left_class"></div>
-     <div id = "div_Reports_right_id" class="div_content_right_class">div_Reports_id</div>
+   <div id="div_Reports_id" class = "div_tab_class">
+     <!--<div id = "div_Reports_left_id" class="div_content_left_class"></div>
+     <div id = "div_Reports_right_id" class="div_content_right_class">div_Reports_id</div>-->
   </div>
   
- 
- </div>
+  </div>
 
- <div id="div_buttom_id"></div>
-</div>
+  <div id="div_buttom_id"></div>
+  </div>
+
+ </div>
+ 
 </body>
 
 
