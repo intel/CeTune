@@ -33,14 +33,8 @@ class configuration:
         web.header("Content-Type","application/json")
         return json.dumps(self.conf.get_group(request_type))
 
-    def get_group_list(self):
-        return self.all_conf.get_group_list()
-
-    def set_conf(self, key, value):
-        return self.all_conf.set_conf(key, value)
-
-    def check_conf(self, key, value):
-        return self.all_conf.check_conf(key, value)
+    def set_config(self, request_type, key, value):
+        return json.dumps(self.conf.set_config(request_type, key, value))
 
 class monitor:
     def GET(self, function_name = ""):

@@ -23,13 +23,41 @@ class ConfigHandler():
     def __init__(self):
         self.all_conf = Config("../conf/all.conf")
         self.tuner_conf = TunerConfig("../conf/tuner.yaml")
-        request_lists = self.list_required_config()
+        #self.cases_conf = BenchmarkConfig("../conf/cases.conf")
+        self.required_lists = self.list_required_config()
 
     def get_group(self, request_type):
         res = []
-        res.extend(self.all_conf.get_group(request_type))
-        res.extend(self.tuner_conf.get_group(request_type))
+        tmp_res = OrderedDict()
+        all_conf = self.all_conf.get_group(request_type)
+        tmp_res.update( all_conf )
+        tuner_conf = self.tuner_conf.get_group(request_type)
+        tmp_res.update( tuner_conf )
+        if request_type in self.required_lists:
+            for required_key in self.required_lists[request_type]:
+                 if required_key not in tmp_res:
+                     tmp_res[required_key] = self.required_lists[request_type][required_key]
+                     self.set_config(request_type, required_key, tmp_res[required_key])
+        for key, value in tmp_res.items():
+            res.append({"key":key,"value":value,"check":True,"dsc":""})
         return res
+
+    def set_config(self, request_type, key, value):
+        conf_type = self.get_corresponde_config(request_type)
+        output = {}
+        output["key"] = key
+        output["value"] = value
+        output["dsc"] = ""
+        output["check"] = False
+        if conf_type == "tuner":
+            res = self.tuner_conf.set_config(key, value)
+        elif conf_type == "all":
+            res = self.all_conf.set_config(request_type, key, value)
+        #if conf_type == "cases":
+        #    res = self.cases_conf.set_conf(key, value)
+        if res:
+            output["check"] = True 
+        return output
 
     def get_group_config(self, request_type):
         config_type = self.get_corresponde_conf( request_type )
@@ -40,10 +68,11 @@ class ConfigHandler():
 
     def get_corresponde_config(self, request_type):
         key_to_file = {}
-        key_to_file["tuner"] = ["deploy_workflow","system","ceph_tuning","analyzer"]
-        key_to_file["all"] = ["cluster","ceph_hard_config","benchmark"]
+        key_to_file["tuner"] = ["workflow","system","ceph_tuning","analyzer"]
+        key_to_file["all"] = ["cluster","ceph_hard_config"]
+        key_to_file["cases"] = ["benchmark"]
         for key, value in key_to_file.items():
-            if value == request_type:
+            if request_type in value:
                 return key
         return None
 
@@ -55,33 +84,64 @@ class ConfigHandler():
 
     def list_required_config(self):
         required_list = {}
-        required_list["workflow"] = ["workstages"]
-        required_list["system"] = ["disk|read_ahead_kb"]
-        required_list["ceph_tuning"] = ["pool|rbd|size","mon_pg_warn_max_per_osd"]
-        required_list["analyzer"] = ["workstages"]
+        required_list["cluster"] = {}
+        required_list["cluster"]["head"] = socket.gethostname()
+        required_list["cluster"]["user"] = "root"
+        required_list["cluster"]["list_server"] = ""
+        required_list["cluster"]["list_client"] = ""
+        required_list["cluster"]["list_mon"] = ""
+        required_list["cluster"]["disk_num_per_client"] = 10
+        required_list["cluster"]["rgw_server"] = ""
+        required_list["cluster"]["rgw_start_index"] = 1
+        required_list["cluster"]["rgw_num_per_server"] = 5
+        required_list["cluster"]["osd_partition_count"] = 1
+        required_list["cluster"]["osd_partition_size"] = ""
+        required_list["cluster"]["journal_partition_count"] = 5
+        required_list["cluster"]["journal_partition_size"] = "10G"
+        required_list["ceph_hard_config"] = {"public_network":"",
+                                             "cluster_network":"",
+                                             "mon_data":"/var/lib/ceph/ceph.$id",
+                                             "osd_objectstore":"filestore"}
 
-        required_list["cluster"] = ["head","user","list_server","list_client","list_mon","disk_num_per_client","rgw_server","rgw_start_index","rgw_num_per_server"]
-        required_list["ceph_hard_config"] = ["public_network","cluster_network","mon_data","osd_objectstore"]
-        required_list["benchmark"] = ["fio_capping","benchmark_engine","tmp_dir","dest_dir","dest_dir_remote_bak"]
+        required_list["workflow"] = {"workstages":["deploy","benchmark"]}
+        required_list["system"] = {"disk|read_ahead_kb":2048}
+        required_list["ceph_tuning"] = {"pool|rbd|size":2,
+                                        "global|mon_pg_warn_max_per_osd":1000}
+        required_list["analyzer"] = {"analyzer":"all"}
+
         return required_list
         
 class TunerConfig():
     def __init__(self, path):
-        self.tuner_conf = load_yaml_conf(path) 
-        self.tuner_conf = self.format_tuner_to_all(self.tuner_conf)
+        self.tuner = load_yaml_conf(path) 
+        self.path = path
+        self.tuner_conf = self.format_tuner_to_all(self.tuner)
 
     def get_group(self, request_type):
-        res = []
+        res = {}
         if request_type in self.tuner_conf:
-            for key, value in self.tuner_conf[request_type].items():
-                res.append({"key":key,"value":value,"check":True,"dsc":""})
-            #return self.tuner_conf[request_type]
+            #for key, value in self.tuner_conf[request_type].items():
+                #res.append({"key":key,"value":value,"check":True,"dsc":""})
+            res = self.tuner_conf[request_type]
         return res
+
+    def set_config(self, key, value):
+        level_list = ["testjob1"]
+        level_list.extend(key.split('|'))
+        current = self.tuner
+        for level in level_list[:-1]:
+            if level not in current:
+                current[level] = OrderedDict()
+            current = current[level]
+        current[level_list[-1]] = value
+        with open(self.path,"w") as f:
+            f.write(json.dumps(self.tuner, indent=4))
+        return True
 
     def group_list(self):
         group_list = {}
         group_list["workflow"] = ["workstages"]
-        group_list["system"] = ["disk"]
+        group_list["system"] = ["version","disk"]
         group_list["ceph_tuning"] = ["pool","global","osd","mon","client","radosgw"]
         group_list["analyzer"] = ["analyzer"]
         return group_list
@@ -96,18 +156,22 @@ class TunerConfig():
         else:
             output = OrderedDict()
             for child_key in tuner:
+                find_in_group = False
                 for group in group_list:
                     if child_key in group_list[group]:
+                        find_in_group = True
                         if group not in output:
                             output[group] = OrderedDict()
                         current = output[group]
+                        new_key = child_key
                         break
+                if not find_in_group:
+                    current = output
+                    if not key:
+                        current["jobname"] = child_key
+                        new_key = None
                     else:
-                        current = output
-                if not key:
-                    new_key = child_key
-                else:
-                    new_key = "%s|%s" % (key, child_key)
+                        new_key = "%s|%s" % (key, child_key)
                 res = self.format_tuner_to_all( tuner[child_key], new_key )
                 if isinstance(res, list):
                     current[res[0]]=res[1]
@@ -118,6 +182,7 @@ class TunerConfig():
 class Config():
     def __init__(self, conf_path):
         self.conf_data = OrderedDict()
+        self.conf_path = conf_path
         cur_conf_section = self.conf_data
         self.group = OrderedDict()
         cur_group = "global"
@@ -159,9 +224,29 @@ class Config():
             pp.pprint(self.conf_data)
 
     def dump_to_file(self, output, key=""):
+        line_list = []
+        group_list = self.get_group_list()
+        for request_type in group_list:
+            line_list.append("#============%s============" % request_type)
+            res = self.get_group( request_type )
+            for key, value in res.items():
+                if value == "":
+                    value = '""'
+                line_list.append("%s=%s" % (key, value))
+        #print "\n".join(line_list)
         with open(output, 'w') as f:
-            f.write( self.dump(key) )
+            f.write( "\n".join(line_list) )
 
+    def set_config(self, request_type, key, value):
+        self.conf_data[key] = value
+        group_list = self.get_group_list()
+        if request_type not in group_list:
+            print group_list
+        if key not in group_list[request_type]:
+            self.group[request_type].append(key)
+        self.dump_to_file(self.conf_path)
+        return True
+    
     def get(self, key, dotry=False):
         if key in self.conf_data:
             return self.conf_data[key]
@@ -185,10 +270,10 @@ class Config():
         return self.conf_data
 
     def get_group(self, request_type):
-        res = []
+        res = OrderedDict()
         if request_type in self.group:
             for key in self.group[request_type]:
-                res.append({"key":key,"value":self.get(key),"check":True,"dsc":""})
+                res[key] = self.get(key)
         return res
 
     def get_group_list(self):
@@ -667,4 +752,6 @@ def eval_args( obj, function_name, args ):
             res = func( **argv )
     return res
 
-config_handler = ConfigHandler()
+#config_handler = ConfigHandler()
+#config_handler.set_config("system", "version", "hammer")
+#config_handler.set_config("cluster", "head", "haha")
