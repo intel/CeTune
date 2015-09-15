@@ -13,6 +13,8 @@ from os import O_NONBLOCK, read
 import socket
 import struct
 from collections import OrderedDict
+import commands
+import argparse
 
 cetune_log_file = "../conf/cetune_process.log"
 cetune_error_file = "../conf/cetune_error.log"
@@ -278,6 +280,50 @@ class Config():
 
     def get_group_list(self):
         return self.group
+    
+def get_case_conf():
+        #case_json = requests.get("http://192.168.5.22:8080/configuration/get_case_conf").content
+        #case_dict = simplejson.loads(case_json)
+    case_json = [{"rampuptime":"400","runtime":"300"},{"ramuptime":"100","runtime":"200"}]
+    case_list = []
+    for tmp_dict in case_json:
+        case_list.append(tmp_dict.values())
+    print case_list
+    if len(case_list):
+        with open("../conf/cases.conf","w") as f:
+            for case_iterms in case_list:
+                #for case_iterm in case_iterms:
+                f.write('\t'.join(case_iterms)+"\n")
+def check_case_conf():
+    line_num = 0
+    with open("../conf/cases.conf","r") as casefile:
+        for line in casefile.readlines():
+            line_num = line_num+1
+            line_list = line.split("\t")
+            engine,workers,volume_size,io_pattern,record_size,qd,rampup_time,run_time,disk = line_list
+            if engine in ["qemurbd","fiorbd"]:
+                if engine == "qemurbd":
+                    case = "["+engine+"-"+io_pattern+"-"+record_size+"-"+"qd"+qd+"-"+volume_size+"-"+rampup_time+"-"+run_time+"-vdb]"
+                if engine == "fiorbd":
+                    case = "["+engine+"-"+io_pattern+"-"+record_size+"-"+"qd"+qd+"-"+volume_size+"-"+rampup_time+"-"+run_time+"-fiorbd]"
+                returncode,output = commands.getstatusoutput('cat ../conf/fio.conf | grep %s | grep %s | grep %s | grep %s | grep %s | grep %s | grep %s' % (engine,io_pattern,record_size,qd,volume_size,rampup_time,run_time) )
+                if output == '':
+                    returncode,output = commands.getstatusoutput('sed -i %sd ../conf/cases.conf' % line_num)  
+                    line_num = line_num-1
+            if engine == "cosbench":
+                case = workers+"-cosbench-"+io_pattern+"-"+record_size+"-100con-100obj-"+rampup_time+"-"+run_time+"-cosbench.xml"
+                flag = os.path.exists("/opt/cosbench_config/%s" % case)
+                if flag:
+                    pass
+                else:
+                    returncode,output = commands.getstatusoutput('sed -i %sd ../conf/cases.conf' % line_num) 
+                    line_num = line_num-1       
+                 #print returncode,output                                        
+                   
+def generate_case_conf():
+    if not (os.path.exists("../conf/cases.conf")):
+        returncode,output = commands.getstatusoutput('cp ../conf/cases.default.conf ../conf/cases.conf')
+        print returncode
 
 class bcolors:
     HEADER = '\033[95m'
@@ -752,6 +798,27 @@ def eval_args( obj, function_name, args ):
             res = func( **argv )
     return res
 
-#config_handler = ConfigHandler()
-#config_handler.set_config("system", "version", "hammer")
-#config_handler.set_config("cluster", "head", "haha")
+def main(args):
+    parser = argparse.ArgumentParser(description='debug')
+    parser.add_argument(
+    'operation'
+    )
+    args = parser.parse_args(args)
+    if args.operation == "generate_case_conf":
+        #myconfig = Config("../conf/cases.conf")
+        #myconfig.generate_case_conf()
+        generate_case_conf()
+    
+    if args.operation == "get_case_conf":
+        #myconfig = Config("../conf/cases.conf")
+        #myconfig.gen_case_conf()
+        get_case_conf()
+
+    if args.operation == "check_case_conf":
+        #myconfig = Config("../conf/cases.conf")
+        #myconfig.check_case_conf()
+        check_case_conf()
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv[1:])

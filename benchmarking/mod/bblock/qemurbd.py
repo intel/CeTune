@@ -247,28 +247,62 @@ class QemuRbd(Benchmark):
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
     def generate_benchmark_cases(self):
-        engine = self.all_conf_data.get_list('benchmark_engine')
+#        engine = self.all_conf_data.get_list('benchmark_engine')
+#        fio_capping = self.all_conf_data.get('fio_capping')
+#        if "qemurbd" not in engine:
+#            return [[],[]]
+#        test_config = OrderedDict()
+#        test_config["engine"] = ["qemurbd"]
+#        test_config["vm_num"] = self.all_conf_data.get_list('run_vm_num')
+#        test_config["rbd_volume_size"] = self.all_conf_data.get_list('run_size')
+#        test_config["io_pattern"] = self.all_conf_data.get_list('run_io_pattern')
+#        test_config["record_size"] = self.all_conf_data.get_list('run_record_size')
+#        test_config["queue_depth"] = self.all_conf_data.get_list('run_queue_depth')
+#        test_config["warmup_time"] = self.all_conf_data.get_list('run_warmup_time')
+#        test_config["runtime"] = self.all_conf_data.get_list('run_time')
+#        test_config["disk"] = self.all_conf_data.get_list('run_file')
+#        testcase_list = []
+#        for testcase in itertools.product(*(test_config.values())):
+#            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
         fio_capping = self.all_conf_data.get('fio_capping')
-        if "qemurbd" not in engine:
-            return [[],[]]
         test_config = OrderedDict()
-        test_config["engine"] = ["qemurbd"]
-        test_config["vm_num"] = self.all_conf_data.get_list('run_vm_num')
-        test_config["rbd_volume_size"] = self.all_conf_data.get_list('run_size')
-        test_config["io_pattern"] = self.all_conf_data.get_list('run_io_pattern')
-        test_config["record_size"] = self.all_conf_data.get_list('run_record_size')
-        test_config["queue_depth"] = self.all_conf_data.get_list('run_queue_depth')
-        test_config["warmup_time"] = self.all_conf_data.get_list('run_warmup_time')
-        test_config["runtime"] = self.all_conf_data.get_list('run_time')
-        test_config["disk"] = self.all_conf_data.get_list('run_file')
-        testcase_list = []
-        for testcase in itertools.product(*(test_config.values())):
-            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
-
+        test_config["vm_num"] = []
+        test_config["rbd_volume_size"] = []
+        test_config["io_pattern"] = []
+        test_config["record_size"] = []
+        test_config["queue_depth"] = []
+        test_config["warmup_time"] = []
+        test_config["runtime"] = []
+        test_config_qemu_flag = 0
+        with open("../conf/cases.conf", "r") as f:
+            for line in f.readlines():
+                #testcase_list = []
+                p = line.split()
+                #testcase_list.append({"benchmar_engine":p[0],"worker":p[1],"container_size":p[2],"io_pattern":p[3],"block_size":p[4],"work_depth":p[5],"ramup_time":p[6],"run_time":p[7],"device":p[8]})
+                if "qemurbd" not in p[0]:
+                    continue
+                if p[1] not in test_config["vm_num"]:
+                    test_config["vm_num"].append(p[1])
+                if p[2] not in test_config["rbd_volume_size"]:
+                    test_config["rbd_volume_size"].append(p[2])
+                if p[3] not in test_config["io_pattern"]:
+                    test_config["io_pattern"].append(p[3])
+                if p[4] not in test_config["record_size"]:
+                    test_config["record_size"].append(p[4])
+                if p[5] not in test_config["queue_depth"]:
+                    test_config["queue_depth"].append(p[5])
+                if p[6] not in test_config["warmup_time"]:
+                    test_config["warmup_time"].append(p[6])
+                if p[7] not in test_config["runtime"]:
+                    test_config["runtime"].append(p[7])
+                test_config["disk"] = ["/dev/vdb"]            
+                test_config["engine"] = ["qemurbd"]
+                test_config_qemu_flag = 1
         fio_list = []
-        fio_list.append("[global]")
-        fio_list.append("    direct=1")
-        fio_list.append("    time_based")
+        if test_config_qemu_flag:
+            fio_list.append("[global]")
+            fio_list.append("    direct=1")
+            fio_list.append("    time_based")
         for element in itertools.product(test_config["io_pattern"], test_config["record_size"], test_config["queue_depth"], test_config["rbd_volume_size"], test_config["warmup_time"], test_config["runtime"], test_config["disk"]):
             io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk = element
             io_pattern_fio = io_pattern
@@ -304,7 +338,8 @@ class QemuRbd(Benchmark):
                 except:
                     pass
             fio_list.extend(fio_template)
-        return [testcase_list, fio_list]
+#        return [testcase_list, fio_list]
+        return fio_list
 
     def parse_benchmark_cases(self, testcase):
         p = testcase

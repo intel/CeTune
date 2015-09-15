@@ -415,10 +415,10 @@ class Cosbench(Benchmark):
         return testcase_dict
 
     def generate_benchmark_cases(self):
-        engine = self.all_conf_data.get_list('benchmark_engine')
-        if "cosbench" not in engine:
-            return [[],[]]
-        test_config = OrderedDict()
+#       engine = self.all_conf_data.get_list('benchmark_engine')
+#       if "cosbench" not in engine:
+#           return [[],[]]
+#       test_config = OrderedDict()
         benchmark = {}
         benchmark["cosbench_config_dir"]=self.all_conf_data.get("cosbench_config_dir")
         benchmark["cosbench_controller"]=self.all_conf_data.get("cosbench_controller")
@@ -427,19 +427,26 @@ class Cosbench(Benchmark):
         benchmark["auth_username"] = self.all_conf_data.get("cosbench_auth_username")
         benchmark["auth_password"] = self.all_conf_data.get("cosbench_auth_password")
         benchmark["auth_url"] = "http://%s/auth/v1.0;retry=9" % benchmark["cosbench_controller_cluster_url"]
-        test_config["workers"] = self.all_conf_data.get_list("cosbench_workers")
-        test_config["contaiter"] = ["".join(self.all_conf_data.get("cosbench_containers"))]
-        test_config["cosbench_rw"]=self.all_conf_data.get_list("cosbench_rw")
-        test_config["test_size"]=self.all_conf_data.get_list("cosbench_test_size")
-        test_config["objecter"] = ["".join(self.all_conf_data.get("cosbench_objects"))]
-        test_config["ramp_up"] = self.all_conf_data.get_list("run_warmup_time")
-        test_config["run_time"] = self.all_conf_data.get_list("run_time")
+#        test_config["workers"] = self.all_conf_data.get_list("cosbench_workers")
+#        test_config["contaiter"] = ["".join(self.all_conf_data.get("cosbench_containers"))]
+#        test_config["cosbench_rw"]=self.all_conf_data.get_list("cosbench_rw")
+#        test_config["test_size"]=self.all_conf_data.get_list("cosbench_test_size")
+#        test_config["objecter"] = ["".join(self.all_conf_data.get("cosbench_objects"))]
+#        test_config["ramp_up"] = self.all_conf_data.get_list("run_warmup_time")
+#        test_config["run_time"] = self.all_conf_data.get_list("run_time")
 
         testcase_list = []
-        for testcase in itertools.product(*(test_config.values())):
+        with open("../conf/cases.conf", "r") as f:
+             for line in f.readlines():
+                 p = line.split()
+                 if "cosbench" not in p:
+                     continue
+                 else:
+                     testcase_list.append([p[1],p[2],p[3],p[4],p[5],p[6],p[7]])                               
+        for testcase in testcase_list:
             benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"] = testcase
             testcase_string = "%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\tcosbench" % ("cosbench", benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"])
-            testcase_list.append( testcase_string )
+            #testcase_list.append( testcase_string )
             benchmark["container"] = self.parse_conobj_script( benchmark["container"] )
             benchmark["objecter"] = self.parse_conobj_script( benchmark["objecter"] )
             if ":" in benchmark["iopattern"]:
@@ -470,7 +477,7 @@ class Cosbench(Benchmark):
             if os.path.exists(benchmark["configfile"]):
                 os.remove(benchmark["configfile"])
             self.replace_conf_xml(benchmark)
-        return [testcase_list,[]]
+        #return [testcase_list,[]]
 
     def replace_conf_xml(self, benchmark):
         with open(lib_path+"/benchmarking/mod/bobject/.template_config.xml",'r') as infile:
