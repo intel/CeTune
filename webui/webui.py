@@ -1,7 +1,7 @@
 import os, sys
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 import web
 from web import form
 import json
@@ -21,20 +21,26 @@ class index:
         web.seeother('/static/index.html')
 
 class configuration:
-    conf = common.ConfigHandler()
-
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
     def POST(self, function_name = ""):
-        print web.input()
+        print "post_param:%s" % str(web.input())
         return common.eval_args( self, function_name, web.input() )
 
     def get_group(self,request_type):
+        conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
-        return json.dumps(self.conf.get_group(request_type))
+        return json.dumps(conf.get_group(request_type))
 
     def set_config(self, request_type, key, value):
-        return json.dumps(self.conf.set_config(request_type, key, value))
+        conf = handler.ConfigHandler()
+        web.header("Content-Type","application/json")
+        return json.dumps(conf.set_config(request_type, key, value))
+
+    def del_config(self, request_type, key):
+        conf = handler.ConfigHandler()
+        web.header("Content-Type","application/json")
+        return json.dumps(conf.del_config(request_type, key))
 
 class monitor:
     def GET(self, function_name = ""):

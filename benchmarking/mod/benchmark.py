@@ -1,5 +1,5 @@
 import subprocess
-from conf import common
+from conf import *
 import copy
 import os, sys
 import time
@@ -10,7 +10,7 @@ lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 class Benchmark(object):
     def __init__(self):
-        self.all_conf_data = common.Config(lib_path+"/conf/all.conf")
+        self.all_conf_data = config.Config(lib_path+"/conf/all.conf")
         self.benchmark = {}
         self.cluster = {}
         self.pwd = os.path.abspath(os.path.join('..'))

@@ -6,7 +6,7 @@
  *******************************************/
 @charset "utf-8";
 
-#table_id,#table_benchmark_id{margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left;border:1px solid  #CCC;}
+#table_id,#table_benchmark_id{margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left; border:1px solid  #CCC;}
 #table_benchmark_id{ margin-top:15px;}
 
 #table_id tr{ border:1px solid #CCC;}
@@ -24,14 +24,56 @@ td{ height:30px;}
 
 .td_class{ border:1px solid #CCC; text-align:left; width:auto;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
 
-
-.btn_okcancel_class{ padding:3px 5px 3px 5px; width:70px; margin-left:5px; font-family:Arial; font-weight:bold;
-                     background-color: #D3D3D3; color:#000; border-top:1px solid #666; border-left:1px solid #666; cursor:pointer;}
 					 
 .text_class{ background-color: #F1F1F1; color: #000; border-top:1.5px solid #666; border-left:1.5px solid #666; font-weight:bold;}
-.label_class{ cursor:pointer;}
+.label_class{ cursor:pointer;
+              word-wrap:break-word;word-break:keep-all;overflow:hidden; width:80%; height:80%;}
 
 .table_class tr.altrow{ background:#f0f0f0;}
 .error{ background: #FF0; color:#F00;}
 
 #div_benchmark_button_id{ margin-top:15px; }
+/**********************************************************************************************************************************/
+.cetune_table{ 
+   color: #000;
+   font-family: Helvetica, Arial, sans-serif;
+   table-layout: fixed; 
+   border: 1px solid #CCC;
+   border-spacing: 0; 
+   border-collapse:collapse; 
+   margin-top:3px;
+}
+
+
+.cetune_table td, th { 
+   border: 1px solid transparent; /* No more visible border */
+   height: 30px; 
+   width: 120px;
+   transition: all 0.3s;  /* Simple transition for hover effect */
+}
+
+.cetune_table th {
+    /*background: #DFDFDF;   Darken header a bit */
+    font-weight: bold;
+    text-align: left;
+}
+
+.cetune_table td {
+    /*background: #FAFAFA;*/
+    text-align: left;
+}
+
+/* Cells in even rows (2,4,6...) are one color */	
+.cetune_table tr:nth-child(even) td { background: #F1F1F1; }   
+
+/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */	
+.cetune_table tr:nth-child(odd) td { background: #FEFEFE; }  
+
+.cetune_pic {
+    width: 1000px;
+    margin:0 auto;
+}
+
+.cetune_table { cursor: pointer;}
+.cetune_table tr:hover td{background: #CCFFCC;}
+.cetune_table tr:hover{ background: #FFC;}

@@ -2,12 +2,13 @@
    JavaScript Document
    Author: Sean,Lin
    E-mail:  xiangx.lin@intel.com
-   Date:2015-09-10
+   Date:2015-09-16
    Descrption: 
 **********************************/
-
+//http://192.168.5.22:8080/configuration/get_group?request_type=cluster
 var address_Configuration_Get="../configuration/get_group?request_type=";
-var address_Configuration_Set="";
+var address_Configuration_Set="../configuration/set_config";
+var address_Delete="../configuration/del_config";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";
 var address_Report_Detail="../results/get_detail";
@@ -30,6 +31,9 @@ function RunStatus_Timer(){
     if(cetune_status.indexOf("running"))
     {
         $("#div_top_status_id a").text(cetune_status);
+		
+		
+		
     }
     else
     {
@@ -68,32 +72,66 @@ function Console_Timer(){
 function Report_Timer(){
     var reportSummaryData = GetDataByAjax(address_Report);
     reportSummaryData = reportSummaryData.replace(/<script>.*<\/script>/,'');
-    $("#div_Reports_id").html(reportSummaryData);
-    $("#div_Reports_id tr").dblclick(function(){
+    $("#div_Reports").html(reportSummaryData);
+	
+	
+	//----------------------------------------------
+    $("#div_Reports tr").dblclick(function(){
+		
+		
         var session_name = $(this).attr("id"); 
-        var detailReport = GetDataByAjax_POST(address_Report_Detail, {"session_name": session_name})
-        detailReport = detailReport.replace(/src=["'].\/include\/pic\/(\S*).png["']/g,'attr="$1"');
-        detailReport = detailReport.replace(/<script>.*<\/script>/,'');
-        $("#div_menu_id ul").append("<li style='max-width:100px; overflow:hidden; white-space: nowrap; text-overflow:ellipsis; padding-right:10px;' title='"+session_name+"'><a id='menu_"+session_name+"'>"+session_name+"</a></li>")
-        $(".div_tab_class").last().after("<div id='div_"+session_name+"' class = 'div_tab_class'></div>")
-        $("#div_"+session_name).html( detailReport );
-        $("#div_"+session_name).hide();
-        $("#div_"+session_name+" #tabs" ).tabs();
-        $("#div_"+session_name+" .cetune_pic").hide();
-        $("#menu_"+session_name).click();
+		
+		var isAdd=true;
+		$("#div_menu_id ul li").each(function(index,value){   
+             var a_title  = $(this).attr("title");
+             if(a_title == session_name){
+              isAdd = false;
+			  return false;
+            }           
+       });
+	   
+	   if(isAdd != false){
+		     var detailReport = GetDataByAjax_POST(address_Report_Detail, {"session_name": session_name})
 
-        $( ".cetune_table a" ).click(function(){
-            $(this).parents('.cetune_table').parent().children('.cetune_pic').hide();
-            var id=$(this).attr('id'); 
-            pic = $(this).parents('.cetune_table').parent().children('#'+id+'_pic').children("img");
-            pic_name = pic.attr("attr");
-            if(pic.attr("src") == undefined){
-                pic.attr("src", address_Report_Detail_pic+"?session_name="+session_name+"&pic_name="+pic_name+".png" );
-                pic.next().attr("href", address_Report_Detail_csv+"?session_name="+session_name+"&csv_name="+pic_name+".csv");
-                pic.parent().show();
-                pic.next().click(function(){url=$(this).attr("href");location.href=url})
-            }
-        });
+             detailReport = detailReport.replace(/src=["'].\/include\/pic\/(\S*).png["']/g,'attr="$1"');
+             detailReport = detailReport.replace(/<script>.*<\/script>/,'');
+             //style='max-width:100px; overflow:hidden; white-space: nowrap; text-overflow:ellipsis;
+		     var appendHtml = "<li id='menu_li_"+session_name+"' class='li_add_menu_class' padding-right:10px;' title='"+session_name+"'>";
+			 var str;
+		     if(session_name.length >= 4){
+			    str=session_name.substring(0,4) + " ...";
+		     }
+			 
+			 appendHtml +="<a id='menu_"+session_name+"'>"+ str +"</a>";
+		
+		     appendHtml +="<img class='img_menu_li_cancel_class' src='image/cancel.png'>";
+		     appendHtml +="</li>";
+			 
+			 
+			$("#div_menu_id ul").append(appendHtml);
+			
+			$(".div_tab_class").last().after("<div id='div_"+session_name+"' class = 'div_tab_class'></div>")
+			$("#div_"+session_name).html( detailReport );
+			$("#div_"+session_name).hide();
+			//$("#div_"+session_name+" #tabs" ).tabs();
+			$("#div_"+session_name+" .cetune_pic").hide();
+			$("#menu_"+session_name).click();
+			  
+			
+           $( ".cetune_table a" ).click(function(){
+			  $(this).parents('.cetune_table').parent().children('.cetune_pic').hide();
+			  var id=$(this).attr('id'); 
+			  pic = $(this).parents('.cetune_table').parent().children('#'+id+'_pic').children("img");
+			  pic_name = pic.attr("attr");
+			  if(pic.attr("src") == undefined){
+				  pic.attr("src", address_Report_Detail_pic+"?session_name="+session_name+"&pic_name="+pic_name+".png" );
+				  pic.next().attr("href", address_Report_Detail_csv+"?session_name="+session_name+"&csv_name="+pic_name+".csv");
+				  pic.parent().show();
+				  pic.next().click(function(){url=$(this).attr("href");location.href=url})
+			  }//if
+           });
+		    
+	   }//if
     });
 }
 
@@ -110,17 +148,22 @@ function GetTimestamp(){
 
 /*******************************************************************************************************/
 $(document).ready(function(){
-   
-   //set button style for jquery ui
-   $(".bnt_Confguration_tableOper_class").button();
-   
-   //tab menu style click
+      
+    //init seting-------------------------------------------------------------------------
+   Init(); 
+	  
+   //tab menu style click-----------------------------------------------------------------
+   //$("#div_menu_id ul li").click(function(){
    $("#div_menu_id ul").delegate("li", "click", function(){
-              
+
         //set menu style
         $("#div_menu_id ul li").removeClass("tab_background_click");
         $(this).addClass("tab_background_click");
         
+		//show the cancel img
+		 $("#div_menu_id ul li").children("img").hide();
+		 $(this).children("img").show();
+		
         //show and hide the sub div
         var index = $(this).index();
         $(".div_tab_class").eq(index).show().siblings(".div_tab_class").hide();
@@ -139,6 +182,10 @@ $(document).ready(function(){
                break;
             
             case "menu_Status_id": 
+			
+			    //init left li style, default select first li
+			    $(".div_Status_left_nav_li_class > a").eq(0).addClass('active');
+				
                 clearTimer(timer_RunStatus);
                 clearTimer(timer_Report);
                 Console_Timer();
@@ -156,21 +203,62 @@ $(document).ready(function(){
                 clearTimer(timer_RunStatus);
                 clearTimer(timer_Console);
                 clearTimer(timer_Report);
-        }
-        
+        }//switch
+		 
         //start timer for this tab
         
-        //
-                
-    })
+        //      
+    });
+	
+	//delegate("li", "click", function()
+	
+	   $("#div_menu_id ul").delegate(".img_menu_li_cancel_class", "mousemove", function(){
+		   $(this).addClass("img_active");
+	    });
+	    $("#div_menu_id ul").delegate(".img_menu_li_cancel_class", "mouseover", function(){
+		   $(this).removeClass("img_active");
+	    });
+	    $("#div_menu_id ul").delegate(".img_menu_li_cancel_class", "mouseout", function(){
+		   $(this).removeClass("img_active");
+    	});
+		//cancel tab
+		$("#div_menu_id ul").delegate(".img_menu_li_cancel_class", "click", function(event){
+					
+			//show the prev element tab div
+			var currentDiv_id = "div_" + $(this).parent().attr("title");
+			var prevDiv_id = "div_" + $(this).parent().prev().attr("title");
 
-    //left sub menu click
+			$("#"+currentDiv_id).remove();
+			/*$(".div_tab_class").hide();
+            $("#"+prevDiv_id).show();*/
+		    
+			//add class to prev element and show cancel img
+		/*	$(this).parent().prev().addClass("tab_background_click");
+			$(this).parent().prev().children("img").show();*/
+			
+
+			 //remove current parnet element(li)
+			$(this).parent().remove();
+		    $("#Reports_id").click();
+			event.stopPropagation();    //  Stop the event bubbling
+		/*	$("#Reports_id").addClass("tab_background_click");
+			$("#Reports_id").children("img").show();
+			$("div_Reports").show();*/
+			
+	    });
+	
+	
+	
+
+    //left sub menu click--------------------------------------------------------
     $("#dl_Configuration_left_nav_accordion_id ul li a").click(function(e){
         //(1) change right page title 
         var title = $(this).text();            
         $("#div_Configuration_right_top_titel_id").html(title);
         //(2) display data table      
         var id = $(e.target).attr('id');
+
+        $("#div_Configuration_right_top_titel_id").attr("title",id);
         
         // display the table when cilic the sub mune, arg is li a element's id
         //-----------------------------------------------    
@@ -178,9 +266,9 @@ $(document).ready(function(){
         //LocalTest_DisplayConfiguationDataTable(id);// code for local test
         //-----------------------------------------------            
     });
+	
     
-    
-    //traverse the sub menu li, check Configuation Data is true
+    //traverse the sub menu li, check Configuation Data is true----------------------------------
     $("#dl_Configuration_left_nav_accordion_id ul li a").each(function(index,value){
          var id = this.id;
          
@@ -218,34 +306,38 @@ $(document).ready(function(){
         IntoRuningMode();
     });
     
-   //init seting
-   Init();
+  
+   
 
 });
 
 
+
 //init setting
 function Init(){
-    
+     
     //(1)tab seting
     $("#div_menu_id ul li").eq(0).addClass("tab_background_click");
     $(".div_tab_class").eq(0).show().siblings(".div_tab_class").hide();
-    
+
     //(2)display the table for first sub mune (li a element's id) when the page load , defalut is "workflow"
     //-----------------------------------------------------------------------------
-    //DisplayConfiguationDataTable("workflow"); //code on server
+    DisplayConfiguationDataTable("cluster"); //code on server
     //LocalTest_DisplayConfiguationDataTable("workflow"); // code for local test
+	//$(".div_Configuration_left_nav_li_class").first().children("a").click();   
     //-----------------------------------------------------------------------------
-    
+ 
     //(3)change the title    
-    //var title = $("#dl_Configuration_left_nav_accordion_id ul li").eq(0).children("a").text();
-    //$("#div_Configuration_right_top_titel_id").html(title);
-    
+    var title = $("#dl_Configuration_left_nav_accordion_id ul li").eq(0).children("a").text();
+    $("#div_Configuration_right_top_titel_id").html(title);
+	var a_id = $("#dl_Configuration_left_nav_accordion_id ul li").eq(0).children("a").attr("id");
+    $("#div_Configuration_right_top_titel_id").attr("title",a_id);
+	 
+	
     //(4)decide server is runing,start the timer;
     RunStatus_Timer();
     timer_RunStatus = setInterval(RunStatus_Timer,interval_RunStatus);
-
-    $(".div_Configuration_left_nav_li_class").first().children("a").click()    
+	
 }
 
 //decide this json data is content error check
@@ -297,7 +389,7 @@ function DisplayConfiguationDataTable(request_type){
     //(1) get data for json obj
     var jsonObj_Config = GetConfigurationData(request_type);
     
-    var address_Benchmark = "?"; // not finish!!!
+    var address_Benchmark = "../configuration/get_group?request_type=testcase"; 
     var jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
     
     //(2) display table

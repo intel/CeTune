@@ -2,7 +2,7 @@ import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 from visualizer import *
 import os, sys
 import time
@@ -27,7 +27,7 @@ class Analyzer:
         else:
             self.cluster["dest_dir"] = dest_dir
         self.cluster["dest_dir_root"] = dest_dir
-        self.all_conf_data = common.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
+        self.all_conf_data = config.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")

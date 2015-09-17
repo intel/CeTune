@@ -17,23 +17,28 @@
 <link rel="stylesheet" type="text/css" href="css/NavStyle.css">
 <link rel="stylesheet" type="text/css" href="js/jquery-ui-1.11.4/jquery-ui.css">
 
+<link rel="stylesheet"  href="bootstrap3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="bootstrap3.3.5/css/bootstrap-theme.min.css">
+
+
 <script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="bootstrap3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/nav.js"></script>
 <script type="text/javascript" src="js/Script.js"></script>
 <script type="text/javascript" src="js/Common.js"></script>
 <script type="text/javascript" src="js/Dialog.js"></script>
 
 
-<script type="text/javascript" src="js/jquery-ui-1.11.4/jquery-ui.js"></script>
 </head>
 
 <body>
-<div id="div_main_id">
+ <div id="div_main_id" class="container">
    <div id="div_menu_id">
      <ul>
-      <li><a id="menu_Configuration_id">Test Configuration</a></li>
-      <li><a id="menu_Status_id">CeTune Status</a></li>
-      <li><a id="menu_Reports_id">Result Reports</a></li>
+      <li id="Configuration_id" title="Configuration"><a id="menu_Configuration_id">Test Configuration</a></li>
+      <li id="Status_id" title="Status"><a id="menu_Status_id">CeTune Status</a></li>
+      <li id="Reports_id" title="Reports"><a id="menu_Reports_id">Result Reports</a></li>
      </ul>
    </div>
 
@@ -42,12 +47,12 @@
        <h1><a href="#">CeTune</a></h1>
     </div>
      <div id="div_top_status_id">
-       <h1><a href="#"> <img id="img_top_id" src="image/progruss.jpg" />Benchmark is runing.....</a></h1>
+       <h1><a href="#"><img id="img_top_id" src="image/progruss.jpg" />Benchmark is runing.....</a></h1>
     </div>
    </div>
 
- <div id="div_Content_id">
-   <div id="div_Configuration_id" class = "div_tab_class">
+   <div id="div_Content_id">
+   <div id="div_Configuration" class = "div_tab_class">
      
      <div id = "div_Configuration_left_id" class="div_content_left_class">
         <div id ='div_sidebar_id'>
@@ -61,8 +66,8 @@
                       <div>
                         <h4><div>Deploy</div></h4>            
                         <ul>           
-                          <li  class="div_Configuration_left_nav_li_class"><a id="cluster" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
+                          <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
                         </ul> 
                       </div>
                  
@@ -95,9 +100,19 @@
          <div id="div_Configuration_right_top_id">
             <div id="div_Configuration_right_top_titel_id">Benchmark Configuration</div>
             <div id="div_Configuration_right_top_button_id">              
-              <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
+              <!-- <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
               <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
-              <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>
+              <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>-->
+              
+          <!--    <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
+              <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
+              <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>-->
+              <button  id="bnt_Confguration_add_id" type="button" class="btn btn-primary" data-toggle="modal" data-target="#ConfigurationModal" data-whatever="@mdo">Add</button>
+               <button id="bnt_Confguration_delete_id" type="button" class="btn btn-primary" data-toggle="modal"  data-target="#DeleteModal" data-whatever="@mdo">Delete</button>
+             <!-- <button id="bnt_Confguration_more_id" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">More</button>-->
+             
+              
+             
             </div>
             <div id="div_Configuration_right_table_id">
             </div>
@@ -108,47 +123,207 @@
      
   </div>
   
-   <div id="div_Status_id" class = "div_tab_class">
-     <!--<div id = "div_Status_left_id" class="div_content_left_class"></div>-->
-      <div id="div_console_id">
-        
-      </div>
+   <div id="div_Status" class = "div_tab_class">
+     <div id = "div_Status_left_id" class="div_content_left_class">
+        <div id ='div_sidebar_id_status'>
+          <div>
+             <dl id="dl_Status_left_nav_accordion_id">
+                <dt>
+                  <div>CeTune</div>
+                </dt>
+                <!--------------->
+                <dd>
+                   <div>
+                       <ul>           
+                          <li class="div_Status_left_nav_li_class"><a id="Cetune_Status" href="#">CeTune Status</a></li>
+                          <!--<li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>-->  
+                        </ul> 
+                   </div>
+                </dd>
+             </dl>
+          </div>
+        </div>
+     </div>
+     <div id = "div_Status_right_id" class="div_content_right_class">
+        <div id="div_console_id">
+        </div>
+     </div>
+       
   </div>
   
-   <div id="div_Reports_id" class = "div_tab_class">
+   <div id="div_Reports" class = "div_tab_class">
      <!--<div id = "div_Reports_left_id" class="div_content_left_class"></div>
      <div id = "div_Reports_right_id" class="div_content_right_class">div_Reports_id</div>-->
   </div>
   
   </div>
 
-  <div id="div_buttom_id"></div>
+   <div id="div_buttom_id"></div>
   </div>
 
  </div>
- 
-</body>
 
+<!---------------------------------------- Model Window---------------------------------------------------------->
 
-<div id="dialog-form" title="Create new row" style="display:none;">
-
-  <p class="validateTips">Add a new row for CeTune Config</p>
-  <form>
-    <fieldset>
-   
-      <label for="email" style="width:150px">Key:</label>
-      <input type="text" name="email" id="email" value="" class="text ui-widget-content ui-corner-all">
+<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">Are you sure delete thers rows?</h4>
+      </div>
       
-      <br>
-      <label for="password" style="width:150px">Value:</label>
-      <input type="text" name="password" id="password" value="" class="text ui-widget-content ui-corner-all">
-      <!-- Allow form submission with keyboard without duplicating the dialog button -->
-      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
-
-    </fieldset>
-
-  </form>
-
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="DeleteModal_OK" onclick="DeleteModal_OK('configuration')">Apply</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
 </div>
+
+<div class="modal fade" id="DeleteBenchmarkModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">Are you sure delete thers rows?</h4>
+      </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="DeleteModal_OK" onclick="DeleteModal_OK('benchmark')">Apply</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+
+<!----------------------------------------------------------------------------------------------------------------------------------->
+
+<div class="modal fade" id="ConfigurationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">Add a new row for configuration</h4>
+      </div>
+      
+      
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-key" class="control-label">Key:</label>
+            <input type="text" class="form-control" id="recipient-key">
+          </div>
+           
+          <div class="form-group">
+            <label for="message-value" class="control-label">Value:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-value">
+          </div>
+          
+
+          
+        </form>
+      </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="ConfigurationModal_OK" onclick="ConfigurationModal_OK()">OK</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+<!----------------------------------------------------------------------------------------------------------------------------------->
+
+<div class="modal fade" id="BenchmarkModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">Add a new row for benchmark</h4>
+      </div>
+      
+      
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-benchmark_engine" class="control-label">benchmark_driver:</label>
+            <input type="text" class="form-control" id="recipient-benchmark_engine">
+          </div>
+          
+          <div class="form-group">
+            <label for="message-dsc" class="control-label">worker:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-worker">
+          </div>
+          
+          <div class="form-group">
+            <label for="message-value" class="control-label">container_size:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-container_size">
+          </div>
+          
+          <div class="form-group">
+            <label for="message-value" class="control-label">iopattern:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-io_pattern">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">opsize:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-block_size">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">object_size/QD:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-work_depth">
+          </div>
+          
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">rampup:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-ramup_time">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">runtime:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-run_time">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">device:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-devcie">
+          </div>
+          
+        </form>
+      </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="BenchmarkModel_OK" onclick="BenchMarkModel_OK()">OK</button> 
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>           
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+
+
+
+</body>
 
 </html>

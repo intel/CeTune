@@ -1,7 +1,7 @@
 import os,sys
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 from deploy import *
 from benchmarking import *
 import os, sys
@@ -14,7 +14,7 @@ pp = pprint.PrettyPrinter(indent=4)
 class Tuner:
     def __init__(self):
         self.cur_tuning = {}
-        self.all_conf_data = common.Config("../conf/all.conf")
+        self.all_conf_data = config.Config("../conf/all.conf")
         self.worksheet = common.load_yaml_conf("../conf/tuner.yaml")
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")

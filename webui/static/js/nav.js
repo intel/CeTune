@@ -7,7 +7,7 @@
 **********************************/
 
 $(function(){
-	
+
  var allPanelGroupBodies = $('#dl_Configuration_left_nav_accordion_id > dd > div > ul');
  
   
@@ -19,7 +19,7 @@ $(function(){
   });
   
   var myPanelGroupHeader = $(this);
-	   myPanelGroupHeader.addClass("active");   
+    myPanelGroupHeader.addClass("active");
   
   
   // mark the active panel group

@@ -4,7 +4,7 @@ import time
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 this_file_path = os.path.dirname(os.path.abspath(__file__))
 from benchmarking.mod.benchmark import *
-from conf import common
+from conf import *
 import itertools
 from collections import OrderedDict
 from deploy import *

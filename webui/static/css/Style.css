@@ -16,7 +16,7 @@ body{ margin:0px; padding:0px;}
 #div_menu_id{ width:100%; height:25px;background: #000; margin:0; padding:0; border-bottom:1px solid #0CF;}
 #div_menu_id ul{ list-style:none; font-size:13px; color:#FFF; margin:0; padding-top:6px;}
 #div_menu_id ul li{ float:left;  margin-left:5px; cursor:pointer;}
-#div_menu_id ul li a{ padding:2px 15px 2px 15px; cursor:pointer;}
+#div_menu_id ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#FFF; text-decoration:none;}
 
 .tab_background_click{ 
                font-weight:550;
@@ -51,9 +51,9 @@ body{ margin:0px; padding:0px;}
  
 /***************************************************************************************************************/ 
 .div_tab_class{width:95%;height:auto; margin:0 auto; background-color:#FFF; margin-bottom:15px;}
-#div_Configuration_id{ width:100%; display:block;}
-#div_Status_id{width:100%;  display:none;}
-#div_Reports_id{width:100%; display:none;}
+#div_Configuration{ width:100%; display:block;}
+#div_Status{width:100%;  display:none;}
+#div_Reports{width:100%; display:none;}
 
 .tab_div_display{display:block;}
 
@@ -96,7 +96,7 @@ body{ margin:0px; padding:0px;}
                                    padding-top:100px; margin-left:-10px;margin-right:-10px;}
 
 /***************************************************************************************************************/
-#div_Status_id{ height:500px; min-height:500px; margin-top:5px;}
+#div_Status{ height:500px; min-height:500px; margin-top:5px;}
 #text_Status_id{  margin-left:10px;
                   width:95%;height:500px; min-height:500px; 
                   background-color: #000; color:#0F0; 
@@ -112,47 +112,12 @@ body{ margin:0px; padding:0px;}
     font-family:Arial;
     overflow:scroll;
 }
+
+.img_Configuration_class{ width:13px; height:13px; }/*tab cancel*/
+.img_menu_li_cancel_class{width:15px; height:15px; float:right; position:relative;  margin-top:-5px; margin-right:-5px;}
+.img_active{width:17px; height:17px; cursor:pointer;margin-top:-6px; margin-right:-6px;}	  
 /***************************************************************************************************************/
-.img_Configuration_class{ width:13px; height:13px; }
+
 
 #div_Content_id{ margin:0; margin-bottom:2px; padding-bottom:15px; width:100%; height:auto;}
 
-.cetune_table{ 
-color: #333;
-font-family: Helvetica, Arial, sans-serif;
-table-layout: fixed; 
-border: 1px solid #999;
-border-spacing: 0; 
-}
-
-.cetune_table td, th { 
-border: 1px solid transparent; /* No more visible border */
-height: 30px; 
-width: 120px;
-transition: all 0.3s;  /* Simple transition for hover effect */
-}
-
-.cetune_table th {
-background: #DFDFDF;  /* Darken header a bit */
-font-weight: bold;
-text-align: left;
-}
-
-.cetune_table td {
-background: #FAFAFA;
-text-align: left;
-}
-
-/* Cells in even rows (2,4,6...) are one color */	
-.cetune_table tr:nth-child(even) td { background: #F1F1F1; }   
-
-/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */	
-.cetune_table tr:nth-child(odd) td { background: #FEFEFE; }  
-
-.cetune_pic {
-width: 1000px;
-margin:0 auto;
-}
-
-.cetune_table { cursor: pointer;}
-.cetune_table tr:hover td{background: #CCFFCC;}

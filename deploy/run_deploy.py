@@ -1,7 +1,7 @@
 import os,sys
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 import time
 import pprint
 import re

@@ -5,7 +5,7 @@ sys.path.append(lib_path)
 import argparse
 import socket
 from deploy import *
-import common
+from conf import *
 lib_path = os.path.dirname(os.path.abspath(__file__))
 
 class Deploy_RGW(Deploy) :

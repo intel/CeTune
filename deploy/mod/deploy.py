@@ -1,7 +1,7 @@
 import os,sys
 lib_path = os.path.abspath(os.path.join('../conf/'))
 sys.path.append(lib_path)
-import common
+from conf import *
 import time
 import pprint
 import re
@@ -15,7 +15,7 @@ from collections import OrderedDict
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy(object):
     def __init__(self, tunings=""):
-        self.all_conf_data = common.Config("../conf/all.conf")
+        self.all_conf_data = config.Config("../conf/all.conf")
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")

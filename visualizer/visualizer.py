@@ -2,7 +2,7 @@ import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 import os, sys
 import time
 import pprint
@@ -25,7 +25,7 @@ class Visualizer:
                 all_path = '%s/%s' % ( path, 'conf' )
             else:
                 all_path = path
-        self.all_conf_data = common.Config("%s/all.conf" % all_path)
+        self.all_conf_data = config.Config("%s/all.conf" % all_path)
         self.result = result
         self.output = []
         if path:
