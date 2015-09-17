@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>li </title>
+<script type="text/javascript" src="js/jquery.js"></script>
+<style>
+ul{ list-style:none; }
+li{float:left; margin:5px 15px 5px 15px; border: 1px solid #000; }
+a{padding:5px 15px 5px 15px;}
+.divc{ width:12px; height:12px; background-color:#F00; float:right; position:static; 
+       margin-top:-4px; margin-right:-3px;
+       border-radius:10px;
+       -moz-border-radius:5px;
+	   -webkit-border-radius:5px;
+	   broder-radius:5px;
+	   background-image:url(image/cancle.png);
+	  }
+	  
+   .imgc{ width:15px; height:15px; float:right; position:static;  margin-top:-6px; margin-right:-5px;
+	  }
+	  
+   .img_active{width:20px; height:20px; cursor:pointer;margin-top:-8px; margin-right:-7px;}	  
+	   
+	  #div1{ width:250px; height:150px; border:1px solid #000; text-overflow:scroll; overflow:scroll; word-wrap:break-word;background-color:#000;}
+      #textarea1{ width:250px; height:150px; border:1px solid #000; text-overflow:scroll; overflow:scroll; }
+	  #d1{ color:#F00;}
+	  #d2{ color: #33C;}
+	  #d3{ color:  #0F0;}
+	  
+</style>
+<script>
+
+$(function(){
+	$(".imgc").mousemove(function(){
+		$(".imgc").addClass("img_active");
+	});
+	$(".imgc").mouseover(function(){
+		$(".imgc").removeClass("img_active");
+	});
+	$(".imgc").mouseout(function(){
+		$(".imgc").removeClass("img_active");
+	});
+	$(".imgc").click(function(){
+		$("#aaa").remove();
+	});
+});
+
+</script>
+</head>
+
+<body>
+<ul>
+  <li id="aaa"><a>123</a><img class="imgc" src="image/cancel.png"></li>
+  <li><a>123</a><img class="imgc" src="image/cancle.png"></li>
+  <li><a>123</a><img class="imgc" src="image/cancle.png"></li>
+<ul>
+
+<div id="div1">
+ 
+ <div id="d1">asdfjasdlfkjaskldjflasdkfjkasdjfkjasdkfadsfdasfsadfj</div>
+<div id="d2"> asdfjasdlfkjaskldjflasdkfjkasdjfkjasdkfj</div>
+ <div id="d3"> asdfjasdlfkjaskldjflasdkfjkasdjfkjasdkfj</div>
+</div>
+
+<textarea id="textarea1">
+ 
+ <font color="#FF0000">asdfjasdlfkjaskldjflasdkfjkasdjfkjasdkfj</font>
+ <red>asdfjasdlfkjaskldjflasdkfjkasdjfkjasdkfj</red>
+ asdfjasdlfkjaskldjflasdkfjkasdjfkjasdkfj
+</textarea>
+
+</body>
+</html>
