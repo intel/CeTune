@@ -211,7 +211,6 @@ def scp(user, node, localfile, remotefile):
     if stderr:
         print('scp: %s' % args)
         printout("ERROR",stderr+"\n")
-        sys.exit()
 
 def rscp(user, node, localfile, remotefile):
     args = ['scp', '-oConnectTimeout=15', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
@@ -220,7 +219,6 @@ def rscp(user, node, localfile, remotefile):
     if stderr:
         print('rscp: %s' % args)
         printout("ERROR",stderr+"\n")
-        sys.exit()
 
 # scp from one remote machine to another remote machine
 def rrscp(user, node1, node1_file, node2,node2_file):
