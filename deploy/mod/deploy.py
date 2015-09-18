@@ -32,9 +32,8 @@ class Deploy(object):
         self.cluster["ceph_conf"]["global"]["mon_data"] = "/var/lib/ceph/mon.$id"
         self.cluster["ceph_conf"]["global"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
 
-        if self.all_conf_data.get("ceph_conf"):
-            for key, value in self.all_conf_data.get("ceph_conf").items():
-                self.cluster["ceph_conf"]["global"][key] = value
+        for key, value in self.all_conf_data.get_group("ceph_hard_config").items():
+            self.cluster["ceph_conf"]["global"][key] = value
 
         ip_handler = common.IPHandler()
         subnet = ""

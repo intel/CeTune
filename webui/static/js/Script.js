@@ -15,6 +15,8 @@ var address_Report_Detail="../results/get_detail";
 var address_Report_Detail_pic="../results/get_detail_pic";
 var address_Report_Detail_csv="../results/get_detail_csv";
 var address_GetRuningStatus="../monitor/cetune_status";
+var address_IntoRuningMode="../configuration/execute";
+var address_ExitRuningMode="../configuration/cancel";
 
 var timer_RunStatus;
 var timer_Console;
@@ -28,16 +30,17 @@ var interval_Report=30000;
 
 function RunStatus_Timer(){
     var cetune_status = GetDataByAjax(address_GetRuningStatus);//?
-    if(cetune_status.indexOf("running"))
+    if(cetune_status.indexOf("running")>=0)
     {
         $("#div_top_status_id a").text(cetune_status);
-		
-		
-		
+        $("#div_Configuration_right_back_id").show()
     }
     else
     {
+        $("#div_Configuration_right_back_id").hide(); 
         clearTimer(timer_RunStatus);
+        $("#div_top_status_id a").text(cetune_status);
+        $("#bnt_Configuration_exec_id").attr("value","Execute")
     }
 }
 
@@ -46,13 +49,15 @@ function Console_Timer(){
     var timestamp = GetTimestamp();
     
     //(2) request ajax
-    var data;
-    if(timestamp!="" | timestamp == null)
+    var data ;
+    if(timestamp!="" & typeof(timestamp) != "undefined" & timestamp != undefined)
     {
        data ={"timestamp":timestamp};
+       var consoleData = GetDataByAjax_POST(address_Status,data);
+    }else{
+       var consoleData = GetDataByAjax(address_Status);
     }
     
-    var consoleData = GetDataByAjax_POST(address_Status,data);
     if(consoleData.content == "")
         return 
     //create content html
@@ -186,21 +191,18 @@ $(document).ready(function(){
 			    //init left li style, default select first li
 			    $(".div_Status_left_nav_li_class > a").eq(0).addClass('active');
 				
-                clearTimer(timer_RunStatus);
                 clearTimer(timer_Report);
                 Console_Timer();
                 timer_Console = setInterval(Console_Timer,interval_Console);
                break;
                
             case "menu_Reports_id": 
-                clearTimer(timer_RunStatus);
                 clearTimer(timer_Console);
                 Report_Timer();
                 timer_Report = setInterval(Report_Timer,interval_Report);
                 break;
                 
             default: 
-                clearTimer(timer_RunStatus);
                 clearTimer(timer_Console);
                 clearTimer(timer_Report);
         }//switch
@@ -303,7 +305,29 @@ $(document).ready(function(){
         
         
         //2 into the runing mode
-        IntoRuningMode();
+        var stat = $(this).attr("value");
+        if(stat=="Execute"){
+            var result = GetDataByAjax(address_IntoRuningMode);  // code on server
+            if(result != "false"){
+                 $(this).attr("value","Cancel Job")
+                 //show the runing status logo and title on top bar;
+                 $("#div_top_stauts_id h1").show(); 
+                 // a back div for keep out right opertion elements;
+                 $("#div_Configuration_right_back_id").show(); 
+                 $("#menu_Status_id").click();
+            }else{
+                 alert("Failed to start");
+            }
+        }
+        if(stat=="Cancel Job"){
+            var result = GetDataByAjax(address_ExitRuningMode);  // code on server
+            if(result=="true"){
+                 $(this).attr("value","Execute")
+                 $("#div_Configuration_right_back_id").hide(); 
+                 $("#menu_Status_id").click();
+            }
+        }
+
     });
     
   
@@ -446,10 +470,6 @@ function GetDataByAjax(addressURL){
 //into the server runing Mode
 function IntoRuningMode()
 {
-    //show the runing status logo and title on top bar;
-    $("#div_top_stauts_id h1").show(); 
-    // a back div for keep out right opertion elements;
-    $("#div_Configuration_right_back_id").show(); 
 }
 
 

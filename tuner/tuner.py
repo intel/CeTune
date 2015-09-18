@@ -9,6 +9,8 @@ import time
 import pprint
 import re
 import json
+import argparse
+import threading
 
 pp = pprint.PrettyPrinter(indent=4)
 class Tuner:
@@ -40,12 +42,12 @@ class Tuner:
         controller = self.cluster["head"]
         osds = self.cluster["osds"]
         pwd = os.path.abspath(os.path.join('..'))
-        if "cosbench" in self.cluster["benchmark_engine"]:
+        if len(self.cluster["rgw"]):
             with_rgw = True
         else:
             with_rgw = False
         for section in self.worksheet:
-            for work in self.worksheet[section]['workstages']:
+            for work in self.worksheet[section]['workstages'].split(','):
                 if work == "deploy":
                     common.printout("LOG","Check ceph version, reinstall ceph if necessary")
                     self.apply_version(section)
@@ -306,7 +308,7 @@ class Tuner:
                     if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                         self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
             if tuning_key in ['global','osd','mon']:
-                if "cosbench" in self.cluster["benchmark_engine"]:
+                if len(self.cluster["rgw"]):
                     with_rgw = True
                 else:
                     with_rgw = False
@@ -397,6 +399,27 @@ class Tuner:
         else:
             return False
 
-tuner = Tuner()
-tuner.run()
+def main(args):
+    parser = argparse.ArgumentParser(description='tuner')
+    parser.add_argument(
+        '--by_thread',
+        default = False,
+        action = 'store_true'
+        )
+    args = parser.parse_args(args)
+    tuner = Tuner()
+    if args.by_thread:
+        print "tuner by thread"
+        new_thread = threading.Thread(target=tuner.run, args=())
+        new_thread.daemon = True
+        new_thread.start()
+        return new_thread
+    else:
+        tuner.run()
+        return None
+
+if __name__ == '__main__':
+    print "enter tuner"
+    tuner = Tuner()
+    tuner.run()
 #tuner.apply_tuning('testjob1')

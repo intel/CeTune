@@ -245,7 +245,7 @@ function CreateTableHTML_Benchmark(jsonObj){
 //label click opertion
 function Label_Click(count,value){	
 	var rowNum = count;	
-    olabel = document.getElementById("label_id_"+rowNum);
+        olabel = document.getElementById("label_id_"+rowNum);
 	olabel.style.backgroundColor = "#cff";
 	
 	otd = document.getElementById("td_value_id_"+rowNum);
@@ -305,7 +305,7 @@ function Label_benchmark_Click(count,value){
 
 	var rowNum = count;	
 	alert(count);
-    olabel = document.getElementById("label_benchmark_id_"+rowNum);
+        olabel = document.getElementById("label_benchmark_id_"+rowNum);
 	olabel.style.backgroundColor = "#cff";
 	
 	otd = document.getElementById("td_benchmark_value_id_"+rowNum);
@@ -337,7 +337,6 @@ function Cancel_benchmark_Apply(rowNum,value){
 
 
 /***********************************************************************************************************************/
-
 //delete row when checkbox is checked
 function Del(tableType){
   if(tableType =="configuration")
