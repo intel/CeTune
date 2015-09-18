@@ -2,7 +2,7 @@
    CSS Document
    Author: Sean,Lin
    E-mail:  xiangx.lin@intel.com
-   Date:2015-09-10
+   Date:2015-09-18
    Descrption: 
  *******************************************/
 @charset "utf-8";
@@ -34,24 +34,30 @@ body{ margin:0px; padding:0px;}
 #div_top_title_id{ float:left; width:50%; height:50px;}
 #div_top_status_id{ float:right; width:30%; height:50px;}
 
-#div_top_id h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; line-height:1.1; font-size: 20px; color: #FFF; 
-     padding-top:15px; padding-left:30px; }
+#div_top_id h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; 
+                line-height:1.1; font-size: 20px; color: #FFF; 
+                padding-top:15px; padding-left:30px; }
      
 #div_top_stauts_id h1{ display:none;}     
      
-.#div_top_id_h1_avtive{display:block; margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; line-height:1.1; font-size: 20px; color: #FFF; 
-     padding-top:15px; padding-left:30px; display:none;}
+.#div_top_id_h1_avtive{ display:block; margin:0; font-family:Arial, Helvetica, sans-serif; 
+                        font-style:italic;font-weight:500; line-height:1.1; 
+						font-size: 20px; color: #FFF; 
+                        padding-top:15px; padding-left:30px;
+	                    display:none;}
      
 #div_top_id a{ text-decoration:none; color:inherit;}
 
 #div_top_stauts_id h1{ float:right;font-size:15px; color: #FFF;font-style:normal;font-weight:300; margin-right:20px;}
-
-#div_content_id{width:100%; margin-top:10px;}
 #img_top_id{ width:15px; height:15px; margin-right:5px;}
- 
+
 /***************************************************************************************************************/ 
+
+#div_Content_id{ margin:0;  padding-bottom:15px; width:100%; height:auto;}
+
 .div_tab_class{width:95%;height:auto; margin:0 auto; background-color:#FFF; margin-bottom:15px;}
-#div_Configuration{ width:100%; display:block;}
+
+#div_Configuration{ margin-top:3px; width:100%; display:block; padding-bottom:5px;}
 #div_Status{width:100%;  display:none;}
 #div_Reports{width:100%; display:none;}
 
@@ -60,11 +66,16 @@ body{ margin:0px; padding:0px;}
 .div_content_left_class{ width:19%; height:300px; float:left; }
 .div_content_right_class{ width:81%; height:300px; float:left; }
 
+/***************************************************************************************************************/ 
+
 #div_Configuration_left_top_id{ width:100%; height:50px;}
-#div_Configuration_left_top_id P{ margin-left:15px; line-height:10px; color:#666; font-family:Arial, Helvetica, sans-serif; font-size:14px; font-weight:bold;}
+#div_Configuration_left_top_id P{ margin-left:15px; line-height:10px; color:#666; font-family:Arial, Helvetica, sans-serif;
+                                  font-size:14px; font-weight:bold;}
+								  
 #div_Configuration_left_top_id P:first-child{ font-size:20px; }
 
-#div_Configuration_left_content_id ul{list-style: url(../image/config_Wait.gif); margin:0px;color:#666; font-family:Arial, Helvetica, sans-serif; font-size:14px; font-weight:bold;}
+#div_Configuration_left_content_id ul{list-style: url(../image/config_Wait.gif); margin:0px;color:#666; 
+                                       font-family:Arial, Helvetica, sans-serif; font-size:14px; font-weight:bold;}
 #div_Configuration_left_content_id ul li{line-height:20px; margin-top:15px; cursor:pointer;}
 #div_Configuration_left_content_id ul li a{cursor:pointer; text-decoration:none; text-align:center;}
 
@@ -77,13 +88,14 @@ body{ margin:0px; padding:0px;}
 #bnt_Configuration_exec_id{ margin-left:30px; margin-top:25px;;padding:10px 25px 10px 25px;}
 .bnt_Configuration_exec{ font-weight:bold; color:#666;}
 
+/***************************************************************************************************************/
 
 #div_Configuration_right_top_id{width:100%; height:50px; }
 #div_Configuration_right_top_titel_id{width:50%; height:50px; float:left; margin-top:10px; margin-left:15px;  color:#000; font-family:Arial; font-size:20px; font-weight:bold;}
 #div_Configuration_right_top_button_id{width:48%; height:50px; float:left; margin-top:10px;}
-#div_Configuration_right_table_id{width:100%; float:left;}
-.bnt_Confguration_tableOper_class{margin-top:0px; float:right;padding:5px 15px 5px 15px; cursor:pointer; background-color:#FC0; color:#630;font-family:Arial;font-weight:bold;}
-
+#div_Configuration_right_table_id{width:100%; float:left;padding-bottom: 10px;}
+/*.bnt_Confguration_tableOper_class{margin-top:0px; float:right;padding:5px 15px 5px 15px; cursor:pointer; background-color:#FC0; color:#630;font-family:Arial;font-weight:bold;}*/
+/***************************************************************************************************************/
 #div_Configuration_right_content_id{width:100%; height:300px; background-color:#099;}
 
 .div_Configuration_right_top_button_id_active{ display:none;}
@@ -94,9 +106,16 @@ body{ margin:0px; padding:0px;}
                                    z-index:auto; position:absolute; 
                                    margin:0; font-family:"Arial Black", Gadget, sans-serif; font-size:90px; font-weight:bold; text-align:center;
                                    padding-top:100px; margin-left:-10px;margin-right:-10px;}
+#div_benchmark_button_id {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    height: 30px;
+}
+
 
 /***************************************************************************************************************/
 #div_Status{ height:500px; min-height:500px; margin-top:5px;}
+
 #text_Status_id{  margin-left:10px;
                   width:95%;height:500px; min-height:500px; 
                   background-color: #000; color:#0F0; 
@@ -118,6 +137,11 @@ body{ margin:0px; padding:0px;}
 .img_active{width:17px; height:17px; cursor:pointer;margin-top:-6px; margin-right:-6px;}	  
 /***************************************************************************************************************/
 
-
-#div_Content_id{ margin:0; margin-bottom:2px; padding-bottom:15px; width:100%; height:auto;}
-
+#tabs{ width:90%; margin:auto 0; }
+#tabs div{ width:90%; margin:auto 0; float:left; }
+#tabs ul{ padding-buttom:10px;}
+#tabs ul li{list-style:none; font-size:20px; color:#FFF; margin:0; padding-top:6px; background-color:#06C ; border-radius: 7px 7px 0 0;  }
+#tabs ul li{ float:left;  margin-left:5px; cursor:pointer;}
+#tabs ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#FFF; text-decoration:none;}
+#tabs div{ display:none;}
+.tabs_li_click{  background-color:#09F;box-shadow:2px 2px 3px #aaa; padding:6px;}

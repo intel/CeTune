@@ -2,7 +2,7 @@
    JavaScript Document
    Author: Sean,Lin
    E-mail:  xiangx.lin@intel.com
-   Date:2015-09-16
+   Date:2015-09-18
    Descrption: 
 **********************************/
 //http://192.168.5.22:8080/configuration/get_group?request_type=cluster
@@ -114,7 +114,25 @@ function Report_Timer(){
 			$("#div_"+session_name).html( detailReport );
 			$("#div_"+session_name).hide();
 			//$("#div_"+session_name+" #tabs" ).tabs();
+			//---------------------------------------------------------------------------------
+			
+			
+			//$("#tabs ul li").delegate("a", "click", function(){
+			$("#div_"+session_name+" #tabs ul li a").click(function(){
+				//set menu style
+				$("#tabs ul li").removeClass("tabs_li_click");
+				$(this).parent().addClass("tabs_li_click");
+				var tabsName = $(this).text();
+				var div_id = "#" + tabsName;
+				$("#tabs").children('div').hide();
+				
+				$(div_id).show();
+			 
+			});
+			
+			
 			$("#div_"+session_name+" .cetune_pic").hide();
+			
 			$("#menu_"+session_name).click();
 			  
 			
@@ -132,6 +150,17 @@ function Report_Timer(){
            });
 		    
 	   }//if
+	   else
+	   {
+		   var li_id = "menu_li_"+session_name;
+		   //var img_id = "";
+		   var div_id = "div_"+session_name;
+		   $("#"+li_id).click();
+		   
+	   }
+	   
+	   $("#div_"+session_name+" #tabs ul li a").eq(0).click();
+	   
     });
 }
 
@@ -151,6 +180,10 @@ $(document).ready(function(){
       
     //init seting-------------------------------------------------------------------------
    Init(); 
+	  
+   
+		  
+	  
 	  
    //tab menu style click-----------------------------------------------------------------
    //$("#div_menu_id ul li").click(function(){
@@ -306,6 +339,9 @@ $(document).ready(function(){
         IntoRuningMode();
     });
     
+  
+  
+   
   
    
 

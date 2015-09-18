@@ -121,9 +121,11 @@ function CreateTableHTML_Benchmark(jsonObj){
 	
     //tableHtml +=   "<input id='bnt_benchmark_delete_id' class='bnt_Confguration_tableOper_class' type='button' value='Delete' onclick='DeleteModal_OK(&quot;benchmark&quot;)'/>";
     //onclick='DeleteModal_OK(&quot;benchmark&quot;)'
+	tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' >Delete</button>";
+	
 	tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' >Add</button>";
 	//onclick='DeleteModal_OK(&quot;benchmark&quot;)'
-	tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' >Delete</button>";
+	
 	//tableHtml +=   "<input id='bnt_benchmark_add_id'    class='bnt_Confguration_tableOper_class' type='button' value='Add'/>";
     tableHtml +=  "</div>"
 
@@ -253,8 +255,8 @@ function Label_Click(count,value){
 	
     
 	var strHtml =  "<input class='text_class' id = 'text_id_"+rowNum+"' value = '"+value+"' type='text' name='fname'/>";
-	    strHtml += "<input class='btn_okcancel_class' id = 'bnt_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_Apply("+rowNum+")' />";
-	    strHtml += "<input class='btn_okcancel_class' id = 'bnt_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
+	    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_Apply("+rowNum+")' />";
+	    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
 		
 	otd.innerHTML =strHtml;
 }
@@ -491,14 +493,14 @@ function ConfigurationModal_OK(){
 	 var rows =  GetTableRowsCount("table_id")-1;
 	
 	 var key = $("#recipient-key").val();
-	 var dsc = $("#recipient-dsc").val();
+	 var dsc = "";
 	 var value = $("#recipient-value").val();
 	 
-   	 if(key == "" & value ==""){
-		alert("The key can't be empty!");
+   	 if(key == "" || value ==""){
+		$("#ModalLabel_Configuration_Add").html("Hi,The input can't be empty!");
 	 }
 	 else{
-		
+		$("#ModalLabel_Configuration_Add").html("Add a new row for configuration");
 	    setTimeout(function(){$("#ConfigurationModal").modal("hide")},100);	
 		var html = "<tr>";
 		
@@ -562,13 +564,14 @@ function BenchMarkModel_OK(){
 	 var device = $("#recipient-devcie").val();
 	 
 		
-   	 //if(key == "")
-	 //{
-		//alert("The key can't be empty!");
-	 //}
-	// else
+   	if(benchmark_driver == "" || worker== "" ||container_size  == "" || iopattern == "" || op_size == "" ||
+	     object_size == "" || rampup == "" || runtime == "" || device == "" )
 	{
-		
+		$("#ModalLabel_Benchmark_Add").html("Hi,The input can't be empty!");
+	}
+	else
+	{
+		$("#ModalLabel_Benchmark_Add").html("Add a new row for configuration");
 	    setTimeout(function(){$("#BenchmarkModel").modal("hide")},100);	
 		var html = "<tr>";
 		

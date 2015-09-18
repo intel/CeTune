@@ -2,7 +2,7 @@
    CSS Document
    Author: Sean,Lin
    E-mail:  xiangx.lin@intel.com
-   Date:2015-09-10
+   Date:2015-09-17
    Descrption: 
  *******************************************/
 @charset "utf-8";
@@ -12,7 +12,7 @@
     border-style: solid;
     border-radius: 0 0 5px 0;
     float: left;
-    min-width: 236px;}
+    min-width: 224px;}
 
 #dl_Configuration_left_nav_accordion_id {
   background-color: #f9f9f9;
@@ -71,13 +71,13 @@
       list-style: none outside none;
       margin: 10px 0 0;
       padding: 0;
-      width: 222px; }
+      width: 216px; }
 	  
   
 	  
 	  
 #dl_Configuration_left_nav_accordion_id dt li a, #dl_Configuration_left_nav_accordion_id dd li a {
-      width: 209px;
+      width: 221px;
       padding: 10px;
       display: block;
       line-height: 18px;
@@ -140,7 +140,8 @@
     border-style: solid;
     border-radius: 0 0 5px 0;
     float: left;
-    min-width: 236px;
+    min-width: 223px;
+	width:224px;:
 	}
 	
 #dl_Status_left_nav_accordion_id{
@@ -173,7 +174,7 @@
       text-decoration: none; }
 	  
 #dl_Status_left_nav_accordion_id dt li a, #dl_Status_left_nav_accordion_id dd li a {
-      width: 209px;
+      width: 224px;
       padding: 10px;
       display: block;
       line-height: 18px;

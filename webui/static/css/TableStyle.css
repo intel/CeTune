@@ -7,20 +7,30 @@
 @charset "utf-8";
 
 #table_id,#table_benchmark_id{margin:0px; padding:4px; border-collapse:collapse; width:99%; text-align:left; border:1px solid  #CCC;}
+
+#table_benchmark_id{ margin-top:3px;}
+
 #table_benchmark_id{ margin-top:15px;}
 
-#table_id tr{ border:1px solid #CCC;}
+#table_id,#table_benchmark_id tr{ border:1px solid #CCC;}
 #table_id tr:hover{ background: #FFC;}
+#table_benchmark_id:hover{ background: #FFC;}
 
-th{border:1px solid #CCC; color:#000; font-weight:bold;background-color: #E3E3E3;; 
-   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:30px;}
+#table_id th{border:1px solid #CCC; color:#000; font-weight:bold; background-color: #E3E3E3;; 
+   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:35px;padding-left:5px;}
+
+#table_benchmark_id th{border:1px solid #CCC; color:#000; font-weight:bold; background-color: #E3E3E3;; 
+   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:35px;padding-left:5px;}  
+   
+   
 tr{border:1px solid #CCC;}
 
 td{ height:30px;}
+
 .td_key_class{ border:1px solid #CCC; text-align:left; width:20%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
-.td_Desc_class{border:1px solid #CCC; text-align:left; width:30%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
+.td_Desc_class{border:1px solid #CCC; text-align:left; width:25%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
 .td_value_class{ border:1px solid #CCC; text-align:left; width:50%;  padding-left:5px; cursor:pointer; font-size:13px; }
-.checkbox_td_class{}
+.checkbox_td_class{width:3%; text-align:center;padding-left:0px;}
 
 .td_class{ border:1px solid #CCC; text-align:left; width:auto;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
 
@@ -32,7 +42,11 @@ td{ height:30px;}
 .table_class tr.altrow{ background:#f0f0f0;}
 .error{ background: #FF0; color:#F00;}
 
-#div_benchmark_button_id{ margin-top:15px; }
+#div_benchmark_button_id{ margin-top:15px; margin-bottom:10px;}
+
+#bnt_Confguration_add_id,#bnt_Confguration_delete_id,#bnt_benchmark_add_id,#bnt_benchmark_delete_id{ float:right; margin-left:5px; margin-right:10px;}
+
+.btn btn-primary btn-xs{ margin-left:3px;}
 /**********************************************************************************************************************************/
 .cetune_table{ 
    color: #000;
@@ -46,7 +60,7 @@ td{ height:30px;}
 
 
 .cetune_table td, th { 
-   border: 1px solid transparent; /* No more visible border */
+   border-buttom: 1px solid #CCC; /* No more visible border */
    height: 30px; 
    width: 120px;
    transition: all 0.3s;  /* Simple transition for hover effect */
@@ -54,13 +68,18 @@ td{ height:30px;}
 
 .cetune_table th {
     /*background: #DFDFDF;   Darken header a bit */
+	border-top: 0px solid #CCC;
     font-weight: bold;
     text-align: left;
+	font-weight:bold; background-color: #E3E3E3;; 
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:35px;padding-left:5px;
 }
 
 .cetune_table td {
     /*background: #FAFAFA;*/
     text-align: left;
+	padding-left:5px;
+	
 }
 
 /* Cells in even rows (2,4,6...) are one color */	
@@ -75,5 +94,5 @@ td{ height:30px;}
 }
 
 .cetune_table { cursor: pointer;}
-.cetune_table tr:hover td{background: #CCFFCC;}
+.cetune_table tr:hover td{background: #FFC;}
 .cetune_table tr:hover{ background: #FFC;}

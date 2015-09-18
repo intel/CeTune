@@ -89,7 +89,7 @@
         </div>
          
          <div id="div_Configuration_left_execButton_id">
-             <input id="bnt_Configuration_exec_id" type="button" value="Executive" disabled="disabled"/>
+             <input id="bnt_Configuration_exec_id" class="btn btn-primary btn-lg" type="button" value="Executive" disabled="disabled"/>
          </div>     
      </div>
      
@@ -107,8 +107,10 @@
           <!--    <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
               <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
               <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>-->
+              
+              <button id="bnt_Confguration_delete_id" type="button" class="btn btn-primary" data-toggle="modal"  data-target="#DeleteModal" data-whatever="@mdo">Delete</button>
               <button  id="bnt_Confguration_add_id" type="button" class="btn btn-primary" data-toggle="modal" data-target="#ConfigurationModal" data-whatever="@mdo">Add</button>
-               <button id="bnt_Confguration_delete_id" type="button" class="btn btn-primary" data-toggle="modal"  data-target="#DeleteModal" data-whatever="@mdo">Delete</button>
+               
              <!-- <button id="bnt_Confguration_more_id" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">More</button>-->
              
               
@@ -171,7 +173,7 @@
        
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="exampleModalLabel">Are you sure delete thers rows?</h4>
+        <h4 class="modal-title" id="ModalLabel_delete">Are you sure delete thers rows?</h4>
       </div>
       
        <div class="modal-footer">
@@ -189,7 +191,7 @@
        
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="exampleModalLabel">Are you sure delete thers rows?</h4>
+        <h4 class="modal-title" id="ModalLabel_BenchmarkModal">Are you sure delete thers rows?</h4>
       </div>
       
        <div class="modal-footer">
@@ -210,7 +212,7 @@
        
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="exampleModalLabel">Add a new row for configuration</h4>
+        <h4 class="modal-title" id="ModalLabel_Configuration_Add">Add a new row for configuration</h4>
       </div>
       
       
@@ -249,7 +251,7 @@
        
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="exampleModalLabel">Add a new row for benchmark</h4>
+        <h4 class="modal-title" id="ModalLabel_Benchmark_Add">Add a new row for benchmark</h4>
       </div>
       
       
