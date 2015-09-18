@@ -78,6 +78,9 @@ def get_list( string ):
             res.append([value,""])
     return res
 
+def clean_console():
+    bash("echo > %s" % cetune_console_file)
+
 def printout(level, content, screen = True):
     if level == "ERROR":
         output = "[ERROR]: %s" % content
@@ -102,13 +105,15 @@ def printout(level, content, screen = True):
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.WARNING + output + bcolors.ENDC
     if level == "CONSOLE":
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
             with open(cetune_console_file, "a+") as f:
-                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
             print content
 
 def remote_dir_exist( user, node, path ):
@@ -495,3 +500,9 @@ def eval_args( obj, function_name, args ):
             res = func( **argv )
     return res
 
+def get_ceph_health():
+    check_count = 0
+    stdout = bash('timeout 3 ceph health')
+    if not len(stdout):
+        stdout = "NOT ALIVE"
+    return stdout

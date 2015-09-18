@@ -15,7 +15,7 @@ class Deploy_RGW(Deploy) :
         self.cluster['rgw_num'] = int(self.all_conf_data.get('rgw_num_per_server'))
         self.cluster['rgw_start_index'] = self.all_conf_data.get('rgw_start_index')
         self.cluster['rgw_index'] = [x+int(self.cluster['rgw_start_index']) for x in range(int(self.cluster['rgw_num']))]
-        cluster_network = self.all_conf_data.get('ceph_conf')["cluster_network"]
+        cluster_network = self.all_conf_data.get("cluster_network")
         self.cluster['rgw_ip_bond'] = {}
         ip_handler = common.IPHandler()
         for node in self.cluster['rgw']:

@@ -11,7 +11,11 @@ import argparse
 
 class TunerConfig():
     def __init__(self, path):
-        self.tuner = common.load_yaml_conf(path) 
+        try:
+            self.tuner = common.load_yaml_conf(path) 
+        except:
+            self.tuner = OrderedDict()
+            self.tuner["testjob1"] = OrderedDict()
         self.path = path
         self.tuner_conf = self.format_tuner_to_all(self.tuner)
 
@@ -88,8 +92,14 @@ class Config():
         self.group = OrderedDict()
         cur_group = "global"
         self.group[cur_group] = []
-        with open(conf_path, "r") as f:
-            for line in f:
+        lines = []
+        try:
+            with open(conf_path, "r") as f:
+                lines = f.readlines()
+        except:
+            print "can't open %s" % conf_path
+        if len(lines) > 0:
+            for line in lines:
                 if re.search('^#', line):
                     if "======" in line:
                         cur_group_re = re.search('\w+', line)
@@ -152,8 +162,8 @@ class Config():
         if key in self.conf_data:
             return self.conf_data[key]
         else:
-            print "%s not defined in all.conf" % key
             if not dotry:
+                common.printout("WARNING","%s not defined in all.conf" % key)
                 sys.exit()
             else:
                 return ""
@@ -166,6 +176,7 @@ class Config():
                 return [self.conf_data[key]]
         else:
             print "%s not defined in all.conf" % key
+            return []
 
     def get_all(self):
         return self.conf_data
@@ -204,30 +215,19 @@ class BenchmarkConfig():
         #run_cases.main(['--option', "gen_case"])
         return False
 
-    def check_case_conf(self):
-        line_num = 0
-        with open("../conf/cases.conf","r") as casefile:
-            for line in casefile.readlines():
-                line_num = line_num+1
-                line_list = line.split()
-                engine,workers,volume_size,io_pattern,record_size,qd,rampup_time,run_time,disk = line_list
-
-                if engine in ["qemurbd","fiorbd"]:
-                    if engine == "qemurbd":
-                        case = "'\["+engine+"-"+io_pattern+"-"+record_size+"-"+"qd"+qd+"-"+volume_size+"-"+rampup_time+"-"+run_time+"-vdb\]'"
-                    if engine == "fiorbd":
-                        case = "'\["+engine+"-"+io_pattern+"-"+record_size+"-"+"qd"+qd+"-"+volume_size+"-"+rampup_time+"-"+run_time+"-fiorbd\]'"
-
-                if engine == "cosbench":
-                    case = workers+"-cosbench-"+io_pattern+"-"+record_size+"-100con-100obj-"+rampup_time+"-"+run_time+"-cosbench.xml"
-                       
     def get_config(self):
-        if not (os.path.exists("../conf/cases.conf")):
-            common.bash("cp %s %s" % (self.default_conf_path, self.conf_path))
-        #self.check_case_conf()
         testcase_list = []
-        with open(self.conf_path,"r") as f:
-            for line in f.readlines():
+        try:
+            with open(self.conf_path,"r") as f:
+                lines = f.readlines()
+            for line in lines:
+                p = line.split()
+                testcase_list.append( self.parse_benchmark_cases( p ) )
+        except:    
+            common.bash("cp %s %s" % (self.default_conf_path, self.conf_path))
+            with open(self.conf_path,"r") as f:
+                lines = f.readlines()
+            for line in lines:
                 p = line.split()
                 testcase_list.append( self.parse_benchmark_cases( p ) )
         return testcase_list

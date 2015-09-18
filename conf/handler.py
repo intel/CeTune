@@ -15,6 +15,8 @@ class ConfigHandler():
         self.tuner_conf = config.TunerConfig("../conf/tuner.yaml")
         self.cases_conf = config.BenchmarkConfig()
         self.required_lists = self.list_required_config()
+        for request_type in self.required_lists:
+            self.get_group( request_type )
 
     def get_group(self, request_type):
         res = []
@@ -98,7 +100,6 @@ class ConfigHandler():
         required_list["cluster"]["list_client"] = ""
         required_list["cluster"]["list_mon"] = ""
         required_list["cluster"]["disk_num_per_client"] = 10
-        required_list["cluster"]["rgw_server"] = ""
         required_list["cluster"]["rgw_start_index"] = 1
         required_list["cluster"]["rgw_num_per_server"] = 5
         required_list["cluster"]["osd_partition_count"] = 1
@@ -115,6 +116,7 @@ class ConfigHandler():
         required_list["benchmark"]["volume_size"] = 40960
         required_list["benchmark"]["rbd_volume_count"] = 80
         required_list["benchmark"]["disk_num_per_client"] = ""
+        required_list["benchmark"]["tmp_dir"]="/opt/"
         required_list["benchmark"]["dest_dir"]="/mnt/data/"
         required_list["benchmark"]["dest_dir_remote_bak"]="192.168.3.101:/share/chendi_new/cetune_demo"
 
