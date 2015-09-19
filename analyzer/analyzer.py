@@ -193,9 +193,9 @@ class Analyzer:
                 tmp_data["workload_bw"] += ( float(node_data["read_bw"]) + float(node_data["write_bw"]) )
                 tmp_data["workload_latency"] += ( float(node_data["read_lat"]) + float(node_data["write_lat"]) )
             tmp_data["workload_iops"] = "%.3f" % (tmp_data["workload_iops"])
-            tmp_data["workload_bw"] = "%.3f MB/s" % (tmp_data["workload_bw"])
+            tmp_data["workload_bw"] = "%.3f" % (tmp_data["workload_bw"])
             if rbd_count > 0:
-                tmp_data["workload_latency"] = "%.3f msec" % (tmp_data["workload_latency"]/rbd_count)
+                tmp_data["workload_latency"] = "%.3f" % (tmp_data["workload_latency"]/rbd_count)
         except:
             pass
         if tmp_data["op_type"] in ["randread", "seqread", "read"]:
@@ -217,9 +217,9 @@ class Analyzer:
                     lat_name = "await"
                 tmp_data["osd_latency"] += numpy.mean(node_data[lat_name])
         tmp_data["osd_iops"] = "%.3f" % (tmp_data["osd_iops"])
-        tmp_data["osd_bw"] = "%.3f MB/s" % (tmp_data["osd_bw"])
+        tmp_data["osd_bw"] = "%.3f" % (tmp_data["osd_bw"])
         if osd_node_count > 0:
-            tmp_data["osd_latency"] = "%.3f msec" % (tmp_data["osd_latency"]/osd_node_count)
+            tmp_data["osd_latency"] = "%.3f" % (tmp_data["osd_latency"]/osd_node_count)
 
         tmp_data["serverNum"] = osd_node_count
         tmp_data["clientNum"] = len(data["client"]["cpu"])

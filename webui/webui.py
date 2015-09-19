@@ -101,11 +101,14 @@ class monitor:
         for line in output[1:]:
             color = "#999"
             if "[LOG]" in line:
-                color = "#CCFF99"
+                #color = "#CCFF99"
+                color = "#009900"
             if "[WARNING]" in line:
-                color = "yellow"
+                #color = "yellow"
+                color = "#FFA500"
             if "[ERROR]" in line:
-                color = "red"
+                #color = "red"
+                color = "#DC143C"
             res["content"].append("<div style='color:%s'>%s</div>" % (color, line))
         res["content"] = "".join(res["content"])
         web.header("Content-Type","application/json")

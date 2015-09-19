@@ -22,15 +22,15 @@ var timer_RunStatus;
 var timer_Console;
 var timer_Report;
 
-var interval_RunStatus=30000;
-var interval_Console=3000;
+var interval_RunStatus=1000;
+var interval_Console=500;
 var interval_Report=30000;
 
 /*************Interval function************************************************************************/
 
 function RunStatus_Timer(){
     var cetune_status = GetDataByAjax(address_GetRuningStatus);//?
-    if(cetune_status.indexOf("running")>=0)
+    if(cetune_status.indexOf("idle")<0)
     {
         $("#div_top_status_id a").text(cetune_status);
         $("#div_Configuration_right_back_id").show()
@@ -44,7 +44,10 @@ function RunStatus_Timer(){
     }
 }
 
-function Console_Timer(){
+function Console_Timer( init = false ){
+    var cetune_status = $("#div_top_status_id").text();
+    if( cetune_status.indexOf("idle") > -1 && init != true )
+        return
     //(1) get the last timestamp
     var timestamp = GetTimestamp();
     
@@ -74,7 +77,10 @@ function Console_Timer(){
 }
 
 
-function Report_Timer(){
+function Report_Timer( init=false ){
+    var cetune_status = $("#div_top_status_id").text();
+    if( cetune_status.indexOf("idle") > -1 && init != true )
+        return
     var reportSummaryData = GetDataByAjax(address_Report);
     reportSummaryData = reportSummaryData.replace(/<script>.*<\/script>/,'');
     $("#div_Reports").html(reportSummaryData);
@@ -125,11 +131,11 @@ function Report_Timer(){
 			//$("#tabs ul li").delegate("a", "click", function(){
 			$("#div_"+session_name+" #tabs ul li a").click(function(){
 				//set menu style
-				$("#tabs ul li").removeClass("tabs_li_click");
+				$("#div_"+session_name+" #tabs ul li").removeClass("tabs_li_click");
 				$(this).parent().addClass("tabs_li_click");
 				var tabsName = $(this).text();
-				var div_id = "#" + tabsName;
-				$("#tabs").children('div').hide();
+				var div_id = "#div_"+session_name+" #" + tabsName;
+				$("#div_"+session_name+" #tabs").children('div').hide();
 				
 				$(div_id).show();
 			 
@@ -149,9 +155,10 @@ function Report_Timer(){
 			  if(pic.attr("src") == undefined){
 				  pic.attr("src", address_Report_Detail_pic+"?session_name="+session_name+"&pic_name="+pic_name+".png" );
 				  pic.next().attr("href", address_Report_Detail_csv+"?session_name="+session_name+"&csv_name="+pic_name+".csv");
-				  pic.parent().show();
 				  pic.next().click(function(){url=$(this).attr("href");location.href=url})
 			  }//if
+		          pic.parent().show();
+
            });
 		    
 	   }//if
@@ -221,17 +228,17 @@ $(document).ready(function(){
             
             case "menu_Status_id": 
 			
-			    //init left li style, default select first li
-			    $(".div_Status_left_nav_li_class > a").eq(0).addClass('active');
+	        //init left li style, default select first li
+                $(".div_Status_left_nav_li_class > a").eq(0).addClass('active');
 				
                 clearTimer(timer_Report);
-                Console_Timer();
+                Console_Timer(true);
                 timer_Console = setInterval(Console_Timer,interval_Console);
                break;
                
             case "menu_Reports_id": 
                 clearTimer(timer_Console);
-                Report_Timer();
+                Report_Timer(true);
                 timer_Report = setInterval(Report_Timer,interval_Report);
                 break;
                 
