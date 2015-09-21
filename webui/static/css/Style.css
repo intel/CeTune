@@ -101,11 +101,11 @@ body{ margin:0px; padding:0px;}
 .div_Configuration_right_top_button_id_active{ display:none;}
 
 
-#div_Configuration_right_back_id{  display:none; background-color: #36F; 
+#div_Configuration_right_back_id{  display:none; background-color: #fff; 
                                    -moz-opacity: 0.3; opacity:.30; filter:alpha(opacity=30);width:81.8%; height:100%; 
                                    z-index:auto; position:absolute; 
-                                   margin:0; font-family:"Arial Black", Gadget, sans-serif; font-size:90px; font-weight:bold; text-align:center;
-                                   padding-top:100px; margin-left:-10px;margin-right:-10px;}
+                                   margin:0; font-family:"Arial Black", Gadget, sans-serif; font-size:40px; font-weight:bold; text-align:center;
+                                   padding-top:0px; margin-left:-10px;margin-right:-10px;}
 #div_benchmark_button_id {
     margin-top: 15px;
     margin-bottom: 10px;

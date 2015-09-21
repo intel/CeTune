@@ -274,7 +274,7 @@ def load_yaml_conf(yaml_path):
 
 def write_yaml_file(yaml_path, data):
     with file(yaml_path, 'w') as f:
-        f.write( yaml.dump(data, indent=4, default_flow_style=False) )
+        f.write( json.dumps(data, indent=4) )
 
 def _decode_list(data):
     rv = []

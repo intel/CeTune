@@ -63,14 +63,8 @@ class FioRbd(Benchmark):
         self.benchmark["section_name"] = "fiorbd-%s-%s-qd%s-%s-%s-%s-fiorbd" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
         self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
         self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
+        super(self.__class__, self).prepare_result_dir()
 	
-        res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
-	if not res[1]:
-            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
-            sys.exit()
-
-        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
-
     def prerun_check(self):
         #1. check is vclient alive
         user = self.cluster["user"]
@@ -217,3 +211,5 @@ class FioRbd(Benchmark):
         for node in self.benchmark["distribution"].keys():
             common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.log" % self.cluster["tmp_dir"])
+        common.rscp(user, head, "%s/conf/" % dest_dir, "%s/conf/fio.conf" % self.pwd)
+        common.rscp(user, head, "%s/conf/" % dest_dir, "/etc/ceph/ceph.conf")

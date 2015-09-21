@@ -118,7 +118,6 @@ class ConfigHandler():
         required_list["benchmark"]["disk_num_per_client"] = ""
         required_list["benchmark"]["tmp_dir"]="/opt/"
         required_list["benchmark"]["dest_dir"]="/mnt/data/"
-        required_list["benchmark"]["dest_dir_remote_bak"]="192.168.3.101:/share/chendi_new/cetune_demo"
 
         required_list["workflow"] = OrderedDict()
         required_list["workflow"]["workstages"] = ["deploy","benchmark"]

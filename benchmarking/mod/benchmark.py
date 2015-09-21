@@ -10,6 +10,7 @@ lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 
 class Benchmark(object):
     def __init__(self):
+        self.runid = 0
         self.all_conf_data = config.Config(lib_path+"/conf/all.conf")
         self.benchmark = {}
         self.cluster = {}
@@ -20,6 +21,7 @@ class Benchmark(object):
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
         self.load_parameter()
         self.get_runid()
+        self.set_runid()
 
         self.benchmark = self.parse_benchmark_cases(testcase)
         if not self.generate_benchmark_cases(self.benchmark):
@@ -35,9 +37,12 @@ class Benchmark(object):
 
         common.printout("LOG","Run Benchmark Status: collect system metrics and run benchmark")
         test_start_time = time.time()
+        interrupted_flag = False
         try:
             self.run()
         except KeyboardInterrupt:
+            interrupted_flag = True
+            self.setStatus("Interrupted")
             common.printout("WARNING","Caught Signal to Cancel this run, killing Workload now, pls wait")
             self.real_runtime = time.time() - test_start_time
             self.stop_workload()
@@ -47,7 +52,8 @@ class Benchmark(object):
         common.printout("LOG","Collecting Data")
         self.after_run()
         self.archive()
-        self.set_runid()
+        if not interrupted_flag:
+            self.setStatus("Completed")
 
         common.printout("LOG","Post Process Result Data")
         try:
@@ -205,7 +211,8 @@ class Benchmark(object):
         pass
 
     def get_runid(self):
-        self.runid = 0
+        if self.runid != 0:
+            return
         try:
             with open("%s/.run_number" % lib_path, "r") as f:
                 self.runid = int(f.read())
@@ -215,9 +222,8 @@ class Benchmark(object):
     def set_runid(self):
         if not self.runid:
            self.get_runid()
-        self.runid = self.runid + 1
         with open("%s/.run_number" % lib_path, "w") as f:
-            f.write(str(self.runid))
+            f.write(str(self.runid+1))
 
     def testjob_distribution(self, disk_num_per_client, instance_list):
         start_vclient_num = 0
@@ -311,3 +317,19 @@ class Benchmark(object):
         nodes.extend(self.cluster["osd"])
         nodes.extend(self.benchmark["distribution"].keys())
         common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
+
+    def setStatus(self, status):
+        user = self.cluster["user"]
+        head = self.cluster["head"]
+        dest_dir = self.cluster["dest_dir"]
+        common.pdsh(user, [head], "echo %s > %s/conf/status" % (status, dest_dir))
+
+    def prepare_result_dir(self):
+        res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
+	if not res[1]:
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            sys.exit()
+
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s/conf/" % (self.cluster["dest_dir"]))
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s/raw/" % (self.cluster["dest_dir"]))

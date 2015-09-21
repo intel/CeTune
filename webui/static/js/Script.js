@@ -146,8 +146,10 @@ function Report_Timer( init=false ){
 			
 			$("#menu_"+session_name).click();
 			  
-			
-           $( ".cetune_table a" ).click(function(){
+           $(".cetune_config_button").click(function(){
+               url=$(this).attr("href");location.href=url
+           });
+           $( ".cetune_table th a" ).click(function(){
 			  $(this).parents('.cetune_table').parent().children('.cetune_pic').hide();
 			  var id=$(this).attr('id'); 
 			  pic = $(this).parents('.cetune_table').parent().children('#'+id+'_pic').children("img");
@@ -353,7 +355,7 @@ $(document).ready(function(){
                  //show the runing status logo and title on top bar;
                  $("#div_top_stauts_id h1").show(); 
                  // a back div for keep out right opertion elements;
-                 $("#div_Configuration_right_back_id").show(); 
+                 RunStatus_Timer();
                  $("#menu_Status_id").click();
             }else{
                  alert("Failed to start");

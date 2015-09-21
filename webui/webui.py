@@ -66,9 +66,9 @@ class configuration:
             pid = web.cache["tuner_thread"].pid
             os.kill((pid+1), signal.SIGINT)
             web.cache["cetune_status"] = "running, caught cancel request, working to close]"
-            web.cache["tuner_thread"].wait()
-            web.cache["tuner_thread"] = None
-            web.cache["cetune_status"] = "idle"
+            #web.cache["tuner_thread"].wait()
+            #web.cache["tuner_thread"] = None
+            #web.cache["cetune_status"] = "idle"
             return "true"
         else:
             return "false"
@@ -123,7 +123,9 @@ class results:
 
     def get_summary(self):
         view = visualizer.Visualizer({})
-        output = view.generate_history_view("127.0.0.1","/mnt/data/","root",False)
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        output = view.generate_history_view("127.0.0.1",dest_dir,"root",False)
         if not output:
             return ""
         html = ""
@@ -132,7 +134,9 @@ class results:
         return html
 
     def get_detail(self, session_name):
-        path = "%s/%s/%s.html" % ("/mnt/data", session_name, session_name)
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        path = "%s/%s/%s.html" % (dest_dir, session_name, session_name)
         output = False
         html = ""
         with open( path, 'r') as f:
@@ -150,16 +154,30 @@ class results:
 
     def get_detail_pic(self, session_name, pic_name):
         web.header("Content-Type", "images/png")
-        path = "%s/%s/include/pic/%s" % ("/mnt/data", session_name, pic_name)
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        path = "%s/%s/include/pic/%s" % (dest_dir, session_name, pic_name)
         print path
         return open( path, "rb" ).read()
 
     def get_detail_csv(self, session_name, csv_name):
         web.header("Content-Type", "text/csv")
-        path = "%s/%s/include/csv/%s" % ("/mnt/data", session_name, csv_name)
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        path = "%s/%s/include/csv/%s" % (dest_dir, session_name, csv_name)
         print path
         web.header('Content-disposition', 'attachment; filename=%s_%s' % (session_name, csv_name))
         return open( path, "r" ).read()
+
+    def get_detail_zip(self, session_name, detail_type="conf"):
+        web.header("Content-Type", "application/zip")
+        web.header('Content-disposition', 'attachment; filename=%s_%s.zip' % (session_name, detail_type))
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        path = "%s/%s/" % (dest_dir, session_name)
+        if not os.path.isfile("%s/%s_%s.zip" % ( path, session_name, detail_type)):
+            common.bash("cd %s; zip %s_%s.zip %s/*;" % (path, session_name, detail_type, detail_type))
+        return open( "%s/%s_%s.zip" % ( path, session_name, detail_type), "rb" ).read()
 
 class defaults_pic:
     def GET(self):
