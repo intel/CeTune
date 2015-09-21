@@ -155,6 +155,9 @@ class Config():
             if key not in self.group[request_type]:
                 self.group[request_type].append(key)
 
+        # check if need add new terms
+
+
         self.dump_to_file(self.conf_path)
         return True
     

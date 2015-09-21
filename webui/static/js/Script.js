@@ -8,6 +8,7 @@
 //http://192.168.5.22:8080/configuration/get_group?request_type=cluster
 var address_Configuration_Get="../configuration/get_group?request_type=";
 var address_Configuration_Set="../configuration/set_config";
+var address_BenchmarkEngine_Check="../configuration/check_engine";
 var address_Delete="../configuration/del_config";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";
@@ -22,7 +23,7 @@ var timer_RunStatus;
 var timer_Console;
 var timer_Report;
 
-var interval_RunStatus=1000;
+var interval_RunStatus=3000;
 var interval_Console=500;
 var interval_Report=30000;
 
@@ -44,7 +45,8 @@ function RunStatus_Timer(){
     }
 }
 
-function Console_Timer( init = false ){
+function Console_Timer(init){
+    init = !init?false:true;
     var cetune_status = $("#div_top_status_id").text();
     if( cetune_status.indexOf("idle") > -1 && init != true )
         return
@@ -77,7 +79,8 @@ function Console_Timer( init = false ){
 }
 
 
-function Report_Timer( init=false ){
+function Report_Timer(init){
+    init = !init?false:true;
     var cetune_status = $("#div_top_status_id").text();
     if( cetune_status.indexOf("idle") > -1 && init != true )
         return
@@ -364,8 +367,6 @@ $(document).ready(function(){
         if(stat=="Cancel Job"){
             var result = GetDataByAjax(address_ExitRuningMode);  // code on server
             if(result=="true"){
-                 $(this).attr("value","Execute")
-                 $("#div_Configuration_right_back_id").hide(); 
                  $("#menu_Status_id").click();
             }
         }

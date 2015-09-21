@@ -35,7 +35,6 @@ class Analyzer:
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
-        self.cluster["vclient_disk"] = self.all_conf_data.get_list("run_file")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["osd_daemon_num"] = 0
@@ -77,6 +76,8 @@ class Analyzer:
                 self.result["client"][dir_name]=system
                 self.result["workload"].update(workload)
             if dir_name in self.cluster["vclient"]:
+                params = self.result["session_name"].split('-')
+                self.cluster["vclient_disk"] = ["/dev/%s" % params[-1]]
                 self.result["vclient"][dir_name]={}
                 system, workload = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
@@ -336,8 +337,11 @@ class Analyzer:
         self.validate_time = 0
         dest_dir = self.cluster["dest_conf_dir"]
         status = "Unknown"
-        with open("%s/status" % dest_dir, 'r') as f:
-            status = f.readline()
+        try:
+            with open("%s/status" % dest_dir, 'r') as f:
+                status = f.readline()
+        except:
+            pass
         return status
 
     def process_sar_data(self, path):

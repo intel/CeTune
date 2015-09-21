@@ -1,6 +1,4 @@
 #!/bin/bash
-. ../conf/common.sh
-get_conf
 
 #1. generate a vm xml
 function set_vm_xml {
@@ -53,20 +51,6 @@ function usage_exit {
 }
 
 function main {
-    echo "$0 $1 $2 $3 $4 $5"
-
-    if [ "$#" != "5" ]; then
-        usage_exit
-    fi
-    
-    cpuset=$1
-    vm_num_per_client=$2
-    img_path_prefix=$3
-    ip_prefix=$4
-    cpuset_start=$cpuset
-    if [ -z "$5" ]; then
-        ip_fix=201
-    fi
     mac_address_fix=01
     mac_address_prefix="52:54:00:b2:3c:"
     vm_num=0
@@ -125,4 +109,20 @@ function main {
     done
 }
 
+echo "$0 $1 $2 $3 $4 $5"
+
+if [ "$#" != "5" ]; then
+    usage_exit
+fi
+
+cpuset=$1
+vm_num_per_client=$2
+img_path_prefix=$3
+ip_prefix=$4
+cpuset_start=$cpuset
+if [ -z "$5" ]; then
+    ip_fix=201
+fi
+. ../conf/common.sh
+get_conf
 main $cpuset_start $vm_num_per_client $img_path_dir $ip_prefix $ip_fix

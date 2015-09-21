@@ -46,6 +46,11 @@ class configuration:
         web.header("Content-Type","application/json")
         return json.dumps(conf.set_config(request_type, key, value))
 
+    def check_engine(self, engine_list):
+        conf = handler.ConfigHandler()
+        web.header("Content-Type","application/json")
+        return json.dumps(conf.check_engine(engine_list.split(',')))
+
     def del_config(self, request_type, key):
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")

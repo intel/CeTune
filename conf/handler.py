@@ -32,14 +32,15 @@ class ConfigHandler():
             cases_conf = self.cases_conf.get_config()
             return cases_conf
 
+        for key, value in tmp_res.items():
+            res.append({"key":key,"value":value,"check":True,"dsc":""})
+
         if request_type in self.required_lists:
             for required_key in self.required_lists[request_type]:
                  if required_key not in tmp_res:
-                     tmp_res[required_key] = self.required_lists[request_type][required_key]
-                     self.set_config(request_type, required_key, tmp_res[required_key])
-
-        for key, value in tmp_res.items():
-            res.append({"key":key,"value":value,"check":True,"dsc":""})
+                     value = self.required_lists[request_type][required_key]
+                     res.append({"key":required_key, "value":value, "check":False, "dsc":"please check or complete"})
+                     self.set_config(request_type, required_key, value)
 
         return res
 
@@ -57,8 +58,30 @@ class ConfigHandler():
         if conf_type == "cases":
             res = self.cases_conf.set_config(value)
         if res:
-            output["check"] = True 
+            output["check"] = True
         return output
+
+    def check_engine(self, engine_list):
+        request_type = "benchmark"
+        benchmark_config = self.all_conf.get_group(request_type)
+        res = []
+        tmp_res = OrderedDict()
+        for engine in engine_list:
+            if engine == "qemurbd":
+                required = {"list_vclient":"vclient01,vclient02...", "fio_capping":"false", "volume_size":"40960", "rbd_volume_count":"1", "disk_num_per_client":"35"} 
+            if engine == "fiorbd":
+                required = {"fio_capping":"false", "volume_size":"40960", "rbd_volume_count":"1", "disk_num_per_client":"35"} 
+            if engine == "cosbench":
+                required = []
+            if engine == "generic":
+                required = []
+            for required_key in required:
+                 if required_key not in benchmark_config.keys():
+                     value = required[required_key]
+                     res.append({"key":required_key, "value":value, "check":False, "dsc":"please check or complete"})
+                     self.set_config(request_type, required_key, value)
+
+        return res
 
     def del_config(self, request_type, key):
         conf_type = self.get_corresponde_config(request_type)
@@ -100,6 +123,7 @@ class ConfigHandler():
         required_list["cluster"]["list_client"] = ""
         required_list["cluster"]["list_mon"] = ""
         required_list["cluster"]["disk_num_per_client"] = 10
+        required_list["cluster"]["enable_rgw"] = "false"
         required_list["cluster"]["rgw_start_index"] = 1
         required_list["cluster"]["rgw_num_per_server"] = 5
         required_list["cluster"]["osd_partition_count"] = 1
@@ -112,10 +136,6 @@ class ConfigHandler():
         required_list["ceph_hard_config"]["mon_data"] = "/var/lib/ceph/ceph.$id"
         required_list["ceph_hard_config"]["osd_objectstore"] = "filestore"
         required_list["benchmark"] = OrderedDict()
-        required_list["benchmark"]["fio_capping"] = "false"
-        required_list["benchmark"]["volume_size"] = 40960
-        required_list["benchmark"]["rbd_volume_count"] = 80
-        required_list["benchmark"]["disk_num_per_client"] = ""
         required_list["benchmark"]["tmp_dir"]="/opt/"
         required_list["benchmark"]["dest_dir"]="/mnt/data/"
 
