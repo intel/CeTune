@@ -32,7 +32,7 @@ body{ margin:0px; padding:0px;}
 
 #div_top_id{ width:100%; height:55px; background-color:#337ab7; border-bottom:1px solid #2e6da4; box-shadow:2px 2px 3px #aaa;}
 #div_top_title_id{ float:left; width:50%; height:50px;}
-#div_top_status_id{ float:right; width:30%; height:50px;}
+#div_top_status_id{ float:right; width:45%; height:50px;}
 
 #div_top_id h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; 
                 line-height:1.1; font-size: 20px; color: #FFF; 
@@ -137,11 +137,19 @@ body{ margin:0px; padding:0px;}
 .img_active{width:17px; height:17px; cursor:pointer;margin-top:-6px; margin-right:-6px;}	  
 /***************************************************************************************************************/
 
-#tabs{ width:90%; margin:auto 0; }
-#tabs div{ width:90%; margin:auto 0; float:left; }
-#tabs ul{ padding-buttom:10px;}
-#tabs ul li{list-style:none; font-size:20px; color:#FFF; margin:0; padding-top:6px; background-color:#06C ; border-radius: 7px 7px 0 0;  }
-#tabs ul li{ float:left;  margin-left:5px; cursor:pointer;}
-#tabs ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#FFF; text-decoration:none;}
-#tabs div{ display:none;}
-.tabs_li_click{  background-color:#09F;box-shadow:2px 2px 3px #aaa; padding:6px;}
+#tabs{ width:98%; margin:auto 0; position:relative;}
+#tabs div{ width:100%; margin:auto 0; float:left; }
+#tabs ul{ padding:1px; margin-top: 5px; position:absolute; z-index:2;}
+#tabs ul li{list-style:none; font-size:14px; color:#337AB7; padding-top:6px; border-radius: 7px 7px 0 0; float:left;  cursor:pointer; 
+            margin-left: -1px;
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            margin-right: 2px;
+}
+#tabs ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#337AB7; text-decoration:none;}
+#tabs div{ display:none; position:absolute; z-index:1; margin-top:32px;}
+.tabs_li_click{  background-color:#E3E3E3;box-shadow:0px 0px 0px #aaa; color:#555; 
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;}
