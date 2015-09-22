@@ -44,7 +44,7 @@ class Visualizer:
         for node_type, node_data in self.result.items():
             if not isinstance(node_data, dict):
                 continue
-            output.append("<li><a href=\"#%s\">%s</a></li>" % (node_type, node_type))
+            output.append("<li><a href=\"#\">%s</a></li>" % (node_type))
         output.append("</ul>")
 
         for node_type, node_data in self.result.items():

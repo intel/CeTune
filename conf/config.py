@@ -41,7 +41,8 @@ class TunerConfig():
             current[level_list[-1]] = value
         with open(self.path,"w") as f:
             f.write(json.dumps(self.tuner, indent=4))
-        return True
+        config_helper = ConfigHelper()
+        return config_helper._check_config(key, value)
 
     def group_list(self):
         group_list = {}
@@ -142,9 +143,26 @@ class Config():
             f.write( "\n".join(line_list) )
 
     def set_config(self, request_type, key, value, option="update"):
+        res = self._set_config(request_type, key, value, option)
+        self.dump_to_file(self.conf_path)
+        return res
+
+    def _set_config(self, request_type, key, value, option="update"):
         if request_type not in self.group:
             self.group[request_type] = []
         
+        # check if need to add new terms
+        res = self.check_config( key, value )
+        if not res["check"]:
+            return res
+
+        # if check is right, then add addition and set_config
+        tmp = []
+        for add_key, add_value in res["addition"].items():
+            if add_key not in self.group[request_type]:
+                tmp.append( self._set_config( request_type, add_key, add_value, option="update" ) )
+        res["addition"] = tmp
+
         if option == "delete":
             del self.conf_data[key]
             self.group[request_type].remove(key)
@@ -155,12 +173,41 @@ class Config():
             if key not in self.group[request_type]:
                 self.group[request_type].append(key)
 
-        # check if need add new terms
-
-
-        self.dump_to_file(self.conf_path)
-        return True
+        return res
     
+    def check_config(self, key, value):
+        required = {}
+        required["head"] = {"type":"node"}
+        required["user"] = {"type":"static:root"}
+        required["list_server"] = {"type":"node_list", "addition":"value_to_key"}
+        required["osd_journal"] = {"type":"osd_journal_list"}
+        required["list_client"] = {"type":"node_list"}
+        required["list_mon"] = {"type":"node_list"}
+        required["enable_rgw"] = {"if":"true", "type":"bool", "addition":{"rgw_server":"","rgw_start_index":1, "rgw_num_per_server":5}}
+        required["rgw_server"] = {"type":"node_list"}
+        required["rgw_num_per_server"] = {"type":"int"}
+        required["rgw_server"] = {"type":"int"}
+
+        required["public_network"] = {"type": "network"}
+        required["cluster_network"] = {"type": "network"}
+
+        required["fio_capping"] = {"type":"bool"}
+        required["cosbench_controller"] = {"type":"node_list"}
+        required["cosbench_driver"] = {"type":"node_list"}
+        required["cosbench_cluster_ip"] = {"type":"ip"}
+        required["cosbench_admin_ip"] = {"type":"ip"}
+        required["cosbench_network"] = {"type":"network"}
+        required["disk_num_per_client"] = {"type":"int_list"}
+
+        helper = ConfigHelper()
+        if key in required:
+            output = helper._check_config( key, value, required[key] )
+        elif key in self.get_list("list_server"):
+            output = helper._check_config( key, value, required["osd_journal"] )
+        else:
+            output = helper._check_config( key, value )
+        return output
+
     def get(self, key, dotry=False):
         if key in self.conf_data:
             return self.conf_data[key]
@@ -242,6 +289,134 @@ class BenchmarkConfig():
             "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8]
         }
         return testcase_dict
+
+class ConfigHelper():
+    def _check_config( self, key, value, requirement=None):
+        output = {}
+        output["key"] = key
+        output["value"] = value
+        output["dsc"] = ""
+        if not requirement:
+            output["check"] = True
+            output["addition"] = {}
+            return output
+        output["check"], output["dsc"] = self.check_type(key, value, requirement["type"])
+        if "addition" not in requirement or ("if" in requirement and requirement["if"] != value):
+            output["addition"] = {}
+        else:
+            output["addition"] = self.addition_eval(requirement["addition"], value)
+        return output
+    
+    def check_type( self, key, value, value_type):
+        if value_type == "node_list":
+            if not isinstance( value.split(','), list ):
+                return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]
+            # check if node exists and can be ssh
+            error_node = []
+            for node in value.split(','):
+                if not common.try_ssh(node):
+                    error_node.append( node )
+            if len(error_node):
+                return [ False, "Nodes:%s are not set in /etc/hosts or can't be auto ssh" % error_node ]
+            else:
+                return [ True, "" ]
+
+        if value_type == "int_list":
+            if not isinstance( value.split(','), list ):
+                return [ False, "Value is a %s, format %s" % (value_type, "10,10,10,10") ]
+            else:
+                try:
+                    for subdata in value.split(','):
+                        int( subdata )
+                    return [ True, "" ]
+                except:
+                    return [ False, "Value is a %s, format %s" % (value_type, "10,10,10,10") ]
+
+        if value_type == "bool":
+            if value in ["true", "false"]:
+                return [ True, "" ]
+            else:
+                return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]
+
+        if "static" in value_type:
+            static_value = value_type.split(":")[1]
+            if value == static_value:
+                return [ True, "" ]
+            else:
+                return [ False, "Value is a static, only can set to be %s" % static_value ]
+
+        if value_type == "int":
+            try:
+                int(value)
+                return [ True, "" ]
+            except:
+                return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]
+
+        if value_type == "osd_journal_list":
+            try:
+                error_disk = []
+                for substr in value.split(','):
+                    osd, journal = substr.split(':')
+                    if not common.try_disk(key, osd):
+                        error_disk.append(osd)
+                    if not common.try_disks(key, journal):
+                        error_disk.append(journal)
+                if not len(error_disk):
+                    return [ True, "" ]
+                else:
+                    return [ False, "Disks:%s are not exists or it is boot device." % error_disk ]
+            except:
+                return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]
+
+
+        if value_type == "network":
+            try:
+                ip, netmask = value.split('/')
+                if int(netmask) < 32 and len(ip.split('.')) == 4:
+                    return [ True , "" ]
+                else:
+                    return [ False, "Value is a %s, format %s" % (value_type, "192.168.5.0/24") ]
+
+            except:
+                return [ False, "Value is a %s, format %s" % (value_type, "192.168.5.0/24") ]
+
+        if value_type == "ip":
+            try:
+                count = 0
+                for subip in value.split('.'):
+                    count += 1
+                    if int(subip) >= 255:
+                        return [ False, "Value is a %s, format %s" % (value_type, "192.168.5.1") ]
+                if count == 4:
+                    return [ True , "" ]
+                else:
+                    return [ False, "Value is a %s, format %s" % (value_type, "192.168.5.1") ]
+            except:
+                return [ False, "Value is a %s, format %s" % (value_type, "192.168.5.1") ]
+
+        return [ True, "" ]
+    
+    def addition_eval( self, requirement, value ):
+        if isinstance(requirement, dict):
+            return requirement
+        if isinstance(requirement, str):
+            func = getattr(self, requirement)
+            if func:
+                return func( value )
+
+    def value_to_key( self, value ):
+        output = {}
+        for key in value.split(','):
+            output[key] = ""
+        return output
+
+    def type_example( self, value_type ):
+        if value_type == "node_list":
+            return "node01,node02,node03,..."
+        if value_type == "bool":
+            return "false/true"
+        if value_type == "osd_journal_list":
+            return "/dev/hdd1:/dev/ssd1,/dev/hdd2:/dev/ssd2"
 
 def main(args):
     parser = argparse.ArgumentParser(description='debug')

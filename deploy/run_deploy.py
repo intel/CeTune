@@ -33,6 +33,9 @@ def main(args):
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
         mydeploy.redeploy()
+        if args.with_rgw:
+            mydeploy = deploy_rgw.Deploy_RGW()
+            mydeploy.deploy()
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
         mydeploy.cleanup()

@@ -181,7 +181,7 @@ class results:
         dest_dir = conf.get("dest_dir")
         path = "%s/%s/" % (dest_dir, session_name)
         if not os.path.isfile("%s/%s_%s.zip" % ( path, session_name, detail_type)):
-            common.bash("cd %s; zip %s_%s.zip %s/*;" % (path, session_name, detail_type, detail_type))
+            common.bash("cd %s; zip %s_%s.zip -r %s;" % (path, session_name, detail_type, detail_type))
         return open( "%s/%s_%s.zip" % ( path, session_name, detail_type), "rb" ).read()
 
 class defaults_pic:

@@ -25,7 +25,7 @@ class Tuner:
         self.cluster["osds"] = self.all_conf_data.get_list("list_server")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
-        self.cluster["benchmark_engine"] = self.all_conf_data.get_list("benchmark_engine")
+        self.cluster["rgw_enable"] = self.all_conf_data.get_list("enable_rgw")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
@@ -42,7 +42,7 @@ class Tuner:
         controller = self.cluster["head"]
         osds = self.cluster["osds"]
         pwd = os.path.abspath(os.path.join('..'))
-        if len(self.cluster["rgw"]):
+        if len(self.cluster["rgw"]) and self.cluster["rgw_enable"]=="true":
             with_rgw = True
         else:
             with_rgw = False

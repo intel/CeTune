@@ -154,3 +154,5 @@ body{ margin:0px; padding:0px;}
             border-top: 1px solid #ccc;
             border-left: 1px solid #ccc;
             border-right: 1px solid #ccc;}
+
+.testcase-dialog-description{ font-size: 12px; color:#999; font-style: italic; font-weight: 100 }

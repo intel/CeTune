@@ -101,7 +101,11 @@ class Deploy(object):
         version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94'}
         for node, version_code in installed.items():
             if version == "":
-                installed_list = common.unique_extend( installed_list, [version_code])
+                for release_name, short_version in version_map.items():
+                    if short_version in version_code:
+                        version_release_name = release_name
+                        break
+                installed_list = common.unique_extend( installed_list, [version_release_name])
                 continue;
             if version_map[version] not in version_code:
                 uninstall_nodes.append(node)

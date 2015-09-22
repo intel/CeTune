@@ -35,6 +35,7 @@ function RunStatus_Timer(){
     {
         $("#div_top_status_id a").text(cetune_status);
         $("#div_Configuration_right_back_id").show()
+        $("#bnt_Configuration_exec_id").attr("value","Cancel Job")
     }
     else
     {

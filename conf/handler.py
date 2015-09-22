@@ -46,20 +46,13 @@ class ConfigHandler():
 
     def set_config(self, request_type, key, value):
         conf_type = self.get_corresponde_config(request_type)
-        output = {}
-        output["key"] = key
-        output["value"] = value
-        output["dsc"] = ""
-        output["check"] = False
         if conf_type == "tuner":
             res = self.tuner_conf.set_config(key, value)
         elif conf_type == "all":
             res = self.all_conf.set_config(request_type, key, value)
         if conf_type == "cases":
             res = self.cases_conf.set_config(value)
-        if res:
-            output["check"] = True
-        return output
+        return res
 
     def check_engine(self, engine_list):
         request_type = "benchmark"
@@ -68,13 +61,37 @@ class ConfigHandler():
         tmp_res = OrderedDict()
         for engine in engine_list:
             if engine == "qemurbd":
-                required = {"list_vclient":"vclient01,vclient02...", "fio_capping":"false", "volume_size":"40960", "rbd_volume_count":"1", "disk_num_per_client":"35"} 
+                required = OrderedDict()
+                required["list_vclient"] = "vclient01,vclient02..."
+                required["fio_capping"] = "false"
+                required["volume_size"] = "40960"
+                required["rbd_volume_count"] = "1"
+                required["disk_num_per_client"] = "35,35,35,35"
+                required["rwmixread"] = 100
             if engine == "fiorbd":
-                required = {"fio_capping":"false", "volume_size":"40960", "rbd_volume_count":"1", "disk_num_per_client":"35"} 
+                required = OrderedDict()
+                required["fio_capping"] = "false"
+                required["volume_size"] = "40960"
+                required["rbd_volume_count"] = "1"
+                required["disk_num_per_client"] = "35,35,35,35"
+                required["rwmixread"] = 100
             if engine == "cosbench":
-                required = []
+                required = OrderedDict()
+                required["cosbench_version"] = "v0.4.2.c2"
+                required["cosbench_controller"] = ""
+                required["cosbench_driver"] = ""
+                required["cosbench_folder"] = "/opt/cosbench"
+                required["cosbench_config_dir"] = "/opt/cosbench_config"
+                required["cosbench_cluster_ip"] = "10.10.5.5"
+                required["cosbench_admin_ip"] = "192.168.5.1"
+                required["cosbench_network"] = "192.168.5.0/24"
+                required["cosbench_auth_username"] = "cosbench:operator"
+                required["cosbench_auth_password"] = "intel2012"
+                required["cosbench_controller_proxy"] = ""
             if engine == "generic":
-                required = []
+                required = OrderedDict()
+                requited["test_disks"] = ""
+                required["disk_num_per_client"] = "35,35,35,35"
             for required_key in required:
                  if required_key not in benchmark_config.keys():
                      value = required[required_key]
@@ -122,14 +139,7 @@ class ConfigHandler():
         required_list["cluster"]["list_server"] = ""
         required_list["cluster"]["list_client"] = ""
         required_list["cluster"]["list_mon"] = ""
-        required_list["cluster"]["disk_num_per_client"] = 10
         required_list["cluster"]["enable_rgw"] = "false"
-        required_list["cluster"]["rgw_start_index"] = 1
-        required_list["cluster"]["rgw_num_per_server"] = 5
-        required_list["cluster"]["osd_partition_count"] = 1
-        required_list["cluster"]["osd_partition_size"] = ""
-        required_list["cluster"]["journal_partition_count"] = 5
-        required_list["cluster"]["journal_partition_size"] = "10G"
         required_list["ceph_hard_config"] = OrderedDict()
         required_list["ceph_hard_config"]["public_network"] = ""
         required_list["ceph_hard_config"]["cluster_network"] = ""

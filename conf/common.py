@@ -504,3 +504,20 @@ def get_ceph_health():
     if not len(stdout):
         stdout = "NOT ALIVE"
     return stdout
+
+def try_ssh( node ):
+    stdout = bash("timeout 5 ssh %s hostname > /dev/null; echo $?" % node)
+    if stdout.strip() == "0":
+        return True
+    else:
+        return False
+    
+def try_disk( node, disk ):
+    stdout = bash("timeout 5 ssh %s 'df %s > /dev/null'; echo $?" % (node, disk))
+    if stdout.strip() == "0":
+        stdout = bash("ssh %s mount -l | grep boot | awk '{print $1}'" % node)
+        if disk == stdout.strip():
+            return False   
+        return True
+    else:
+        return False

@@ -257,56 +257,63 @@
         <form>
           <div class="form-group">
             <label for="recipient-benchmark_engine" class="control-label">benchmark_driver:</label>
+            <label class="testcase-dialog-description">options: qemurbd, fiorbd, cosbench, generic</label>
             <input type="text" class="form-control" id="recipient-benchmark_engine">
           </div>
           
           <div class="form-group">
             <label for="message-dsc" class="control-label">worker:</label>
+            <label class="testcase-dialog-description">rbd-example: 140</label>
+            <label class="testcase-dialog-description">cosbench-example: 0(use 0 to initialize container) and 160(as worker)</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-worker">
           </div>
           
           <div class="form-group">
             <label for="message-value" class="control-label">container_size:</label>
+            <label class="testcase-dialog-description">rbd-example: 10g</label>
+            <label class="testcase-dialog-description">cosbench-example: r(1,100)</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-container_size">
           </div>
           
           <div class="form-group">
             <label for="message-value" class="control-label">iopattern:</label>
+            <label class="testcase-dialog-description">rbd-options: seqwrite,seqread,randwrite,randread,readwrite,randrw</label>
+            <label class="testcase-dialog-description">cosbench-options: write, read</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-io_pattern">
           </div>
           
            <div class="form-group">
             <label for="message-value" class="control-label">opsize:</label>
+            <label class="testcase-dialog-description">rbd-example: 4k</label>
+            <label class="testcase-dialog-description">cosbench-example: 128KB</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-block_size">
           </div>
           
            <div class="form-group">
             <label for="message-value" class="control-label">object_size/QD:</label>
+            <label class="testcase-dialog-description">rbd-example: 64</label>
+            <label class="testcase-dialog-description">cosbench-example: r(1,100)</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-work_depth">
           </div>
           
           
            <div class="form-group">
-            <label for="message-value" class="control-label">rampup:</label>
+            <label for="message-value" class="control-label">rampup(sec):</label>
+            <label class="testcase-dialog-description">example: 100</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-ramup_time">
           </div>
           
            <div class="form-group">
-            <label for="message-value" class="control-label">runtime:</label>
+            <label for="message-value" class="control-label">runtime(sec):</label>
+            <label class="testcase-dialog-description">example: 400</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient-run_time">
-          </div>
-          
-           <div class="form-group">
-            <label for="message-value" class="control-label">device:</label>
-            <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-devcie">
           </div>
           
         </form>
