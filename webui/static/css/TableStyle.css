@@ -35,7 +35,14 @@ td{ height:30px;}
 .td_class{ border:1px solid #CCC; text-align:left; width:auto;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
 
 					 
-.text_class{ background-color: #F1F1F1; color: #000; border-top:1.5px solid #666; border-left:1.5px solid #666; font-weight:bold;}
+.text_class{ background-color: #E8E8E8; color: #000;
+             border-top:1.5px solid #666; 
+			 border-left:1.5px solid #666; 
+			 border-right:1.5px solid #E8E8E8;
+			 border-buttom:1.5px solid #E8E8E8;
+			 font-weight:bold;
+			 width:80%}
+			 
 .label_class{ cursor:pointer;
               word-wrap:break-word;word-break:keep-all;overflow:hidden; width:80%; height:80%;}
 

@@ -174,49 +174,48 @@ function CreateTableHTML_Benchmark(jsonObj){
         tableHtml += "<input type='checkbox' class = 'checkbox_benchmark_class' id='checkbox_benchmark_'+ "+index+" name='checkbox'+"+index+">";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.benchmark_driver+"&quot;)'>" + val.benchmark_driver;
+        tableHtml += "<td class='td_class'  id='td_benchmark_id_"+index+"_1'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_1'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,1,&quot;"+ val.benchmark_driver+"&quot;)'>" + val.benchmark_driver;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.worker+"&quot;)'>" + val.worker;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_2'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_2'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,2,&quot;"+ val.worker+"&quot;)'>" + val.worker;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.container_size+"&quot;)'>" + val.container_size;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_3'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_3'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+", 3,&quot;"+ val.container_size+"&quot;)'>" + val.container_size;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.iopattern+"&quot;)'>" + val.iopattern;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_4'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_4'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+",4 ,&quot;"+ val.iopattern+"&quot;)'>" + val.iopattern;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.op_size+"&quot;)'>" + val.op_size;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_5'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_5'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,5,&quot;"+ val.op_size+"&quot;)'>" + val.op_size;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val["object_size/QD"]+"&quot;)'>" + val["object_size/QD"];
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_6'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_6'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+",6 ,&quot;"+ val["object_size/QD"]+"&quot;)'>" + val["object_size/QD"];
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.rampup+"&quot;)'>" + val.rampup;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_7'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_7'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+",7 ,&quot;"+ val.rampup+"&quot;)'>" + val.rampup;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.runtime+"&quot;)'>" + val.runtime;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_8'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_8'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,8,&quot;"+ val.runtime+"&quot;)'>" + val.runtime;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
-        tableHtml += "<td class='td_class'>";
-        tableHtml += "<label id='label_benchmark_id_"+index+"_"+index+"'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,&quot;"+ val.device+"&quot;)'>" + val.device;
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_9'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_9'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,9,&quot;"+ val.device+"&quot;)'>" + val.device;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
@@ -285,38 +284,40 @@ function Ok_Apply(rowNum){
 function Cancel_Apply(rowNum,value){
     otd = document.getElementById("td_value_id_"+rowNum);
     otext = document.getElementById("text_id_"+rowNum);
-    otd.innerHTML =" <label id='label_id_"+rowNum+"' class = 'label_class' onclick='Label_Click("+rowNum+", &quot;"+ value+"&quot;)' >"+ value +"</label>";
+    otd.innerHTML =" <label id='label_id_"+rowNum+"' class = 'label_class' onclick='Label_Click("+rowNum+",&quot;"+ value+"&quot;)' >"+ value +"</label>";
 }
-
+//------------------------------------------------------------------------------------------------------
 //label click opertion
-function Label_benchmark_Click(count,value){
-    var rowNum = count;
-    olabel = document.getElementById("label_benchmark_id_"+rowNum);
+function Label_benchmark_Click(rowNum , colNum , value){
+    olabel = document.getElementById("label_benchmark_id_" + rowNum + "_" + colNum);
     olabel.style.backgroundColor = "#cff";
-    otd = document.getElementById("td_benchmark_value_id_"+rowNum);
+    otd = document.getElementById("td_benchmark_id_" + rowNum + "_" + colNum);
     otd.removeChild(olabel);
-    var strHtml =  "<input class='text_class' id = 'text_benchmark_id_"+rowNum+"' value = '"+value+"' type='text' name='fname'/>";
-    strHtml += "<input class='btn_okcancel_class' id='bnt_benchmark_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_benchmark_Apply("+rowNum+")' />";
-    strHtml += "<input class='btn_okcancel_class' id='bnt_benchmark_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_benchmark_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
+    var strHtml =  "<input class='text_class' id = 'text_benchmark_id_"+rowNum+"_"+ colNum +"' value = '"+value+"' type='text' name='fname'/>";
+    strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_ok_id_"+rowNum+"_"+colNum+"' type='button' value='OK' onclick= 'Ok_benchmark_Apply("+rowNum+","+ colNum+")' />";
+    strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_cancel_id_"+rowNum+"_"+colNum+"' type='button' value='Cancel' onclick= 'Cancel_benchmark_Apply("+rowNum+","+colNum+",&quot;"+value+"&quot;)'/>";
     otd.innerHTML =strHtml;
 }
 
 //edit value apply
-function Ok_benchmark_Apply(rowNum){
-    otd = document.getElementById("td_benchmark_value_id_"+rowNum);
-    otext = document.getElementById("text_benchmark_id_"+rowNum);
+function Ok_benchmark_Apply(rowNum , colNum ){
+    otd = document.getElementById("td_benchmark_id_"+rowNum + "_" + colNum);
+    otext = document.getElementById("text_benchmark_id_"+rowNum + "_" + colNum);
     var valueStr =  otext.value;
-    otd.innerHTML =" <label id = 'label_benchmark_id_"+rowNum+"' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+", &quot;"+ valueStr+"&quot;)' >"+ valueStr +"</label>";
+    otd.innerHTML =" <label id = 'label_benchmark_id_"+rowNum+"_" + colNum + "' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+","+ colNum+", &quot;"+ valueStr+"&quot;)' >"+ valueStr +"</label>";
 }
 
 //edit value cancel
-function Cancel_benchmark_Apply(rowNum,value){
-    otd = document.getElementById("td_benchmark_value_id_"+rowNum);
-    otext = document.getElementById("text_benchmark_id_"+rowNum);
-    otd.innerHTML =" <label id='label_benchmark_id_"+rowNum+"' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+", &quot;"+ value+"&quot;)' >"+ value +"</label>";
+function Cancel_benchmark_Apply(rowNum , colNum ,value){
+    otd = document.getElementById("td_benchmark_id_"+rowNum+ "_" + colNum);
+    otext = document.getElementById("text_benchmark_id_"+rowNum+ "_" + colNum);
+    otd.innerHTML =" <label id='label_benchmark_id_"+rowNum+"_" + colNum +"' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+", "+ colNum +" , &quot;"+ value+"&quot;)' >"+ value +"</label>";
+	
+	 Submit_Benchmark();
+	
 }
 
-/***********************************************************************************************************************/
+/********************************************************************************************************************************************************/
 //delete row when checkbox is checked
 function Del(tableType){
     if(tableType =="configuration"){
@@ -407,7 +408,7 @@ function ConfigurationModal_OK(key, value, dsc){
     value = $("#recipient-value").val();
     dsc = "";
     if(key == "" || value ==""){
-        $("#ModalLabel_Configuration_Add").html("Hi,The input can't be empty!");
+        $("#div_configuration_message_div").show();
     }else{
         //--------set to ajax----------
         var request_type,key,value;//set_config?request_type= &key= &value= 
@@ -419,6 +420,7 @@ function ConfigurationModal_OK(key, value, dsc){
         data.value = value;
 
         var result = GetDataByAjax_POST(address_Configuration_Set,data);
+		$("#div_configuration_message_div").hide();
         setTimeout(function(){$("#ConfigurationModal").modal("hide")},100);
         Append_Row_to_Configuration( result );
     }
@@ -481,9 +483,9 @@ function BenchMarkModel_OK(){
 
     if(benchmark_driver == "" || worker== "" ||container_size  == "" || iopattern == "" || op_size == "" ||
         object_size == "" || rampup == "" || runtime == "" || device == "" ){
-        $("#ModalLabel_Benchmark_Add").html("Hi,The input can't be empty!");
+        $("#div_benchmark_message_div").show();
     }else{
-        $("#ModalLabel_Benchmark_Add").html("Add a new row for configuration");
+        //$("#ModalLabel_Benchmark_Add").html("Add a new row for configuration");
         setTimeout(function(){$("#BenchmarkModel").modal("hide")},100);
         var html = "<tr>";
 
@@ -492,32 +494,32 @@ function BenchMarkModel_OK(){
         html +="</td>";
 
 
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ benchmark_driver+"&quot;)'>"+ benchmark_driver +"</label>";
+        html += "<td class='td_value_class'  id='td_benchmark_id_"+index+"_1'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_1' class='label_class' onclick='Label_benchmark_Click("+rows+",1,&quot;"+ benchmark_driver+"&quot;)'>"+ benchmark_driver +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ worker+"&quot;)'>"+ worker +"</label>";
+        html += "<td class='td_value_class'  id='td_benchmark_id_"+index+"_2'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_2' class='label_class' onclick='Label_benchmark_Click("+rows+",2,&quot;"+ worker+"&quot;)'>"+ worker +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ container_size+"&quot;)'>"+ container_size +"</label>";
+        html += "<td class='td_value_class'  id='td_benchmark_id_"+index+"_3'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_3' class='label_class' onclick='Label_benchmark_Click("+rows+",3,&quot;"+ container_size+"&quot;)'>"+ container_size +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_Click("+rows+",&quot;"+ iopattern+"&quot;)'>"+ iopattern +"</label>";
+        html += "<td class='td_value_class'  id='td_benchmark_id_"+index+"_4'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_4' class='label_class' onclick='Label_Click("+rows+",4,&quot;"+ iopattern+"&quot;)'>"+ iopattern +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ op_size+"&quot;)'>"+ op_size +"</label>";
+        html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_5'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_5' class='label_class' onclick='Label_benchmark_Click("+rows+",5,&quot;"+ op_size+"&quot;)'>"+ op_size +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ object_size+"&quot;)'>"+ object_size +"</label>";
+        html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_6'>";
+        html +="<label id = 'label_id_"+rows+"_6' class='label_class' onclick='Label_benchmark_Click("+rows+",6,&quot;"+ object_size+"&quot;)'>"+ object_size +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ rampup+"&quot;)'>"+ rampup +"</label>";
+        html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_7'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_7' class='label_class' onclick='Label_benchmark_Click("+rows+",7,&quot;"+ rampup+"&quot;)'>"+ rampup +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ runtime+"&quot;)'>"+ runtime +"</label>";
+        html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_8'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_8' class='label_class' onclick='Label_benchmark_Click("+rows+",8,&quot;"+ runtime+"&quot;)'>"+ runtime +"</label>";
         html +="</td>";
-        html += "<td class='td_value_class'id = 'td_value_id_"+rows+"'>";
-        html +="<label id = 'label_benchmark_id_"+rows+"' class='label_class' onclick='Label_benchmark_Click("+rows+",&quot;"+ device+"&quot;)'>"+ device +"</label>";
+        html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_9'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_9' class='label_class' onclick='Label_benchmark_Click("+rows+",9,&quot;"+ device+"&quot;)'>"+ device +"</label>";
         html +="</td>";
 
         html += "<tr>";
