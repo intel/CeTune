@@ -198,6 +198,7 @@ class Config():
         required["cosbench_admin_ip"] = {"type":"ip"}
         required["cosbench_network"] = {"type":"network"}
         required["disk_num_per_client"] = {"type":"int_list"}
+        required["list_vclient"] = {"type":"node_list"}
 
         helper = ConfigHelper()
         if key in required:

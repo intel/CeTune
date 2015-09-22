@@ -90,7 +90,8 @@ class ConfigHandler():
                 required["cosbench_controller_proxy"] = ""
             if engine == "generic":
                 required = OrderedDict()
-                requited["test_disks"] = ""
+                required["test_disks"] = ""
+                required["fio_capping"] = "false"
                 required["disk_num_per_client"] = "35,35,35,35"
             for required_key in required:
                  if required_key not in benchmark_config.keys():
