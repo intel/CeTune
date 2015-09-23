@@ -493,7 +493,7 @@ function BenchMarkModel_OK(){
         html +="<input type='checkbox' class = 'checkbox_benchmark_class' id='checkbox_benchmark_id'+ "+rows+" name='checkbox'>";
         html +="</td>";
 
-
+        var index = rows
         html += "<td class='td_value_class'  id='td_benchmark_id_"+index+"_1'>";
         html +="<label id = 'label_benchmark_id_"+rows+"_1' class='label_class' onclick='Label_benchmark_Click("+rows+",1,&quot;"+ benchmark_driver+"&quot;)'>"+ benchmark_driver +"</label>";
         html +="</td>";

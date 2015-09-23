@@ -151,22 +151,24 @@ class Config():
         if request_type not in self.group:
             self.group[request_type] = []
         
-        # check if need to add new terms
-        res = self.check_config( key, value )
-        if not res["check"]:
-            return res
-
-        # if check is right, then add addition and set_config
-        tmp = []
-        for add_key, add_value in res["addition"].items():
-            if add_key not in self.group[request_type]:
-                tmp.append( self._set_config( request_type, add_key, add_value, option="update" ) )
-        res["addition"] = tmp
-
         if option == "delete":
             del self.conf_data[key]
             self.group[request_type].remove(key)
-        elif option == "update":
+            return {}
+
+        if option == "update":
+            # check if need to add new terms
+            res = self.check_config( key, value )
+            if not res["check"]:
+                return res
+    
+            # if check is right, then add addition and set_config
+            tmp = []
+            for add_key, add_value in res["addition"].items():
+                if add_key not in self.group[request_type]:
+                    tmp.append( self._set_config( request_type, add_key, add_value, option="update" ) )
+            res["addition"] = tmp
+
             self.conf_data[key] = value
             if request_type not in self.group:
                 self.group[request_type] = []
@@ -183,10 +185,10 @@ class Config():
         required["osd_journal"] = {"type":"osd_journal_list"}
         required["list_client"] = {"type":"node_list"}
         required["list_mon"] = {"type":"node_list"}
-        required["enable_rgw"] = {"if":"true", "type":"bool", "addition":{"rgw_server":"","rgw_start_index":1, "rgw_num_per_server":5}}
+        required["enable_rgw"] = {"if":"true", "type":"bool", "addition":{"rgw_server":"","rgw_start_index":1, "rgw_num_per_server":5, "cosbench_auth_username":"cosbench:operator", "cosbench_auth_password":"intel2012", "cosbench_controller_proxy":""}}
         required["rgw_server"] = {"type":"node_list"}
         required["rgw_num_per_server"] = {"type":"int"}
-        required["rgw_server"] = {"type":"int"}
+        required["rgw_start_index"] = {"type":"int"}
 
         required["public_network"] = {"type": "network"}
         required["cluster_network"] = {"type": "network"}
@@ -356,11 +358,14 @@ class ConfigHelper():
         if value_type == "osd_journal_list":
             try:
                 error_disk = []
-                for substr in value.split(','):
+                disk_list = value.split(',')
+                print disk_list
+                for substr in disk_list:
                     osd, journal = substr.split(':')
+                    print "osd: %s, journal: %s" % (osd, journal)
                     if not common.try_disk(key, osd):
                         error_disk.append(osd)
-                    if not common.try_disks(key, journal):
+                    if not common.try_disk(key, journal):
                         error_disk.append(journal)
                 if not len(error_disk):
                     return [ True, "" ]

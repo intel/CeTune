@@ -29,13 +29,24 @@ def main(args):
         default = False,
         action='store_true'
         )
+    parser.add_argument(
+        '--gen_cephconf',
+        default = False,
+        action='store_true'
+        )
     args = parser.parse_args(args)
+    if args.operation == "caldiff":
+        mydeploy = deploy.Deploy()
+        mydeploy.cal_cephmap_diff()
+
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
-        mydeploy.redeploy()
+        mydeploy.redeploy(args.gen_cephconf)
+        print args.with_rgw
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
             mydeploy.deploy()
+
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
         mydeploy.cleanup()

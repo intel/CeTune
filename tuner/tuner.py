@@ -25,7 +25,7 @@ class Tuner:
         self.cluster["osds"] = self.all_conf_data.get_list("list_server")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
-        self.cluster["rgw_enable"] = self.all_conf_data.get_list("enable_rgw")
+        self.cluster["rgw_enable"] = self.all_conf_data.get("enable_rgw")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
@@ -319,7 +319,7 @@ class Tuner:
                     tuning[section_name] = section
                 common.printout("LOG","Apply osd and mon tuning to ceph.conf")
                 if with_rgw:
-                    run_deploy.main(['--config', json.dumps(tuning), '--with_rgw', 'gen_cephconf'])
+                    run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
                 else:
                     run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
                 common.printout("LOG","Distribute ceph.conf")

@@ -85,9 +85,6 @@ class ConfigHandler():
                 required["cosbench_cluster_ip"] = "10.10.5.5"
                 required["cosbench_admin_ip"] = "192.168.5.1"
                 required["cosbench_network"] = "192.168.5.0/24"
-                required["cosbench_auth_username"] = "cosbench:operator"
-                required["cosbench_auth_password"] = "intel2012"
-                required["cosbench_controller_proxy"] = ""
             if engine == "generic":
                 required = OrderedDict()
                 required["test_disks"] = ""
@@ -135,6 +132,7 @@ class ConfigHandler():
     def list_required_config(self):
         required_list = {}
         required_list["cluster"] = OrderedDict()
+        required_list["cluster"]["clean_build"] = "true"
         required_list["cluster"]["head"] = socket.gethostname()
         required_list["cluster"]["user"] = "root"
         required_list["cluster"]["list_server"] = ""

@@ -128,7 +128,7 @@ def remote_file_exist( user, node ,path):
     for node, returncode in res.items():
         return int(returncode) == 0
 
-def pdsh(user, nodes, command, option="error_check", nodie=False):
+def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=False):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
@@ -150,8 +150,17 @@ def pdsh(user, nodes, command, option="error_check", nodie=False):
     _subp.stdout.close()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
-    printout("CONSOLE", stdout, screen=False)
-    printout("CONSOLE", stderr, screen=False)
+    if stdout:
+        printout("CONSOLE", stdout, screen=False)
+    if stderr:
+        printout("CONSOLE", stderr, screen=False)
+
+    if stderr:
+        returncode_re = re.search('ssh exited with exit code (\d+)', stderr)
+        if returncode_re:
+            returncode += int(returncode_re.group(1))
+    if returncode == except_returncode:
+        returncode = 0
 
     if "check_return" in option:
         if returncode or "Connection timed out" in stderr:
@@ -190,7 +199,10 @@ def bash(command, force=False, option="", nodie=False):
     _subp.stdout.close()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
-    printout("CONSOLE", stdout, screen=False)
+    if stdout:
+        printout("CONSOLE", stdout, screen=False)
+    if stderr:
+        printout("CONSOLE", stderr, screen=False)
 
     if force:
         return [stdout, stderr]
@@ -214,6 +226,7 @@ def scp(user, node, localfile, remotefile):
 
 def rscp(user, node, localfile, remotefile):
     args = ['scp', '-oConnectTimeout=15', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
+    printout("CONSOLE", args, screen=False)
     #print('rscp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:

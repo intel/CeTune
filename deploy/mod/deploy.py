@@ -17,6 +17,7 @@ class Deploy(object):
     def __init__(self, tunings=""):
         self.all_conf_data = config.Config("../conf/all.conf")
         self.cluster = {}
+        self.cluster["clean_build"] = self.all_conf_data.get("clean_build")
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["clients"] = self.all_conf_data.get_list("list_client")
@@ -177,51 +178,180 @@ class Deploy(object):
         res = common.format_pdsh_return(stdout)
         return [res, need_to_install_nodes]
 
-    def gen_cephconf(self):
+    def gen_cephconf(self, option="refresh"):
+        if self.cluster["clean_build"] == "true":
+            clean_build = True
+        else:
+            clean_build = False
+
+        map_diff = self.cal_cephmap_diff()
         cephconf = []
-        for section in self.cluster["ceph_conf"]:
-            cephconf.append("[%s]\n" % section)
-            for key, value in self.cluster["ceph_conf"][section].items():
-                cephconf.append("    %s = %s\n" % (key, value))
-        for mon in self.cluster["mons"]:
+        if not clean_build:
+            osds = map_diff["osd"]
+            mons = map_diff["mon"]
+            osd_id = map_diff["osd_num"]
+            osd_dict = map_diff
+        else:
+            osds = self.cluster["osds"]
+            mons = self.cluster["mons"]
+            osd_dict = self.cluster
+            osd_id = 0
+            for section in self.cluster["ceph_conf"]:
+                cephconf.append("[%s]\n" % section)
+                for key, value in self.cluster["ceph_conf"][section].items():
+                    cephconf.append("    %s = %s\n" % (key, value))
+
+        for mon in mons:
             cephconf.append("[mon.%s]\n" % mon)
             cephconf.append("    host = %s\n" % mon)
             cephconf.append("    mon addr = %s\n" % self.cluster["mons"][mon])
-        osd_id = 0
-        for osd in sorted(self.cluster["osds"]):
-            for device_bundle in common.get_list(self.cluster[osd]):
+
+        for osd in sorted(osds):
+            for device_bundle in common.get_list(osd_dict[osd]):
                 osd_device = device_bundle[0]
                 journal_device = device_bundle[1]
                 cephconf.append("[osd.%d]\n" % osd_id)
                 osd_id += 1
                 cephconf.append("    host = %s\n" % osd)
-                cephconf.append("    public addr = %s\n" % self.cluster["osds"][osd]["public"])
-                cephconf.append("    cluster addr = %s\n" % self.cluster["osds"][osd]["cluster"])
+                cephconf.append("    public addr = %s\n" % osds[osd]["public"])
+                cephconf.append("    cluster addr = %s\n" % osds[osd]["cluster"])
                 cephconf.append("    osd journal = %s\n" % journal_device)
                 cephconf.append("    devs = %s\n" % osd_device)
+
         output = "".join(cephconf)
-        with open("../conf/ceph.conf", 'w') as f:
-            f.write(output)
+        if not clean_build:
+            with open("../conf/ceph.conf", 'a') as f:
+                f.write(output)
+        else:
+            with open("../conf/ceph.conf", 'w') as f:
+                f.write(output)
 
-    def redeploy(self):
+    def read_cephconf(self):
+        cephconf_dict = OrderedDict()
+        cephconf_dict["mon"] = []
+        cephconf_dict["osd"] = {}
+        cephconf_dict["mds"] = {}
+        cephconf_dict["radosgw"] = []
+        
+        try:
+            with open("../conf/ceph_current_status", 'r') as f:
+                cephconf = f.readlines()
+        except:
+            common.printout("ERROR", "Current Cluster ceph.conf file not exists under CeTune/conf/")
+            return cephconf_dict
+
+        section_name = None
+        host = None
+        for line in cephconf:
+            re_res = re.search('\[(.*)\]', line)
+            if re_res:
+                section_name = re_res.group(1)
+                continue
+            if not section_name:
+                continue
+
+            try:
+                key, value = line.split('=')
+            except:
+                continue
+
+            if "mon" in section_name:
+                if key.strip() == "host":
+                    cephconf_dict["mon"].append( value.strip() )
+
+            if "osd" in section_name:
+                if key.strip() == "host":
+                    host = value.strip()
+                    if host not in cephconf_dict["osd"]:
+                        cephconf_dict["osd"][host] = []
+                    device = ["",""]
+
+                if key.strip() == "osd journal" and host:
+                    device[1] = value.strip()
+                    if device[0] != "" and device[1] != "":
+                        cephconf_dict["osd"][host].append(':'.join(device))
+
+                if key.strip() == "devs" and host:
+                    device[0] = value.strip()
+                    if device[0] != "" and device[1] != "":
+                        cephconf_dict["osd"][host].append(':'.join(device))
+
+            if "radosgw" in section_name:
+                if key.strip() == "host":
+                    host = value.strip()
+                    if host not in cephconf_dict["radosgw"]:
+                        cephconf_dict["radosgw"].append(host)
+
+        return cephconf_dict 
+
+    def cal_cephmap_diff(self):
+        old_conf = self.read_cephconf()
+
+        cephconf_dict = OrderedDict()
+        cephconf_dict["mon"] = {}
+        cephconf_dict["osd"] = {}
+        cephconf_dict["mds"] = {}
+        cephconf_dict["osd_num"] = 0
+
+        for osd in self.cluster["osds"]:
+            if osd not in old_conf["osd"].keys():
+                cephconf_dict["osd"][osd] = self.cluster["osds"][osd]
+                cephconf_dict[osd] = self.cluster[osd]
+            else:
+                for device in self.cluster[osd]:
+                    if device not in old_conf["osd"][osd]:
+                        if osd not in cephconf_dict["osd"]:
+                            cephconf_dict["osd"][osd] = self.cluster["osds"][osd]
+                        if osd not in cephconf_dict:
+                            cephconf_dict[osd] = []
+                        cephconf_dict[osd].append(device)
+                    else:
+                        cephconf_dict["osd_num"] += 1
+
+        for node in self.cluster["mons"]:
+            if node not in old_conf["mon"]:
+                cephconf_dict["mon"][node] = self.cluster["mons"][node]
+
+        print cephconf_dict
+        return cephconf_dict
+
+    def redeploy(self, gen_cephconf):
         common.printout("LOG","ceph.conf file generated")
-        self.cleanup()
-        common.printout("LOG","Killed ceph-mon, ceph-osd and cleaned mon dir")
+        if self.cluster["clean_build"] == "true":
+            clean_build = True
+        else:
+            clean_build = False
 
-        ceph_conf_distributed = True
-        for node in self.cluster["osds"].keys():
-            ceph_conf_distributed = common.remote_file_exist( self.cluster["user"], node, '/etc/ceph/ceph.conf')
-        if not ceph_conf_distributed:
-            self.gen_cephconf()
-            self.distribute_conf()
-        #print common.bcolors.OKGREEN + "[LOG]ceph.conf Distributed to all nodes" +common.bcolors.ENDC
+        if clean_build:
+            self.cleanup()
+            common.printout("LOG","Killed ceph-mon, ceph-osd and cleaned mon dir")
 
-        common.printout("LOG","Started to build mon daemon")
-        self.make_mon()
-        common.printout("LOG","Succeeded in building mon daemon")
-        common.printout("LOG","Started to build osd daemon")
-        self.make_osds()
-        common.printout("LOG","Succeeded in building osd daemon")
+            if gen_cephconf:
+                self.gen_cephconf()
+                self.distribute_conf()
+
+            common.printout("LOG","Started to build mon daemon")
+            self.make_mon()
+            common.printout("LOG","Succeeded in building mon daemon")
+            common.printout("LOG","Started to build osd daemon")
+            self.make_osds()
+            common.printout("LOG","Succeeded in building osd daemon")
+            common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
+
+        else:
+            diff_map = self.cal_cephmap_diff()
+
+            if gen_cephconf:
+                self.gen_cephconf()
+                self.distribute_conf()
+
+            common.printout("LOG","Started to build mon daemon")
+            self.make_mon(diff_map["mon"])
+            common.printout("LOG","Succeeded in building mon daemon")
+            common.printout("LOG","Started to build osd daemon")
+            self.make_osds(diff_map["osd"], diff_map)
+            common.printout("LOG","Succeeded in building osd daemon")
+            common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
 
     def restart(self):
         self.cleanup()
@@ -266,11 +396,15 @@ class Deploy(object):
         for osd in osds:
             common.scp(user, osd, "../conf/ceph.conf", "/etc/ceph/")
 
-    def make_osds(self):
+    def make_osds(self, osds=None, diff_map=None):
+        print diff_map
         user = self.cluster["user"]
-        osds = sorted(self.cluster["osds"])
-        mons = self.cluster["mons"]
-        osd_num = 0
+        if osds==None:
+            osds = sorted(self.cluster["osds"])
+            diff_map = self.cluster
+            osd_num = 0
+        else:
+            osd_num = diff_map["osd_num"]
 
         stdout, stderr = common.pdsh( user, osds, 'mount -l', option="check_return" )
         mount_list = {}
@@ -281,7 +415,7 @@ class Deploy(object):
                 mount_list[node][tmp[0]] = tmp[2]
 
         for osd in osds:
-            for device_bundle_tmp in self.cluster[osd]:
+            for device_bundle_tmp in diff_map[osd]:
                 device_bundle = common.get_list(device_bundle_tmp)
                 osd_device = device_bundle[0][0]
                 journal_device = device_bundle[0][1]
@@ -320,24 +454,29 @@ class Deploy(object):
         osd_filedir = osd_filename.replace("$id",str(osd_num))
         key_fn = '%s/%s/keyring' % (osd_basedir, osd_filedir)
         common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="console")
-        common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="console")
-        common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="console")
-        common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console")
+        common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="console", except_returncode=2)
+        common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="console", except_returncode=1)
+        common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console", except_returncode=22)
 
         # Start the OSD
         common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
         pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
         cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
         cmd = 'ceph-run %s' % cmd
-        common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="console")
+        common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="console", except_returncode=1)
         common.printout("LOG","Builded osd.%s daemon on %s" % (osd_num, osd))
 
-    def make_mon(self):
+    def make_mon(self, mons = None):
         user = self.cluster["user"]
         osds = sorted(self.cluster["osds"])
-        mons = self.cluster["mons"]
+        if mons==None:
+            mons = self.cluster["mons"]
         mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
+
         # Keyring
+        if not len(mons.keys()):
+            return 
+
         mon = mons.keys()[0]
         common.pdsh(user, [mon], 'ceph-authtool --create-keyring --gen-key --name=mon. %s/keyring --cap mon \'allow *\'' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --gen-key --name=client.admin --set-uid=0 --cap mon \'allow *\' --cap osd \'allow *\' --cap mds allow %s/keyring' % mon_basedir)
@@ -359,7 +498,7 @@ class Deploy(object):
             mon_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["mon_data"]).replace("$id",mon)
             common.pdsh(user, [mon], 'rm -rf %s/%s' % (mon_basedir, mon_filename))
             common.pdsh(user, [mon], 'mkdir -p %s/%s' % (mon_basedir, mon_filename))
-            common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="console")
+            common.pdsh(user, [mon], 'sh -c "ulimit -c unlimited && exec ceph-mon --mkfs -i %s --monmap=%s/monmap --keyring=%s/keyring"' % (mon, mon_basedir, mon_basedir), option="console", except_returncode=1)
             common.pdsh(user, [mon], 'cp %s/keyring %s/%s/keyring' % (mon_basedir, mon_basedir, mon_filename))
 
         # Start the mons
@@ -368,7 +507,7 @@ class Deploy(object):
             pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            common.pdsh(user, [mon], '%s' % cmd, option="console")
+            common.pdsh(user, [mon], '%s' % cmd, option="console", except_returncode=1)
             common.printout("LOG","Builded mon.%s daemon on %s" % (mon, mon))
 
     def start_mon(self):
@@ -383,7 +522,7 @@ class Deploy(object):
             lttng_prefix = ""
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
-            common.pdsh(user, [mon], '%s %s' % (lttng_prefix, cmd), option="console")
+            common.pdsh(user, [mon], '%s %s' % (lttng_prefix, cmd), option="console", except_returncode=1)
             common.printout("LOG","Started mon.%s daemon on %s" % (mon, mon))
 
     def start_osd(self):
@@ -398,10 +537,10 @@ class Deploy(object):
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
-                lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
-                #lttng_prefix = ""
+                #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
+                lttng_prefix = ""
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console")
+                common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console",except_returncode=1)
                 common.printout("LOG","Started osd.%s daemon on %s" % (osd_num, osd))
                 osd_num = osd_num+1
