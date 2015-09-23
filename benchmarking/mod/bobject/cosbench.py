@@ -302,6 +302,7 @@ class Cosbench(Benchmark):
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
+        monitor_interval = self.cluster["monitoring_interval"]
 
         #1. send command to radosgw
         nodes = []
@@ -309,11 +310,11 @@ class Cosbench(Benchmark):
 
         self.cosbench["run_name"] = {}
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;"  % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; while true; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep 1; done" % ('%s', dest_dir, dest_dir), option="force")
+        common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt;" % (monitor_interval,dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt;"  % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt;" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt;" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, monitor_interval, '%s', dest_dir), option="force")
 
         run_command ="http_proxy=%s sh %s/cli.sh submit %s " % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.benchmark["configfile"])
         stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], run_command, option="check_return")

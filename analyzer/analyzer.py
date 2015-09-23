@@ -37,6 +37,7 @@ class Analyzer:
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
+        self.cluster["monitor_interval"] = self.all_conf_data.get("monitoring_interval")
         self.cluster["osd_daemon_num"] = 0
         self.result = OrderedDict()
         self.result["workload"] = OrderedDict()
@@ -113,6 +114,7 @@ class Analyzer:
 
     def format_result_for_visualizer(self, data):
         output_sort = OrderedDict()
+        monitor_interval = int(self.cluster["monitor_interval"]) 
         output_sort["summary"] = OrderedDict()
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
@@ -146,6 +148,9 @@ class Analyzer:
                                 runtime_end = end
                             runtime_start = start + rampup
                             output[field_type][node] = OrderedDict()
+                            runtime_start = runtime_start / monitor_interval
+                            runtime_end = runtime_end / monitor_interval
+
                             for colume_name, colume_data in data[node_type][node][field_type].items():
                                 if isinstance(colume_data, list):
                                     colume_data = colume_data[runtime_start:runtime_end]
