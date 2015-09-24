@@ -35,6 +35,7 @@ function RunStatus_Timer(){
     {
         $("#div_top_status_id a").text(cetune_status);
         $("#div_Configuration_right_back_id").show()
+        $("#bnt_Configuration_exec_id").attr("value","Cancel Job")
     }
     else
     {
@@ -528,12 +529,12 @@ function GetDataByAjax_POST(addressURL , data){
     $.ajax({
        type:"POST",
        url:addressURL,
-	   beforeSend:loading,//执行ajax前执行loading函数.直到success 
+       beforeSend:loading,//执行ajax前执行loading函数.直到success 
        data: data,
        //dataType:"json",
        async:false,
        success:function(ResponseText){
-		 $("#myShow").hide();
+         $("#myShow").hide();
          try
          {
              jsonObj=ResponseText;//get json string and chenge it to json object;

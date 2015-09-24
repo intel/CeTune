@@ -269,6 +269,10 @@ function Ok_Apply(rowNum){
     //if result check is false , add error sytle
     if(result.check == false){
         $("#td_value_id_"+rowNum).addClass("error");
+        $("#td_value_id_"+rowNum).parent().children().eq(3).children("label").text(result.dsc);
+    }else{
+        $("#td_value_id_"+rowNum).removeClass("error");
+        $("#td_value_id_"+rowNum).parent().children().eq(3).children("label").text("");
     }
     if(result.addition!=undefined){
         $.each(result.addition, function(index, value){
@@ -472,14 +476,21 @@ function BenchMarkModel_OK(){
     var object_size = $("#recipient-work_depth").val();
     var rampup = $("#recipient-ramup_time").val();
     var runtime = $("#recipient-run_time").val();
-    var device = $("#recipient-devcie").val();
+    if(benchmark_driver == "qemurbd")
+        device = "/dev/vdb"
+    if(benchmark_driver == "fiorbd")
+        device = "fiorbd"
+    if(benchmark_driver == "cosbench")
+        device = "cosbench"
+    if(benchmark_driver == "generic")
+        device = "generic"
 
     if(benchmark_driver == "" || worker== "" ||container_size  == "" || iopattern == "" || op_size == "" ||
         object_size == "" || rampup == "" || runtime == "" || device == "" ){
         $("#div_benchmark_message_div").show();
     }else{
         //$("#ModalLabel_Benchmark_Add").html("Add a new row for configuration");
-		$("#div_configuration_message_div").hide();
+        $("#div_configuration_message_div").hide();
         setTimeout(function(){$("#BenchmarkModel").modal("hide")},100);
         var html = "<tr>";
 
