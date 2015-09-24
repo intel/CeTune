@@ -35,7 +35,6 @@ function RunStatus_Timer(){
     {
         $("#div_top_status_id a").text(cetune_status);
         $("#div_Configuration_right_back_id").show()
-        $("#bnt_Configuration_exec_id").attr("value","Cancel Job")
     }
     else
     {
@@ -198,11 +197,7 @@ $(document).ready(function(){
       
     //init seting-------------------------------------------------------------------------
    Init(); 
-	  
-   
-		  
-	  
-	  
+ 
    //tab menu style click-----------------------------------------------------------------
    //$("#div_menu_id ul li").click(function(){
    $("#div_menu_id ul").delegate("li", "click", function(){
@@ -277,26 +272,20 @@ $(document).ready(function(){
 			var prevDiv_id = "div_" + $(this).parent().prev().attr("title");
 
 			$("#"+currentDiv_id).remove();
-			/*$(".div_tab_class").hide();
-            $("#"+prevDiv_id).show();*/
-		    
-			//add class to prev element and show cancel img
-		/*	$(this).parent().prev().addClass("tab_background_click");
-			$(this).parent().prev().children("img").show();*/
-			
 
 			 //remove current parnet element(li)
 			$(this).parent().remove();
 		    $("#Reports_id").click();
 			event.stopPropagation();    //  Stop the event bubbling
-		/*	$("#Reports_id").addClass("tab_background_click");
-			$("#Reports_id").children("img").show();
-			$("div_Reports").show();*/
 			
 	    });
 	
 	
+	//---------------------------------------------------------------------
+	//$("#dl_Configuration_left_nav_accordion_id").delegate(".check_control_class", "click", function(event){
 	
+	
+
 
     //left sub menu click--------------------------------------------------------
     $("#dl_Configuration_left_nav_accordion_id ul li a").click(function(e){
@@ -317,23 +306,10 @@ $(document).ready(function(){
 	
     
     //traverse the sub menu li, check Configuation Data is true----------------------------------
-    $("#dl_Configuration_left_nav_accordion_id ul li a").each(function(index,value){
-         var id = this.id;
-         
-         //get this li data 
-         //--------------------------------------
-         var jsonObj = GetConfigurationData(id);  // code on server
-         //var jsonObj = LocalTest_GetConfigurationData(id); // code for local test
-         //---------------------------------------
-         
-         var check = IsContentError(jsonObj);
-         //change the img and title style for check result
-         if(check == false){    
-            $(this).children("img").attr("src","image/config_Wait.gif");
-            $(this).children("img").attr("title","false");
-         } 
-     });
-    
+    CheckTableDataError();
+	
+    ExecutvieCheckSync();
+	
     //Executive 
     if(CheckIsExecutive() == "true"){    
         $("#bnt_Configuration_exec_id").removeAttr("disabled");        //re-enable
@@ -372,17 +348,93 @@ $(document).ready(function(){
             }
         }
 
-    });
-    
-  
-  
-   
-  
-   
+    });  
 
 });
 
+function CheckTableDataError(){
+	//traverse the sub menu li, check Configuation Data is true----------------------------------
+    $("#dl_Configuration_left_nav_accordion_id ul li a").each(function(index,value){
+         var id = this.id;
+         
+         //get this li data 
+         //--------------------------------------
+         var jsonObj = GetConfigurationData(id);  // code on server
+         //var jsonObj = LocalTest_GetConfigurationData(id); // code for local test
+         //---------------------------------------
+         
+         var check = IsContentError(jsonObj);
+         //change the img and title style for check result
+         if(check == false){    
+            $(this).children("img").attr("src","image/config_Wait.gif");
+            $(this).children("img").attr("title","false");
+         } 
+     });
+}
 
+function ExecutvieCheckSync(){
+	//get the status from ajax
+    var valueStr = "";
+	var jsonObj_Config = GetConfigurationData("workflow");
+	$.each(jsonObj_Config,function(index,val){
+	    if(val.key == "workstages"){
+			valueStr = val.value;
+		} 
+	});
+	//update checkbox
+	var strsArray= new Array();
+    strsArray=valueStr.split(",");
+	
+    var checkArray = getElementsClass("check_control_class");
+	
+	for(var i=0;i< checkArray.length;i++)
+	{
+		checkArray[i].checked = false;
+	}
+	
+	for(var i=0;i< checkArray.length;i++){
+		 var title = checkArray[i].getAttribute('title');
+         for(var j=0;j<strsArray.length ;j++)
+         {
+		    if(strsArray[j] == title){
+		        checkArray[i].checked = true;
+			}
+		 }
+	}
+}
+
+function ChangeExecutvieCheck(valueStr){
+	var data ={};
+    data.request_type= "workflow";
+    data.key = "workstages";
+    data.value = valueStr;
+    var result = GetDataByAjax_POST(address_Configuration_Set,data);
+}
+
+function ExecutvieCheck(event){
+    var valueStr = "";
+    $(".check_control_class").each(function(index,value){
+        var title = $(this).attr('title');
+		if($(this).is(':checked')){		
+		    valueStr +=  title + ",";  
+	    } 
+    });
+	if(valueStr != ""){
+	    var lastStr = valueStr.substr(valueStr.length-1,1);
+		if(lastStr == ","){	
+		    valueStr = valueStr.substr(0,valueStr.length-1)
+		}
+	}
+	//alert(valueStr);
+	var data ={};
+    data.request_type= "workflow";
+    data.key = "workstages";
+    data.value = valueStr;
+
+    var result = GetDataByAjax_POST(address_Configuration_Set,data);
+	$("#workflow").click();
+    event.stopPropagation();    //  Stop the event bubbling
+}
 
 //init setting
 function Init(){
@@ -454,6 +506,9 @@ function GetConfigurationData(request_type){
     return jsonObj_Config;
 }
 
+function loading(){
+     $("#myShow").css({display:"",top:"40%",left:"50%",position:"absolute"});
+}
 
 //Display configuation data table and banchmark table on right page
 function DisplayConfiguationDataTable(request_type){
@@ -473,10 +528,12 @@ function GetDataByAjax_POST(addressURL , data){
     $.ajax({
        type:"POST",
        url:addressURL,
+	   beforeSend:loading,//执行ajax前执行loading函数.直到success 
        data: data,
        //dataType:"json",
        async:false,
        success:function(ResponseText){
+		 $("#myShow").hide();
          try
          {
              jsonObj=ResponseText;//get json string and chenge it to json object;
@@ -512,14 +569,6 @@ function GetDataByAjax(addressURL){
     });    
     return jsonObj;
 }
-
-
-//into the server runing Mode
-function IntoRuningMode()
-{
-}
-
-
 
 
 //********(there test functions for local debug, the data source are text in local dir)**********************************
