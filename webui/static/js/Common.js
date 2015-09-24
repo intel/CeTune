@@ -263,6 +263,7 @@ function Ok_Apply(rowNum){
     data.key = key;
     data.value = value;
 
+    //need lode style
     var result = GetDataByAjax_POST(address_Configuration_Set,data);
 
     //if result check is false , add error sytle
@@ -278,6 +279,9 @@ function Ok_Apply(rowNum){
             Append_Row_to_Configuration(value)
         });
     }
+	
+	CheckTableDataError();
+	ExecutvieCheckSync();
 }
 
 //edit value cancel
@@ -305,16 +309,16 @@ function Ok_benchmark_Apply(rowNum , colNum ){
     otext = document.getElementById("text_benchmark_id_"+rowNum + "_" + colNum);
     var valueStr =  otext.value;
     otd.innerHTML =" <label id = 'label_benchmark_id_"+rowNum+"_" + colNum + "' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+","+ colNum+", &quot;"+ valueStr+"&quot;)' >"+ valueStr +"</label>";
+	Submit_Benchmark();
+	CheckTableDataError();
+
 }
 
 //edit value cancel
 function Cancel_benchmark_Apply(rowNum , colNum ,value){
     otd = document.getElementById("td_benchmark_id_"+rowNum+ "_" + colNum);
     otext = document.getElementById("text_benchmark_id_"+rowNum+ "_" + colNum);
-    otd.innerHTML =" <label id='label_benchmark_id_"+rowNum+"_" + colNum +"' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+", "+ colNum +" , &quot;"+ value+"&quot;)' >"+ value +"</label>";
-	
-	 Submit_Benchmark();
-	
+    otd.innerHTML =" <label id='label_benchmark_id_"+rowNum+"_" + colNum +"' class = 'label_class' onclick='Label_benchmark_Click("+rowNum+", "+ colNum +" , &quot;"+ value+"&quot;)' >"+ value +"</label>";	
 }
 
 /********************************************************************************************************************************************************/
@@ -486,6 +490,7 @@ function BenchMarkModel_OK(){
         $("#div_benchmark_message_div").show();
     }else{
         //$("#ModalLabel_Benchmark_Add").html("Add a new row for configuration");
+        $("#div_configuration_message_div").hide();
         setTimeout(function(){$("#BenchmarkModel").modal("hide")},100);
         var html = "<tr>";
 
