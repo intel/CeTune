@@ -25,7 +25,7 @@
    
 tr{border:1px solid #CCC;}
 
-td{ height:30px;}
+td{ max-width:500px;}
 
 .td_key_class{ border:1px solid #CCC; text-align:left; width:20%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
 .td_Desc_class{border:1px solid #CCC; text-align:left; width:25%;  color:#000; padding-left:5px;cursor:pointer; font-size:13px; }
@@ -43,8 +43,7 @@ td{ height:30px;}
 			 font-weight:bold;
 			 width:80%}
 			 
-.label_class{ cursor:pointer;
-              word-wrap:break-word;word-break:keep-all;overflow:hidden; width:80%; height:80%;}
+.label_class{ cursor:pointer;word-wrap:break-word;word-break:keep-all;overflow:hidden; min-height:16px; width:80%;}
 
 .table_class tr.altrow{ background:#f0f0f0;}
 .error{ background: #FF0; color:#F00;}

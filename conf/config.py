@@ -114,6 +114,9 @@ class Config():
                     cur_conf_section = self.conf_data[section.group(1)]
                 else:
                     try:
+#                        res = re.search('(\w+)=(.*)', line)
+#                        key = res.group(1)
+#                        value = res.group(2)
                         key, value = line.split("=")
                         key = key.strip()
                         value = value.strip()
@@ -126,7 +129,7 @@ class Config():
                         if cur_conf_section != self.conf_data:
                             cur_conf_section[key] = value
                     except:
-                        pass
+                        print "except: %s" % (line)
 
     def dump_to_file(self, output, key=""):
         line_list = []
@@ -262,11 +265,11 @@ class BenchmarkConfig():
                 tmp.append(tmp_dict[key])
             if tmp not in case_list:
                 case_list.append(tmp)
-        if len(case_list):
-            with open("../conf/cases.conf","w") as f:
-                for case_items in case_list:
-                    f.write('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8] ) )
-        #run_cases.main(['--option', "gen_case"])
+        output = ""
+        for case_items in case_list:
+            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8] )
+        with open("../conf/cases.conf","w") as f:
+            f.write( output )
         return False
 
     def get_config(self):

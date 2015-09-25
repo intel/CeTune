@@ -31,9 +31,15 @@ var interval_Report=30000;
 
 function RunStatus_Timer(){
     var cetune_status = GetDataByAjax(address_GetRuningStatus);//?
-    if(cetune_status.indexOf("idle")<0)
+    var line1 = "CeTune Status: "+cetune_status.cetune_status+" Ceph Status: "+cetune_status.ceph_status
+    if(cetune_status.ceph_throughput != undefined)
+        var line2 = cetune_status.ceph_throughput
+    else
+        var line2 = ""
+    if(cetune_status.cetune_status.indexOf("idle")<0)
     {
-        $("#div_top_status_id a").text(cetune_status);
+        $("#div_top_status_id h1").text(line1);
+        $("#div_top_status_id .ceph_thr").text(line2);
         $("#div_Configuration_right_back_id").show()
         $("#bnt_Configuration_exec_id").attr("value","Cancel Job")
     }
@@ -41,7 +47,8 @@ function RunStatus_Timer(){
     {
         $("#div_Configuration_right_back_id").hide(); 
         clearTimer(timer_RunStatus);
-        $("#div_top_status_id a").text(cetune_status);
+        $("#div_top_status_id h1").text(line1);
+        $("#div_top_status_id .ceph_thr").text(line2);
         $("#bnt_Configuration_exec_id").attr("value","Execute")
     }
 }

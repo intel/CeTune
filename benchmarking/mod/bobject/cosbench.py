@@ -314,7 +314,7 @@ class Cosbench(Benchmark):
         common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt;"  % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt;" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt;" % (monitor_interval, dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, monitor_interval, '%s', dest_dir), option="force")
+        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, waittime, dest_dir, monitor_interval, '%s', dest_dir), option="force")
 
         run_command ="http_proxy=%s sh %s/cli.sh submit %s " % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.benchmark["configfile"])
         stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], run_command, option="check_return")
@@ -406,20 +406,9 @@ class Cosbench(Benchmark):
             "block_size":p[3], "objecter":p[4], "rampup":p[5],
             "runtime":p[6]
         }
-        if ":" in testcase_dict["iopattern"]:
-            rw_type, rw_ratio = testcase_dict["iopattern"].split(':')
-        else:
-            rw_type = testcase_dict["iopattern"]
-            rw_ratio = 100
-        testcase_dict["iopattern"] = rw_type
-        testcase_dict["iopattern_ratio"] = rw_ratio
         return testcase_dict
 
-    def generate_benchmark_cases(self):
-#       engine = self.all_conf_data.get_list('benchmark_engine')
-#       if "cosbench" not in engine:
-#           return [[],[]]
-#       test_config = OrderedDict()
+    def generate_benchmark_cases(self, testcase):
         benchmark = {}
         benchmark["cosbench_config_dir"]=self.all_conf_data.get("cosbench_config_dir")
         benchmark["cosbench_controller"]=self.all_conf_data.get("cosbench_controller")
@@ -428,57 +417,49 @@ class Cosbench(Benchmark):
         benchmark["auth_username"] = self.all_conf_data.get("cosbench_auth_username")
         benchmark["auth_password"] = self.all_conf_data.get("cosbench_auth_password")
         benchmark["auth_url"] = "http://%s/auth/v1.0;retry=9" % benchmark["cosbench_controller_cluster_url"]
-#        test_config["workers"] = self.all_conf_data.get_list("cosbench_workers")
-#        test_config["contaiter"] = ["".join(self.all_conf_data.get("cosbench_containers"))]
-#        test_config["cosbench_rw"]=self.all_conf_data.get_list("cosbench_rw")
-#        test_config["test_size"]=self.all_conf_data.get_list("cosbench_test_size")
-#        test_config["objecter"] = ["".join(self.all_conf_data.get("cosbench_objects"))]
-#        test_config["ramp_up"] = self.all_conf_data.get_list("run_warmup_time")
-#        test_config["run_time"] = self.all_conf_data.get_list("run_time")
 
-        testcase_list = []
-        with open("../conf/cases.conf", "r") as f:
-             for line in f.readlines():
-                 p = line.split()
-                 if "cosbench" not in p:
-                     continue
-                 else:
-                     testcase_list.append([p[1],p[2],p[3],p[4],p[5],p[6],p[7]])                               
-        for testcase in testcase_list:
-            benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"] = testcase
-            testcase_string = "%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\tcosbench" % ("cosbench", benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"])
-            #testcase_list.append( testcase_string )
-            benchmark["container"] = self.parse_conobj_script( benchmark["container"] )
-            benchmark["objecter"] = self.parse_conobj_script( benchmark["objecter"] )
-            if ":" in benchmark["iopattern"]:
-                rw_type, rw_ratio = benchmark["iopattern"].split(':')
-            else:
-                rw_type = benchmark["iopattern"]
-                rw_ratio = "100"
-            benchmark["iopattern"] = {}
-            benchmark["iopattern"]["type"] = rw_type
-            benchmark["iopattern"]["ratio"] = rw_ratio
-            m = re.search("(\d+)([a-zA-Z]+)", benchmark["size"])
-            size_complete = benchmark["size"]
-            benchmark["size"] = {}
-            benchmark["size"]["complete"] = size_complete
-            if m:
-                benchmark["size"]["size_value"] = m.group(1)
-                benchmark["size"]["size_unit"] = m.group(2)
-            else:
-                benchmark["size"]["size_value"] = "128"
-                benchmark["size"]["size_unit"] = KB
+        benchmark["worker"] = testcase["worker"]
+        benchmark["container"] = testcase["container"]
+        benchmark["iopattern"]= testcase["iopattern"]
+        benchmark["size"] = testcase["block_size"]
+        benchmark["objecter"] = testcase["objecter"]
+        benchmark["rampup"] = testcase["rampup"]
+        benchmark["runtime"] = testcase["runtime"]
 
-            benchmark["section_name"] = "%s-cosbench-%s-%s-%scon-%sobj-%s-%s-cosbench" % (benchmark["worker"], benchmark["iopattern"]["type"], benchmark["size"]["complete"], benchmark["container"]["max"], benchmark["objecter"]["max"], benchmark["rampup"], benchmark["runtime"])
-            benchmark["configfile"] = "%s/%s.xml" % (benchmark["cosbench_config_dir"], benchmark["section_name"])
+        testcase_string = "%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\tcosbench" % ("cosbench", benchmark["worker"], benchmark["container"], benchmark["iopattern"], benchmark["size"], benchmark["objecter"], benchmark["rampup"], benchmark["runtime"])
+        benchmark["container"] = self.parse_conobj_script( benchmark["container"] )
+        benchmark["objecter"] = self.parse_conobj_script( benchmark["objecter"] )
 
-            # check if config dir and config file exists
-            if not os.path.exists(benchmark["cosbench_config_dir"]):
-                os.makedirs(benchmark["cosbench_config_dir"])
-            if os.path.exists(benchmark["configfile"]):
-                os.remove(benchmark["configfile"])
-            self.replace_conf_xml(benchmark)
-        #return [testcase_list,[]]
+        if ":" in benchmark["iopattern"]:
+            rw_type, rw_ratio = benchmark["iopattern"].split(':')
+        else:
+            rw_type = benchmark["iopattern"]
+            rw_ratio = "100"
+        benchmark["iopattern"] = {}
+        benchmark["iopattern"]["type"] = rw_type
+        benchmark["iopattern"]["ratio"] = rw_ratio
+
+        m = re.search("(\d+)([a-zA-Z]+)", benchmark["size"])
+        size_complete = benchmark["size"]
+        benchmark["size"] = {}
+        benchmark["size"]["complete"] = size_complete
+        if m:
+            benchmark["size"]["size_value"] = m.group(1)
+            benchmark["size"]["size_unit"] = m.group(2)
+        else:
+            benchmark["size"]["size_value"] = "128"
+            benchmark["size"]["size_unit"] = KB
+
+        benchmark["section_name"] = "%s-cosbench-%s-%s-%scon-%sobj-%s-%s-cosbench" % (benchmark["worker"], benchmark["iopattern"]["type"], benchmark["size"]["complete"], benchmark["container"]["max"], benchmark["objecter"]["max"], benchmark["rampup"], benchmark["runtime"])
+        benchmark["configfile"] = "%s/%s.xml" % (benchmark["cosbench_config_dir"], benchmark["section_name"])
+
+        # check if config dir and config file exists
+        if not os.path.exists(benchmark["cosbench_config_dir"]):
+            os.makedirs(benchmark["cosbench_config_dir"])
+        if os.path.exists(benchmark["configfile"]):
+            os.remove(benchmark["configfile"])
+        self.replace_conf_xml(benchmark)
+        return True
 
     def replace_conf_xml(self, benchmark):
         with open(lib_path+"/benchmarking/mod/bobject/.template_config.xml",'r') as infile:

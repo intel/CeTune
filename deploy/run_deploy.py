@@ -41,11 +41,10 @@ def main(args):
 
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
-        mydeploy.redeploy(args.gen_cephconf)
-        print args.with_rgw
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
-            mydeploy.deploy()
+#            mydeploy.deploy()
+        mydeploy.redeploy(args.gen_cephconf)
 
     if args.operation == "restart":
         mydeploy = deploy.Deploy()

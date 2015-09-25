@@ -370,7 +370,7 @@ def check_if_adict_contains_bdict(adict, bdict):
                     printout("LOG","Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])))
                     return False
         else:
-            print key
+            printout("LOG","Tuning [%s] not in configuration" % (key))
             return False
     return True
 
@@ -501,7 +501,7 @@ def check_ceph_running(user, node):
     return True
 
 def eval_args( obj, function_name, args ):
-    argv = {} 
+    argv = {}
     for key, value in args.items():
         argv[key] = value
     argv = _decode_dict(argv)
@@ -513,10 +513,16 @@ def eval_args( obj, function_name, args ):
 
 def get_ceph_health():
     check_count = 0
-    stdout = bash('timeout 3 ceph health')
+    output = {}
+    stdout = bash('timeout 3 ceph -s')
     if not len(stdout):
-        stdout = "NOT ALIVE"
-    return stdout
+        output["ceph_status"] = "NOT ALIVE"
+    else:
+        stdout = stdout.split('\n')
+        output["ceph_status"] = stdout[1]
+        if "client io" in stdout[-2]:
+            output["ceph_throughput"] = stdout[-2]
+    return output
 
 def try_ssh( node ):
     stdout = bash("timeout 5 ssh %s hostname > /dev/null; echo $?" % node)
@@ -524,13 +530,13 @@ def try_ssh( node ):
         return True
     else:
         return False
-    
+
 def try_disk( node, disk ):
     stdout = bash("timeout 5 ssh %s 'df %s > /dev/null'; echo $?" % (node, disk))
     if stdout.strip() == "0":
         stdout = bash("ssh %s mount -l | grep boot | awk '{print $1}'" % node)
         if disk == stdout.strip():
-            return False   
+            return False
         return True
     else:
         return False

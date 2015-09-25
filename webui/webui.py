@@ -89,8 +89,10 @@ class monitor:
             if web.cache["tuner_thread"].poll() != None:
                 web.cache["tuner_thread"] = None
                 web.cache["cetune_status"] = "idle"
-        cetune_status = web.cache["cetune_status"]
-        return "CeTune Status:%s    Ceph Status: %s" % (cetune_status, common.get_ceph_health())
+        output = common.get_ceph_health()
+        output["cetune_status"] = web.cache["cetune_status"]
+        web.header("Content-Type","application/json")
+        return json.dumps(output)
     def tail_console(self, timestamp=None):
         if timestamp == "undefined":
             timestamp = None

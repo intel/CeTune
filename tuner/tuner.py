@@ -277,70 +277,70 @@ class Tuner:
             tmp_tuning_diff = self.check_tuning(jobname)
         else:
             tmp_tuning_diff = ['global']
-        for tuning_key in tmp_tuning_diff:
-            if tuning_key == 'pool':
-                pool_exist = False
-                new_poolname = self.worksheet[jobname]['pool'].keys()[0]
-                if 'size' in self.worksheet[jobname]['pool'][new_poolname]:
-                    replica_size = self.worksheet[jobname]['pool'][new_poolname]['size']
-                else:
-                    replica_size = 2
-                if 'pg_num' not in self.worksheet[jobname]['pool'][new_poolname]:
-                    new_pool_pg_num = 100 * self.cluster["osd_daemon_num"]/replica_size
-                else:
-                    new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
-                for cur_tuning_poolname in self.cur_tuning['pool'].keys():
-                    if cur_tuning_poolname != new_poolname:
+
+        if 'pool' in tmp_tuning_diff:
+            pool_exist = False
+            new_poolname = self.worksheet[jobname]['pool'].keys()[0]
+            if 'size' in self.worksheet[jobname]['pool'][new_poolname]:
+                replica_size = self.worksheet[jobname]['pool'][new_poolname]['size']
+            else:
+                replica_size = 2
+            if 'pg_num' not in self.worksheet[jobname]['pool'][new_poolname]:
+                new_pool_pg_num = 100 * self.cluster["osd_daemon_num"]/replica_size
+            else:
+                new_pool_pg_num = self.worksheet[jobname]['pool'][new_poolname]['pg_num']
+            for cur_tuning_poolname in self.cur_tuning['pool'].keys():
+                if cur_tuning_poolname != new_poolname:
 #                        self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
-                        continue
+                    continue
+                else:
+                    if self.cur_tuning['pool'][cur_tuning_poolname]['pg_num'] != new_pool_pg_num:
+                        self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
                     else:
-                        if self.cur_tuning['pool'][cur_tuning_poolname]['pg_num'] != new_pool_pg_num:
-                            self.handle_pool(option = 'delete', param = {'name':cur_tuning_poolname})
-                        else:
-                            pool_exist = True
-                if not pool_exist:
-                    self.handle_pool(option = 'create', param = {'name':new_poolname, 'pg_num':new_pool_pg_num})
-                #after create pool, check pool param
-                latest_pool_config = self.get_pool_config()
-                for param in self.worksheet[jobname]['pool'][new_poolname]:
-                    if param == 'pg_num' or param not in latest_pool_config[new_poolname]:
-                        continue
-                    if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
-                        self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
-            if tuning_key in ['global','osd','mon']:
-                if len(self.cluster["rgw"]):
-                    with_rgw = True
-                else:
-                    with_rgw = False
-                tuning = {}
-                for section_name, section in self.worksheet[jobname].items():
-                    if section_name in ["version","workstages","pool","benchmark_engine"]:
-                        continue
-                    tuning[section_name] = section
-                common.printout("LOG","Apply osd and mon tuning to ceph.conf")
+                        pool_exist = True
+            if not pool_exist:
+                self.handle_pool(option = 'create', param = {'name':new_poolname, 'pg_num':new_pool_pg_num})
+            #after create pool, check pool param
+            latest_pool_config = self.get_pool_config()
+            for param in self.worksheet[jobname]['pool'][new_poolname]:
+                if param == 'pg_num' or param not in latest_pool_config[new_poolname]:
+                    continue
+                if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
+                    self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
+        if 'global' in tmp_tuning_diff or 'osd' in tmp_tuning_diff or 'mon' in tmp_tuning_diff:
+            if self.cluster["rgw_enable"]=="true" and len(self.cluster["rgw"]):
+                with_rgw = True
+            else:
+                with_rgw = False
+            tuning = {}
+            for section_name, section in self.worksheet[jobname].items():
+                if section_name in ["version","workstages","pool","benchmark_engine"]:
+                    continue
+                tuning[section_name] = section
+            common.printout("LOG","Apply osd and mon tuning to ceph.conf")
+            if with_rgw:
+                run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
+            else:
+                run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
+            common.printout("LOG","Distribute ceph.conf")
+            if with_rgw:
+                run_deploy.main(['--with_rgw','distribute_conf'])
+            else:
+                run_deploy.main(['distribute_conf'])
+            if not no_check:
+                common.printout("LOG","Restart ceph cluster")
                 if with_rgw:
-                    run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
+                    run_deploy.main(['--with_rgw','restart'])
                 else:
-                    run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
-                common.printout("LOG","Distribute ceph.conf")
-                if with_rgw:
-                    run_deploy.main(['--with_rgw','distribute_conf'])
-                else:
-                    run_deploy.main(['distribute_conf'])
-                if not no_check:
-                    common.printout("LOG","Restart ceph cluster")
-                    if with_rgw:
-                        run_deploy.main(['--with_rgw','restart'])
-                    else:
-                        run_deploy.main(['restart'])
-            if tuning_key == 'disk':
-                param = {}
-                for param_name, param_data in self.worksheet[jobname]['disk'].items():
-                    param[param_name] = param_data
-                if param != {}:
-                    self.handle_disk( option="set", param=param )
-                else:
-                    self.handle_disk( option="set" )
+                    run_deploy.main(['restart'])
+        if 'disk' in tmp_tuning_diff:
+            param = {}
+            for param_name, param_data in self.worksheet[jobname]['disk'].items():
+                param[param_name] = param_data
+            if param != {}:
+                self.handle_disk( option="set", param=param )
+            else:
+                self.handle_disk( option="set" )
 
         if no_check:
             return

@@ -37,7 +37,9 @@ body{ margin:0px; padding:0px;}
 #div_top_id h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; 
                 line-height:1.1; font-size: 20px; color: #FFF; 
                 padding-top:15px; padding-left:30px; }
-     
+#div_top_id h6{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; 
+                line-height:1.1; font-size: 14px; color: #FFF; padding-left:30px; }
+
 #div_top_stauts_id h1{ display:none;}     
      
 .#div_top_id_h1_avtive{ display:block; margin:0; font-family:Arial, Helvetica, sans-serif; 
@@ -149,7 +151,7 @@ body{ margin:0px; padding:0px;}
             margin-right: 2px;
 }
 #tabs ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#337AB7; text-decoration:none;}
-#tabs div{ display:none; position:absolute; z-index:1; margin-top:32px;}
+#tabs div{ display:none; position:relative; z-index:1; margin-top:32px;}
 .tabs_li_click{  background-color:#E3E3E3;box-shadow:0px 0px 0px #aaa; color:#555; 
             border-top: 1px solid #ccc;
             border-left: 1px solid #ccc;

@@ -346,10 +346,9 @@ function Del(tableType){
         $(".checkbox_benchmark_class").each(function(index,value){
             if($(this).is(':checked')){
                 $(this).parent().parent().remove(); 
-            }else{
-                Submit_Benchmark();
             }
         });
+        Submit_Benchmark();
     }
 
 }

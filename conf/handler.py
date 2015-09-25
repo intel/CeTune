@@ -59,9 +59,9 @@ class ConfigHandler():
         benchmark_config = self.all_conf.get_group(request_type)
         res = []
         tmp_res = OrderedDict()
+        required = OrderedDict()
         for engine in engine_list:
             if engine == "qemurbd":
-                required = OrderedDict()
                 required["list_vclient"] = "vclient01,vclient02..."
                 required["fio_capping"] = "false"
                 required["volume_size"] = "40960"
@@ -69,14 +69,12 @@ class ConfigHandler():
                 required["disk_num_per_client"] = "35,35,35,35"
                 required["rwmixread"] = 100
             if engine == "fiorbd":
-                required = OrderedDict()
                 required["fio_capping"] = "false"
                 required["volume_size"] = "40960"
                 required["rbd_volume_count"] = "1"
                 required["disk_num_per_client"] = "35,35,35,35"
                 required["rwmixread"] = 100
             if engine == "cosbench":
-                required = OrderedDict()
                 required["cosbench_version"] = "v0.4.2.c2"
                 required["cosbench_controller"] = ""
                 required["cosbench_driver"] = ""
@@ -86,7 +84,6 @@ class ConfigHandler():
                 required["cosbench_admin_ip"] = "192.168.5.1"
                 required["cosbench_network"] = "192.168.5.0/24"
             if engine == "generic":
-                required = OrderedDict()
                 required["test_disks"] = ""
                 required["fio_capping"] = "false"
                 required["disk_num_per_client"] = "35,35,35,35"

@@ -93,6 +93,8 @@ class Deploy(object):
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['osd'][key] = value
 
+        self.map_diff = None
+
     def install_binary(self, version=""):
         installed, non_installed = self.check_ceph_installed()
         uninstall_nodes=[]
@@ -185,21 +187,26 @@ class Deploy(object):
             clean_build = False
 
         map_diff = self.cal_cephmap_diff()
+        self.map_diff = map_diff
         cephconf = []
+        for section in self.cluster["ceph_conf"]:
+            cephconf.append("[%s]\n" % section)
+            for key, value in self.cluster["ceph_conf"][section].items():
+                cephconf.append("    %s = %s\n" % (key, value))
+
+        original_daemon_config = self.read_cephconf(request_type="plain")
+
         if not clean_build:
             osds = map_diff["osd"]
             mons = map_diff["mon"]
             osd_id = map_diff["osd_num"]
             osd_dict = map_diff
+            cephconf.extend( original_daemon_config )
         else:
             osds = self.cluster["osds"]
             mons = self.cluster["mons"]
             osd_dict = self.cluster
             osd_id = 0
-            for section in self.cluster["ceph_conf"]:
-                cephconf.append("[%s]\n" % section)
-                for key, value in self.cluster["ceph_conf"][section].items():
-                    cephconf.append("    %s = %s\n" % (key, value))
 
         for mon in mons:
             cephconf.append("[mon.%s]\n" % mon)
@@ -219,20 +226,16 @@ class Deploy(object):
                 cephconf.append("    devs = %s\n" % osd_device)
 
         output = "".join(cephconf)
-        if not clean_build:
-            with open("../conf/ceph.conf", 'a') as f:
-                f.write(output)
-        else:
-            with open("../conf/ceph.conf", 'w') as f:
-                f.write(output)
+        with open("../conf/ceph.conf", 'w') as f:
+            f.write(output)
 
-    def read_cephconf(self):
+    def read_cephconf(self, request_type="json"):
         cephconf_dict = OrderedDict()
         cephconf_dict["mon"] = []
         cephconf_dict["osd"] = {}
         cephconf_dict["mds"] = {}
         cephconf_dict["radosgw"] = []
-        
+
         try:
             with open("../conf/ceph_current_status", 'r') as f:
                 cephconf = f.readlines()
@@ -240,13 +243,16 @@ class Deploy(object):
             common.printout("ERROR", "Current Cluster ceph.conf file not exists under CeTune/conf/")
             return cephconf_dict
 
+        ceph_daemon_lines = []
+
         section_name = None
         host = None
         for line in cephconf:
             re_res = re.search('\[(.*)\]', line)
             if re_res:
                 section_name = re_res.group(1)
-                continue
+                if 'mon.' in line or 'osd.' in line or 'radosgw.' in line:
+                    ceph_daemon_lines.append( line )
             if not section_name:
                 continue
 
@@ -255,11 +261,13 @@ class Deploy(object):
             except:
                 continue
 
-            if "mon" in section_name:
+            if "mon." in section_name:
+                ceph_daemon_lines.append( line )
                 if key.strip() == "host":
                     cephconf_dict["mon"].append( value.strip() )
 
-            if "osd" in section_name:
+            if "osd." in section_name:
+                ceph_daemon_lines.append( line )
                 if key.strip() == "host":
                     host = value.strip()
                     if host not in cephconf_dict["osd"]:
@@ -276,13 +284,17 @@ class Deploy(object):
                     if device[0] != "" and device[1] != "":
                         cephconf_dict["osd"][host].append(':'.join(device))
 
-            if "radosgw" in section_name:
+            if "radosgw." in section_name:
+                ceph_daemon_lines.append( line )
                 if key.strip() == "host":
                     host = value.strip()
                     if host not in cephconf_dict["radosgw"]:
                         cephconf_dict["radosgw"].append(host)
 
-        return cephconf_dict 
+        if request_type == "json":
+            return cephconf_dict
+        if request_type == "plain":
+            return ceph_daemon_lines
 
     def cal_cephmap_diff(self):
         old_conf = self.read_cephconf()
@@ -312,7 +324,6 @@ class Deploy(object):
             if node not in old_conf["mon"]:
                 cephconf_dict["mon"][node] = self.cluster["mons"][node]
 
-        print cephconf_dict
         return cephconf_dict
 
     def redeploy(self, gen_cephconf):
