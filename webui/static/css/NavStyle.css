@@ -30,7 +30,7 @@
       background-color: #f0f0f0;
       background-repeat: no-repeat;
       background-position: 96% center;
-      background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');
+      /**background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');*/
       padding: 10px 0 10px 0;
       line-height: 16px;
       margin-top: 0;
@@ -106,7 +106,7 @@
     background-color: #e5e5e5;
     background-repeat: no-repeat;
     background-position: 96% center;
-    background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');
+    /*background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');*/
     padding-right: 16px;
     max-width: 231px;
     cursor: pointer; }
@@ -190,7 +190,7 @@
       background-color: #f0f0f0;
       background-repeat: no-repeat;
       background-position: 96% center;
-      background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');
+      /*background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');*/
       padding: 10px 0 10px 0;
       line-height: 16px;
       margin-top: 0;
@@ -227,7 +227,7 @@
     background-color: #e5e5e5;
     background-repeat: no-repeat;
     background-position: 96% center;
-    background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');
+    /*background-image: url('/static/dashboard/img/right_droparrow.png?b14134630332');*/
     padding-right: 16px;
     max-width: 231px;
     cursor: pointer; }

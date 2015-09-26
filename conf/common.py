@@ -158,7 +158,10 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
     if stderr:
         returncode_re = re.search('ssh exited with exit code (\d+)', stderr)
         if returncode_re:
-            returncode += int(returncode_re.group(1))
+            try:
+                returncode += int(returncode_re.group(1))
+            except:
+                pass
     if returncode == except_returncode:
         returncode = 0
 
@@ -287,7 +290,7 @@ def load_yaml_conf(yaml_path):
 
 def write_yaml_file(yaml_path, data):
     with file(yaml_path, 'w') as f:
-        f.write( json.dumps(data, indent=4) )
+        f.write( yaml.dump(dict(data)) )
 
 def _decode_list(data):
     rv = []
