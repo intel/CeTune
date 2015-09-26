@@ -1,7 +1,7 @@
 import os,sys
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 import time
 import pprint
 import re
@@ -29,10 +29,23 @@ def main(args):
         default = False,
         action='store_true'
         )
+    parser.add_argument(
+        '--gen_cephconf',
+        default = False,
+        action='store_true'
+        )
     args = parser.parse_args(args)
+    if args.operation == "caldiff":
+        mydeploy = deploy.Deploy()
+        mydeploy.cal_cephmap_diff()
+
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
-        mydeploy.redeploy()
+        if args.with_rgw:
+            mydeploy = deploy_rgw.Deploy_RGW()
+#            mydeploy.deploy()
+        mydeploy.redeploy(args.gen_cephconf)
+
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
         mydeploy.cleanup()

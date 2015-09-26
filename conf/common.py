@@ -2,6 +2,8 @@ import time
 import datetime
 import os
 import sys
+lib_path = os.path.abspath(os.path.join('..'))
+sys.path.append(lib_path)
 import re
 import subprocess
 import pprint
@@ -13,70 +15,12 @@ from os import O_NONBLOCK, read
 import socket
 import struct
 from collections import OrderedDict
+import argparse
 
 cetune_log_file = "../conf/cetune_process.log"
 cetune_error_file = "../conf/cetune_error.log"
+cetune_console_file = "../conf/cetune_console.log"
 no_die = False
-
-class Config():
-    def __init__(self, conf_path):
-        self.conf_data = OrderedDict()
-        cur_conf_section = self.conf_data
-        with open(conf_path, "r") as f:
-            for line in f:
-                if re.search('^#', line):
-                    continue
-                section = re.search('^\[(\w+)\]', line)
-                if section:
-                    self.conf_data[section.group(1)] = {}
-                    cur_conf_section = self.conf_data[section.group(1)]
-                else:
-                    try:
-                        key, value = line.split("=")
-                        key = key.strip()
-                        value = value.strip()
-                        if( value[-1] == '\n' ):
-                            cur_conf_section[key] = value[:-1]
-                        else:
-                            cur_conf_section[key] = value
-                    except:
-                        pass
-
-    def dump(self, key=""):
-        pp = pprint.PrettyPrinter(indent=4)
-        try:
-            pp.pprint(self.conf_data[key])
-        except:
-            pp.pprint(self.conf_data)
-
-    def dump_to_file(self, output, key=""):
-        with open(output, 'w') as f:
-            f.write( self.dump(key) )
-
-    def get(self, key, dotry=False):
-        if key in self.conf_data:
-            return self.conf_data[key]
-        else:
-            print "%s not defined in all.conf" % key
-            if not dotry:
-                sys.exit()
-            else:
-                return ""
-
-    def get_list(self,key):
-        if key in self.conf_data:
-            if re.search(',', self.conf_data[key]):
-                return self.conf_data[key].split(",")
-            else:
-                return [self.conf_data[key]]
-        else:
-            print "%s not defined in all.conf" % key
-
-    def get_all(self):
-        return self.conf_data
-
-    def get_all(self):
-        return self.conf_data
 
 class bcolors:
     HEADER = '\033[95m'
@@ -134,6 +78,9 @@ def get_list( string ):
             res.append([value,""])
     return res
 
+def clean_console():
+    bash("echo > %s" % cetune_console_file)
+
 def printout(level, content, screen = True):
     if level == "ERROR":
         output = "[ERROR]: %s" % content
@@ -142,23 +89,31 @@ def printout(level, content, screen = True):
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.FAIL + output + bcolors.ENDC
     if level == "LOG":
         output = "[LOG]: %s" % content
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.OKGREEN + output + bcolors.ENDC
     if level == "WARNING":
         output = "[WARNING]: %s" % content
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.WARNING + output + bcolors.ENDC
     if level == "CONSOLE":
         with open(cetune_log_file, "a+") as f:
             f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
+            with open(cetune_console_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
             print content
 
 def remote_dir_exist( user, node, path ):
@@ -173,7 +128,7 @@ def remote_file_exist( user, node ,path):
     for node, returncode in res.items():
         return int(returncode) == 0
 
-def pdsh(user, nodes, command, option="error_check", nodie=False):
+def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=False):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
@@ -195,8 +150,20 @@ def pdsh(user, nodes, command, option="error_check", nodie=False):
     _subp.stdout.close()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
-    printout("CONSOLE", stdout, screen=False)
-    printout("CONSOLE", stderr, screen=False)
+    if stdout:
+        printout("CONSOLE", stdout, screen=False)
+    if stderr:
+        printout("CONSOLE", stderr, screen=False)
+
+    if stderr:
+        returncode_re = re.search('ssh exited with exit code (\d+)', stderr)
+        if returncode_re:
+            try:
+                returncode += int(returncode_re.group(1))
+            except:
+                pass
+    if returncode == except_returncode:
+        returncode = 0
 
     if "check_return" in option:
         if returncode or "Connection timed out" in stderr:
@@ -235,7 +202,10 @@ def bash(command, force=False, option="", nodie=False):
     _subp.stdout.close()
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
-    printout("CONSOLE", stdout, screen=False)
+    if stdout:
+        printout("CONSOLE", stdout, screen=False)
+    if stderr:
+        printout("CONSOLE", stderr, screen=False)
 
     if force:
         return [stdout, stderr]
@@ -256,16 +226,15 @@ def scp(user, node, localfile, remotefile):
     if stderr:
         print('scp: %s' % args)
         printout("ERROR",stderr+"\n")
-        sys.exit()
 
 def rscp(user, node, localfile, remotefile):
     args = ['scp', '-oConnectTimeout=15', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
+    printout("CONSOLE", args, screen=False)
     #print('rscp: %s' % args)
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('rscp: %s' % args)
         printout("ERROR",stderr+"\n")
-        sys.exit()
 
 # scp from one remote machine to another remote machine
 def rrscp(user, node1, node1_file, node2,node2_file):
@@ -321,7 +290,7 @@ def load_yaml_conf(yaml_path):
 
 def write_yaml_file(yaml_path, data):
     with file(yaml_path, 'w') as f:
-        f.write( yaml.dump(data, indent=4, default_flow_style=False) )
+        f.write( yaml.dump(dict(data)) )
 
 def _decode_list(data):
     rv = []
@@ -404,7 +373,7 @@ def check_if_adict_contains_bdict(adict, bdict):
                     printout("LOG","Tuning [%s] differs with current configuration, will apply" % (key+":"+str(bdict[key])))
                     return False
         else:
-            print key
+            printout("LOG","Tuning [%s] not in configuration" % (key))
             return False
     return True
 
@@ -498,21 +467,15 @@ def unique_extend( list_data, new_list ):
             list_data.append( data )
     return list_data
 
-class shellEmulator():
-    def __init__(self):
-        self.kill_tailf = False
-
-    def tail_f(self, fd):
-        fd.seek(-1)
-        interval = 1.0
-        while not self.kill_tailf:
-            where = fd.tell()
-            line = fd.readline()
-            if not line:
-              time.sleep(interval)
-              fd.seek(where)
-            else:
-              yield line
+def read_file_after_stamp(path, stamp = None):
+    lines = []
+    output = False
+    with open(path,'r') as fd:
+        for line in fd.readlines():
+            if output or not stamp or stamp in line:
+                output = True
+                lines.append(line.rstrip('\n'))
+    return lines
 
 def return_os_id(user, nodes):
     stdout, stderr = pdsh(user, nodes, "lsb_release -i | awk -F: '{print $2}'", option="check_return")
@@ -539,3 +502,44 @@ def check_ceph_running(user, node):
     if not ceph_is_up:
         return False
     return True
+
+def eval_args( obj, function_name, args ):
+    argv = {}
+    for key, value in args.items():
+        argv[key] = value
+    argv = _decode_dict(argv)
+    if function_name != "":
+        func = getattr(obj, function_name)
+        if func:
+            res = func( **argv )
+    return res
+
+def get_ceph_health():
+    check_count = 0
+    output = {}
+    stdout = bash('timeout 3 ceph -s')
+    if not len(stdout):
+        output["ceph_status"] = "NOT ALIVE"
+    else:
+        stdout = stdout.split('\n')
+        output["ceph_status"] = stdout[1]
+        if "client io" in stdout[-2]:
+            output["ceph_throughput"] = stdout[-2]
+    return output
+
+def try_ssh( node ):
+    stdout = bash("timeout 5 ssh %s hostname > /dev/null; echo $?" % node)
+    if stdout.strip() == "0":
+        return True
+    else:
+        return False
+
+def try_disk( node, disk ):
+    stdout = bash("timeout 5 ssh %s 'df %s > /dev/null'; echo $?" % (node, disk))
+    if stdout.strip() == "0":
+        stdout = bash("ssh %s mount -l | grep boot | awk '{print $1}'" % node)
+        if disk == stdout.strip():
+            return False
+        return True
+    else:
+        return False

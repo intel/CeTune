@@ -2,7 +2,7 @@ import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 import os, sys
 import time
 import pprint
@@ -18,17 +18,20 @@ import numpy
 pp = pprint.PrettyPrinter(indent=4)
 class Visualizer:
     def __init__(self, result, path=None):
-        if os.path.isdir('%s/%s' % ( path, 'conf' )):
-            all_path = '%s/%s' % ( path, 'conf' )
+        if not path:
+            all_path = "../conf/"
         else:
-            all_path = path
-        self.all_conf_data = common.Config("%s/all.conf" % all_path)
+            if os.path.isdir('%s/%s' % ( path, 'conf' )):
+                all_path = '%s/%s' % ( path, 'conf' )
+            else:
+                all_path = path
+        self.all_conf_data = config.Config("%s/all.conf" % all_path)
         self.result = result
         self.output = []
         if path:
             self.path = path
             self.session_name = os.path.basename(path.strip('/'))
-        self.dest_dir_remote_bak = self.all_conf_data.get("dest_dir_remote_bak")
+        self.dest_dir_remote_bak = self.all_conf_data.get("dest_dir_remote_bak", dotry = True)
         self.user = self.all_conf_data.get("user")
 
     def generate_summary_page(self):
@@ -41,7 +44,7 @@ class Visualizer:
         for node_type, node_data in self.result.items():
             if not isinstance(node_data, dict):
                 continue
-            output.append("<li><a href=\"#%s\">%s</a></li>" % (node_type, node_type))
+            output.append("<li><a href=\"#\">%s</a></li>" % (node_type))
         output.append("</ul>")
 
         for node_type, node_data in self.result.items():
@@ -61,11 +64,16 @@ class Visualizer:
         with open("%s/%s.html" % (self.path, self.result["session_name"]), 'w') as f:
             f.write(output)
         common.bash("cp -r %s %s" % ("../visualizer/include/", self.path))
+
+        if self.dest_dir_remote_bak == "":
+            return
+
+        # Copy local result to remote dir
         common.printout("LOG","Session result generated, copy to remote")
         common.bash("scp -r %s %s" % (self.path, self.dest_dir_remote_bak))
 
         remote_bak, remote_dir = self.dest_dir_remote_bak.split(':')
-        output = self.generate_history_view(remote_bak, remote_dir, self.user, self.session_name)
+        output = self.generate_history_view(remote_bak, remote_dir, self.user)
 
         common.printout("LOG","History view generated, copy to remote")
         with open("%s/cetune_history.html" % self.path, 'w') as f:
@@ -73,42 +81,68 @@ class Visualizer:
         common.bash("scp -r %s/cetune_history.html %s" % (self.path, self.dest_dir_remote_bak))
         common.bash("scp -r ../visualizer/include %s" % (self.dest_dir_remote_bak))
 
-    def generate_history_view(self, remote_host="192.168.3.101", remote_dir="/share/chendi_new/up_server/", user='root', session_id="177-80-qemurbd-seqwrite-64k-qd64-40g-100-400-vdb"):
+    def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format=True):
         common.printout("LOG","Generating history view")
-        stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do awk -v path=\"$file\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"path\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+        stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
         res = common.format_pdsh_return(stdout)
         if remote_host not in res:
             common.printout("ERROR","Generating history view failed")
             return False
+        # some modification in greped trs
+        formated_report = {}
+        report_lines = re.findall('(<tr.*?</tr>)',res[remote_host],re.S)
+        for line in report_lines:
+            tr_start = re.search('(<tr.*?>)', line, re.S).group(1)
+            data = re.findall('<td>(.*?)</td>', line, re.S)
+
+            runid = int(data[0])
+            if len(data) != 16:
+                data.insert(1, "Unknown")
+            formated_report[runid] = tr_start
+            for block in data:
+                formated_report[runid] += "<td>%s</td>\n" % block
+            formated_report[runid] += "</tr>\n"
+            
         output = []
-        output.append("<h1>CeTune History Page</h1>")
+        #output.append("<h1>CeTune History Page</h1>")
         output.append("<table class='cetune_table'>")
         output.append(" <thead>")
-        output.append(" <tr>")
-        output.append(" <th>runid</th>")
-        output.append(" <th><a id='runid_op_size' href='#'>op_size</a></th>")
-        output.append(" <th><a id='runid_op_type' href='#'>op_type</a></th>")
-        output.append(" <th><a id='runid_QD' href='#'>QD</a></th>")
-        output.append(" <th><a id='runid_engine' href='#'>engine</a></th>")
-        output.append(" <th><a id='runid_serverNum' href='#'>serverNum</a></th>")
-        output.append(" <th><a id='runid_clientNum' href='#'>clientNum</a></th>")
-        output.append(" <th><a id='runid_rbdNum' href='#'>rbdNum</a></th>")
-        output.append(" <th><a id='runid_runtime' href='#'>runtime</a></th>")
-        output.append(" <th><a id='runid_fio_iops' href='#'>fio_iops</a></th>")
-        output.append(" <th><a id='runid_fio_bw' href='#'>fio_bw</a></th>")
-        output.append(" <th><a id='runid_fio_latency' href='#'>fio_latency</a></th>")
-        output.append(" <th><a id='runid_osd_iops' href='#'>osd_iops</a></th>")
-        output.append(" <th><a id='runid_osd_bw' href='#'>osd_bw</a></th>")
-        output.append(" <th><a id='runid_osd_latency' href='#'>osd_latency</a></th>")
-        output.append(" <tr>")
+        output.extend( self.getSummaryTitle() )
         output.append(" </thead>")
         output.append(" <tbody>")
-        output.append(res[remote_host])
+        #output.append(res[remote_host])
+        for runid in sorted(formated_report.keys()):
+            output.append(formated_report[runid])
         output.append(" </tbody>")
         output.append("<script>")
-        output.append("$(\".cetune_table tr\").dblclick(function(){var path=$(this).attr('href'); window.location=path})")
+        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
         output.append("</script>")
-        return self.add_html_framework(output)
+        if html_format:
+            return self.add_html_framework(output)
+        else:
+            return "".join(output)
+
+    def getSummaryTitle(self):
+        output = []
+        output.append(" <tr>")
+        output.append(" <th>runid</th>")
+        output.append(" <th><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
+        output.append(" <th><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")
+        output.append(" <th><a title='Type of Op Request' id='runid_op_type' href='#'>Op_Type</a></th>")
+        output.append(" <th><a title='Queue_depth/Container Number' id='runid_QD' href='#'>QD</a></th>")
+        output.append(" <th><a title='Type of Workload' id='runid_engine' href='#'>Driver</a></th>")
+        output.append(" <th><a title='Storage Node Number' id='runid_serverNum' href='#'>SN_Number</a></th>")
+        output.append(" <th><a title='Client Node Number' id='runid_clientNum' href='#'>CN_Number</a></th>")
+        output.append(" <th><a title='Workers Number/Objects Number' id='runid_rbdNum' href='#'>Worker</a></th>")
+        output.append(" <th><a title='Test Time be Profiled' id='runid_runtime' href='#'>Runtime(sec)</a></th>")
+        output.append(" <th><a title='Benchmarked IOPS' id='runid_fio_iops' href='#'>IOPS</a></th>")
+        output.append(" <th><a title='Benchmarked Bandwidth' id='runid_fio_bw' href='#'>BW(MB/s)</a></th>")
+        output.append(" <th><a title='Benchmarked Latency' id='runid_fio_latency' href='#'>Latency(ms)</a></th>")
+        output.append(" <th><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
+        output.append(" <th><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
+        output.append(" <th><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
+        output.append(" <tr>")
+        return output
 
     def add_html_framework(self, maindata):
         output = []
@@ -187,7 +221,7 @@ class Visualizer:
         output.append("<tr>")
         output.append("<th>%s</th>" % node_type)
         for key in data[data.keys()[0]].keys():
-            output.append("<th><a id='%s_%s' href='#'>%s</a></th>" % (node_type, re.sub('[/%]','',key), key))
+            output.append("<th><a id='%s_%s' href='#%s_%s'>%s</a></th>" % (node_type, re.sub('[/%]','',key), node_type, re.sub('[/%]','',key), key))
         output.append("<tr>")
         output.append("</thead>")
         output.append("<tbody>")

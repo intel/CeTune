@@ -2,7 +2,7 @@ import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import common
+from conf import *
 from visualizer import *
 import os, sys
 import time
@@ -27,18 +27,17 @@ class Analyzer:
         else:
             self.cluster["dest_dir"] = dest_dir
         self.cluster["dest_dir_root"] = dest_dir
-        self.all_conf_data = common.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
+        self.all_conf_data = config.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
-        self.cluster["osds"] = self.all_conf_data.get_list("list_ceph")
+        self.cluster["osds"] = self.all_conf_data.get_list("list_server")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
-        self.cluster["vclient_disk"] = self.all_conf_data.get_list("run_file")
-        self.cluster["dest_dir_remote_bak"] = self.all_conf_data.get("dest_dir_remote_bak")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["user"] = self.all_conf_data.get("user")
+        self.cluster["monitor_interval"] = self.all_conf_data.get("monitoring_interval")
         self.cluster["osd_daemon_num"] = 0
         self.result = OrderedDict()
         self.result["workload"] = OrderedDict()
@@ -48,6 +47,7 @@ class Analyzer:
         self.result["vclient"] = OrderedDict()
         self.get_validate_runtime()
         self.result["runtime"] = int(float(self.validate_time))
+        self.result["status"] = self.getStatus()
 
     def process_data(self):
         user = self.cluster["user"]
@@ -77,6 +77,8 @@ class Analyzer:
                 self.result["client"][dir_name]=system
                 self.result["workload"].update(workload)
             if dir_name in self.cluster["vclient"]:
+                params = self.result["session_name"].split('-')
+                self.cluster["vclient_disk"] = ["/dev/%s" % params[-1]]
                 self.result["vclient"][dir_name]={}
                 system, workload = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
@@ -102,6 +104,7 @@ class Analyzer:
         '''
         result = self.format_result_for_visualizer( self.result )
         result = self.summary_result( result )
+        result["summary"]["Download"] = {"Configuration":{"URL":"<button class='cetune_config_button' href='../results/get_detail_zip?session_name=%s&detail_type=conf'><a>Click TO Download</a></button>" % self.result["session_name"]}}
         dest_dir = self.cluster["dest_dir_root"]
         common.printout("LOG","Write analyzed results into result.json")
         with open('%s/result.json' % dest_dir, 'w') as f:
@@ -111,6 +114,7 @@ class Analyzer:
 
     def format_result_for_visualizer(self, data):
         output_sort = OrderedDict()
+        monitor_interval = int(self.cluster["monitor_interval"]) 
         output_sort["summary"] = OrderedDict()
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
@@ -144,6 +148,9 @@ class Analyzer:
                                 runtime_end = end
                             runtime_start = start + rampup
                             output[field_type][node] = OrderedDict()
+                            runtime_start = runtime_start / monitor_interval
+                            runtime_end = runtime_end / monitor_interval
+
                             for colume_name, colume_data in data[node_type][node][field_type].items():
                                 if isinstance(colume_data, list):
                                     colume_data = colume_data[runtime_start:runtime_end]
@@ -167,20 +174,23 @@ class Analyzer:
             return data
         data["summary"]["run_id"][res.group(1)] = OrderedDict()
         tmp_data = data["summary"]["run_id"][res.group(1)]
-        tmp_data["op_size"] = res.group(5)
-        tmp_data["op_type"] = res.group(4)
+        tmp_data["Status"] = data["status"]
+        tmp_data["Op_size"] = res.group(5)
+        tmp_data["Op_Type"] = res.group(4)
         tmp_data["QD"] = res.group(6)
-        tmp_data["engine"] = res.group(3)
-        tmp_data["serverNum"] = 0
-        tmp_data["clientNum"] = 0
-        tmp_data["worker"] = res.group(2)
-        tmp_data["runtime"] = "%d sec" % (data["runtime"])
-        tmp_data["workload_iops"] = 0
-        tmp_data["workload_bw"] = 0
-        tmp_data["workload_latency"] = 0
-        tmp_data["osd_iops"] = 0
-        tmp_data["osd_bw"] = 0
-        tmp_data["osd_latency"] = 0
+        tmp_data["Driver"] = res.group(3)
+        tmp_data["SN_Number"] = 0
+        tmp_data["CN_Number"] = 0
+        tmp_data["Worker"] = res.group(2)
+        if data["runtime"] == 0:
+            data["runtime"] = int(res.group(9))
+        tmp_data["Runtime"] = "%d" % (data["runtime"])
+        tmp_data["IOPS"] = 0
+        tmp_data["BW(MB/s)"] = 0
+        tmp_data["Latency(ms)"] = 0
+        tmp_data["SN_IOPS"] = 0
+        tmp_data["SN_BW(MB/s)"] = 0
+        tmp_data["SN_Latency(ms)"] = 0
         rbd_count = 0
         osd_node_count = 0
         try:
@@ -189,40 +199,40 @@ class Analyzer:
                     engine = engine_candidate
             for node, node_data in data["workload"][engine].items():
                 rbd_count += 1
-                tmp_data["workload_iops"] += ( float(node_data["read_iops"]) + float(node_data["write_iops"]) )
-                tmp_data["workload_bw"] += ( float(node_data["read_bw"]) + float(node_data["write_bw"]) )
-                tmp_data["workload_latency"] += ( float(node_data["read_lat"]) + float(node_data["write_lat"]) )
-            tmp_data["workload_iops"] = "%.3f" % (tmp_data["workload_iops"])
-            tmp_data["workload_bw"] = "%.3f MB/s" % (tmp_data["workload_bw"])
+                tmp_data["IOPS"] += ( float(node_data["read_iops"]) + float(node_data["write_iops"]) )
+                tmp_data["BW(MB/s)"] += ( float(node_data["read_bw"]) + float(node_data["write_bw"]) )
+                tmp_data["Latency(ms)"] += ( float(node_data["read_lat"]) + float(node_data["write_lat"]) )
+            tmp_data["IOPS"] = "%.3f" % (tmp_data["IOPS"])
+            tmp_data["BW(MB/s)"] = "%.3f" % (tmp_data["BW(MB/s)"])
             if rbd_count > 0:
-                tmp_data["workload_latency"] = "%.3f msec" % (tmp_data["workload_latency"]/rbd_count)
+                tmp_data["Latency(ms)"] = "%.3f" % (tmp_data["Latency(ms)"]/rbd_count)
         except:
             pass
-        if tmp_data["op_type"] in ["randread", "seqread", "read"]:
+        if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
             for node, node_data in data["ceph"]["osd"].items():
                 osd_node_count += 1
-                tmp_data["osd_iops"] += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
-                tmp_data["osd_bw"] += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
+                tmp_data["SN_IOPS"] += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
+                tmp_data["SN_BW(MB/s)"] += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
                 lat_name = "r_await"
                 if lat_name not in node_data:
                     lat_name = "await"
-                tmp_data["osd_latency"] += numpy.mean(node_data[lat_name])
-        if tmp_data["op_type"] in ["randwrite", "seqwrite", "write"]:
+                tmp_data["SN_Latency(ms)"] += numpy.mean(node_data[lat_name])
+        if tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
             for node, node_data in data["ceph"]["osd"].items():
                 osd_node_count += 1
-                tmp_data["osd_iops"] += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
-                tmp_data["osd_bw"] += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
+                tmp_data["SN_IOPS"] += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
+                tmp_data["SN_BW(MB/s)"] += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
                 lat_name = "w_await"
                 if lat_name not in node_data:
                     lat_name = "await"
-                tmp_data["osd_latency"] += numpy.mean(node_data[lat_name])
-        tmp_data["osd_iops"] = "%.3f" % (tmp_data["osd_iops"])
-        tmp_data["osd_bw"] = "%.3f MB/s" % (tmp_data["osd_bw"])
+                tmp_data["SN_Latency(ms)"] += numpy.mean(node_data[lat_name])
+        tmp_data["SN_IOPS"] = "%.3f" % (tmp_data["SN_IOPS"])
+        tmp_data["SN_BW(MB/s)"] = "%.3f" % (tmp_data["SN_BW(MB/s)"])
         if osd_node_count > 0:
-            tmp_data["osd_latency"] = "%.3f msec" % (tmp_data["osd_latency"]/osd_node_count)
+            tmp_data["SN_Latency(ms)"] = "%.3f" % (tmp_data["SN_Latency(ms)"]/osd_node_count)
 
-        tmp_data["serverNum"] = osd_node_count
-        tmp_data["clientNum"] = len(data["client"]["cpu"])
+        tmp_data["SN_Number"] = osd_node_count
+        tmp_data["CN_Number"] = len(data["client"]["cpu"])
         return data
 
     def _process_data(self, node_name):
@@ -327,6 +337,17 @@ class Analyzer:
             validate_time = common.time_to_sec(fio_runtime, 'sec')
             if validate_time < self.validate_time or self.validate_time == 0:
                 self.validate_time = validate_time
+
+    def getStatus(self):
+        self.validate_time = 0
+        dest_dir = self.cluster["dest_conf_dir"]
+        status = "Unknown"
+        try:
+            with open("%s/status" % dest_dir, 'r') as f:
+                status = f.readline()
+        except:
+            pass
+        return status
 
     def process_sar_data(self, path):
         result = {}

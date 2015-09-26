@@ -1,0 +1,351 @@
+<!--************************************
+   Author: Sean,Lin
+   E-mail:  xiangx.lin@intel.com
+   Date:2015-09-10
+   Descrption: 
+************************************-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>CeTune</title>
+ 
+<link rel="stylesheet" type="text/css" href="css/Style.css">
+<link rel="stylesheet" type="text/css" href="css/TableStyle.css">
+<link rel="stylesheet" type="text/css" href="css/NavStyle.css">
+
+<link rel="stylesheet"  href="bootstrap3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="bootstrap3.3.5/css/bootstrap-theme.min.css">
+
+
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="bootstrap3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/nav.js"></script>
+<script type="text/javascript" src="js/Script.js"></script>
+<script type="text/javascript" src="js/Common.js"></script>
+
+
+</head>
+
+<body>
+ <div id="div_main_id" class="container">
+   <div id="div_menu_id">
+     <ul>
+      <li id="Configuration_id" title="Configuration"><a id="menu_Configuration_id">Test Configuration</a></li>
+      <li id="Status_id" title="Status"><a id="menu_Status_id">CeTune Status</a></li>
+      <li id="Reports_id" title="Reports"><a id="menu_Reports_id">Result Reports</a></li>
+     </ul>
+   </div>
+
+   <div id="div_top_id">
+    <div id="div_top_title_id">
+       <h1><a href="#">CeTune -- Ceph tuning and profiling</a></h1>
+    </div>
+     <div id="div_top_status_id">
+       <h1>Benchmark is runing.....</h1>
+       <h6 class='ceph_thr'></h6>
+      <!-- <h1><a href="#"><img id="img_top_id" src="image/progruss.jpg" />Benchmark is runing.....</a></h1>-->
+    </div>
+   </div>
+
+   <div id="div_Content_id">
+   <div id="div_Configuration" class = "div_tab_class">
+     
+     <div id = "div_Configuration_left_id" class="div_content_left_class">
+        <div id ='div_sidebar_id'>
+             <div>
+                <dl id="dl_Configuration_left_nav_accordion_id">
+                    <dt id="dt_Configuration_left_active_id">
+                       <div>CeTune</div>
+                    </dt>
+             
+                    <dd>
+                      <div>
+                        <h4><div><input type="checkbox" class="check_control_class"  title="deploy"  onclick="ExecutvieCheck(event)">   Deploy</div></h4>            
+                        <ul>           
+                          <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
+                        </ul> 
+                      </div>
+                 
+                      <div>
+                        <h4><div><input type="checkbox" class="check_control_class"  title="benchmark" onclick="ExecutvieCheck(event)">   Benchmark</div></h4>          
+                        <ul>           
+                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Executvie Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">System Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_tuning" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Tuning</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Benchmark Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Analyzer Configuration</a></li>           
+                        </ul> 
+                      </div>
+                  
+                    </dd>
+                                 
+                </dl>
+              </div>
+        </div>
+         
+         <div id="div_Configuration_left_execButton_id">
+             <input id="bnt_Configuration_exec_id" class="btn btn-primary btn-lg" type="button" value="Execute"/>
+         </div>     
+     </div>
+     
+     
+     
+     <div id = "div_Configuration_right_id" class="div_content_right_class">
+
+         <div id="div_Configuration_right_top_id">
+            <div id="div_Configuration_right_top_titel_id">Benchmark Configuration</div>
+            <div id="div_Configuration_right_top_button_id">              
+              <!-- <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
+              <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
+              <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>-->
+              
+          <!--    <input id="bnt_Confguration_more_id" class="bnt_Confguration_tableOper_class" type="button" value="More"/>
+              <input id="bnt_Confguration_delete_id" class="bnt_Confguration_tableOper_class" type="button" value="Delete" onclick="Del()"/>
+              <input id="bnt_Confguration_add_id" class="bnt_Confguration_tableOper_class" type="button" value="Add"/>-->
+              
+              <button id="bnt_Confguration_delete_id" type="button" class="btn btn-primary" data-toggle="modal"  data-target="#DeleteModal" data-whatever="@mdo">Delete</button>
+              <button  id="bnt_Confguration_add_id" type="button" class="btn btn-primary" data-toggle="modal" data-target="#ConfigurationModal" data-whatever="@mdo">Add</button>
+               
+             <!-- <button id="bnt_Confguration_more_id" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">More</button>-->
+             
+              
+             
+            </div>
+            <div id="div_Configuration_right_table_id">
+            </div>
+            <div id="div_Configuration_right_back_id">Read-Only During Running</div>              
+         </div>
+     </div>
+     
+     
+  </div>
+  
+   <div id="div_Status" class = "div_tab_class">
+     <div id = "div_Status_left_id" class="div_content_left_class">
+        <div id ='div_sidebar_id_status'>
+          <div>
+             <dl id="dl_Status_left_nav_accordion_id">
+                <dt>
+                  <div>CeTune</div>
+                </dt>
+                <!--------------->
+                <dd>
+                   <div>
+                       <ul>           
+                          <li class="div_Status_left_nav_li_class"><a id="Cetune_Status" href="#">CeTune Status</a></li>
+                          <!--<li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>-->  
+                        </ul> 
+                   </div>
+                </dd>
+             </dl>
+          </div>
+        </div>
+     </div>
+     <div id = "div_Status_right_id" class="div_content_right_class">
+        <div id="div_console_id">
+        </div>
+     </div>
+       
+  </div>
+  
+   <div id="div_Reports" class = "div_tab_class">
+     <!--<div id = "div_Reports_left_id" class="div_content_left_class"></div>
+     <div id = "div_Reports_right_id" class="div_content_right_class">div_Reports_id</div>-->
+  </div>
+  
+  </div>
+
+   <div id="div_buttom_id"></div>
+  </div>
+
+ </div>
+
+<!---------------------------------------- Model Window---------------------------------------------------------->
+
+<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ModalLabel_delete">Are you sure delete thers rows?</h4>
+      </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="DeleteModal_OK" onclick="DeleteModal_OK('configuration')">Apply</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="DeleteBenchmarkModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ModalLabel_BenchmarkModal">Are you sure delete thers rows?</h4>
+      </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="DeleteModal_OK" onclick="DeleteModal_OK('benchmark')">Apply</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+
+<!----------------------------------------------------------------------------------------------------------------------------------->
+
+<div class="modal fade" id="ConfigurationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ModalLabel_Configuration_Add">Add a new row for configuration</h4>
+      </div>
+      
+      
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-key" class="control-label">Key:</label>
+            <input type="text" class="form-control" id="recipient-key">
+          </div>
+           
+          <div class="form-group">
+            <label for="message-value" class="control-label">Value:</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-value">
+          </div>
+          
+
+          
+        </form>
+      </div>
+      
+       <div class="div_message_class" id="div_configuration_message_div">
+          <h5><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              <span class="sr-only">Error:</span>Input box can't be empty!<small> please input</small>
+          </h5>
+       </div>
+       <div class="modal-footer">  
+        <button type="button" class="btn btn-primary" id="ConfigurationModal_OK" onclick="ConfigurationModal_OK()">OK</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+<!----------------------------------------------------------------------------------------------------------------------------------->
+
+<div class="modal fade" id="BenchmarkModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ModalLabel_Benchmark_Add">Add a new row for benchmark</h4>
+      </div>
+      
+      
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-benchmark_engine" class="control-label">benchmark_driver:</label>
+            <label class="testcase-dialog-description">options: qemurbd, fiorbd, cosbench, generic</label>
+            <input type="text" class="form-control" id="recipient-benchmark_engine">
+          </div>
+          
+          <div class="form-group">
+            <label for="message-dsc" class="control-label">worker:</label>
+            <label class="testcase-dialog-description">rbd-example: 140</label>
+            <label class="testcase-dialog-description">cosbench-example: 0(use 0 to initialize container) and 160(as worker)</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-worker">
+          </div>
+          
+          <div class="form-group">
+            <label for="message-value" class="control-label">container_size:</label>
+            <label class="testcase-dialog-description">rbd-example: 10g</label>
+            <label class="testcase-dialog-description">cosbench-example: r(1,100)</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-container_size">
+          </div>
+          
+          <div class="form-group">
+            <label for="message-value" class="control-label">iopattern:</label>
+            <label class="testcase-dialog-description">rbd-options: seqwrite,seqread,randwrite,randread,readwrite,randrw</label>
+            <label class="testcase-dialog-description">cosbench-options: write, read</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-io_pattern">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">opsize:</label>
+            <label class="testcase-dialog-description">rbd-example: 4k</label>
+            <label class="testcase-dialog-description">cosbench-example: 128KB</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-block_size">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">object_size/QD:</label>
+            <label class="testcase-dialog-description">rbd-example: 64</label>
+            <label class="testcase-dialog-description">cosbench-example: r(1,100)</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-work_depth">
+          </div>
+          
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">rampup(sec):</label>
+            <label class="testcase-dialog-description">example: 100</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-ramup_time">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">runtime(sec):</label>
+            <label class="testcase-dialog-description">example: 400</label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient-run_time">
+          </div>
+          
+        </form>
+      </div>
+       <div class="div_message_class" id="div_benchmark_message_div"  role="alert">
+          
+           <h5> <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>Input box can't be empty!<small> please input</small>
+           </h5>
+       </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="BenchmarkModel_OK" onclick="BenchMarkModel_OK()">OK</button> 
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>           
+      </div>
+       
+    </div>
+  </div>
+</div>
+
+
+
+
+    <div id="myShow" style="display:none;">
+        <img alt="loading" src="image/ajax-loader_1.gif"/>
+    </div>
+</body>
+
+</html>

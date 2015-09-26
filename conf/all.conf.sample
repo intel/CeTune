@@ -28,13 +28,13 @@ vm_image_locate_server=10.239.158.45
 head=wyf01
 tmp_dir=/opt/
 user=root
-list_client=wyf01,wyf02,wyf03
-list_ceph=wyf04,wyf05,wyf06,wyf07
-wyf04=/dev/sdc,/dev/sdd,/dev/sde,/dev/sdf
-wyf05=/dev/sda,/dev/sdb,/dev/sdc,/dev/sdd
-wyf06=/dev/sdb,/dev/sdc,/dev/sdd,/dev/sde
-wyf07=/dev/sdb,/dev/sdc,/dev/sdd,/dev/sde
-list_mon=wyf04
+list_client=client01
+list_server=aceph01,aceph02,aceph03,aceph04
+aceph01=/dev/sdb1:/dev/sdg1,/dev/sdc1:/dev/sdg2,/dev/sdd1:/dev/sdg3,/dev/sde1:/dev/sdg4,/dev/sdf1:/dev/sdg5,/dev/sdi1:/dev/sdh1,/dev/sdj1:/dev/sdh2,/dev/sdk1:/dev/sdh3,/dev/sdl1:/dev/sdh4,/dev/sdm1:/dev/sdh5
+aceph02=/dev/sdb1:/dev/sdg1,/dev/sdc1:/dev/sdg2,/dev/sdd1:/dev/sdg3,/dev/sde1:/dev/sdg4,/dev/sdh1:/dev/sdg5,/dev/sdi1:/dev/sdf1,/dev/sdj1:/dev/sdf2,/dev/sdk1:/dev/sdf3,/dev/sdl1:/dev/sdf4,/dev/sdm1:/dev/sdf5
+aceph03=/dev/sdb1:/dev/sdc1,/dev/sde1:/dev/sdc2,/dev/sdf1:/dev/sdc3,/dev/sdg1:/dev/sdc4,/dev/sdh1:/dev/sdc5,/dev/sdi1:/dev/sdd1,/dev/sdj1:/dev/sdd2,/dev/sdk1:/dev/sdd3,/dev/sdl1:/dev/sdd4,/dev/sdm1:/dev/sdd5
+aceph04=/dev/sdb1:/dev/sdg1,/dev/sdc1:/dev/sdg2,/dev/sdd1:/dev/sdg3,/dev/sde1:/dev/sdg4,/dev/sdh1:/dev/sdg5,/dev/sdi1:/dev/sdf1,/dev/sdj1:/dev/sdf2,/dev/sdk1:/dev/sdf3,/dev/sdl1:/dev/sdf4,/dev/sdm1:/dev/sdf5
+list_mon=aceph01
 volume_size=40960
 rbd_volume_count=80
 fio_capping=true
@@ -52,6 +52,9 @@ dest_dir_remote_bak=192.168.3.101:/share/yanfeng/scale_io/
 test_disks=/dev/scinia,/dev/scinia,/dev/scinia
 
 rbd_num_per_client=1,1,1
+=======
+disk_num_per_client=40,40
+>>>>>>> start to working on Config checking and setting
 
 #====================RGW CONFIGURATION===================
 # cosbench

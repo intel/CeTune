@@ -1,3 +1,3 @@
-__all__ = ['generic', 'scaleio']
+__all__ = ['generic']
 
 

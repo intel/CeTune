@@ -6,12 +6,11 @@ class QemuRbd(Benchmark):
     def load_parameter(self):
         super(self.__class__, self).load_parameter()
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
-        self.benchmark["vdisk"] = self.all_conf_data.get("run_file")
 
-        rbd_num_per_client = self.cluster["rbd_num_per_client"]
+        disk_num_per_client = self.cluster["disk_num_per_client"]
         self.volume_size = self.all_conf_data.get("volume_size")
         self.instance_list = self.cluster["vclient"]
-        self.testjob_distribution(rbd_num_per_client, self.instance_list)
+        self.testjob_distribution(disk_num_per_client, self.instance_list)
 
     def prepare_result_dir(self):
         #1. prepare result dir
@@ -139,16 +138,17 @@ class QemuRbd(Benchmark):
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
+        monitor_interval = self.cluster["monitoring_interval"]
 
         #1. send command to vclient
         nodes = []
         for client in self.benchmark["distribution"]:
             nodes.extend(self.benchmark["distribution"][client])
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
-        common.pdsh(user, nodes, "top -c -b -d 1 > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "mpstat -P ALL 1 > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "iostat -p -dxm 1 > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "sar -A 1 > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
 
         fio_job_num_total = 0
         for node in nodes:
@@ -245,66 +245,64 @@ class QemuRbd(Benchmark):
             for node in nodes:
                 common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+        common.rscp(user, head, "%s/conf/" % dest_dir, "%s/conf/fio.conf" % self.pwd)
+        common.rscp(user, head, "%s/conf/" % dest_dir, "/etc/ceph/ceph.conf")
+        common.bash("mkdir -p %s/conf/fio_errorlog/;find %s/raw/ -name '*_fio_errorlog.txt' | while read file; do cp $file %s/conf/fio_errorlog/;done" % (dest_dir, dest_dir, dest_dir))
 
-    def generate_benchmark_cases(self):
-        engine = self.all_conf_data.get_list('benchmark_engine')
+    def generate_benchmark_cases(self, testcase):
         fio_capping = self.all_conf_data.get('fio_capping')
-        if "qemurbd" not in engine:
-            return [[],[]]
-        test_config = OrderedDict()
-        test_config["engine"] = ["qemurbd"]
-        test_config["vm_num"] = self.all_conf_data.get_list('run_vm_num')
-        test_config["rbd_volume_size"] = self.all_conf_data.get_list('run_size')
-        test_config["io_pattern"] = self.all_conf_data.get_list('run_io_pattern')
-        test_config["record_size"] = self.all_conf_data.get_list('run_record_size')
-        test_config["queue_depth"] = self.all_conf_data.get_list('run_queue_depth')
-        test_config["warmup_time"] = self.all_conf_data.get_list('run_warmup_time')
-        test_config["runtime"] = self.all_conf_data.get_list('run_time')
-        test_config["disk"] = self.all_conf_data.get_list('run_file')
-        testcase_list = []
-        for testcase in itertools.product(*(test_config.values())):
-            testcase_list.append('%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s' % ( testcase ))
+
+        io_pattern = testcase["iopattern"]
+        record_size = testcase["block_size"]
+        queue_depth = testcase["qd"]
+        rbd_volume_size = testcase["volume_size"]
+        warmup_time = testcase["rampup"]
+        runtime = testcase["runtime"]
+        disk = testcase["vdisk"]
 
         fio_list = []
         fio_list.append("[global]")
         fio_list.append("    direct=1")
         fio_list.append("    time_based")
-        for element in itertools.product(test_config["io_pattern"], test_config["record_size"], test_config["queue_depth"], test_config["rbd_volume_size"], test_config["warmup_time"], test_config["runtime"], test_config["disk"]):
-            io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk = element
-            io_pattern_fio = io_pattern
-            if io_pattern == "seqread":
-                io_pattern_fio = "read"
-            if io_pattern == "seqwrite":
-                io_pattern_fio = "write"
-            disk_name = disk.split('/')[-1]
-            fio_template = []
-            fio_template.append("[qemurbd-%s-%s-qd%s-%s-%s-%s-%s]" % (io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk_name))
-            fio_template.append("    rw=%s" % io_pattern_fio)
-            fio_template.append("    bs=%s" % record_size)
-            fio_template.append("    iodepth=%s" % queue_depth)
-            fio_template.append("    ramp_time=%s" % warmup_time)
-            fio_template.append("    runtime=%s" % runtime)
-            fio_template.append("    size=%s" % rbd_volume_size)
-            fio_template.append("    filename=%s" % disk)
-            fio_template.append("    ioengine=libaio")
-            if io_pattern in ["randread", "randwrite", "randrw"]:
-                fio_template.append("    iodepth_batch_submit=1")
-                fio_template.append("    iodepth_batch_complete=1")
-                if fio_capping != "false":
-                    fio_template.append("    rate_iops=100")
-            if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
-                fio_template.append("    iodepth_batch_submit=8")
-                fio_template.append("    iodepth_batch_complete=8")
-                if fio_capping != "false":
-                    fio_template.append("    rate=60m")
-            if io_pattern in ["randrw", "readwrite", "rw"]:
-                try:
-                    rwmixread = self.all_conf_data.get('rwmixread')
-                    fio_template.append("    rwmixread=%s" % rwmixread)
-                except:
-                    pass
-            fio_list.extend(fio_template)
-        return [testcase_list, fio_list]
+
+        io_pattern_fio = io_pattern
+        if io_pattern == "seqread":
+            io_pattern_fio = "read"
+        if io_pattern == "seqwrite":
+            io_pattern_fio = "write"
+        disk_name = disk.split('/')[-1]
+
+        fio_template = []
+        fio_template.append("[qemurbd-%s-%s-qd%s-%s-%s-%s-%s]" % (io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, disk_name))
+        fio_template.append("    rw=%s" % io_pattern_fio)
+        fio_template.append("    bs=%s" % record_size)
+        fio_template.append("    iodepth=%s" % queue_depth)
+        fio_template.append("    ramp_time=%s" % warmup_time)
+        fio_template.append("    runtime=%s" % runtime)
+        fio_template.append("    size=%s" % rbd_volume_size)
+        fio_template.append("    filename=%s" % disk)
+        fio_template.append("    ioengine=libaio")
+        if io_pattern in ["randread", "randwrite", "randrw"]:
+            fio_template.append("    iodepth_batch_submit=1")
+            fio_template.append("    iodepth_batch_complete=1")
+            if fio_capping != "false":
+                fio_template.append("    rate_iops=100")
+        if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
+            fio_template.append("    iodepth_batch_submit=8")
+            fio_template.append("    iodepth_batch_complete=8")
+            if fio_capping != "false":
+                fio_template.append("    rate=60m")
+        if io_pattern in ["randrw", "readwrite", "rw"]:
+            try:
+                rwmixread = self.all_conf_data.get('rwmixread')
+                fio_template.append("    rwmixread=%s" % rwmixread)
+            except:
+                pass
+
+        fio_list.extend(fio_template)
+        with open("../conf/fio.conf", "w+") as f:
+            f.write("\n".join(fio_list)+"\n")
+        return True
 
     def parse_benchmark_cases(self, testcase):
         p = testcase
