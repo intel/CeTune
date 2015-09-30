@@ -157,14 +157,14 @@ class Deploy(object):
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
             common.bash("ceph-deploy purge %s" % (node), option="console")
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
-                common.pdsh(user, [node], "apt-get -f -y librbd1", option="console")
-                common.pdsh(user, [node], "apt-get -f -y librados2", option="console")
+                common.pdsh(user, [node], "apt-get purge -f -y librbd1", option="console")
+                common.pdsh(user, [node], "apt-get purge -f -y librados2", option="console")
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
 
     def check_ceph_installed(self):
         user = self.cluster["user"]
-        mons = sorted(self.cluster["mons"])
-        osds = sorted(self.cluster["osds"])
+        mons = sorted(self.cluster["mons"].keys())
+        osds = sorted(self.cluster["osds"].keys())
         clients = sorted(self.cluster["clients"])
         rgws = sorted(self.cluster["rgws"])
         nodes = []
@@ -176,7 +176,10 @@ class Deploy(object):
         stdout, stderr = common.pdsh(user, nodes, "ceph -v", option = "check_return")
         if stderr:
             err = common.format_pdsh_return(stderr)
-            need_to_install_nodes = err.keys()
+            if err != {}:
+                need_to_install_nodes = err.keys()
+            else:
+                need_to_install_nodes = []
         res = common.format_pdsh_return(stdout)
         return [res, need_to_install_nodes]
 
