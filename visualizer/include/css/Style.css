@@ -1,0 +1,164 @@
+/****************************************** 
+   CSS Document
+   Author: Sean,Lin
+   E-mail:  xiangx.lin@intel.com
+   Date:2015-09-18
+   Descrption: 
+ *******************************************/
+@charset "utf-8";
+
+
+/***************************************************************************************************************/
+body{ margin:0px; padding:0px; font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+#div_main_id{width:100%; height:auto;margin:0px; padding:0px; }
+
+/***************************************************************************************************************/
+#div_menu_id{ width:100%; height:25px;background: #000; margin:0; padding:0; border-bottom:1px solid #0CF;}
+#div_menu_id ul{ list-style:none; font-size:13px; color:#FFF; margin:0; padding-top:6px;}
+#div_menu_id ul li{ float:left;  margin-left:5px; cursor:pointer;}
+#div_menu_id ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#FFF; text-decoration:none;}
+
+.tab_background_click{ 
+               font-weight:550;
+               background-color:#337ab7;   
+               border-top:1px solid   #0CF;
+               border-left:1px solid  #0CF;
+               border-right:1px solid  #0CF; 
+               border-buttom:1px solid  #337ab7;
+               height:19px;
+               }
+               
+/***************************************************************************************************************/
+
+#div_top_id{ width:100%; height:55px; background-color:#337ab7; border-bottom:1px solid #2e6da4; box-shadow:2px 2px 3px #aaa;}
+#div_top_title_id{ float:left; width:50%; height:50px;}
+#div_top_status_id{ float:right; width:45%; height:50px;}
+
+#div_top_id h1{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; 
+                line-height:1.1; font-size: 20px; color: #FFF; 
+                padding-top:15px; padding-left:30px; }
+#div_top_id h6{ margin:0; font-family:Arial, Helvetica, sans-serif; font-style:italic;font-weight:500; 
+                line-height:1.1; font-size: 14px; color: #FFF; padding-left:30px; }
+
+#div_top_stauts_id h1{ display:none;}     
+     
+.#div_top_id_h1_avtive{ display:block; margin:0; font-family:Arial, Helvetica, sans-serif; 
+                        font-style:italic;font-weight:500; line-height:1.1; 
+						font-size: 20px; color: #FFF; 
+                        padding-top:15px; padding-left:30px;
+	                    display:none;}
+     
+#div_top_id a{ text-decoration:none; color:inherit;}
+
+#div_top_stauts_id h1{ float:right;font-size:15px; color: #FFF;font-style:normal;font-weight:300; margin-right:20px;}
+#img_top_id{ width:15px; height:15px; margin-right:5px;}
+
+/***************************************************************************************************************/ 
+
+#div_Content_id{ margin:0;  padding-bottom:15px; width:100%; height:auto;}
+
+.div_tab_class{width:95%;height:auto; margin:0 auto; background-color:#FFF; margin-bottom:15px;}
+
+#div_Configuration{ margin-top:3px; width:100%; display:block; padding-bottom:5px;}
+#div_Status{width:100%;  display:none;}
+#div_Reports{width:100%; display:none;}
+
+.tab_div_display{display:block;}
+
+.div_content_left_class{ width:19%; height:300px; float:left; }
+.div_content_right_class{ width:81%; height:300px; float:left; }
+
+/***************************************************************************************************************/ 
+
+#div_Configuration_left_top_id{ width:100%; height:50px;}
+#div_Configuration_left_top_id P{ margin-left:15px; line-height:10px; color:#666; font-family:Arial, Helvetica, sans-serif;
+                                  font-size:14px; font-weight:bold;}
+								  
+#div_Configuration_left_top_id P:first-child{ font-size:20px; }
+
+#div_Configuration_left_content_id ul{list-style: url(../image/config_Wait.gif); margin:0px;color:#666; 
+                                       font-family:Arial, Helvetica, sans-serif; font-size:14px; font-weight:bold;}
+#div_Configuration_left_content_id ul li{line-height:20px; margin-top:15px; cursor:pointer;}
+#div_Configuration_left_content_id ul li a{cursor:pointer; text-decoration:none; text-align:center;}
+
+.SubMenu_li_a_click { color:#F60;}
+.SubMenu_li_a_mouseover { color:#F60;}
+
+/***************************************************************************************************************/
+#div_Configuration_left_execButton_id{ width:100%; height:80px;}
+/*#bnt_Confguration_exec_id{ margin:0 auto; padding:10px 20px 10px 20px; background-color:#999; border-top:1px solid #EEEEEE; border-left:1px solid #EEEEEE; border-bottom:1px solid #717171; border-right:1px solid #717171; }*/
+#bnt_Configuration_exec_id{ margin-left:30px; margin-top:25px;;padding:10px 25px 10px 25px;}
+.bnt_Configuration_exec{ font-weight:bold; color:#666;}
+
+/***************************************************************************************************************/
+
+#div_Configuration_right_top_id{width:100%; height:50px; }
+#div_Configuration_right_top_titel_id{width:50%; height:50px; float:left; margin-top:10px; margin-left:15px;  color:#000; font-family:Arial; font-size:20px; font-weight:bold;}
+#div_Configuration_right_top_button_id{width:48%; height:50px; float:left; margin-top:10px;}
+#div_Configuration_right_table_id{width:100%; float:left;padding-bottom: 10px;}
+/*.bnt_Confguration_tableOper_class{margin-top:0px; float:right;padding:5px 15px 5px 15px; cursor:pointer; background-color:#FC0; color:#630;font-family:Arial;font-weight:bold;}*/
+/***************************************************************************************************************/
+#div_Configuration_right_content_id{width:100%; height:300px; background-color:#099;}
+
+.div_Configuration_right_top_button_id_active{ display:none;}
+
+
+#div_Configuration_right_back_id{  display:none; background-color: #fff; 
+                                   -moz-opacity: 0.3; opacity:.30; filter:alpha(opacity=30);width:81.8%; height:100%; 
+                                   z-index:auto; position:absolute; 
+                                   margin:0; font-family:"Arial Black", Gadget, sans-serif; font-size:40px; font-weight:bold; text-align:center;
+                                   padding-top:0px; margin-left:-10px;margin-right:-10px;}
+#div_benchmark_button_id {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    height: 30px;
+}
+
+
+/***************************************************************************************************************/
+#div_Status{ height:500px; min-height:500px; margin-top:5px;}
+
+#text_Status_id{  margin-left:10px;
+                  width:95%;height:500px; min-height:500px; 
+                  background-color: #000; color:#0F0; 
+                  font-size:12px; font-family:Arial;
+                  }
+#div_console_id{
+    padding-left:5px;
+    width:100%;
+    height:100%;
+    min-height:550px; 
+    background-color: #fff;
+    border: solid #ddd 2px; 
+    font-size:12px;
+    font-family:Arial;
+    overflow:scroll;
+}
+
+.img_Configuration_class{ width:13px; height:13px; }/*tab cancel*/
+.img_menu_li_cancel_class{width:15px; height:15px; float:right; position:relative;  margin-top:-5px; margin-right:-5px;}
+.img_active{width:17px; height:17px; cursor:pointer;margin-top:-6px; margin-right:-6px;}	  
+/***************************************************************************************************************/
+
+#tabs{ width:98%; margin:auto 0; position:relative;}
+#tabs div{ width:100%; margin:auto 0; float:left; }
+#tabs ul{ padding:1px; margin-top: 5px; position:absolute; z-index:2;}
+#tabs ul li{list-style:none; font-size:14px; color:#337AB7; padding-top:6px; border-radius: 7px 7px 0 0; float:left;  cursor:pointer; 
+            margin-left: -1px;
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            margin-right: 2px;
+}
+#tabs ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#337AB7; text-decoration:none;}
+#tabs div{ display:none; position:relative; z-index:1; margin-top:32px;}
+.tabs_li_click{  background-color:#E3E3E3;box-shadow:0px 0px 0px #aaa; color:#555; 
+            border-top: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;}
+
+.testcase-dialog-description{ font-size: 12px; color:#999; font-style: italic; font-weight: 100 }
+/***************************************************************************************************************/
+.div_message_class{ display:none; float:left; width:300px; height:30px;margin-left: 20px; margin-top:15px;}
+.div_message_class h5{ color:#F06;}
+.div_message_class_active{display: block;};
