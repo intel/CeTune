@@ -131,7 +131,7 @@ class QemuRbd(Benchmark):
                 common.printout("LOG","Detach rbd image from %s" % node)
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
                 if not stderr:
-                   common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix))
+                   common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix), except_returncode=1)
 
     def run(self):
         super(self.__class__, self).run()

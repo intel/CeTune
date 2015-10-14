@@ -470,7 +470,8 @@ class Deploy(object):
         common.pdsh(user, [osd], 'ceph osd create %s' % (osduuid), option="console")
         common.pdsh(user, [osd], 'ceph osd crush add osd.%d 1.0 host=%s rack=localrack root=default' % (osd_num, osd), option="console", except_returncode=2)
         common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec ceph-osd -i %d --mkfs --mkkey --osd-uuid %s"' % (osd_num, osduuid), option="console", except_returncode=1)
-        common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console", except_returncode=22)
+        #common.pdsh(user, [osd], 'ceph -i %s/keyring auth add osd.%d osd "allow *" mon "allow profile osd"' % (mon_basedir, osd_num), option="console", except_returncode=22)
+        common.pdsh(user, [osd], 'ceph -i %s auth add osd.%d osd "allow *" mon "allow profile osd"' % (key_fn, osd_num), option="console", except_returncode=22)
 
         # Start the OSD
         common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
