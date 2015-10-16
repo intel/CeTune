@@ -1,4 +1,4 @@
-Latest version 0.1.4 
+Latest version 1.0.0
 ------------------------------------
 Special Notes
 ---------------
@@ -7,9 +7,15 @@ Special Notes
 
 Changelog
 --------
-- 0.1.5     New benchmark module for tesing local disks on distributed nodes
-commit : master - 471cd2fcc18becac1ebf18046bef0a62268dcbb7
+- 1.0.0    First Opensource Version
+           1. Manage CeTune Configuration and Execute CeTune with Webui
+           2. CeTune User guide updated
+           3. Deploy module: still need to install ceph with CeTune Cli, deploy ceph with Webui
+           4. Benchmark module: support qemurbd, fiorbd, cosbench
+           5. Analyzer module: support iostat, sar, interrupt, performance counter
+           6. Report Visualize: Support Config download, csv download, all data present by line chart.
 
+- 0.1.5    New benchmark module for tesing local disks on distributed nodes
 - 0.1.4    Currently stable version for qemurbd, cosbench, fiorbd test
 - 0.1.3    Since this version, tuner will apply tuning when running objecttest
 - 0.1.2    Bug fixing of 0.1.1 and re-org cetune results to speed up result processing, visualizing.

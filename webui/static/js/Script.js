@@ -168,7 +168,10 @@ function Report_Timer(init){
 			  if(pic.attr("src") == undefined){
 				  pic.attr("src", address_Report_Detail_pic+"?session_name="+session_name+"&pic_name="+pic_name+".png" );
 				  pic.next().attr("href", address_Report_Detail_csv+"?session_name="+session_name+"&csv_name="+pic_name+".csv");
-				  pic.next().click(function(){url=$(this).attr("href");location.href=url})
+                                  pic.next().find("a").removeAttr('href');
+				  pic.next().click(function(){
+                                      url=$(this).attr("href");location.href=url
+                                  })
 			  }//if
 		          pic.parent().show();
 

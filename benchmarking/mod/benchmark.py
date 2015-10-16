@@ -325,6 +325,7 @@ class Benchmark(object):
         user = self.cluster["user"]
         head = self.cluster["head"]
         dest_dir = self.cluster["dest_dir"]
+        common.pdsh(user, [head], "mkdir -p %s/conf" % (dest_dir))
         common.pdsh(user, [head], "echo %s > %s/conf/status" % (status, dest_dir))
 
     def prepare_result_dir(self):
