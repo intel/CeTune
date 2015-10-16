@@ -115,9 +115,10 @@ class QemuRbd(Benchmark):
             nodes = to_attach_dict[client]
             for node in nodes:
                 common.printout("LOG","Attach rbd image to %s" % node)
-                stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
-                if stderr:
-                   common.pdsh(user, [client], "cd %s/vdbs; virsh attach-device %s %s.xml" % (dest_dir, node, node))
+                stdout, stderr = common.pdsh(user, [node], "fdisk -l %s" % vdisk, option="check_return")
+                res = common.format_pdsh_return(stdout)
+                if node not in res:
+                   common.pdsh(user, [client], "cd %s/vdbs; virsh attach-device %s %s.xml" % (dest_dir, node, node), except_returncode=1)
 
     def detach_images(self):
         user = self.cluster["user"]
