@@ -391,8 +391,9 @@ class Deploy(object):
     def distribute_hosts(self, node_ip_bond):
         user = self.cluster["user"]
         nodes = []
-        nodes.extend(self.cluster["clients"])
-        nodes.extend(sorted(self.cluster["osds"]))
+        common.unique_extend(nodes, sorted(self.cluster["clients"]) )
+        common.unique_extend(nodes, sorted(self.cluster["mons"]) )
+        common.unique_extend(nodes, sorted(self.cluster["osds"]) )
 
         common.add_to_hosts(node_ip_bond)
         for node in nodes:
@@ -400,15 +401,14 @@ class Deploy(object):
 
     def distribute_conf(self):
         user = self.cluster["user"]
-        clients = self.cluster["clients"]
-        osds = sorted(self.cluster["osds"])
-        common.pdsh(user, osds, "mkdir -p /etc/ceph")
-        common.pdsh(user, clients, "mkdir -p /etc/ceph")
+        nodes = []
+        common.unique_extend(nodes, sorted(self.cluster["clients"]) )
+        common.unique_extend(nodes, sorted(self.cluster["mons"]) )
+        common.unique_extend(nodes, sorted(self.cluster["osds"]) )
+        common.pdsh(user, nodes, "mkdir -p /etc/ceph")
 
-        for client in clients:
-            common.scp(user, client, "../conf/ceph.conf", "/etc/ceph/")
-        for osd in osds:
-            common.scp(user, osd, "../conf/ceph.conf", "/etc/ceph/")
+        for node in nodes:
+            common.scp(user, node, "../conf/ceph.conf", "/etc/ceph/")
 
     def make_osds(self, osds=None, diff_map=None):
         print diff_map

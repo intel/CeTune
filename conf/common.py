@@ -478,17 +478,19 @@ def eval_args( obj, function_name, args ):
             res = func( **argv )
     return res
 
-def get_ceph_health():
+def get_ceph_health(user, node):
     check_count = 0
     output = {}
-    stdout = bash('timeout 3 ceph -s')
-    if not len(stdout):
-        output["ceph_status"] = "NOT ALIVE"
-    else:
+    stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s", option = "check_return")
+    res = format_pdsh_return(stdout)
+    if len(res):
+        stdout = res[node]
         stdout = stdout.split('\n')
         output["ceph_status"] = stdout[1]
         if "client io" in stdout[-2]:
             output["ceph_throughput"] = stdout[-2]
+    else:
+        output["ceph_status"] = "NOT ALIVE"
     return output
 
 def try_ssh( node ):

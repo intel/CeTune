@@ -89,7 +89,10 @@ class monitor:
             if web.cache["tuner_thread"].poll() != None:
                 web.cache["tuner_thread"] = None
                 web.cache["cetune_status"] = "idle"
-        output = common.get_ceph_health()
+        all_conf = config.Config("../conf/all.conf")
+        user = all_conf.get('user')
+        controller = all_conf.get('head')
+        output = common.get_ceph_health(user, controller)
         output["cetune_status"] = web.cache["cetune_status"]
         web.header("Content-Type","application/json")
         return json.dumps(output)
