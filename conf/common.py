@@ -489,6 +489,8 @@ def get_ceph_health(user, node):
         output["ceph_status"] = stdout[1]
         if "client io" in stdout[-2]:
             output["ceph_throughput"] = stdout[-2]
+        if "client io" in stdout[-1]:
+            output["ceph_throughput"] = stdout[-1]
     else:
         output["ceph_status"] = "NOT ALIVE"
     return output
