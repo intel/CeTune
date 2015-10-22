@@ -101,7 +101,7 @@ class Deploy(object):
         need_to_install_nodes=[]
         correctly_installed_nodes={}
         installed_list = []
-        version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94'}
+        version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94','infernalis':'9.1'}
         for node, version_code in installed.items():
             if version == "":
                 for release_name, short_version in version_map.items():

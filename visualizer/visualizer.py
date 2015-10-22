@@ -223,7 +223,14 @@ class Visualizer:
         output.append("<thead>")
         output.append("<tr>")
         output.append("<th>%s</th>" % node_type)
-        for key in data[data.keys()[0]].keys():
+        max_col_key = data.keys()[0]
+        max_col_count = 0
+        for key, value in data.items():
+            tmp = len(value.keys())
+            if tmp > max_col_count:
+                max_col_count = tmp
+                max_col_key = key
+        for key in data[max_col_key].keys():
             output.append("<th><a id='%s_%s' href='#%s_%s'>%s</a></th>" % (node_type, re.sub('[/%]','',key), node_type, re.sub('[/%]','',key), key))
         output.append("<tr>")
         output.append("</thead>")

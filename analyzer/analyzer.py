@@ -352,15 +352,15 @@ class Analyzer:
     def process_sar_data(self, path):
         result = {}
         #1. cpu
-        stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{if($3==\"all\"){for(i=4;i<=NF;i++)printf $i\"\"FS; print \"\"}}'" )
+        stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
         result["cpu"] = common.convert_table_to_2Dlist(stdout)
 
         #2. memory
-        stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -F\"AM|PM\" '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{if($3==\"kbmemfree\"){find=1}else if(find==1){for(i=3;i<=NF;i++)printf $i\"\"FS;print \"\";find=0}}'" )
+        stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
         result["memory"] = common.convert_table_to_2Dlist(stdout)
 
         #3. nic
-        stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -F\"IFACE\" '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{if($3==\"IFACE\" && $4==\"rxpck/s\"){find=1;count=0;col=NF;for(i=1;i<=col;i++){res_arr[i]=0}};if($4==\"rxerr/s\"){find=0;for(i=4;i<=col;i++)printf res_arr[i]\"\"FS; print \"\"}if(find && $3!=\"lo\"){for(i=1;i<=col;i++)res_arr[i]+=$i }}'" )
+        stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
         result["nic"] = common.convert_table_to_2Dlist(stdout)
         #4. tps
         return result
