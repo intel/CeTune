@@ -1,3 +1,3 @@
-__all__ = ['generic']
+__all__ = ['generic', 'hook']
 
 

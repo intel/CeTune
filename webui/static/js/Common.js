@@ -483,6 +483,8 @@ function BenchMarkModel_OK(){
         device = "cosbench"
     if(benchmark_driver == "generic")
         device = "generic"
+    if(benchmark_driver == "hook")
+        device = "hook"
 
     if(benchmark_driver == "" || worker== "" ||container_size  == "" || iopattern == "" || op_size == "" ||
         object_size == "" || rampup == "" || runtime == "" || device == "" ){

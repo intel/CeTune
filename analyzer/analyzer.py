@@ -486,7 +486,7 @@ class Analyzer:
             result.update(counter, dedup=False, diff=False)
         result = result.get()
         output = OrderedDict()
-        for key in ["osd", "filestore", "objecter"]:
+        for key in ["osd", "filestore", "objecter", "mutex-JOS::SubmitManager::lock"]:
             output["perfcounter_"+key] = {}
             current = output["perfcounter_"+key]
             if not key in result:

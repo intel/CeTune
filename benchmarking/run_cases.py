@@ -71,6 +71,8 @@ def main(args):
                 benchmark = cosbench.Cosbench()
             if testcase["engine"] == "generic":
                 benchmark = generic.Generic()
+            if testcase["engine"] == "hook":
+                benchmark = hook.Hook()
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
             try:
