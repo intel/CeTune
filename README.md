@@ -6,7 +6,7 @@
 - CeTune provides test performance through three interfaces: block, file system and object to evaluate *Ceph.
 
 ######Maintainance
-- CeTune is an opensource project, under Apache License v2.0, Drived by INTEL BDT CSE team.
+- CeTune is an opensource project, under LGPL V2.1, Drived by INTEL BDT CSE team.
 - Maillist: https://github.com/01org/CeTune
 - Subscribe maillist: https://lists.01.org/mailman/listinfo/cephperformance
 
