@@ -1,6 +1,7 @@
 from ..benchmark import *
 from collections import OrderedDict
 import itertools
+from plugin import *
 
 class Hook(Benchmark):
     def load_parameter(self):
@@ -47,6 +48,7 @@ class Hook(Benchmark):
     def run(self):
         super(self.__class__, self).run()
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
+        plugin.main()
         for wait in range(1, waittime):
             time.sleep(1)
 
