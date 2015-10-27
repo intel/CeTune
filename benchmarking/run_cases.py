@@ -3,6 +3,8 @@ import os, sys
 
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
 sys.path.append(lib_path)
+
+from conf import *
 from mod import *
 from mod.bblock import *
 from mod.bobject import *
