@@ -6,6 +6,7 @@ from plugin import *
 class Hook(Benchmark):
     def load_parameter(self):
         super(self.__class__, self).load_parameter()
+        self.custom_script = self.all_conf_data.get("custom_script", True )
 
     def prepare_result_dir(self):
         #1. prepare result dir
@@ -48,6 +49,9 @@ class Hook(Benchmark):
     def run(self):
         super(self.__class__, self).run()
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
+        custom_script = ""
+        if self.custom_script:
+            common.bash( self.custom_script )
         plugin.main()
         for wait in range(1, waittime):
             time.sleep(1)

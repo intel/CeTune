@@ -87,6 +87,8 @@ class ConfigHandler():
                 required["test_disks"] = ""
                 required["fio_capping"] = "false"
                 required["disk_num_per_client"] = "35,35,35,35"
+            if engine == "hook":
+                required["custom_script"] = ""
             for required_key in required:
                  if required_key not in benchmark_config.keys():
                      value = required[required_key]
