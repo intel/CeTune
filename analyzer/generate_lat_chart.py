@@ -5,6 +5,7 @@ import json
 import argparse
 from collections import OrderedDict
 import os
+import operator
 
 def main(args):
     parser = argparse.ArgumentParser(description='Analyzer tool')
@@ -39,11 +40,12 @@ def main(args):
     if return_type == "service_latency":
         latency_dict = get_res(data, "service_latency")
         for msg_type, trace in latency_dict.items():
-            pyplot.figure(figsize=(9,4))
+            pyplot.figure(figsize=(12,4))
             for lat_level, lat_data in trace.items():
                 if lat_level == "Messenger":
                     continue
-                pyplot.plot(lat_data.keys(), lat_data.values(), "o", label=lat_level)
+#                pyplot.plot(lat_data.keys(), lat_data.values(), "o", label=lat_level)
+                pyplot.bar(lat_data.keys(), lat_data.values(), label=lat_level)
             pyplot.xlabel("start_time(msec)")
             pyplot.ylabel("latency(msec)")
             pyplot.legend(loc = 'center left', bbox_to_anchor = (1, 0.5), prop={'size':6})
@@ -58,17 +60,55 @@ def main(args):
     elif return_type == "events":
         events_dict = get_res(data, "events")
         for msg_type, trace in events_dict.items():
+            print "Processing *** %s *** Tracepoints" % msg_type
             output = []
-            first_line = True
+            max_events_count = 0
+            max_events_index = 0
+
+#           find the line has all the events and print align to this
             for start_time, events in trace.items():
-                if first_line:
-                    output.append( 'start_time,%s' % ','.join(events.keys()) )
-                    first_line = False
-                output.append( "%s,%s" % (start_time, ",".join(events.values())) )
+                if len(events) > max_events_count:
+                    max_events_count = len(events)
+                    max_events_index = start_time
+
+            sorted_event_list = sorted(trace[max_events_index], key=trace[max_events_index].__getitem__)
+            event_list = sorted_event_list
+            event_dict = OrderedDict()
+            for event in event_list:
+                event_dict[event] = OrderedDict()
+
+            output.append("%s,%s" % ("start_time", ",".join(event_list)))
+
+            for start_time, events in trace.items():
+                line = []
+                line.append(str(start_time))
+                for event in event_list:
+                    if event in events:
+                        line.append(events[event])
+                        event_dict[event][start_time] = events[event]
+                    else:
+                        line.append("NULL")
+                        event_dict[event][start_time] = 0
+                output.append( ",".join(line) )
+
             with open( "%s_%s.csv" % (output_name, msg_type), 'w' ) as f:
                 f.write( "\n".join(output) )
-#    print latency_dict.keys()
 
+            pyplot.figure(figsize=(12,4))
+            for event_name, event_data in event_dict.items():
+#pyplot.bar(event_data.keys(), event_data.values(), width=width, linewidth=0, label=event_name)
+                pyplot.plot(event_data.keys(), event_data.values(), marker="o", markersize=3 , label=event_name)
+            pyplot.xlabel("start_time(msec)")
+            pyplot.ylabel("latency(msec)")
+#            pyplot.legend(bbox_to_anchor = (0, 0), loc="best", prop={'size':6})
+            pyplot.legend(loc="best", prop={'size':6})
+            pyplot.grid(True)
+#            x1,x2,y1,y2 = pyplot.axis()
+#            pyplot.axis((x1,x2,0,y2))
+            pyplot.suptitle("%s" % "blkin_trace")
+            pic_name = '%s_%s.png' % (output_name, msg_type)
+            pyplot.savefig(pic_name)
+            pyplot.close()
 
 def get_res( data, return_type ):
     res = OrderedDict()
