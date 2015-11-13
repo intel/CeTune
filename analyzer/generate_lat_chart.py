@@ -72,23 +72,34 @@ def main(args):
                     max_events_index = start_time
 
             sorted_event_list = sorted(trace[max_events_index], key=trace[max_events_index].__getitem__)
+            sorted_event_list.remove('keyval')
             event_list = sorted_event_list
+            keyval_list = sorted(trace[max_events_index]['keyval'], key=trace[max_events_index]['keyval'].__getitem__)
             event_dict = OrderedDict()
             for event in event_list:
                 event_dict[event] = OrderedDict()
 
-            output.append("%s,%s" % ("start_time", ",".join(event_list)))
+            output.append("%s,%s,%s" % ("start_time", ",".join(event_list), ",".join(keyval_list)))
 
             for start_time, events in trace.items():
                 line = []
                 line.append(str(start_time))
                 for event in event_list:
+                    if 'keyval' == event:
+                        continue
                     if event in events:
-                        line.append(events[event])
-                        event_dict[event][start_time] = events[event]
+                        if event != 'keyval':
+                            line.append(events[event])
+                            event_dict[event][start_time] = events[event]
                     else:
                         line.append("NULL")
                         event_dict[event][start_time] = 0
+                if 'keyval' in events:
+                    for key in keyval_list:
+                        if key in events['keyval']:
+                            line.append(events['keyval'][key])
+                        else:
+                            line.append("NULL")
                 output.append( ",".join(line) )
 
             with open( "%s_%s.csv" % (output_name, msg_type), 'w' ) as f:
@@ -96,15 +107,11 @@ def main(args):
 
             pyplot.figure(figsize=(12,4))
             for event_name, event_data in event_dict.items():
-#pyplot.bar(event_data.keys(), event_data.values(), width=width, linewidth=0, label=event_name)
                 pyplot.plot(event_data.keys(), event_data.values(), marker="o", markersize=3 , label=event_name)
             pyplot.xlabel("start_time(msec)")
             pyplot.ylabel("latency(msec)")
-#            pyplot.legend(bbox_to_anchor = (0, 0), loc="best", prop={'size':6})
             pyplot.legend(loc="best", prop={'size':6})
             pyplot.grid(True)
-#            x1,x2,y1,y2 = pyplot.axis()
-#            pyplot.axis((x1,x2,0,y2))
             pyplot.suptitle("%s" % "blkin_trace")
             pic_name = '%s_%s.png' % (output_name, msg_type)
             pyplot.savefig(pic_name)
@@ -182,6 +189,12 @@ def get_events_list(trace_start, span_data, res, first_start_time):
             value =  "%.3f" % float(timestamp/1000000.0)
             event = "%s_%s" % (span_data[level_name], event)
             res[event] = value
+    ignore_list = ["events", "service_name", "trace_name", "cost", "priority"]
+    res["keyval"] = OrderedDict()
+    for span_key, span_value in span_data.items():
+        if span_key not in ignore_list and not span_key.isdigit():
+            res["keyval"][span_key] = str(span_value)
+    
     if "Messenger_type" in span_data:
         return span_data["Messenger_type"]
 
