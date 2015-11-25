@@ -58,7 +58,12 @@ def init_zipkin_data_by_parent_span_id( parent_span_id, root, event, start_time 
         if 'event' in event:
             zipkin_data["events"][event['event']] = event.timestamp - start_time
         elif 'key' in event and 'val' in event:
-            zipkin_data[event['key']] = event['val']
+            tmp_key = event['key']
+            tmp_index = 1
+            while tmp_key in zipkin_data:
+                tmp_key = "%s_%d" % (tmp_key, tmp_index)
+                tmp_index += 1
+            zipkin_data[tmp_key] = event['val']
         return
     else:
         for span_id in root.keys():

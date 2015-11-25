@@ -190,7 +190,8 @@ def get_events_list(trace_start, span_data, res, first_start_time):
             event = "%s_%s" % (span_data[level_name], event)
             res[event] = value
     ignore_list = ["events", "service_name", "trace_name", "cost", "priority"]
-    res["keyval"] = OrderedDict()
+    if "keyval" not in res:
+        res["keyval"] = OrderedDict()
     for span_key, span_value in span_data.items():
         if span_key not in ignore_list and not span_key.isdigit():
             res["keyval"][span_key] = str(span_value)
