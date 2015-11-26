@@ -77,6 +77,7 @@ class QemuRbd(Benchmark):
         common.printout("LOG","rbd initialization finished")
 
     def prerun_check(self):
+        super(self.__class__, self).prerun_check()
         #1. check is vclient alive
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
@@ -102,7 +103,7 @@ class QemuRbd(Benchmark):
             common.printout("WARNING","vclients are not attached with rbd volume")
             self.attach_images()
             common.printout("WARNING","vclients attached rbd volume now")
-        common.printout("LOG","Prerun_check: check if sysstat installed")
+        common.printout("LOG","Prerun_check: check if sysstat installed on %s" % nodes)
         common.pdsh(user, nodes, "mpstat")
 
     def attach_images(self, to_attach_dict = None):
@@ -146,6 +147,7 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes.extend(self.benchmark["distribution"][client])
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.printout("LOG","Start system data collector under %s " % nodes)
         common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))

@@ -66,6 +66,7 @@ class FioRbd(Benchmark):
         super(self.__class__, self).prepare_result_dir()
 	
     def prerun_check(self):
+        super(self.__class__, self).prerun_check()
         #1. check is vclient alive
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()

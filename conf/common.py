@@ -134,6 +134,7 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'exec', '-w', _nodes, 'ssh', '%h', '-oConnectTimeout=15', command]
+#    args = ['pdsh', '-w', _nodes, command]
     printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -225,7 +226,7 @@ def scp(user, node, localfile, remotefile):
     printout("CONSOLE", stdout, screen=False)
     if stderr:
         print('scp: %s' % args)
-        printout("ERROR",stderr+"\n")
+        printout("WARNING",stderr+"\n")
 
 def rscp(user, node, localfile, remotefile):
     args = ['scp', '-oConnectTimeout=15', '-r', '%s@%s:%s' % (user, node, remotefile), localfile]
@@ -234,7 +235,7 @@ def rscp(user, node, localfile, remotefile):
     stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
     if stderr:
         print('rscp: %s' % args)
-        printout("ERROR",stderr+"\n")
+        printout("WARNING",stderr+"\n")
 
 # scp from one remote machine to another remote machine
 def rrscp(user, node1, node1_file, node2,node2_file):

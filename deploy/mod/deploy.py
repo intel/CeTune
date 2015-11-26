@@ -32,6 +32,7 @@ class Deploy(object):
         self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
         self.cluster["ceph_conf"]["global"]["mon_data"] = "/var/lib/ceph/mon.$id"
         self.cluster["ceph_conf"]["global"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
+        self.cluster["collector"] = self.all_conf_data.get_list("collector")
 
         for key, value in self.all_conf_data.get_group("ceph_hard_config").items():
             self.cluster["ceph_conf"]["global"][key] = value
@@ -101,7 +102,7 @@ class Deploy(object):
         need_to_install_nodes=[]
         correctly_installed_nodes={}
         installed_list = []
-        version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94','infernalis':'9.1'}
+        version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94','infernalis':'9.2'}
         for node, version_code in installed.items():
             if version == "":
                 for release_name, short_version in version_map.items():
@@ -552,8 +553,10 @@ class Deploy(object):
                 # Start the OSD
                 common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
                 pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
-                #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
-                lttng_prefix = ""
+                if "lttng" in self.cluster["collector"]:
+                    lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
+                else:
+                    lttng_prefix = ""
                 cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
                 cmd = 'ceph-run %s' % cmd
                 common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console",except_returncode=1)

@@ -49,8 +49,8 @@ class Benchmark(object):
             self.stop_data_collecters()
 
         self.real_runtime = time.time() - test_start_time
-        common.printout("LOG","Collecting Data")
         self.after_run()
+        common.printout("LOG","Collecting Data, this will takes quite long time depends on the network")
         self.archive()
         if not interrupted_flag:
             self.setStatus("Completed")
@@ -114,11 +114,31 @@ class Benchmark(object):
         nodes = self.cluster["osd"]
         dest_dir = self.cluster["tmp_dir"]
         clients = self.cluster["client"]
-        common.pdsh(user, nodes, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
-        common.pdsh(user, clients, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
+        common.pdsh(user, nodes, "rm -rf %s/*.txt; rm -rf %s/*.log; rm %s/*blktrace*; rm -rf %s/lttng-traces/*" % (dest_dir, dest_dir, dest_dir, dest_dir), except_returncode=1)
+        common.pdsh(user, clients, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir), option="check_return")
+        common.printout("LOG","Cleaned original data under %s " % dest_dir)
 
     def prerun_check(self):
-        pass
+        user = self.cluster["user"]
+        nodes = self.cluster["osd"]
+        common.printout("LOG","Prerun_check: check if sysstat installed " % nodes)
+        common.pdsh(user, nodes, "mpstat")
+
+        if "fatrace" in self.cluster["collector"]:
+            common.printout("LOG","Prerun_check: check if fatrace installed " % nodes)
+            common.pdsh(user, nodes, "fatrace -h")
+
+        if "blktrace" in self.cluster["collector"]:
+            common.printout("LOG","Prerun_check: check if blktrace installed " % nodes)
+            common.pdsh(user, nodes, "blktrace -v")
+
+        if "strace" in self.cluster["collector"]:
+            common.printout("LOG","Prerun_check: check if strace installed " % nodes)
+            common.pdsh(user, nodes, "strace -V")
+
+        if "lttng" in self.cluster["collector"]:
+            common.printout("LOG","Prerun_check: check if lttng installed " % nodes)
+            common.pdsh(user, nodes, "lttng -V")
 
     def run(self):
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
@@ -130,22 +150,42 @@ class Benchmark(object):
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
         monitor_interval = self.cluster["monitoring_interval"]
-        nodes.extend(self.benchmark["distribution"].keys())
+        #nodes.extend(self.benchmark["distribution"].keys())
         common.pdsh(user, nodes, "echo '%s' > /proc/sys/vm/drop_caches && sync" % self.cluster["cache_drop_level"])
 
         #send command to ceph cluster
+        common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' > %s/`hostname`_ps.txt" % (dest_dir))
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.printout("LOG","Start system data collector under %s " % nodes)
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
-        common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, monitor_interval, '%s', dest_dir), option="force")
-#        common.pdsh(user, nodes, "fatrace -o %s/`hostname`_fatrace.txt & echo `date +%s`' fatrace start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        if "perfcounter" in self.cluster["collector"]:
+            common.printout("LOG","Start perfcounter data collector under %s " % nodes)
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, monitor_interval, '%s', dest_dir), option="force")
+        if "blktrace" in self.cluster["collector"]:
+            for node in nodes:
+                common.printout("LOG","Start blktrace data collector under %s " % node)
+                for osd_dev in self.cluster[node]["osds"]:
+                    common.pdsh(user, [node], "cd %s; blktrace -d %s -o `hostname`_osd_%s 2>&1 > %s/`hostname`_blktrace_%s.log" % (dest_dir, osd_dev, osd_dev.replace("/","_"), dest_dir, osd_dev.replace("/","_")), option="force")
+                for journal_dev in self.cluster[node]["journals"]:
+                    common.pdsh(user, [node], "cd %s; blktrace -d %s -o `hostname`_journal_%s 2>&1 > %s/`hostname`_blktrace_%s.log" % (dest_dir, journal_dev, journal_dev.replace("/","_"), dest_dir, journal_dev.replace("/","_")), option="force")
+        if "fatrace" in self.cluster["collector"]:
+            common.printout("LOG","Start fatrace data collector under %s " % nodes)
+            common.pdsh(user, nodes, "fatrace -o %s/`hostname`_fatrace.txt &" % (dest_dir))
+        if "strace" in self.cluster["collector"]:
+            common.printout("LOG","Start strace data collector under %s " % nodes)
+            common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' | awk '{print $2}' | while read pid;do strace -f -T -e trace=desc -p ${pid} -o %s/`hostname`_strace_${pid}.txt 2>&1 > %s/`hostname`_strace_${pid}.log & done" % (dest_dir, dest_dir))
+        if "lttng" in self.cluster["collector"]:
+            common.printout("LOG","Start lttng data collector under %s " % nodes)
+            common.pdsh(user, nodes, "export HOME='%s'; lttng destroy 2>/dev/null; lttng create zipkin; lttng enable-channel channel0 -u --buffers-pid; lttng enable-event -c channel0 --userspace zipkin:*; lttng start;" % (dest_dir))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.printout("LOG","Start system data collector under %s " % nodes)
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
@@ -176,6 +216,10 @@ class Benchmark(object):
         for node in self.cluster["osd"]:
             common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+            if "blktrace" in self.cluster["collector"]:
+                common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*blktrace*" % self.cluster["tmp_dir"])
+            if "lttng" in self.cluster["collector"]:
+                common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/lttng-traces" % self.cluster["tmp_dir"])
 
         #collect client data
         for node in self.benchmark["distribution"].keys():
@@ -192,13 +236,21 @@ class Benchmark(object):
         user = self.cluster["user"]
         nodes = self.cluster["osd"]
         dest_dir = self.cluster["tmp_dir"]
-        stdout, stderr = common.pdsh(user, nodes, "echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; ps aux | grep asok |awk '{print $2}'| while read pid;do kill $pid;done" % ('%s', dest_dir), option = "check_return")
+        if "lttng" in self.cluster["collector"]:
+            common.pdsh(user, nodes, "export HOME=%s; lttng stop; lttng destroy;" % dest_dir, option = "check_return")
+        if "perfcounter" in self.cluster["collector"]:
+            stdout, stderr = common.pdsh(user, nodes, "echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; ps aux | grep asok |awk '{print $2}'| while read pid;do kill $pid;done" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
-#        common.pdsh(user, nodes, "killall -9 fatrace; echo `date +%s`' fatrace stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+        if "fatrace" in self.cluster["collector"]:
+            common.pdsh(user, nodes, "killall -9 fatrace;", option = "check_return")
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_end.txt; echo `date +%s`' interrupt stop' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
+        if "blktrace" in self.cluster["collector"]:
+            common.pdsh(user, nodes, "killall -9 blktrace;", option = "check_return")
+        if "strace" in self.cluster["collector"]:
+            common.pdsh(user, nodes, "killall -9 strace;", option = "check_return")
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
@@ -308,10 +360,18 @@ class Benchmark(object):
         self.cluster["dest_dir"] = self.all_conf_data.get("dest_dir")
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osd"] = self.all_conf_data.get_list("list_server")
+        for node in self.cluster["osd"]:
+            self.cluster[node] = {}
+            self.cluster[node]["osds"] = []
+            self.cluster[node]["journals"] = []
+            for osd_journal in common.get_list(self.all_conf_data.get_list(node)):
+                self.cluster[node]["osds"].append(osd_journal[0])
+                self.cluster[node]["journals"].append(osd_journal[1])
         self.cluster["disk_num_per_client"] = self.all_conf_data.get_list("disk_num_per_client")
         self.cluster["cache_drop_level"] = self.all_conf_data.get("cache_drop_level")
         self.cluster["monitoring_interval"] = self.all_conf_data.get("monitoring_interval")
         self.cluster["run_time_extend"] = 100
+        self.cluster["collector"] = self.all_conf_data.get_list("collector")
 
     def chkpoint_to_log(self, log_str):
         dest_dir = self.cluster["tmp_dir"]

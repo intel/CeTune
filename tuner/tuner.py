@@ -32,6 +32,8 @@ class Tuner:
             for osd_journal in common.get_list( self.all_conf_data.get_list(osd) ):
                 self.cluster["osd_daemon_num"] += 1
                 self.cluster[osd].append( osd_journal[0] )
+                if osd_journal[1] not in self.cluster[osd]:
+                    self.cluster[osd].append( osd_journal[1] )
 
     def default_all_conf(self):
         self.cluster = {}
@@ -205,7 +207,7 @@ class Tuner:
         controller = self.cluster["head"]
         pwd = os.path.abspath(os.path.join('..'))
         cur_version = self.get_version()
-        version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer','9.1':'infernalis'}
+        version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer','9.1':'infernalis','9.2':'infernalis'}
         if 'version' in self.worksheet[jobname]:
             planed_version = self.worksheet[jobname]['version']
         else:

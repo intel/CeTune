@@ -177,6 +177,7 @@ class Cosbench(Benchmark):
         stdout,stderr = common.pdsh(self.cluster["user"],[self.cosbench["cosbench_controller"]],"cd %s;chmod +x *.sh; ./stop-controller.sh; http_proxy=%s ./start-controller.sh" %(self.cosbench["cosbench_folder"],self.cosbench["proxy"]),'check_return')
 
     def prerun_check(self):
+        super(self.__class__, self).prerun_check()
         cosbench_server = []
         cosbench_server.append(self.cosbench["cosbench_controller"])
         cosbench_server = common.unique_extend( cosbench_server, self.cosbench["cosbench_driver"] )

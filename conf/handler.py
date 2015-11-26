@@ -148,6 +148,7 @@ class ConfigHandler():
         required_list["benchmark"]["dest_dir"]="/mnt/data/"
         required_list["benchmark"]["cache_drop_level"]=1
         required_list["benchmark"]["monitoring_interval"]=1
+        required_list["benchmark"]["collector"]="blktrace,strace,fatrace,lttng,perfcounter"
 
         required_list["workflow"] = OrderedDict()
         required_list["workflow"]["workstages"] = ["deploy","benchmark"]
