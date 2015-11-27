@@ -174,7 +174,10 @@ class Tuner:
                 name = raw_res[2].replace("'","")
                 pool_config[name] = {}
                 for index in range(4, len(raw_res),2):
-                    pool_config[name][raw_res[index]] = raw_res[index+1]
+                    try:
+                        pool_config[name][raw_res[index]] = raw_res[index+1]
+                    except:
+                        pass
         return pool_config
 
     def dump_config(self):
