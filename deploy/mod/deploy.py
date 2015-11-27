@@ -25,17 +25,25 @@ class Deploy(object):
         self.cluster["monitor_network"] = self.all_conf_data.get("monitor_network", True)
         self.cluster["osds"] = {}
         self.cluster["mons"] = {}
-        self.cluster["ceph_conf"] = {}
+        self.cluster["mdss"] = {}
+        self.cluster["ceph_conf"] = OrderedDict()
         self.cluster["ceph_conf"]["global"] = OrderedDict()
+        self.cluster["ceph_conf"]["mon"] = OrderedDict()
+        self.cluster["ceph_conf"]["osd"] = OrderedDict()
         self.cluster["ceph_conf"]["global"]["auth_service_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_cluster_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
-        self.cluster["ceph_conf"]["global"]["mon_data"] = "/var/lib/ceph/mon.$id"
-        self.cluster["ceph_conf"]["global"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
+        self.cluster["ceph_conf"]["mon"]["mon_data"] = "/var/lib/ceph/mon.$id"
+        self.cluster["ceph_conf"]["osd"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
         self.cluster["collector"] = self.all_conf_data.get_list("collector")
 
         for key, value in self.all_conf_data.get_group("ceph_hard_config").items():
-            self.cluster["ceph_conf"]["global"][key] = value
+            section_name = "global"
+            if "|" in key:
+                section_name, key = key.split("|")
+            if section_name not in self.cluster["ceph_conf"]:
+                self.cluster["ceph_conf"][section_name] = OrderedDict()
+            self.cluster["ceph_conf"][section_name][key] = value
 
         ip_handler = common.IPHandler()
         subnet = ""
@@ -60,6 +68,8 @@ class Deploy(object):
             self.cluster["osds"][osd] = {"public":ip_handler.getIpByHostInSubnet(osd, public_subnet), "cluster":ip_handler.getIpByHostInSubnet(osd, cluster_subnet)}
         for mon in self.all_conf_data.get_list("list_mon"):
             self.cluster["mons"][mon] = ip_handler.getIpByHostInSubnet(mon, monitor_subnet)
+        for mds in self.all_conf_data.get_list("list_mds"):
+            self.cluster["mdss"][mds] = ip_handler.getIpByHostInSubnet(mds)
 
         for osd in self.cluster["osds"]:
             self.cluster[osd] = self.all_conf_data.get_list(osd)
@@ -70,8 +80,8 @@ class Deploy(object):
 
         self.cluster["ceph_conf"]["client"] = {}
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
-        self.cluster["ceph_conf"]["global"]["osd_mount_options"] = "rw,noatime,inode64,logbsize=256k"
-        self.cluster["ceph_conf"]["global"]["osd_mkfs_type"] = "xfs"
+        self.cluster["ceph_conf"]["osd"]["osd_mount_options"] = "rw,noatime,inode64,logbsize=256k"
+        self.cluster["ceph_conf"]["osd"]["osd_mkfs_type"] = "xfs"
 
         tuning_dict = {}
         if tunings != "":
@@ -93,6 +103,11 @@ class Deploy(object):
                         self.cluster["ceph_conf"]['osd'] = OrderedDict()
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['osd'][key] = value
+                if section_name == 'mds':
+                    if 'mds' not in self.cluster["ceph_conf"]:
+                        self.cluster["ceph_conf"]['mds'] = OrderedDict()
+                    for key, value in section.items():
+                        self.cluster["ceph_conf"]['mds'][key] = value
 
         self.map_diff = None
 
@@ -237,8 +252,9 @@ class Deploy(object):
         cephconf_dict = OrderedDict()
         cephconf_dict["mon"] = []
         cephconf_dict["osd"] = {}
-        cephconf_dict["mds"] = {}
+        cephconf_dict["mds"] = []
         cephconf_dict["radosgw"] = []
+        tmp_dict = {}
 
         try:
             with open("../conf/ceph_current_status", 'r') as f:
@@ -252,44 +268,55 @@ class Deploy(object):
         section_name = None
         host = None
         for line in cephconf:
+            line = line.strip()
             re_res = re.search('\[(.*)\]', line)
             if re_res:
                 section_name = re_res.group(1)
-                if 'mon.' in line or 'osd.' in line or 'radosgw.' in line:
-                    ceph_daemon_lines.append( line )
-            if not section_name:
+                if 'mds.' in line or 'mon.' in line or 'osd.' in line or 'radosgw.' in line:
+                    ceph_daemon_lines.append( line+"\n" )
+            if not section_name or not ( 'mds.' in section_name or 'mon.' in section_name or 'osd.' in section_name or 'radosgw.' in section_name ):
                 continue
 
             try:
                 key, value = line.split('=')
             except:
-                continue
+                key = line
+                value = ""
+
+            if not ( 'mds.' in line or 'mon.' in line or 'osd.' in line or 'radosgw.' in line ):
+                ceph_daemon_lines.append( line+"\n" )
+
+            if section_name not in tmp_dict:
+                tmp_dict[section_name] = {}
+                tmp_dict[section_name]["device"] = ["",""]
+                tmp_dict[section_name]["host"] = ""
+
+            if "mds." in section_name:
+                if key.strip() == "host":
+                    cephconf_dict["mds"].append( value.strip() )
 
             if "mon." in section_name:
-                ceph_daemon_lines.append( line )
                 if key.strip() == "host":
                     cephconf_dict["mon"].append( value.strip() )
 
             if "osd." in section_name:
-                ceph_daemon_lines.append( line )
                 if key.strip() == "host":
                     host = value.strip()
+                    tmp_dict[section_name]["host"] = host
                     if host not in cephconf_dict["osd"]:
                         cephconf_dict["osd"][host] = []
-                    device = ["",""]
 
-                if key.strip() == "osd journal" and host:
-                    device[1] = value.strip()
-                    if device[0] != "" and device[1] != "":
-                        cephconf_dict["osd"][host].append(':'.join(device))
+                if key.strip() == "osd journal":
+                    tmp_dict[section_name]["device"][1] = value.strip()
 
-                if key.strip() == "devs" and host:
-                    device[0] = value.strip()
-                    if device[0] != "" and device[1] != "":
-                        cephconf_dict["osd"][host].append(':'.join(device))
+                if key.strip() == "devs":
+                    tmp_dict[section_name]["device"][0] = value.strip()
+
+                if tmp_dict[section_name]["host"] != "" and tmp_dict[section_name]["device"][0] != "" and tmp_dict[section_name]["device"][1] != "":
+                    device = tmp_dict[section_name]["device"]
+                    cephconf_dict["osd"][host].append(':'.join(device))
 
             if "radosgw." in section_name:
-                ceph_daemon_lines.append( line )
                 if key.strip() == "host":
                     host = value.strip()
                     if host not in cephconf_dict["radosgw"]:
@@ -327,6 +354,10 @@ class Deploy(object):
         for node in self.cluster["mons"]:
             if node not in old_conf["mon"]:
                 cephconf_dict["mon"][node] = self.cluster["mons"][node]
+
+        for node in self.cluster["mdss"]:
+            if node not in old_conf["mds"]:
+                cephconf_dict["mds"][node] = self.cluster["mdss"][node]
 
         return cephconf_dict
 
