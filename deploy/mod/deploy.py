@@ -30,6 +30,7 @@ class Deploy(object):
         self.cluster["ceph_conf"]["global"] = OrderedDict()
         self.cluster["ceph_conf"]["mon"] = OrderedDict()
         self.cluster["ceph_conf"]["osd"] = OrderedDict()
+        self.cluster["ceph_conf"]["global"]["pid_path"] = "/var/run/ceph"
         self.cluster["ceph_conf"]["global"]["auth_service_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_cluster_required"] = "none"
         self.cluster["ceph_conf"]["global"]["auth_client_required"] = "none"
@@ -506,8 +507,9 @@ class Deploy(object):
         common.pdsh(user, [osd], 'ceph -i %s auth add osd.%d osd "allow *" mon "allow profile osd"' % (key_fn, osd_num), option="console", except_returncode=22)
 
         # Start the OSD
-        common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
-        pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
+        # common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
+        pid_path = self.cluster["ceph_conf"]["global"]["pid_path"]
+        pidfile="%s/ceph-osd.%d.pid" % (pid_path, osd_num)
         cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
         cmd = 'ceph-run %s' % cmd
         common.pdsh(user, [osd], 'sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % cmd, option="console", except_returncode=1)
@@ -550,46 +552,84 @@ class Deploy(object):
 
         # Start the mons
         for mon, addr in mons.items():
-            common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
-            pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
+            # common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
+            pid_path = self.cluster["ceph_conf"]["global"]["pid_path"]
+            pidfile="%s/%s.pid" % (pid_path, mon)
             cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
             cmd = 'ceph-run %s' % cmd
             common.pdsh(user, [mon], '%s' % cmd, option="console", except_returncode=1)
             common.printout("LOG","Builded mon.%s daemon on %s" % (mon, mon))
 
     def start_mon(self):
-        mons = self.cluster["mons"]
         user = self.cluster["user"]
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
-        # Start the mons
-        for mon, addr in mons.items():
-            common.pdsh(user, [mon], 'mkdir -p %s/pid' % mon_basedir)
-            pidfile="%s/pid/%s.pid" % (mon_basedir, mon)
-            #lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
-            lttng_prefix = ""
-            cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s --keyring=%s/keyring --pid-file=%s"' % (mon, mon_basedir, pidfile)
-            cmd = 'ceph-run %s' % cmd
-            common.pdsh(user, [mon], '%s %s' % (lttng_prefix, cmd), option="console", except_returncode=1)
-            common.printout("LOG","Started mon.%s daemon on %s" % (mon, mon))
+        try:
+            with open("../conf/ceph_current_status", 'r') as f:
+                cephconf = f.readlines()
+        except:
+            common.printout("ERROR", "Current Cluster ceph.conf file not exists under CeTune/conf/")
+            sys.exit(1)
+
+        num = 0
+        mon_name = ""
+        mon_data = ""
+        for line in cephconf:
+            line = line.strip()
+            if "mon_data" in line or "mon data" in line:
+                mon_data = line.split("=")[1].strip()
+                continue
+            if "mon." in line:
+                mon_name = line[5:-1]
+                num = num + 1
+                continue
+            if num == 1:
+                if "host" not in line:
+                    continue
+                num = 0
+                mon_host = line.split("=")[1].strip()
+                pid_path = self.cluster["ceph_conf"]["global"]["pid_path"]
+                pidfile = "%s/mon.%s.pid" % (pid_path, mon_name)
+                lttng_prefix = ""
+                keyring_file = mon_data.replace("$id", mon_name) + "/keyring"
+                cmd = 'sh -c "ulimit -c unlimited && exec ceph-mon -i %s ' \
+                      '--keyring=%s --pid-file=%s"' % (mon_name, keyring_file, pidfile)
+                cmd = 'ceph-run %s' % cmd
+                common.pdsh(user, [mon_host], '%s %s' % (lttng_prefix, cmd),
+                            option="console", except_returncode=1)
+                common.printout("LOG","Started mon.%s daemon on %s" % (mon_host, mon_host))
+                continue
 
     def start_osd(self):
         user = self.cluster["user"]
-        osds = sorted(self.cluster["osds"])
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
-        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_num = 0
-        for osd in osds:
-            for device_bundle_tmp in self.cluster[osd]:
-                # Start the OSD
-                common.pdsh(user, [osd], 'mkdir -p %s/pid' % mon_basedir)
-                pidfile="%s/pid/ceph-osd.%d.pid" % (mon_basedir, osd_num)
+        try:
+            with open("../conf/ceph_current_status", 'r') as f:
+                cephconf = f.readlines()
+        except:
+            common.printout("ERROR", "Current Cluster ceph.conf file not exists under CeTune/conf/")
+            sys.exit(1)
+
+        num = 0
+        osd_name = ""
+        for line in cephconf:
+            line = line.strip()
+            if "osd." in line:
+                osd_name = line[5:-1]
+                num = num + 1
+                continue
+            if num == 1:
+                if "host" not in line:
+                    continue
+                num = 0
+                osd_host = line.split("=")[1].strip()
+                pid_path = self.cluster["ceph_conf"]["global"]["pid_path"]
+                pidfile = "%s/osd.%s.pid" % (pid_path, osd_name)
                 if "lttng" in self.cluster["collector"]:
                     lttng_prefix = "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liblttng-ust-fork.so"
                 else:
                     lttng_prefix = ""
-                cmd = 'ceph-osd -i %d --pid-file=%s' % (osd_num, pidfile)
+                cmd = 'ceph-osd -i %s --pid-file=%s' % (osd_name, pidfile)
                 cmd = 'ceph-run %s' % cmd
-                common.pdsh(user, [osd], '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && exec %s"' % (lttng_prefix, cmd), option="console",except_returncode=1)
-                common.printout("LOG","Started osd.%s daemon on %s" % (osd_num, osd))
-                osd_num = osd_num+1
+                common.pdsh(user, [osd_host],
+                            '%s sh -c "ulimit -n 16384 && ulimit -c unlimited && '
+                            'exec %s"' % (lttng_prefix, cmd), option="console",
+                            except_returncode=1)
+                common.printout("LOG","Started osd.%s daemon on %s" % (osd_name, osd_host))
