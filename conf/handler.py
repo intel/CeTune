@@ -141,7 +141,6 @@ class ConfigHandler():
         required_list["ceph_hard_config"] = OrderedDict()
         required_list["ceph_hard_config"]["public_network"] = ""
         required_list["ceph_hard_config"]["cluster_network"] = ""
-        required_list["ceph_hard_config"]["mon_data"] = "/var/lib/ceph/ceph.$id"
         required_list["ceph_hard_config"]["osd_objectstore"] = "filestore"
         required_list["benchmark"] = OrderedDict()
         required_list["benchmark"]["tmp_dir"]="/opt/"

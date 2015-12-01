@@ -206,6 +206,7 @@ class Deploy(object):
             clean_build = False
 
         map_diff = self.cal_cephmap_diff()
+        common.printout("WARNING","Found different configuration from conf/ceph_current_conf with your desired config : %s" % map_diff)
         self.map_diff = map_diff
         cephconf = []
         for section in self.cluster["ceph_conf"]:
@@ -443,7 +444,6 @@ class Deploy(object):
             common.scp(user, node, "../conf/ceph.conf", "/etc/ceph/")
 
     def make_osds(self, osds=None, diff_map=None):
-        print diff_map
         user = self.cluster["user"]
         if osds==None:
             osds = sorted(self.cluster["osds"])
@@ -473,8 +473,8 @@ class Deploy(object):
         user = self.cluster["user"]
         mkfs_opts = self.cluster['mkfs_opts']
         mount_opts = self.cluster['mount_opts']
-        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["osd"]["osd_data"])
+        osd_filename = os.path.basename(self.cluster["ceph_conf"]["osd"]["osd_data"])
 
         common.printout("LOG","mkfs.xfs for %s on %s" % (osd_device, osd))
         try:
@@ -490,9 +490,9 @@ class Deploy(object):
 
     def make_osd(self, osd, osd_num, osd_device, journal_device):
         user = self.cluster["user"]
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
-        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
+        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["osd"]["osd_data"])
+        osd_filename = os.path.basename(self.cluster["ceph_conf"]["osd"]["osd_data"])
 
         common.printout("LOG","start to build osd daemon for %s on %s" % (osd_device, osd))
         # Build the OSD
@@ -575,9 +575,9 @@ class Deploy(object):
     def start_osd(self):
         user = self.cluster["user"]
         osds = sorted(self.cluster["osds"])
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["mon_data"])
-        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["global"]["osd_data"])
-        osd_filename = os.path.basename(self.cluster["ceph_conf"]["global"]["osd_data"])
+        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
+        osd_basedir = os.path.dirname(self.cluster["ceph_conf"]["osd"]["osd_data"])
+        osd_filename = os.path.basename(self.cluster["ceph_conf"]["osd"]["osd_data"])
         osd_num = 0
         for osd in osds:
             for device_bundle_tmp in self.cluster[osd]:
