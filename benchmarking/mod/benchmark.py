@@ -177,7 +177,7 @@ class Benchmark(object):
             common.pdsh(user, nodes, "fatrace -o %s/`hostname`_fatrace.txt &" % (dest_dir))
         if "strace" in self.cluster["collector"]:
             common.printout("LOG","Start strace data collector under %s " % nodes)
-            common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' | awk '{print $2}' | while read pid;do strace -f -T -e trace=desc -p ${pid} -o %s/`hostname`_strace_${pid}.txt 2>&1 > %s/`hostname`_strace_${pid}.log & done" % (dest_dir, dest_dir))
+            common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' | awk '{print $2}' | while read pid;do strace -ttt -T -e trace=desc -p ${pid} -o %s/`hostname`_strace_${pid}.txt 2>&1 > %s/`hostname`_strace_${pid}.log & done" % (dest_dir, dest_dir), option="force")
         if "lttng" in self.cluster["collector"]:
             common.printout("LOG","Start lttng data collector under %s " % nodes)
             common.pdsh(user, nodes, "export HOME='%s'; lttng destroy 2>/dev/null; lttng create zipkin; lttng enable-channel channel0 -u --buffers-pid; lttng enable-event -c channel0 --userspace zipkin:*; lttng start;" % (dest_dir))
