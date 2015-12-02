@@ -39,6 +39,8 @@ class Analyzer:
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["monitor_interval"] = self.all_conf_data.get("monitoring_interval")
         self.cluster["osd_daemon_num"] = 0
+        self.cluster["perfcounter_data_type"] = self.all_conf_data.get_list("perfcounter_data_type")
+        self.cluster["perfcounter_time_precision_level"] = self.all_conf_data.get("perfcounter_time_precision_level")
         self.result = OrderedDict()
         self.result["workload"] = OrderedDict()
         self.result["ceph"] = OrderedDict()
@@ -467,6 +469,8 @@ class Analyzer:
         pass
 
     def process_perfcounter_data(self, path):
+        precise_level = int(self.cluster["perfcounter_time_precision_level"])
+#        precise_level = 6
         common.printout("LOG","loading %s" % path)
         perfcounter = []
         with open(path,"r") as fd:
@@ -486,7 +490,8 @@ class Analyzer:
             result.update(counter, dedup=False, diff=False)
         result = result.get()
         output = OrderedDict()
-        for key in ["osd", "filestore", "objecter", "mutex-JOS::SubmitManager::lock"]:
+#        for key in ["osd", "filestore", "objecter", "mutex-JOS::SubmitManager::lock"]:
+        for key in self.cluster["perfcounter_data_type"]:
             output["perfcounter_"+key] = {}
             current = output["perfcounter_"+key]
             if not key in result:
@@ -505,7 +510,7 @@ class Analyzer:
                     last_avgcount = data['avgcount'][0]
                     for i in range(1, len(data['sum'])):
                         try:
-                            current[param].append( round((data['sum'][i]-last_sum)/(data['avgcount'][i]-last_avgcount),3) )
+                            current[param].append( round((data['sum'][i]-last_sum)/(data['avgcount'][i]-last_avgcount),precise_level) )
                         except:
                             current[param].append(0)
                         last_sum = data['sum'][i]
@@ -528,8 +533,8 @@ def main(args):
         )
     args = parser.parse_args(args)
     process = Analyzer(args.path)
-    if args.operation == "process_iostat_data":
-        process.process_iostat_data(args.node, args.path_detail)
+    if args.operation == "process_perfcounter_data":
+        process.process_perfcounter_data(args.path_detail)
     else:
         func = getattr(process, args.operation)
         if func:

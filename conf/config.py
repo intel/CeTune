@@ -197,6 +197,7 @@ class Config():
         required["cluster_network"] = {"type": "network"}
 
         required["fio_capping"] = {"type":"bool"}
+        required["perfcounter_time_precision_level"] = {"type":"int"}
         required["cosbench_controller"] = {"type":"node_list"}
         required["cosbench_driver"] = {"type":"node_list"}
         required["cosbench_cluster_ip"] = {"type":"ip"}
