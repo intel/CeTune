@@ -390,9 +390,13 @@ class MergableDict:
         return self.mergable_dict
 
 def size_to_Kbytes(size, dest_unit='KB'):
-    res = re.search('(\d+\.*\d*)\s*(\w+)',size)
-    space_num = float(res.group(1))
-    space_unit = res.group(2)
+    if not str(size).isdigit():
+        res = re.search('(\d+\.*\d*)\s*(\w+)',size)
+        space_num = float(res.group(1))
+        space_unit = res.group(2)
+    else:
+        space_num = float(size)
+        space_unit = 'B'
     if space_unit in ['Z','E','P','T','G','M','K']:
         space_unit += 'B'
     if space_unit == 'bytes':
