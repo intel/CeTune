@@ -331,10 +331,10 @@ class Benchmark(object):
         common.printout("WARNING","Detect no fio job runing" % (fio_node_num, fio_running_node_num))
         return False
 
-    def check_rbd_init_completed(self, planed_space):
+    def check_rbd_init_completed(self, planed_space, pool_name="rbd"):
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
-        stdout, stderr = common.pdsh(user, [controller], "ceph -s | grep pgmap | awk '{print $7 $8}'", option = "check_return")
+        stdout, stderr = common.pdsh(user, [controller], "ceph df | grep %s | awk '{print $3}'" % pool_name, option = "check_return")
         res = common.format_pdsh_return(stdout)
         if controller not in res:
             common.printout("ERROR","cannot get ceph space, seems to be a dead error")
