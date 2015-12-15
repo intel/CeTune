@@ -196,7 +196,7 @@ class Cosbench(Benchmark):
         common.printout("LOG", "check if rgw is running")
         # check if rgw is running
         if not self.check_rgw_runing():
-            run_deploy.main(['restart_rgw'])
+            run_deploy.main(['--with_rgw','restart'])
             if not self.check_rgw_runing():
                 sys.exit()
 
