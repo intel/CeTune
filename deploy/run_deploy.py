@@ -34,6 +34,12 @@ def main(args):
         default = False,
         action='store_true'
         )
+    parser.add_argument(
+        '--ceph_disk',
+        default=False,
+        action='store_true'
+    )
+
     args = parser.parse_args(args)
     if args.operation == "caldiff":
         mydeploy = deploy.Deploy()
@@ -44,7 +50,8 @@ def main(args):
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
 #            mydeploy.deploy()
-        mydeploy.redeploy(args.gen_cephconf)
+        mydeploy.redeploy(args.gen_cephconf,
+                          ceph_disk=args.ceph_disk)
 
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
@@ -73,7 +80,7 @@ def main(args):
             mydeploy = deploy_rgw.Deploy_RGW(tuning)
         else:
             mydeploy = deploy.Deploy(tuning)
-        mydeploy.gen_cephconf()
+        mydeploy.gen_cephconf(args.ceph_disk)
     if args.operation == "install_binary":
         mydeploy = deploy.Deploy()
         mydeploy.install_binary(args.version)
