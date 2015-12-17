@@ -433,11 +433,14 @@ class Deploy(object):
         self.cleanup()
         self.startup()
 
-    def startup(self):
+    def startup(self, ceph_disk=False):
         common.printout("LOG","Starting mon daemon")
         self.start_mon()
         common.printout("LOG","Starting osd daemon")
-        self.start_osd()
+        if ceph_disk:
+            self.start_osd_created_by_ceph_disk()
+        else:
+            self.start_osd()
 
     def cleanup(self):
         user = self.cluster["user"]
@@ -740,6 +743,16 @@ class Deploy(object):
             common.pdsh(user, [mon_host], '%s %s' % (lttng_prefix, cmd),
                         option="console", except_returncode=1)
             common.printout("LOG","Started mon.%s daemon on %s" % (mon_host, mon_host))
+
+    def start_osd_created_by_ceph_disk(self):
+        user = self.cluster["user"]
+        osd_list = self.get_daemon_info_from_ceph_conf("osd")
+        for osd in osd_list:
+            osd_name = osd["daemon_name"]
+            osd_host = osd["daemon_host"]
+            common.pdsh(user, [osd_host], 'start ceph-osd id=%s' % osd_name,
+                        option="console", except_returncode=1)
+            common.printout("LOG","Started osd.%s daemon on %s" % (osd_name, osd_host))
 
     def start_osd(self):
         user = self.cluster["user"]

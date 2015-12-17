@@ -56,13 +56,13 @@ def main(args):
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
         mydeploy.cleanup()
-        mydeploy.startup()
+        mydeploy.startup(ceph_disk=args.ceph_disk)
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
             mydeploy.restart_rgw()
     if args.operation == "startup":
         mydeploy = deploy.Deploy()
-        mydeploy.startup()
+        mydeploy.startup(ceph_disk=args.ceph_disk)
     if args.operation == "shutdown":
         mydeploy = deploy.Deploy()
         mydeploy.cleanup()
