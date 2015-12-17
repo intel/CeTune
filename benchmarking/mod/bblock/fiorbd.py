@@ -142,7 +142,8 @@ class FioRbd(Benchmark):
 
     def generate_benchmark_cases(self, testcase):
         fio_capping = self.all_conf_data.get('fio_capping')
-
+        enable_zipf = self.all_conf_data.get('enable_zipf')
+        fio_zipf = self.all_conf_data.get('random_distribution')
         io_pattern = testcase["iopattern"]
         record_size = testcase["block_size"]
         queue_depth = testcase["qd"]
@@ -177,6 +178,10 @@ class FioRbd(Benchmark):
             fio_template.append("    iodepth_batch_complete=1")
             if fio_capping != "false":
                 fio_template.append("    rate_iops=100")
+            if enable_zipf != "false":
+                #fio_zipf_tmp = int(fio_zipf)
+                fio_template.append("    norandommap")
+                fio_template.append("    random_distribution=%s" % (fio_zipf))
         if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
             fio_template.append("    iodepth_batch_submit=8")
             fio_template.append("    iodepth_batch_complete=8")
