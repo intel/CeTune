@@ -43,7 +43,7 @@ def main(args):
     args = parser.parse_args(args)
     if args.operation == "caldiff":
         mydeploy = deploy.Deploy()
-        mydeploy.cal_cephmap_diff()
+        mydeploy.cal_cephmap_diff(ceph_disk=args.ceph_disk)
 
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
@@ -80,7 +80,7 @@ def main(args):
             mydeploy = deploy_rgw.Deploy_RGW(tuning)
         else:
             mydeploy = deploy.Deploy(tuning)
-        mydeploy.gen_cephconf(args.ceph_disk)
+        mydeploy.gen_cephconf(ceph_disk=args.ceph_disk)
     if args.operation == "install_binary":
         mydeploy = deploy.Deploy()
         mydeploy.install_binary(args.version)

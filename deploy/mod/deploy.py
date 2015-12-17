@@ -223,7 +223,7 @@ class Deploy(object):
         else:
             clean_build = False
 
-        map_diff = self.cal_cephmap_diff()
+        map_diff = self.cal_cephmap_diff(ceph_disk=ceph_disk)
         common.printout("WARNING","Found different configuration from conf/ceph_current_conf with your desired config : %s" % map_diff)
         self.map_diff = map_diff
         cephconf = []
@@ -350,7 +350,7 @@ class Deploy(object):
         if request_type == "plain":
             return ceph_daemon_lines
 
-    def cal_cephmap_diff(self):
+    def cal_cephmap_diff(self, ceph_disk=False):
         old_conf = self.read_cephconf()
 
         cephconf_dict = OrderedDict()
@@ -365,6 +365,9 @@ class Deploy(object):
                 cephconf_dict[osd] = self.cluster[osd]
             else:
                 for device in self.cluster[osd]:
+                    if ceph_disk:
+                        data, journal = device.split(":")
+                        device = data + "1" + ":" + journal + "1"
                     if device not in old_conf["osd"][osd]:
                         if osd not in cephconf_dict["osd"]:
                             cephconf_dict["osd"][osd] = self.cluster["osds"][osd]
@@ -412,7 +415,7 @@ class Deploy(object):
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
 
         else:
-            diff_map = self.cal_cephmap_diff()
+            diff_map = self.cal_cephmap_diff(ceph_disk=ceph_disk)
 
             if gen_cephconf:
                 self.gen_cephconf(ceph_disk=ceph_disk)

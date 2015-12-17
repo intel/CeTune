@@ -300,9 +300,9 @@ class Deploy_RGW(Deploy) :
             common.pdsh(self.cluster['user'], [rgw], "sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/haproxy" )
             common.pdsh(self.cluster['user'], [rgw], "/etc/init.d/haproxy restart" )
 
-    def cal_cephmap_diff(self):
+    def cal_cephmap_diff(self, ceph_disk=False):
         old_conf = self.read_cephconf()
-        cephconf_dict = super(self.__class__, self).cal_cephmap_diff()
+        cephconf_dict = super(self.__class__, self).cal_cephmap_diff(ceph_disk=ceph_disk)
         cephconf_dict["radosgw"] = []
         for node in self.cluster["rgw"]:
             if node not in old_conf["radosgw"]:
