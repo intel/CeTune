@@ -55,8 +55,7 @@ def main(args):
 
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
-        mydeploy.cleanup()
-        mydeploy.startup(ceph_disk=args.ceph_disk)
+        mydeploy.restart(ceph_disk=args.ceph_disk)
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
             mydeploy.restart_rgw()
@@ -65,7 +64,7 @@ def main(args):
         mydeploy.startup(ceph_disk=args.ceph_disk)
     if args.operation == "shutdown":
         mydeploy = deploy.Deploy()
-        mydeploy.cleanup()
+        mydeploy.cleanup(ceph_disk=args.ceph_disk)
     if args.operation == "distribute_conf":
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()

@@ -399,7 +399,7 @@ class Deploy(object):
             self.cluster["ceph_conf"]["osd"]["osd_data"] = statedir + "/osd/ceph-$id"
 
         if clean_build:
-            self.cleanup()
+            self.cleanup(ceph_disk=ceph_disk)
             common.printout("LOG","Killed ceph-mon, ceph-osd and cleaned mon dir")
 
             if gen_cephconf:
@@ -429,9 +429,9 @@ class Deploy(object):
             common.printout("LOG","Succeeded in building osd daemon")
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
 
-    def restart(self):
-        self.cleanup()
-        self.startup()
+    def restart(self, ceph_disk=False):
+        self.cleanup(ceph_disk=ceph_disk)
+        self.startup(ceph_disk=ceph_disk)
 
     def startup(self, ceph_disk=False):
         common.printout("LOG","Starting mon daemon")
@@ -442,31 +442,26 @@ class Deploy(object):
         else:
             self.start_osd()
 
-    def cleanup(self):
+    def cleanup(self, ceph_disk=False):
         user = self.cluster["user"]
         mons = self.cluster["mons"]
         osds = self.cluster["osds"]
         mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
         mon_filename = os.path.basename(self.cluster["ceph_conf"]["mon"]["mon_data"]).replace("$id","*")
         common.printout("LOG", "Shutting down mon daemon")
-        def _kill_service(user, node, service):
-            stdout = ""
-            stdout, stderr = common.pdsh(user, [node], "pgrep %s" % service, option="check_return")
-            if stdout:
-                node, result = stdout.strip("\n").split(":")
-                if result:
-                    common.pdsh(user, [node], "kill -9 %s" % result.strip(), option="check_return")
-                    common.printout("LOG", "Shutting down %s daemon on %s pid is %s" % (service, node, result))
-                    _kill_service(user, node, service)
+        common.pdsh(user, mons, "killall -9 ceph-mon", option="check_return")
 
-        for mon in mons:
-            _kill_service(user, mon, "ceph-mon")
-        # common.pdsh(user, mons, "killall -9 ceph-mon", option="check_return")
-
-        common.printout("LOG", "Shutting down osd daemon")
-        for osd in osds:
-            _kill_service(user, osd, "ceph-osd")
-        # common.pdsh(user, osds, "killall -9 ceph-osd", option="check_return")
+        if ceph_disk:
+            osd_list = self.get_daemon_info_from_ceph_conf("osd")
+            for osd in osd_list:
+                osd_name = osd["daemon_name"]
+                osd_host = osd["daemon_host"]
+                common.pdsh(user, [osd_host], 'stop ceph-osd id=%s' % osd_name,
+                            option="console", except_returncode=1)
+                common.printout("LOG","Stop osd.%s daemon on %s" % (osd_name, osd_host))
+        else:
+            common.printout("LOG", "Shutting down osd daemon")
+            common.pdsh(user, osds, "killall -9 ceph-osd", option="check_return")
 
     def distribute_hosts(self, node_ip_bond):
         user = self.cluster["user"]
