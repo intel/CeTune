@@ -34,31 +34,37 @@ def main(args):
         default = False,
         action='store_true'
         )
+    parser.add_argument(
+        '--ceph_disk',
+        default=False,
+        action='store_true'
+    )
+
     args = parser.parse_args(args)
     if args.operation == "caldiff":
         mydeploy = deploy.Deploy()
-        mydeploy.cal_cephmap_diff()
+        mydeploy.cal_cephmap_diff(ceph_disk=args.ceph_disk)
 
     if args.operation == "redeploy":
         mydeploy = deploy.Deploy()
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
 #            mydeploy.deploy()
-        mydeploy.redeploy(args.gen_cephconf)
+        mydeploy.redeploy(args.gen_cephconf,
+                          ceph_disk=args.ceph_disk)
 
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
-        mydeploy.cleanup()
-        mydeploy.startup()
+        mydeploy.restart(ceph_disk=args.ceph_disk)
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
             mydeploy.restart_rgw()
     if args.operation == "startup":
         mydeploy = deploy.Deploy()
-        mydeploy.startup()
+        mydeploy.startup(ceph_disk=args.ceph_disk)
     if args.operation == "shutdown":
         mydeploy = deploy.Deploy()
-        mydeploy.cleanup()
+        mydeploy.cleanup(ceph_disk=args.ceph_disk)
     if args.operation == "distribute_conf":
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
@@ -73,7 +79,7 @@ def main(args):
             mydeploy = deploy_rgw.Deploy_RGW(tuning)
         else:
             mydeploy = deploy.Deploy(tuning)
-        mydeploy.gen_cephconf()
+        mydeploy.gen_cephconf(ceph_disk=args.ceph_disk)
     if args.operation == "install_binary":
         mydeploy = deploy.Deploy()
         mydeploy.install_binary(args.version)

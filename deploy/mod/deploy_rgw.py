@@ -25,13 +25,13 @@ class Deploy_RGW(Deploy) :
         self.cluster["proxy"] = self.all_conf_data.get("cosbench_controller_proxy")
         self.cluster["auth_url"] = "http://%s/auth/v1.0;retry=9" % self.cluster["rgw"][0]
 
-    def redeploy(self, gen_cephconf ):
+    def redeploy(self, gen_cephconf, ceph_disk=False):
         self.map_diff = self.cal_cephmap_diff()
         rgw_nodes = self.map_diff["radosgw"]
-        super(self.__class__, self).redeploy(gen_cephconf)
+        super(self.__class__, self).redeploy(gen_cephconf, ceph_disk=False)
         self.rgw_dependency_install()
         self.rgw_install()
-        self.gen_cephconf()
+        self.gen_cephconf(ceph_disk=ceph_disk)
         self.distribute_conf()
         #self.restart()
 
@@ -105,8 +105,8 @@ class Deploy_RGW(Deploy) :
         for node in self.cluster["rgw"]:
             common.scp(self.cluster["user"], node, "../conf/ceph.conf", "/etc/ceph")
 
-    def gen_cephconf(self):
-        super(self.__class__, self).gen_cephconf()
+    def gen_cephconf(self, option="refresh", ceph_disk=False):
+        super(self.__class__, self).gen_cephconf(ceph_disk=ceph_disk)
         if self.cluster["clean_build"] == "true":
             clean_build = True
         else:
@@ -300,9 +300,9 @@ class Deploy_RGW(Deploy) :
             common.pdsh(self.cluster['user'], [rgw], "sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/haproxy" )
             common.pdsh(self.cluster['user'], [rgw], "/etc/init.d/haproxy restart" )
 
-    def cal_cephmap_diff(self):
+    def cal_cephmap_diff(self, ceph_disk=False):
         old_conf = self.read_cephconf()
-        cephconf_dict = super(self.__class__, self).cal_cephmap_diff()
+        cephconf_dict = super(self.__class__, self).cal_cephmap_diff(ceph_disk=ceph_disk)
         cephconf_dict["radosgw"] = []
         for node in self.cluster["rgw"]:
             if node not in old_conf["radosgw"]:
