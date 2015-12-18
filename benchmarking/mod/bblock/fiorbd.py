@@ -177,7 +177,8 @@ class FioRbd(Benchmark):
             fio_template.append("    iodepth_batch_submit=1")
             fio_template.append("    iodepth_batch_complete=1")
             fio_template.append("    norandommap")
-            fio_template.append("    randrepeat=0")
+            if fio_randrepeat == "false":
+                fio_template.append("    randrepeat=0")
             fio_template.append("    userspace_reap")
             if fio_capping != "false":
                 fio_template.append("    rate_iops=100")

@@ -64,12 +64,16 @@ class ConfigHandler():
             if engine == "qemurbd":
                 required["list_vclient"] = "vclient01,vclient02..."
                 required["fio_capping"] = "false"
+                required["enable_zipf"] = "false"
+                required["fio_randrepeat"] = "false"
                 required["volume_size"] = "40960"
                 required["rbd_volume_count"] = "1"
                 required["disk_num_per_client"] = "35,35,35,35"
                 required["rwmixread"] = 100
             if engine == "fiorbd":
                 required["fio_capping"] = "false"
+                required["enable_zipf"] = "false"
+                required["fio_randrepeat"] = "false"
                 required["volume_size"] = "40960"
                 required["rbd_volume_count"] = "1"
                 required["disk_num_per_client"] = "35,35,35,35"
