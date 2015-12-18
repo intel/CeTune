@@ -289,11 +289,12 @@ class QemuRbd(Benchmark):
         if io_pattern in ["randread", "randwrite", "randrw"]:
             fio_template.append("    iodepth_batch_submit=1")
             fio_template.append("    iodepth_batch_complete=1")
+            fio_template.append("    norandommap")
+            fio_template.append("    ranrepeat=0")
+            fio_template.append("    userspace_reap")
             if fio_capping != "false":
                 fio_template.append("    rate_iops=100")
-            if fio_zipf != "false":
-                #fio_zipf_tmp = int(fio_zipf)
-                fio_template.append("    norandommap")
+            if enable_zipf != "false":
                 fio_template.append("    random_distribution=%s" % (fio_zipf))
         if io_pattern in ["seqread", "seqwrite", "readwrite", "rw"]:
             fio_template.append("    iodepth_batch_submit=8")
