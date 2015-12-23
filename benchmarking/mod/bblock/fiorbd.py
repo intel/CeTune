@@ -144,6 +144,7 @@ class FioRbd(Benchmark):
         fio_capping = self.all_conf_data.get('fio_capping')
         enable_zipf = self.all_conf_data.get('enable_zipf')
         fio_zipf = self.all_conf_data.get('random_distribution')
+        fio_randrepeat = self.all_conf_data.get('fio_randrepeat')
         io_pattern = testcase["iopattern"]
         record_size = testcase["block_size"]
         queue_depth = testcase["qd"]
@@ -179,7 +180,6 @@ class FioRbd(Benchmark):
             fio_template.append("    norandommap")
             if fio_randrepeat == "false":
                 fio_template.append("    randrepeat=0")
-            fio_template.append("    userspace_reap")
             if fio_capping != "false":
                 fio_template.append("    rate_iops=100")
             if enable_zipf != "false":
