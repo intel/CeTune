@@ -154,6 +154,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "echo '%s' > /proc/sys/vm/drop_caches && sync" % self.cluster["cache_drop_level"])
 
         #send command to ceph cluster
+        common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
         common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' > %s/`hostname`_ps.txt" % (dest_dir))
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         common.printout("LOG","Start system data collector under %s " % nodes)
@@ -184,6 +185,7 @@ class Benchmark(object):
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
+        common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         common.printout("LOG","Start system data collector under %s " % nodes)
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
