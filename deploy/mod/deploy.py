@@ -283,7 +283,7 @@ class Deploy(object):
             with open("../conf/ceph_current_status", 'r') as f:
                 cephconf = f.readlines()
         except:
-            common.printout("ERROR", "Current Cluster ceph.conf file not exists under CeTune/conf/")
+            common.printout("WARNING", "Current Cluster ceph.conf file not exists under CeTune/conf/")
             return cephconf_dict
 
         ceph_daemon_lines = []
@@ -451,15 +451,22 @@ class Deploy(object):
         common.printout("LOG", "Shutting down mon daemon")
         common.pdsh(user, mons, "killall -9 ceph-mon", option="check_return")
 
+        try_kill = True
         if ceph_disk:
-            osd_list = self.get_daemon_info_from_ceph_conf("osd")
-            for osd in osd_list:
-                osd_name = osd["daemon_name"]
-                osd_host = osd["daemon_host"]
-                common.pdsh(user, [osd_host], 'stop ceph-osd id=%s' % osd_name,
-                            option="console", except_returncode=1)
-                common.printout("LOG","Stop osd.%s daemon on %s" % (osd_name, osd_host))
-        else:
+            try_kill = False
+            try:
+                osd_list = self.get_daemon_info_from_ceph_conf("osd")
+            except:
+                common.printout("WARNING", "Unable to fetch old cluster configuration, try killall")
+                try_kill = True
+            if not try_kill:
+                for osd in osd_list:
+                    osd_name = osd["daemon_name"]
+                    osd_host = osd["daemon_host"]
+                    common.pdsh(user, [osd_host], 'stop ceph-osd id=%s' % osd_name,
+                                option="console", except_returncode=1)
+                    common.printout("LOG","Stop osd.%s daemon on %s" % (osd_name, osd_host))
+        if try_kill:
             common.printout("LOG", "Shutting down osd daemon")
             common.pdsh(user, osds, "killall -9 ceph-osd", option="check_return")
 
