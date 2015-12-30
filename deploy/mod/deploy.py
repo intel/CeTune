@@ -193,6 +193,7 @@ class Deploy(object):
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
                 common.pdsh(user, [node], "apt-get purge -f -y librbd1", option="console")
                 common.pdsh(user, [node], "apt-get purge -f -y librados2", option="console")
+                common.pdsh(user, [node], "apt-get purge -f -y python-cephfs", option="console")
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
 
     def check_ceph_installed(self):
