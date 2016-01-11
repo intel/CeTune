@@ -35,6 +35,10 @@ class Hook(Benchmark):
         pass
 
     def generate_benchmark_cases(self, testcase):
+        if self.benchmark["description"] != "":
+            custom_script = self.all_conf_data.get("%s|custom_script" % self.benchmark["description"], True )
+        if custom_script != "":
+            self.custom_script = custom_script
         return True
 
     def parse_benchmark_cases(self, testcase):
@@ -44,12 +48,16 @@ class Hook(Benchmark):
             "block_size":p[3], "qd":p[4], "rampup":p[5],
             "runtime":p[6], "vdisk":p[7]
         }
+        if len(p) == 9:
+            testcase_dict["description"] = p[8]
+        else:
+            testcase_dict["description"] = ""
         return testcase_dict
 
     def run(self):
         super(self.__class__, self).run()
+        common.printout("LOG", "custom_script: %s" % self.custom_script)
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
-        custom_script = ""
         if self.custom_script:
             common.bash( self.custom_script )
         plugin.main()

@@ -407,6 +407,10 @@ class Cosbench(Benchmark):
             "block_size":p[3], "objecter":p[4], "rampup":p[5],
             "runtime":p[6]
         }
+        if len(p) == 9:
+            testcase_dict["description"] = p[8]
+        else:
+            testcase_dict["description"] = ""
         return testcase_dict
 
     def generate_benchmark_cases(self, testcase):

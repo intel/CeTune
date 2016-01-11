@@ -214,6 +214,9 @@ class Benchmark(object):
             common.write_yaml_file( "%s/conf/tuner.yaml" % dest_dir, {self.benchmark["tuning_section"]:worksheet[self.benchmark["tuning_section"]]})
         else:
             common.rscp(user, head, "%s/conf/tuner.yaml" % (dest_dir), "%s/conf/tuner.yaml" % (self.pwd) )
+        #write description to dir
+        with open( "%s/conf/description" % dest_dir, 'w+' ) as f:
+            f.write( self.benchmark["description"] )
         #collect osd data
         for node in self.cluster["osd"]:
             common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))

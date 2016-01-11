@@ -163,6 +163,10 @@ function CreateTableHTML_Benchmark(jsonObj){
     tableHtml += "device";
     tableHtml += "</th>";
 
+    tableHtml += "<th>";
+    tableHtml += "Description";
+    tableHtml += "</th>";
+
     tableHtml += "</th>"
     tableHtml += "</tr>";
 
@@ -216,6 +220,11 @@ function CreateTableHTML_Benchmark(jsonObj){
 
         tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_9'>";
         tableHtml += "<label id='label_benchmark_id_"+index+"_9'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,9,&quot;"+ val.device+"&quot;)'>" + val.device;
+        tableHtml +=  "</label>";
+        tableHtml += "</td>";
+
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_10'>";
+        tableHtml += "<label id='label_benchmark_id_"+index+"_10'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,10,&quot;"+ val.description+"&quot;)'>" + val.description;
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
@@ -475,6 +484,7 @@ function BenchMarkModel_OK(){
     var object_size = $("#recipient-work_depth").val();
     var rampup = $("#recipient-ramup_time").val();
     var runtime = $("#recipient-run_time").val();
+    var desc = $("#recipient-desc").val();
     if(benchmark_driver == "qemurbd")
         device = "/dev/vdb"
     if(benchmark_driver == "fiorbd")
@@ -527,6 +537,9 @@ function BenchMarkModel_OK(){
         html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_9'>";
         html +="<label id = 'label_benchmark_id_"+rows+"_9' class='label_class' onclick='Label_benchmark_Click("+rows+",9,&quot;"+ device+"&quot;)'>"+ device +"</label>";
         html +="</td>";
+        html += "<td class='td_value_class' id='td_benchmark_id_"+index+"_10'>";
+        html +="<label id = 'label_benchmark_id_"+rows+"_10' class='label_class' onclick='Label_benchmark_Click("+rows+",10,&quot;"+ desc+"&quot;)'>"+ desc +"</label>";
+        html +="</td>";
 
         html += "<tr>";
 
@@ -539,7 +552,7 @@ function Submit_Benchmark(){
     var post_json = {}//set_config?request_type=testcase &key=testcase &value=  
     var table_data= [];
 
-    var benchmark_driver,worker,container_size,io_pattern,block_size,work_depth,ramup_time,run_time,devcie;
+    var benchmark_driver,worker,container_size,io_pattern,block_size,work_depth,ramup_time,run_time,device,desc;
 
     $(".checkbox_benchmark_class").each(function(){
         benchmark_driver = $(this).parent().parent().children().eq(1).children("label").text();
@@ -550,7 +563,8 @@ function Submit_Benchmark(){
         object_size = $(this).parent().parent().children().eq(6).children("label").text();
         rampup = $(this).parent().parent().children().eq(7).children("label").text();
         runtime = $(this).parent().parent().children().eq(8).children("label").text();
-        devcie = $(this).parent().parent().children().eq(9).children("label").text();
+        device = $(this).parent().parent().children().eq(9).children("label").text();
+        desc = $(this).parent().parent().children().eq(10).children("label").text();
 
         var data ={}; 
         data.benchmark_driver = benchmark_driver;
@@ -561,7 +575,8 @@ function Submit_Benchmark(){
         data["object_size/QD"] = object_size;
         data.rampup = rampup;
         data.runtime = runtime;
-        data.device = devcie;
+        data.device = device;
+        data.desc = desc;
 
         table_data.push(data);
     });
@@ -573,7 +588,7 @@ function Submit_Benchmark(){
     var result = GetDataByAjax_POST(address_Configuration_Set,post_json); 
     //--------------------------------------------------------------------
     // check benchmark_driver type and load more benchmark configurations
-    engine_type_list = [];
+    /*engine_type_list = [];
     $.each(table_data, function(index, value){
         if($.inArray( value.benchmark_driver, engine_type_list ) < 0 ){
             engine_type_list.push(value.benchmark_driver)
@@ -581,6 +596,8 @@ function Submit_Benchmark(){
     });
     post_json = {};
     post_json.engine_list = engine_type_list.join();
+    */
+    post_json = {};
     var result = GetDataByAjax_POST(address_BenchmarkEngine_Check, post_json);
     $.each(result, function(index, value){
         Append_Row_to_Configuration(value);

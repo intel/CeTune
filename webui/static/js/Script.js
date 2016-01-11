@@ -8,7 +8,7 @@
 //http://192.168.5.22:8080/configuration/get_group?request_type=cluster
 var address_Configuration_Get="../configuration/get_group?request_type=";
 var address_Configuration_Set="../configuration/set_config";
-var address_BenchmarkEngine_Check="../configuration/check_engine";
+var address_BenchmarkEngine_Check="../configuration/check_testcase";
 var address_Delete="../configuration/del_config";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";

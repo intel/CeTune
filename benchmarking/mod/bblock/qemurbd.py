@@ -263,6 +263,7 @@ class QemuRbd(Benchmark):
         warmup_time = testcase["rampup"]
         runtime = testcase["runtime"]
         disk = testcase["vdisk"]
+        description = testcase["description"]
 
         fio_list = []
         fio_list.append("[global]")
@@ -303,8 +304,12 @@ class QemuRbd(Benchmark):
             if fio_capping != "false":
                 fio_template.append("    rate=60m")
         if io_pattern in ["randrw", "readwrite", "rw"]:
+            if description != "":
+                key_name = "%s|rwmixread" % description
+            else:
+                key_name = "rwmixread"
             try:
-                rwmixread = self.all_conf_data.get('rwmixread')
+                rwmixread = self.all_conf_data.get(key_name)
                 fio_template.append("    rwmixread=%s" % rwmixread)
             except:
                 pass
@@ -321,4 +326,9 @@ class QemuRbd(Benchmark):
             "block_size":p[3], "qd":p[4], "rampup":p[5], 
             "runtime":p[6], "vdisk":p[7]
         }
+        if len(p) == 9:
+            testcase_dict["description"] = p[8]
+        else:
+            testcase_dict["description"] = ""
+
         return testcase_dict

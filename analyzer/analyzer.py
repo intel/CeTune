@@ -50,6 +50,7 @@ class Analyzer:
         self.get_validate_runtime()
         self.result["runtime"] = int(float(self.validate_time))
         self.result["status"] = self.getStatus()
+        self.result["description"] = self.getDescription()
 
     def process_data(self):
         user = self.cluster["user"]
@@ -177,6 +178,7 @@ class Analyzer:
         data["summary"]["run_id"][res.group(1)] = OrderedDict()
         tmp_data = data["summary"]["run_id"][res.group(1)]
         tmp_data["Status"] = data["status"]
+        tmp_data["Description"] = data["description"]
         tmp_data["Op_size"] = res.group(5)
         tmp_data["Op_Type"] = res.group(4)
         tmp_data["QD"] = res.group(6)
@@ -350,6 +352,16 @@ class Analyzer:
         except:
             pass
         return status
+
+    def getDescription(self):
+        dest_dir = self.cluster["dest_conf_dir"]
+        desc = ""
+        try:
+            with open("%s/description" % dest_dir, 'r') as f:
+                desc = f.readline()
+        except:
+            pass
+        return desc
 
     def process_sar_data(self, path):
         result = {}

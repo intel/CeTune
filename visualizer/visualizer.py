@@ -96,11 +96,13 @@ class Visualizer:
             data = re.findall('<td>(.*?)</td>', line, re.S)
 
             runid = int(data[0])
-            if len(data) != 16:
+            if len(data) < 16:
                 data.insert(1, "Unknown")
+            if len(data) < 17:
+                data.insert(2, "")
             formated_report[runid] = tr_start
             for block in data:
-                formated_report[runid] += "<td>%s</td>\n" % block
+                formated_report[runid] += "<td title='%s'>%s</td>\n" % (block, block)
             formated_report[runid] += "</tr>\n"
             
         output = []
@@ -127,6 +129,7 @@ class Visualizer:
         output.append(" <tr>")
         output.append(" <th>runid</th>")
         output.append(" <th><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
+        output.append(" <th><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
         output.append(" <th><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")
         output.append(" <th><a title='Type of Op Request' id='runid_op_type' href='#'>Op_Type</a></th>")
         output.append(" <th><a title='Queue_depth/Container Number' id='runid_QD' href='#'>QD</a></th>")

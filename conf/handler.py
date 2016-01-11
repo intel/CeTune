@@ -54,52 +54,68 @@ class ConfigHandler():
             res = self.cases_conf.set_config(value)
         return res
 
-    def check_engine(self, engine_list):
+    def check_testcase(self):
         request_type = "benchmark"
         benchmark_config = self.all_conf.get_group(request_type)
         res = []
         tmp_res = OrderedDict()
         required = OrderedDict()
-        for engine in engine_list:
-            if engine == "qemurbd":
-                required["list_vclient"] = "vclient01,vclient02..."
-                required["fio_capping"] = "false"
-                required["enable_zipf"] = "false"
-                required["fio_randrepeat"] = "false"
-                required["volume_size"] = "40960"
-                required["rbd_volume_count"] = "1"
-                required["disk_num_per_client"] = "35,35,35,35"
-                required["rwmixread"] = 100
-            if engine == "fiorbd":
-                required["fio_capping"] = "false"
-                required["enable_zipf"] = "false"
-                required["fio_randrepeat"] = "false"
-                required["volume_size"] = "40960"
-                required["rbd_volume_count"] = "1"
-                required["disk_num_per_client"] = "35,35,35,35"
-                required["rwmixread"] = 100
-            if engine == "cosbench":
-                required["cosbench_version"] = "v0.4.2.c2"
-                required["cosbench_controller"] = ""
-                required["cosbench_driver"] = ""
-                required["cosbench_folder"] = "/opt/cosbench"
-                required["cosbench_config_dir"] = "/opt/cosbench_config"
-                required["cosbench_cluster_ip"] = "10.10.5.5"
-                required["cosbench_admin_ip"] = "192.168.5.1"
-                required["cosbench_network"] = "192.168.5.0/24"
-            if engine == "generic":
-                required["test_disks"] = ""
-                required["fio_capping"] = "false"
-                required["disk_num_per_client"] = "35,35,35,35"
-            if engine == "hook":
-                required["custom_script"] = ""
-            for required_key in required:
-                 if required_key not in benchmark_config.keys():
-                     value = required[required_key]
-                     res.append({"key":required_key, "value":value, "check":False, "dsc":"please check or complete"})
-                     self.set_config(request_type, required_key, value)
 
+        #testcase_conf = BenchmarkConfig()
+        testcase_list = self.cases_conf.get_config()
+        engine_list = []
+        for testcase in testcase_list:
+            if testcase["benchmark_driver"] not in engine_list:
+                required.update( self.check_engine(testcase["benchmark_driver"]) )
+            if testcase["description"] != "":
+                if testcase["benchmark_driver"] == "hook":
+                    required["%s|%s" % (testcase["description"], "custom_script")] = ""
+                if testcase["iopattern"] in ["readwrite", "rw", "randrw"]:
+                    required["%s|%s" % (testcase["description"], "rwmixread")] = "100"
+
+        for required_key in required:
+             if required_key not in benchmark_config.keys():
+                 value = required[required_key]
+                 res.append({"key":required_key, "value":value, "check":False, "dsc":"please check or complete"})
+                 self.set_config(request_type, required_key, value)
         return res
+
+    def check_engine(self, engine):
+        required = OrderedDict()
+        if engine == "qemurbd":
+            required["list_vclient"] = "vclient01,vclient02..."
+            required["fio_capping"] = "false"
+            required["enable_zipf"] = "false"
+            required["fio_randrepeat"] = "false"
+            required["volume_size"] = "40960"
+            required["rbd_volume_count"] = "1"
+            required["disk_num_per_client"] = "35,35,35,35"
+            required["rwmixread"] = 100
+        if engine == "fiorbd":
+            required["fio_capping"] = "false"
+            required["enable_zipf"] = "false"
+            required["fio_randrepeat"] = "false"
+            required["volume_size"] = "40960"
+            required["rbd_volume_count"] = "1"
+            required["disk_num_per_client"] = "35,35,35,35"
+            required["rwmixread"] = 100
+        if engine == "cosbench":
+            required["cosbench_version"] = "v0.4.2.c2"
+            required["cosbench_controller"] = ""
+            required["cosbench_driver"] = ""
+            required["cosbench_folder"] = "/opt/cosbench"
+            required["cosbench_config_dir"] = "/opt/cosbench_config"
+            required["cosbench_cluster_ip"] = "10.10.5.5"
+            required["cosbench_admin_ip"] = "192.168.5.1"
+            required["cosbench_network"] = "192.168.5.0/24"
+        if engine == "generic":
+            required["test_disks"] = ""
+            required["fio_capping"] = "false"
+            required["disk_num_per_client"] = "35,35,35,35"
+        if engine == "hook":
+            required["custom_script"] = ""
+
+        return required
 
     def del_config(self, request_type, key):
         conf_type = self.get_corresponde_config(request_type)
