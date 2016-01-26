@@ -37,7 +37,6 @@ class Hook(Benchmark):
     def generate_benchmark_cases(self, testcase):
         if self.benchmark["description"] != "":
             custom_script = self.all_conf_data.get("%s|custom_script" % self.benchmark["description"], True )
-        if custom_script != "":
             self.custom_script = custom_script
         return True
 
