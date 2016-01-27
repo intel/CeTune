@@ -198,42 +198,76 @@ class Analyzer:
         rbd_count = 0
         osd_node_count = 0
         try:
+            read_IOPS = 0
+            read_BW = 0
+            read_Latency = 0
+            write_IOPS = 0
+            write_BW = 0
+            write_Latency = 0
             for engine_candidate in data["workload"].keys():
                 if engine_candidate in benchmark_tool:
                     engine = engine_candidate
             for node, node_data in data["workload"][engine].items():
                 rbd_count += 1
-                tmp_data["IOPS"] += ( float(node_data["read_iops"]) + float(node_data["write_iops"]) )
-                tmp_data["BW(MB/s)"] += ( float(node_data["read_bw"]) + float(node_data["write_bw"]) )
-                tmp_data["Latency(ms)"] += ( float(node_data["read_lat"]) + float(node_data["write_lat"]) )
-            tmp_data["IOPS"] = "%.3f" % (tmp_data["IOPS"])
-            tmp_data["BW(MB/s)"] = "%.3f" % (tmp_data["BW(MB/s)"])
-            if rbd_count > 0:
-                tmp_data["Latency(ms)"] = "%.3f" % (tmp_data["Latency(ms)"]/rbd_count)
+                read_IOPS += float(node_data["read_iops"])
+                read_BW += float(node_data["read_bw"])
+                read_Latency += float(node_data["read_lat"])
+                write_IOPS += float(node_data["write_iops"])
+                write_BW += float(node_data["write_bw"])
+                write_Latency += float(node_data["write_lat"])
+            if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
+                tmp_data["IOPS"] = "%.3f" % read_IOPS
+                tmp_data["BW(MB/s)"] = "%.3f" % read_BW
+                if rbd_count > 0:
+                    tmp_data["Latency(ms)"] = "%.3f" % read_Latency/rbd_count
+            elif tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
+                tmp_data["IOPS"] = "%.3f" % write_IOPS
+                tmp_data["BW(MB/s)"] = "%.3f" % write_BW
+                if rbd_count > 0:
+                    tmp_data["Latency(ms)"] = "%.3f" % write_Latency/rbd_count
+            elif tmp_data["Op_Type"] in ["randrw", "rw", "readwrite"]:
+                tmp_data["IOPS"] = "%.3f, %.3f" % (read_IOPS, write_IOPS)
+                tmp_data["BW(MB/s)"] = "%.3f, %.3f" % (read_BW, write_BW)
+                if rbd_count > 0:
+                    tmp_data["Latency(ms)"] = "%.3f, %.3f" % (read_Latency/rbd_count, write_Latency/rbd_count)
         except:
             pass
+        read_SN_IOPS = 0
+        read_SN_BW = 0
+        read_SN_Latency = 0
+        write_SN_IOPS = 0
+        write_SN_BW = 0
+        write_SN_Latency = 0
+        for node, node_data in data["ceph"]["osd"].items():
+            osd_node_count += 1
+            read_SN_IOPS += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
+            read_SN_BW += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
+            lat_name = "r_await"
+            if lat_name not in node_data:
+                lat_name = "await"
+            read_SN_Latency += numpy.mean(node_data[lat_name])
+            write_SN_IOPS += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
+            write_SN_BW += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
+            lat_name = "w_await"
+            if lat_name not in node_data:
+                lat_name = "await"
+            write_SN_Latency += numpy.mean(node_data[lat_name])
+
         if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
-            for node, node_data in data["ceph"]["osd"].items():
-                osd_node_count += 1
-                tmp_data["SN_IOPS"] += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
-                tmp_data["SN_BW(MB/s)"] += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
-                lat_name = "r_await"
-                if lat_name not in node_data:
-                    lat_name = "await"
-                tmp_data["SN_Latency(ms)"] += numpy.mean(node_data[lat_name])
-        if tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
-            for node, node_data in data["ceph"]["osd"].items():
-                osd_node_count += 1
-                tmp_data["SN_IOPS"] += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
-                tmp_data["SN_BW(MB/s)"] += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
-                lat_name = "w_await"
-                if lat_name not in node_data:
-                    lat_name = "await"
-                tmp_data["SN_Latency(ms)"] += numpy.mean(node_data[lat_name])
-        tmp_data["SN_IOPS"] = "%.3f" % (tmp_data["SN_IOPS"])
-        tmp_data["SN_BW(MB/s)"] = "%.3f" % (tmp_data["SN_BW(MB/s)"])
-        if osd_node_count > 0:
-            tmp_data["SN_Latency(ms)"] = "%.3f" % (tmp_data["SN_Latency(ms)"]/osd_node_count)
+            tmp_data["SN_IOPS"] = "%.3f" % read_SN_IOPS
+            tmp_data["SN_BW(MB/s)"] = "%.3f" % read_SN_BW
+            if osd_node_count > 0:
+                tmp_data["SN_Latency(ms)"] = "%.3f" % read_SN_Latency/osd_node_count
+        elif tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
+            tmp_data["SN_IOPS"] = "%.3f" % write_SN_IOPS
+            tmp_data["SN_BW(MB/s)"] = "%.3f" % write_SN_BW
+            if osd_node_count > 0:
+                tmp_data["SN_Latency(ms)"] = "%.3f" % write_SN_Latency/osd_node_count
+        elif tmp_data["Op_Type"] in ["randrw", "readwrite", "rw"]:
+            tmp_data["SN_IOPS"] = "%.3f, %.3f" % (read_SN_IOPS, write_SN_IOPS)
+            tmp_data["SN_BW(MB/s)"] = "%.3f, %.3f" % (read_SN_BW, write_SN_BW)
+            if osd_node_count > 0:
+                tmp_data["SN_Latency(ms)"] = "%.3f, %.3f" % (read_SN_Latency/osd_node_count, write_SN_Latency/osd_node_count)
 
         tmp_data["SN_Number"] = osd_node_count
         tmp_data["CN_Number"] = len(data["client"]["cpu"])
