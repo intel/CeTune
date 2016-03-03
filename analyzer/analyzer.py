@@ -257,12 +257,12 @@ class Analyzer:
             tmp_data["SN_IOPS"] = "%.3f" % read_SN_IOPS
             tmp_data["SN_BW(MB/s)"] = "%.3f" % read_SN_BW
             if osd_node_count > 0:
-                tmp_data["SN_Latency(ms)"] = "%.3f" % read_SN_Latency/osd_node_count
+                tmp_data["SN_Latency(ms)"] = "%.3f" % (read_SN_Latency/osd_node_count)
         elif tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
             tmp_data["SN_IOPS"] = "%.3f" % write_SN_IOPS
             tmp_data["SN_BW(MB/s)"] = "%.3f" % write_SN_BW
             if osd_node_count > 0:
-                tmp_data["SN_Latency(ms)"] = "%.3f" % write_SN_Latency/osd_node_count
+                tmp_data["SN_Latency(ms)"] = "%.3f" % (write_SN_Latency/osd_node_count)
         elif tmp_data["Op_Type"] in ["randrw", "readwrite", "rw"]:
             tmp_data["SN_IOPS"] = "%.3f, %.3f" % (read_SN_IOPS, write_SN_IOPS)
             tmp_data["SN_BW(MB/s)"] = "%.3f, %.3f" % (read_SN_BW, write_SN_BW)
@@ -270,11 +270,15 @@ class Analyzer:
                 tmp_data["SN_Latency(ms)"] = "%.3f, %.3f" % (read_SN_Latency/osd_node_count, write_SN_Latency/osd_node_count)
 
         tmp_data["SN_Number"] = osd_node_count
-        tmp_data["CN_Number"] = len(data["client"]["cpu"])
+        try:
+            tmp_data["CN_Number"] = len(data["client"]["cpu"])
+        except:
+            tmp_data["CN_Number"] = 0
         return data
 
     def _process_data(self, node_name):
         result = {}
+        fio_log_res = {}
         workload_result = {}
         dest_dir = self.cluster["dest_dir"]
         for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
@@ -285,6 +289,18 @@ class Analyzer:
                 result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
             if '_fio.txt' in dir_name:
                 workload_result.update(self.process_fio_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name))
+            if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
+                if "_fio_iops.1.log" in dir_name:
+                    volume = dir_name.replace("_fio_iops.1.log", "")
+                if "_fio_bw.1.log" in dir_name:
+                    volume = dir_name.replace("_fio_bw.1.log", "")
+                if "_fio_lat.1.log" in dir_name:
+                    volume = dir_name.replace("_fio_lat.1.log", "")
+                if volume not in fio_log_res:
+                    fio_log_res[volume] = {}
+                    fio_log_res[volume]["fio_log"] = {}
+                fio_log_res[volume]["fio_log"] = self.process_fiolog_data("%s/%s/%s" % (dest_dir, node_name, dir_name), fio_log_res[volume]["fio_log"] )
+                workload_result.update(fio_log_res)
             if '_iostat.txt' in dir_name:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
@@ -396,6 +412,35 @@ class Analyzer:
         except:
             pass
         return desc
+
+    def process_fiolog_data(self, path, result):
+        if "fio_iops" in path:
+            result["iops"] = []
+            res = result["iops"]
+        if "fio_bw" in path:
+            result["bw"] = []
+            res = result["bw"]
+        if "fio_lat" in path:
+            result["lat"] = []
+            res = result["lat"]
+
+        time_shift = 1000
+        with open( path, "r" ) as f:
+            cur_sec = -1
+            for line in f.readlines():
+                data = line.split(",")
+                timestamp_sec = int(data[0])/time_shift
+                value = int(data[1])
+                while ( timestamp_sec > (cur_sec + 1) ):
+                    res.append( 0 )
+                    cur_sec += 1
+                if (cur_sec + 1) == timestamp_sec:
+                    res.append( value )
+                    cur_sec += 1
+                elif cur_sec == timestamp_sec:
+                    res[-1] = (res[-1] + value)/2
+        return result
+
 
     def process_sar_data(self, path):
         result = {}
@@ -538,11 +583,21 @@ class Analyzer:
         output = OrderedDict()
 #        for key in ["osd", "filestore", "objecter", "mutex-JOS::SubmitManager::lock"]:
         for key in self.cluster["perfcounter_data_type"]:
+            result_key = key
+            find = True
+            if key != "librbd" and key not in result:
+                continue
+            if key == "librbd":
+                find = False
+                for result_key in result.keys():
+                    if key in result_key:
+                        find = True
+                        break
+            if not find:
+                continue
             output["perfcounter_"+key] = {}
             current = output["perfcounter_"+key]
-            if not key in result:
-                continue
-            for param, data in result[key].items():
+            for param, data in result[result_key].items():
                 if isinstance(data, list):
                     if not param in current:
                         current[param] = []
