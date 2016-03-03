@@ -83,7 +83,7 @@ class FioRbd(Benchmark):
             self.prepare_images()
      
     def run(self):
-        super(self.__class__, self).run() 
+        super(self.__class__, self).run()
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
