@@ -23,6 +23,10 @@ def main(args):
         )
     parser.add_argument(
         '--version',
+        help="VERSION can be like testing, [CODENAME], "
+             "release:[CODENAME], dev:[CODENAME], local-mirror:[LOCAL_MIRROR] "
+             "or repo-url:[REPO_URL],gpg-url:[GPG_URL]. "
+             "[CODENAME] can be firely, hammer and so on."
         )
     parser.add_argument(
         '--with_rgw',

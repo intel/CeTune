@@ -131,11 +131,17 @@ class Deploy(object):
 
     def install_binary(self, version=""):
         installed, non_installed = self.check_ceph_installed()
-        uninstall_nodes=[]
-        need_to_install_nodes=[]
-        correctly_installed_nodes={}
+        uninstall_nodes = []
+        need_to_install_nodes = []
+        correctly_installed_nodes = {}
         installed_list = []
-        version_map = {'cuttlefish':'0.61','dumpling':'0.67','emperor':'0.72','firefly':'0.80','giant':'0.87','hammer':'0.94','infernalis':'9.2'}
+        version_map = {'cuttlefish': '0.61',
+                       'dumpling': '0.67',
+                       'emperor': '0.72',
+                       'firefly': '0.80',
+                       'giant': '0.87',
+                       'hammer': '0.94',
+                       'infernalis': '9.2'}
         for node, version_code in installed.items():
             if version == "":
                 for release_name, short_version in version_map.items():
@@ -143,7 +149,7 @@ class Deploy(object):
                         version_release_name = release_name
                         break
                 installed_list = common.unique_extend( installed_list, [version_release_name])
-                continue;
+                continue
             if version_map[version] not in version_code:
                 uninstall_nodes.append(node)
                 need_to_install_nodes.append(node)
@@ -165,19 +171,34 @@ class Deploy(object):
         if len(need_to_install_nodes):
             common.printout("LOG", "Will start to install ceph on %s" % str(need_to_install_nodes))
 
-        pkg_type = "release"
-        if ":" in version:
-            try:
-                pkg_type, version = version.split(":")
-            except:
-                common.printout("ERROR", "Please check version, received $s" % version)
+        if "testing" == version:
+            install_opts = "--testing"
+        elif "," in version:
+            repo, gpg = version.split(",")
+            repo_url = ":".join(repo.split(":")[1:])
+            gpg_url = ":".join(gpg.split(":")[1:])
+            install_opts = "--repo-url %s --gpg-url %s" % (str(repo_url), str(gpg_url))
+        elif ":" in version:
+            pkg_type = version.split(":")[0]
+            version = ":".join(version.split(":")[1:])
+            install_opts = "--%s %s" % (str(pkg_type), str(version))
+        else:
+            install_opts = "--release %s" % str(version)
+
+        common.printout("LOG", "Install opts is '%s'" % str(install_opts))
+        # pkg_type = "release"
+        # if ":" in version:
+        #     try:
+        #         pkg_type, version = version.split(":")
+        #     except:
+        #         common.printout("ERROR", "Please check version, received $s" % version)
 
         user = self.cluster["user"]
         node_os_dict = common.return_os_id(user, need_to_install_nodes)
         for node in need_to_install_nodes:
             if node in node_os_dict and "Ubuntu" in node_os_dict[node]:
                 common.pdsh(user, [node], "apt-get -f -y autoremove", option="console")
-            common.bash("ceph-deploy install --%s %s %s 2>&1" % (pkg_type, version, node), option="console")
+            common.bash("ceph-deploy install %s %s 2>&1" % (install_opts, node), option="console")
 
     def uninstall_binary(self, nodes=[]):
         if not len(nodes):
