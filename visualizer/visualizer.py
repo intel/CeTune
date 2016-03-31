@@ -251,7 +251,8 @@ class Visualizer:
     def generate_csv_from_json(self, data, classname, node_type):
         output = []
         output.append(node_type+","+",".join(data.keys()))
-        for i in range(0, len(data[data.keys()[0]])):
+        list_max = common.get_largest_list_len(data)
+        for i in range(0, list_max):
             tmp = []
             tmp.append(str(i))
             for node, node_data in data.items():
