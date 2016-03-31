@@ -78,6 +78,18 @@ def get_list( string ):
             res.append([value,""])
     return res
 
+def get_largest_list_len( data ):
+    max_len = 0;
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if max_len < len(value):
+                max_len = len(value)
+    if isinstance(data, list):
+        for value in data:
+            if max_len < len(value):
+                max_len = len(value)
+    return max_len
+
 def clean_console():
     bash("echo > %s" % cetune_console_file)
 
@@ -352,12 +364,11 @@ class MergableDict:
         self.mergable_dict = self.update_leaf( self.mergable_dict, conf)
 
     def update_leaf(self, dest_data, conf):
-        #print dest_data
         #print conf
         if dest_data == {}:
             dest_data = copy.deepcopy(conf)
             return dest_data
-        if dest_data == conf:
+        if self.dedup and dest_data == conf:
             return dest_data
         if isinstance(conf, str) or isinstance(conf, int) or isinstance(conf, float):
             if not isinstance(dest_data, list):

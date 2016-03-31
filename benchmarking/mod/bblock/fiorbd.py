@@ -171,7 +171,7 @@ class FioRbd(Benchmark):
         fio_template.append("    ramp_time=%s" % warmup_time)
         fio_template.append("    runtime=%s" % runtime)
         fio_template.append("    ioengine=rbd")
-        fio_template.append("    clientname=admin")
+        fio_template.append("    clientname=${RBDNAME}")
         fio_template.append("    pool=${POOLNAME}")
         fio_template.append("    rbdname=${RBDNAME}")
         if io_pattern in ["randread", "randwrite", "randrw"]:
