@@ -182,6 +182,27 @@ class Benchmark(object):
         if "lttng" in self.cluster["collector"]:
             common.printout("LOG","Start lttng data collector under %s " % nodes)
             common.pdsh(user, nodes, "export HOME='%s'; lttng destroy 2>/dev/null; lttng create zipkin; lttng enable-channel channel0 -u --buffers-pid; lttng enable-event -c channel0 --userspace zipkin:*; lttng start;" % (dest_dir))
+        need_smart_dict = {}
+        for node in nodes:
+            nvme_devs = []
+            for osd_journal in common.get_list(self.all_conf_data.get_list(node)):
+                if 'nvme' in osd_journal[0]:
+                    nvme_dev = common.parse_nvme( osd_journal[0] )
+                    if nvme_dev not in nvme_devs:
+                        nvme_devs.append(nvme_dev)
+                if 'nvme' in osd_journal[1]:
+                    nvme_dev = common.parse_nvme( osd_journal[1] )
+                    if nvme_dev not in nvme_devs:
+                        nvme_devs.append(nvme_dev)
+
+            if node not in need_smart_dict:
+                need_smart_dict[node] = nvme_devs
+        for node, nvme_list in need_smart_dict.items():
+            common.scp(user, node, '../conf/nvme-pack/', '/opt/')
+            for nvme_dev in nvme_list:
+                if nvme_dev[-1] == '/':
+                    nvme_dev = nvme_dev[:-1]
+                common.pdsh(user, [node], 'cd /opt/nvme-pack/; python nvme-parser.py --tool_path ./ --output /opt/%s_%s_smartinfo.txt %s' % (node, nvme_dev.split('/')[-1], nvme_dev))
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
