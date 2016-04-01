@@ -1,0 +1,38 @@
+{
+    "nvme_basic": {
+        "Drive Family": "INTEL SSDPEDME020T4", 
+        "Serial Number": "CVMD4121003K2P0EGN", 
+        "Firmware Version": "8DV10054", 
+        "Drive Status": "PASSED"
+    }, 
+    "nvme_smart": {
+        "critical_warning": "0", 
+        "temperature": "31 C", 
+        "available_spare": "100%", 
+        "available_spare_threshold": "10%", 
+        "percentage_used": "1%", 
+        "data_units_read": "107,823,620,775", 
+        "data_units_written": "381,226,409,980", 
+        "host_read_commands": "7,462,527,256", 
+        "host_write_commands": "25,687,670,725", 
+        "controller_busy_time": "3,210", 
+        "power_cycles": "55", 
+        "power_on_hours": "11,261", 
+        "unsafe_shutdowns": "45", 
+        "media_errors": "0"
+    }, 
+    "nvme_smart_additional_info": {
+        "program_fail_count": "100%       0", 
+        "erase_fail_count": "100%       0", 
+        "wear_leveling": "99%       min", 
+        "end_to_end_error_detection_count": "100%       0", 
+        "crc_error_count": "100%       0", 
+        "timed_workload_media_wear": "100%       63.999%", 
+        "timed_workload_host_reads": "100%       65535%", 
+        "timed_workload_timer": "100%       65535 min", 
+        "thermal_throttle_status": "100%       0%, cnt", 
+        "retry_buffer_overflow_count": "0%       0", 
+        "pll_lock_loss_count": "0%       0", 
+        "nand_bytes_written": "0%       sectors"
+    }
+}
