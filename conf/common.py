@@ -529,3 +529,8 @@ def try_disk( node, disk ):
         return True
     else:
         return False
+
+def parse_nvme( dev_name ):
+    if 'p' in dev_name:
+        dev_name = dev_name.split('p')[0]
+    return dev_name

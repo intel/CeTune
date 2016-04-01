@@ -283,6 +283,9 @@ class Analyzer:
         dest_dir = self.cluster["dest_dir"]
         for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
             common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
+            if 'smartinfo.txt' in dir_name:
+                res = self.process_smartinfo_data( "%s/%s/%s" % (dest_dir, node_name, dir_name))
+                result.update(res)
             if 'cosbench' in dir_name:
                 workload_result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name))
             if '_sar.txt' in dir_name:
@@ -317,6 +320,13 @@ class Analyzer:
                 except:
                     pass
         return [result, workload_result]
+
+    def process_smartinfo_data(self, path):
+        output = {}
+        with open(path, 'r') as f:
+            tmp = f.read()
+        output.update(json.loads(tmp, object_pairs_hook=OrderedDict))
+        return output
 
     def process_log_data(self, path):
         result = {}
@@ -633,12 +643,12 @@ def main(args):
         )
     args = parser.parse_args(args)
     process = Analyzer(args.path)
-    if args.operation == "process_perfcounter_data":
-        process.process_perfcounter_data(args.path_detail)
+    if args.operation == "process_data":
+        process.process_data()
     else:
         func = getattr(process, args.operation)
         if func:
-            func()
+            func(args.path_detail)
 
 if __name__ == '__main__':
     import sys
