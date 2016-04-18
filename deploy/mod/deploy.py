@@ -64,6 +64,18 @@ class Deploy(object):
             subnet = public_subnet
         if self.cluster['monitor_network'] != "":
             monitor_subnet = self.cluster["monitor_network"]
+        self.bluestore_block_pathes = ("bluestore_block_path", "bluestore_block_db_path", "bluestore_block_wal_path")
+        for bluestore_block_path in self.bluestore_block_pathes:
+            if bluestore_block_path in self.cluster["ceph_conf"]["global"]:
+                device_pathes = self.cluster["ceph_conf"]["global"][bluestore_block_path]
+                pathes = device_pathes.split(",")
+                for path in pathes:
+                    (osd_host, device_path) = path.split(":")
+                    if not self.cluster["osds"].has_key(osd_host):
+                        self.cluster["osds"][osd_host] = {bluestore_block_path: device_path}
+                    else:
+                        self.cluster["osds"][osd_host].update({bluestore_block_path: device_path})
+                self.cluster["ceph_conf"]["global"].pop(bluestore_block_path, None)
 
         if not cluster_subnet:
             cluster_subnet = subnet
@@ -71,7 +83,10 @@ class Deploy(object):
             public_subnet = subnet
 
         for osd in self.all_conf_data.get_list("list_server"):
-            self.cluster["osds"][osd] = {"public":ip_handler.getIpByHostInSubnet(osd, public_subnet), "cluster":ip_handler.getIpByHostInSubnet(osd, cluster_subnet)}
+	    if not self.cluster["osds"].has_key(osd):
+                self.cluster["osds"][osd] = {"public":ip_handler.getIpByHostInSubnet(osd, public_subnet), "cluster":ip_handler.getIpByHostInSubnet(osd, cluster_subnet)}
+	    else:
+	        self.cluster["osds"][osd].update({"public":ip_handler.getIpByHostInSubnet(osd, public_subnet), "cluster":ip_handler.getIpByHostInSubnet(osd, cluster_subnet)})
         for mon in self.all_conf_data.get_list("list_mon"):
             self.cluster["mons"][mon] = ip_handler.getIpByHostInSubnet(mon, monitor_subnet)
         for mds in self.all_conf_data.get_list("list_mds"):
@@ -288,6 +303,10 @@ class Deploy(object):
                 cephconf.append("    cluster addr = %s\n" % osds[osd]["cluster"])
                 cephconf.append("    osd journal = %s\n" % journal_device)
                 cephconf.append("    devs = %s\n" % osd_device)
+
+                for bluestore_block_path in self.bluestore_block_pathes:
+                    if osds[osd].has_key(bluestore_block_path):
+                        cephconf.append("    %s = %s\n" % (bluestore_block_path, osds[osd][bluestore_block_path]))
 
         output = "".join(cephconf)
         with open("../conf/ceph.conf", 'w') as f:
