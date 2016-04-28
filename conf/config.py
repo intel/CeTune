@@ -371,12 +371,18 @@ class ConfigHelper():
                 disk_list = value.split(',')
                 print disk_list
                 for substr in disk_list:
-                    osd, journal = substr.split(':')
-                    print "osd: %s, journal: %s" % (osd, journal)
-                    if not common.try_disk(key, osd):
-                        error_disk.append(osd)
-                    if not common.try_disk(key, journal):
-                        error_disk.append(journal)
+                    res = common.get_list(substr)[0]
+                    if len(res) > 4:
+                        raise
+                    device_index = 1
+                    for device in res:
+                        if not common.try_disk(key, device):
+                            error_disk.append(device)
+                        if device_index == len(res):
+                            print "device_%s: %s " % (device_index, device)
+                        else:
+                            print "device_%s: %s " % (device_index, device),
+                        device_index += 1
                 if not len(error_disk):
                     return [ True, "" ]
                 else:
@@ -432,7 +438,7 @@ class ConfigHelper():
         if value_type == "bool":
             return "false/true"
         if value_type == "osd_journal_list":
-            return "/dev/hdd1:/dev/ssd1,/dev/hdd2:/dev/ssd2"
+            return "/dev/hdd1:/dev/ssd1,/dev/hdd2:/dev/ssd2 or number of devices more than 4"
 
 def main(args):
     parser = argparse.ArgumentParser(description='debug')

@@ -64,7 +64,7 @@ class Deploy(object):
             subnet = public_subnet
         if self.cluster['monitor_network'] != "":
             monitor_subnet = self.cluster["monitor_network"]
-        self.bluestore_block_pathes = ("bluestore_block_path", "bluestore_block_db_path", "bluestore_block_wal_path")
+        self.bluestore_block_pathes = ("bluestore_block_db_path", "bluestore_block_wal_path")
         for bluestore_block_path in self.bluestore_block_pathes:
             if bluestore_block_path in self.cluster["ceph_conf"]["global"]:
                 device_pathes = self.cluster["ceph_conf"]["global"][bluestore_block_path]
@@ -76,7 +76,6 @@ class Deploy(object):
                     else:
                         self.cluster["osds"][osd_host].update({bluestore_block_path: device_path})
                 self.cluster["ceph_conf"]["global"].pop(bluestore_block_path, None)
-
         if not cluster_subnet:
             cluster_subnet = subnet
         if not public_subnet:
@@ -288,22 +287,43 @@ class Deploy(object):
             cephconf.append("    host = %s\n" % mon)
             cephconf.append("    mon addr = %s\n" % self.cluster["mons"][mon])
 
+        backend_storage = self.cluster["ceph_conf"]["global"]["osd_objectstore"]
         for osd in sorted(osds):
             for device_bundle in common.get_list(osd_dict[osd]):
-                if ceph_disk:
-                    osd_device = device_bundle[0] + "1"
-                    journal_device = device_bundle[1] + "1"
-                else:
-                    osd_device = device_bundle[0]
-                    journal_device = device_bundle[1]
+                device_bundle_len = len(device_bundle)
                 cephconf.append("[osd.%d]\n" % osd_id)
                 osd_id += 1
                 cephconf.append("    host = %s\n" % osd)
                 cephconf.append("    public addr = %s\n" % osds[osd]["public"])
                 cephconf.append("    cluster addr = %s\n" % osds[osd]["cluster"])
-                cephconf.append("    osd journal = %s\n" % journal_device)
-                cephconf.append("    devs = %s\n" % osd_device)
-
+                if ceph_disk:
+                    cephconf.append("    devs = %s\n" % (device_bundle[0]+"1"))
+                else:
+                    cephconf.append("    devs = %s\n" % device_bundle[0])
+                if device_bundle_len == 1:
+                    continue
+                if ceph_disk:
+                    if backend_storage == "filestore":
+                        cephconf.append("    osd journal = %s\n" % (device_bundle[1]+"1"))
+                    else:
+                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[1]+"1"))
+                else:
+                    if backend_storage == "filestore":
+                        cephconf.append("    osd journal = %s\n" % device_bundle[1])
+                    else:
+                        cephconf.append("    bluestore_block_path = %s\n" % device_bundle[1])
+                if device_bundle_len == 2 or backend_storage == "filestore":
+                    continue
+                if ceph_disk:
+                    cephconf.append("    bluestore_block_wal_path = %s\n" % (device_bundle[2]+"1"))
+                else:
+                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[2])
+                if device_bundle_len == 3:
+                    continue
+                if ceph_disk:
+                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[3]+"1"))
+                else:
+                    cephconf.append("    bluestore_block_db_path = %s\n" % device_bundle[3])
                 for bluestore_block_path in self.bluestore_block_pathes:
                     if osds[osd].has_key(bluestore_block_path):
                         cephconf.append("    %s = %s\n" % (bluestore_block_path, osds[osd][bluestore_block_path]))
@@ -550,12 +570,14 @@ class Deploy(object):
             for line in mount_list_tmp.split('\n'):
                 tmp = line.split()
                 mount_list[node][tmp[0]] = tmp[2]
-
         for osd in osds:
             for device_bundle_tmp in diff_map[osd]:
                 device_bundle = common.get_list(device_bundle_tmp)
                 osd_device = device_bundle[0][0]
-                journal_device = device_bundle[0][1]
+                journal_device = None
+                if self.cluster["ceph_conf"]["global"]["osd_objectstore"] == "filestore":
+                    journal_device = device_bundle[0][1]
+
                 if not ceph_disk:
                     self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
                     self.make_osd( osd, osd_num, osd_device, journal_device )
@@ -604,9 +626,16 @@ class Deploy(object):
         data_dev = osd_device
         journal_dev = journal_device
         fsid = self.cluster["ceph_conf"]["global"]["fsid"]
-        cmd = "ceph-disk -v" + prepend_to_path_arg + statedir_arg + \
-            sysconfdir_arg + " prepare " + data_dev + " " + journal_dev + \
-            " --cluster ceph" + " --cluster-uuid " + fsid
+        backend_storage = self.cluster["ceph_conf"]["global"]["osd_objectstore"]
+        if backend_storage == "filestore":
+            cmd = "ceph-disk -v" + prepend_to_path_arg + statedir_arg + \
+                sysconfdir_arg + " prepare " + data_dev + " " + journal_dev + \
+                " --cluster ceph" + " --cluster-uuid " + fsid
+        else:
+            cmd = "ceph-disk -v" + prepend_to_path_arg + statedir_arg + \
+                sysconfdir_arg + " prepare --bluestore " + data_dev + " " + \
+                " --cluster ceph" + " --cluster-uuid " + fsid
+
         common.printout("LOG", "Command is " + cmd)
         common.pdsh(user, [osd], cmd)
 
