@@ -544,3 +544,16 @@ def parse_nvme( dev_name ):
     if 'p' in dev_name:
         dev_name = dev_name.split('p')[0]
     return dev_name
+
+def parse_device_name(dev_name):
+    sata_pattern = re.compile(r'sd\D*')
+    nvme_pattern = re.compile(r'nvme\dn\d*')
+    res = sata_pattern.search(dev_name)
+    if res:
+        return res.group()
+    res = nvme_pattern.search(dev_name)
+    if res:
+        return res.group()
+    printout("ERROR", "device path error!\n")
+    return None
+

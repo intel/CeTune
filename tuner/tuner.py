@@ -79,9 +79,10 @@ class Tuner:
         if option == "get":
             for osd in osds:
                for device in self.cluster[osd]:
+                   parsed_device_name = common.parse_device_name(device)
                    tmp = {}
                    for key, value in param.items():
-                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{}  sh -c "cat /sys/block/\'{}\'/queue/%s"' % (device, key), option="check_return")
+                       stdout, stderr = common.pdsh(user, [osd], 'sh -c "cat /sys/block/%s/queue/%s"' % (parsed_device_name, key), option="check_return")
                        res = common.format_pdsh_return(stdout)
                        tmp[key] = res[osd]
                    stdout, stderr = common.pdsh(user, [osd], 'xfs_info %s' % (device), option="check_return")
@@ -95,8 +96,9 @@ class Tuner:
         if option == "set":
            for osd in osds:
                for device in self.cluster[osd]:
+                   parsed_device_name = common.parse_device_name(device)
                    for key, value in param.items():
-                       stdout, stderr = common.pdsh(user, [osd], 'echo %s | cut -d"/" -f 3 | sed "s/[0-9]$//" | xargs -I{}  sh -c "echo %s > /sys/block/\'{}\'/queue/%s"' % (device, str(value), key), option="check_return")
+                       stdout, stderr = common.pdsh(user, [osd], 'sh -c "echo %s > /sys/block/%s/queue/%s"' % (str(value), parsed_device_name, key), option="check_return")
 
     def get_version(self):
         user = self.cluster["user"]
