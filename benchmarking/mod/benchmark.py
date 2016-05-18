@@ -224,10 +224,10 @@ class Benchmark(object):
         dest_dir = self.cluster["dest_dir"]
         #collect all.conf
         try:
-            common.pdsh(user, [head], "mkdir -p %s/conf" % (dest_dir))
-            common.rscp(user, head, "%s/conf" % (dest_dir), "%s/conf/all.conf" % self.pwd)
-            common.rscp(user, head, "%s/conf" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_log_file) )
-            common.rscp(user, head, "%s/conf" % (dest_dir), "%s/conf/%s" % (self.pwd, common.cetune_error_file) )
+            common.bash("mkdir -p %s/conf" % (dest_dir))
+            common.cp("%s/conf/all.conf" % self.pwd, "%s/conf/" % dest_dir)
+            common.cp("%s/conf/%s" % (self.pwd, common.cetune_log_file), "%s/conf/" % dest_dir)
+            common.cp("%s/conf/%s" % (self.pwd, common.cetune_error_file), "%s/conf/" % dest_dir)
             common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
             common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
         except:
@@ -237,13 +237,13 @@ class Benchmark(object):
         if self.benchmark["tuning_section"] in worksheet:
             common.write_yaml_file( "%s/conf/tuner.yaml" % dest_dir, {self.benchmark["tuning_section"]:worksheet[self.benchmark["tuning_section"]]})
         else:
-            common.rscp(user, head, "%s/conf/tuner.yaml" % (dest_dir), "%s/conf/tuner.yaml" % (self.pwd) )
+            common.cp("%s/conf/tuner.yaml" % (dest_dir), "%s/conf/tuner.yaml" % (self.pwd) )
         #write description to dir
         with open( "%s/conf/description" % dest_dir, 'w+' ) as f:
             f.write( self.benchmark["description"] )
         #collect osd data
         for node in self.cluster["osd"]:
-            common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+            common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
             if "blktrace" in self.cluster["collector"]:
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*blktrace*" % self.cluster["tmp_dir"])
@@ -252,7 +252,7 @@ class Benchmark(object):
 
         #collect client data
         for node in self.benchmark["distribution"].keys():
-            common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+            common.bash( "mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
         #save real runtime
@@ -414,8 +414,8 @@ class Benchmark(object):
         user = self.cluster["user"]
         head = self.cluster["head"]
         dest_dir = self.cluster["dest_dir"]
-        common.pdsh(user, [head], "mkdir -p %s/conf" % (dest_dir))
-        common.pdsh(user, [head], "echo %s > %s/conf/status" % (status, dest_dir))
+        common.bash("mkdir -p %s/conf" % (dest_dir))
+        common.bash("echo %s > %s/conf/status" % (status, dest_dir))
 
     def prepare_result_dir(self):
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
