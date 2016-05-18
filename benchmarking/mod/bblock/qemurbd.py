@@ -246,10 +246,10 @@ class QemuRbd(Benchmark):
         for client in self.benchmark["distribution"]:
             nodes = self.benchmark["distribution"][client]
             for node in nodes:
-                common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+                common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
-        common.rscp(user, head, "%s/conf/" % dest_dir, "%s/conf/fio.conf" % self.pwd)
-        common.rscp(user, head, "%s/conf/" % dest_dir, "/etc/ceph/ceph.conf")
+        common.cp("%s/conf/fio.conf" % self.pwd, "%s/conf/" % dest_dir )
+        common.cp("/etc/ceph/ceph.conf", "%s/conf/" % dest_dir)
         common.bash("mkdir -p %s/conf/fio_errorlog/;find %s/raw/ -name '*_fio_errorlog.txt' | while read file; do cp $file %s/conf/fio_errorlog/;done" % (dest_dir, dest_dir, dest_dir))
 
     def generate_benchmark_cases(self, testcase):

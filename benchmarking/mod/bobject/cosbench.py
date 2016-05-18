@@ -394,7 +394,7 @@ class Cosbench(Benchmark):
         ceph_nodes = []
         ceph_nodes.extend(self.rgw["rgw_server"])
         for node in ceph_nodes:
-            common.pdsh(user, [head], "mkdir -p %s/raw/%s" % (dest_dir, node))
+            common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
         cosbench_controller = self.cosbench["cosbench_controller"]

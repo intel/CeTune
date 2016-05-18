@@ -219,17 +219,17 @@ class Analyzer:
                 tmp_data["IOPS"] = "%.3f" % read_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % read_BW
                 if rbd_count > 0:
-                    tmp_data["Latency(ms)"] = "%.3f" % read_Latency/rbd_count
+                    tmp_data["Latency(ms)"] = "%.3f" % (read_Latency/rbd_count)
             elif tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
                 tmp_data["IOPS"] = "%.3f" % write_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % write_BW
                 if rbd_count > 0:
-                    tmp_data["Latency(ms)"] = "%.3f" % write_Latency/rbd_count
+                    tmp_data["Latency(ms)"] = "%.3f" % (write_Latency/rbd_count)
             elif tmp_data["Op_Type"] in ["randrw", "rw", "readwrite"]:
                 tmp_data["IOPS"] = "%.3f, %.3f" % (read_IOPS, write_IOPS)
                 tmp_data["BW(MB/s)"] = "%.3f, %.3f" % (read_BW, write_BW)
                 if rbd_count > 0:
-                    tmp_data["Latency(ms)"] = "%.3f, %.3f" % (read_Latency/rbd_count, write_Latency/rbd_count)
+                    tmp_data["Latency(ms)"] = "%.3f, %.3f" % ((read_Latency/rbd_count), (write_Latency/rbd_count))
         except:
             pass
         read_SN_IOPS = 0

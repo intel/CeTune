@@ -230,6 +230,16 @@ def bash(command, force=False, option="", nodie=False):
             sys.exit()
     return stdout
 
+def cp(localfile, remotefile):
+    args = ['cp', '-r', localfile, remotefile]
+    printout("CONSOLE", args, screen=False)
+    #print('scp: %s' % args)
+    stdout, stderr = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True).communicate()
+    printout("CONSOLE", stdout, screen=False)
+    if stderr:
+        print('scp: %s' % args)
+        printout("WARNING",stderr+"\n")
+
 def scp(user, node, localfile, remotefile):
     args = ['scp', '-oConnectTimeout=15', '-r',localfile, '%s@%s:%s' % (user, node, remotefile)]
     printout("CONSOLE", args, screen=False)
