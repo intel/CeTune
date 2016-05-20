@@ -157,8 +157,7 @@ class Deploy(object):
                        'giant': '0.87',
                        'hammer': '0.94',
                        'infernalis': '9.2',
-					   'jewel': '10.2'
-					   }
+		       'jewel': '10.2'}
         for node, version_code in installed.items():
             if version == "":
                 for release_name, short_version in version_map.items():
