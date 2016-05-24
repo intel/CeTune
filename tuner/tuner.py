@@ -212,7 +212,7 @@ class Tuner:
         controller = self.cluster["head"]
         pwd = os.path.abspath(os.path.join('..'))
         cur_version = self.get_version()
-        version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer','9.1':'infernalis','9.2':'infernalis'}
+        version_map = {'0.61':'cuttlefish','0.67':'dumpling','0.72':'emperor','0.80':'firefly','0.87':'giant','0.94':'hammer','9.1':'infernalis','9.2':'infernalis','10.2':'jewel'}
         if 'version' in self.worksheet[jobname]:
             planed_version = self.worksheet[jobname]['version']
         else:
