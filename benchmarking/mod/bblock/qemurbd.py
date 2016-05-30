@@ -39,7 +39,10 @@ class QemuRbd(Benchmark):
 
         #create image xml
         common.printout("LOG","create rbd volume vm attach xml")
-        common.pdsh(user, [controller], "cd %s/vm-scripts; echo 3 | bash create-volume.sh create_disk_xml" % (self.pwd), "check_return")
+        common.scp(user, controller, "%s/vm-scripts" % (self.pwd), "/opt/");
+        common.scp(user, controller, "%s/conf" % (self.pwd), "/opt/");
+        common.pdsh(user, [controller], "cd /opt/vm-scripts; echo 3 | bash create-volume.sh create_disk_xml", "check_return")
+        common.rscp(user, controller, "%s/vm-scripts/" % (self.pwd), "/opt/vm-scripts/vdbs/");
         common.printout("LOG","Distribute vdbs xml")
         for client in self.cluster["testjob_distribution"]:
             common.scp(user, client, "../vm-scripts/vdbs", dest_dir)
