@@ -244,7 +244,7 @@ class Analyzer:
         write_SN_IOPS = 0
         write_SN_BW = 0
         write_SN_Latency = 0
-	diskformat = common.parse_disk_format( self.cluster['diskformat'] )
+        diskformat = common.parse_disk_format( self.cluster['diskformat'] )
         if len(diskformat):
             typename = diskformat[0]
         else:
@@ -483,17 +483,17 @@ class Analyzer:
     def process_iostat_data(self, node, path):
         result = {}
         output_list = []
-	dict_diskformat = {}
+        dict_diskformat = {}
         if node in self.cluster["osds"]:
             output_list = common.parse_disk_format( self.cluster['diskformat'] )
-	    for i in range(len(output_list)):
-		disk_list=[]
+            for i in range(len(output_list)):
+                disk_list=[]
                 for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
                    tmp_dev_name = osd_journal[i].split('/')[2]
                    if 'nvme' in tmp_dev_name:
                        tmp_dev_name = common.parse_nvme( tmp_dev_name )
-		   disk_list.append( tmp_dev_name )
-		dict_diskformat[output_list[i]]=disk_list
+                   disk_list.append( tmp_dev_name )
+                dict_diskformat[output_list[i]]=disk_list
         elif node in self.cluster["vclient"]:
             vdisk_list = []
             for disk in self.cluster["vclient_disk"]:
@@ -502,16 +502,15 @@ class Analyzer:
         # get total second
         runtime = common.bash("grep 'Device' "+path+" | wc -l ").strip()
         for output in output_list:
-	    if output != "vdisk":
-		disk_list = " ".join(dict_diskformat[output])
-		disk_num = len(dict_diskformat[output])
-	    else:
-		disk_list = " ".join(vdisk_list)
+            if output != "vdisk":
+                disk_list = " ".join(dict_diskformat[output])
+                disk_num = len(dict_diskformat[output])
+            else:
+                disk_list = " ".join(vdisk_list)
                 disk_num = len(vdisk_list)
             stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
             result[output] = common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
-	#di = result["osd"]
         return result
 
     def process_fio_data(self, path, dirname):
