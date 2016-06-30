@@ -557,3 +557,9 @@ def parse_device_name(dev_name):
     printout("ERROR", "device path error!\n")
     return None
 
+def parse_disk_format( disk_format_str ):
+    if disk_format_str == "":
+        disk_format_str = "osd:journal"
+    disk_type_list = disk_format_str.split(":")
+    return disk_type_list
+

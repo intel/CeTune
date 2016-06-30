@@ -207,6 +207,7 @@ class Config():
         required["disk_num_per_client"] = {"type":"int_list"}
         required["list_vclient"] = {"type":"node_list"}
         required["monitoring_interval"] = {"type":"int"}
+        required["disk_format"] = {"type":"diskformat"}
 
         helper = ConfigHelper()
         if key in required:
@@ -389,7 +390,15 @@ class ConfigHelper():
                     return [ False, "Disks:%s are not exists or it is boot device." % error_disk ]
             except:
                 return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]
-
+     
+	if value_type == "diskformat":
+            try:
+                if ',' not in value:
+		    return [ True, "" ]
+		else:
+                    return [ False, "Please use [:] split."]
+            except:
+                return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]
 
         if value_type == "network":
             try:
@@ -433,6 +442,8 @@ class ConfigHelper():
         return output
 
     def type_example( self, value_type ):
+	if value_type == "diskformat":
+            return "osd:journal"
         if value_type == "node_list":
             return "node01,node02,node03,..."
         if value_type == "bool":
