@@ -244,12 +244,11 @@ class Analyzer:
         write_SN_IOPS = 0
         write_SN_BW = 0
         write_SN_Latency = 0
-        diskformat = common.parse_disk_format( self.cluster['diskformat'] )
+	diskformat = common.parse_disk_format( self.cluster['diskformat'] )
         if len(diskformat):
             typename = diskformat[0]
         else:
             typename = "osd"
-        
         for node, node_data in data["ceph"][typename].items():
             osd_node_count += 1
             read_SN_IOPS += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
