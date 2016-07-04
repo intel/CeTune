@@ -158,6 +158,7 @@ class ConfigHandler():
         required_list["cluster"]["list_client"] = ""
         required_list["cluster"]["list_mon"] = ""
         required_list["cluster"]["enable_rgw"] = "false"
+        required_list["cluster"]["disk_format"] = "osd:journal"
         required_list["ceph_hard_config"] = OrderedDict()
         required_list["ceph_hard_config"]["public_network"] = ""
         required_list["ceph_hard_config"]["cluster_network"] = ""

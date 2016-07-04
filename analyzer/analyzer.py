@@ -30,6 +30,7 @@ class Analyzer:
         self.all_conf_data = config.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
+        self.cluster["diskformat"] = self.all_conf_data.get("disk_format", dotry=True)
         self.cluster["client"] = self.all_conf_data.get_list("list_client")
         self.cluster["osds"] = self.all_conf_data.get_list("list_server")
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
@@ -124,7 +125,12 @@ class Analyzer:
             return output_sort
         rampup = int(res.group(8))
         runtime = int(res.group(9))
-        phase_name_map = {"cpu": "sar", "memory": "sar", "nic": "sar", "osd": "iostat", "journal": "iostat", "vdisk": "iostat" }
+        diskformat = common.parse_disk_format( self.cluster['diskformat'] )
+        phase_name_map_for_disk = {}
+        for typename in diskformat:
+            phase_name_map_for_disk[typename] = "iostat" 
+        phase_name_map = {"cpu": "sar", "memory": "sar", "nic": "sar", "vdisk": "iostat" }
+        phase_name_map.update( phase_name_map_for_disk )
 
         for node_type in data.keys():
             if not isinstance(data[node_type], dict):
@@ -238,7 +244,13 @@ class Analyzer:
         write_SN_IOPS = 0
         write_SN_BW = 0
         write_SN_Latency = 0
-        for node, node_data in data["ceph"]["osd"].items():
+	diskformat = common.parse_disk_format( self.cluster['diskformat'] )
+        if len(diskformat):
+            typename = diskformat[0]
+        else:
+            typename = "osd"
+        
+        for node, node_data in data["ceph"][typename].items():
             osd_node_count += 1
             read_SN_IOPS += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
             read_SN_BW += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
@@ -471,17 +483,14 @@ class Analyzer:
     def process_iostat_data(self, node, path):
         result = {}
         output_list = []
+	dict_diskformat = {}
         if node in self.cluster["osds"]:
-            osd_list = []
-            journal_list = []
-            output_list = []
-            for osd_journal in common.get_list(self.all_conf_data.get_list(node)):
-               if osd_journal[0] != "":
-                   osd_list.append( osd_journal[0].split('/')[2] )
-                   output_list = common.unique_extend(output_list, ['osd'])
-               if osd_journal[1] != "":
-                   journal_list.append( osd_journal[1].split('/')[2] )
-                   output_list = common.unique_extend(output_list, ['journal'])
+            output_list = common.parse_disk_format( self.cluster['diskformat'] )
+	    for i in range(len(output_list)):
+		disk_list=[]
+                for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
+		   disk_list.append(osd_journal[i].split('/')[2])
+		dict_diskformat[output_list[i]]=disk_list
         elif node in self.cluster["vclient"]:
             vdisk_list = []
             for disk in self.cluster["vclient_disk"]:
@@ -490,18 +499,16 @@ class Analyzer:
         # get total second
         runtime = common.bash("grep 'Device' "+path+" | wc -l ").strip()
         for output in output_list:
-            if output == "osd":
-                disk_list = " ".join(osd_list)
-                disk_num = len(osd_list)
-            if output == "journal":
-                disk_list = " ".join(journal_list)
-                disk_num = len(journal_list)
-            if output == "vdisk":
-                disk_list = " ".join(vdisk_list)
+	    if output != "vdisk":
+		disk_list = " ".join(dict_diskformat[output])
+		disk_num = len(dict_diskformat[output])
+	    else:
+		disk_list = " ".join(vdisk_list)
                 disk_num = len(vdisk_list)
             stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
             result[output] = common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
+	#di = result["osd"]
         return result
 
     def process_fio_data(self, path, dirname):
