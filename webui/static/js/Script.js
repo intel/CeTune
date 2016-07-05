@@ -12,6 +12,7 @@ var address_BenchmarkEngine_Check="../configuration/check_testcase";
 var address_Delete="../configuration/del_config";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";
+var address_Description="../configuration/get_help";
 var address_Report_Detail="../results/get_detail";
 var address_Report_Detail_pic="../results/get_detail_pic";
 var address_Report_Detail_csv="../results/get_detail_csv";
@@ -84,6 +85,22 @@ function Console_Timer(init){
     var scroll_position = 0
     $("#div_console_id").children(".div_console_timestamp").each(function(){ scroll_position += $(this).height()});
     $("#div_console_id").scrollTop( scroll_position );
+}
+
+function Helper(init){
+    init = !init?false:true;
+    var cetune_status = $("#div_top_status_id").text();
+    if( cetune_status.indexOf("idle") > -1 && init != true )
+        return
+    var timestamp = GetTimestamp();
+
+    var data ;
+    var consoleData = GetDataByAjax(address_Description);
+    $("#div_Help").html(consoleData);
+    $("#div_Help tr").dblclick(function(){
+        return
+    })
+
 }
 
 
@@ -252,6 +269,11 @@ $(document).ready(function(){
                 clearTimer(timer_Console);
                 Report_Timer(true);
                 timer_Report = setInterval(Report_Timer,interval_Report);
+                break;
+
+	    case "menu_help_id":
+                Helper(true);
+                timer_Helper = setInterval(Helper,interval_Description);
                 break;
                 
             default: 
