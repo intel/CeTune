@@ -489,7 +489,10 @@ class Analyzer:
 	    for i in range(len(output_list)):
 		disk_list=[]
                 for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
-		   disk_list.append(osd_journal[i].split('/')[2])
+                   tmp_dev_name = osd_journal[i].split('/')[2]
+                   if 'nvme' in tmp_dev_name:
+                       tmp_dev_name = common.parse_nvme( tmp_dev_name )
+		   disk_list.append( tmp_dev_name )
 		dict_diskformat[output_list[i]]=disk_list
         elif node in self.cluster["vclient"]:
             vdisk_list = []

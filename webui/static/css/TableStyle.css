@@ -87,9 +87,57 @@ td{ max-width:500px;}
     padding-left:5px;
     max-width: 150px;
     text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-	
+    /*overflow: hidden;
+    white-space: nowrap;*/
+    word-wrap:break-word;
+    word-break:break-all;
+}
+#div_Help { 
+    padding:0 auto;
+    margin:0 0;
+    height:auto;
+    width:100%;
+}
+
+.help_table_class {
+    width:100%;
+}
+
+.div_help_class tr {
+    width:100%;
+}
+.div_help_class th {
+    border: 1px solid #CCC;
+    height: 30px;
+    transition: all 0.3s; 
+    border-top: 0px solid #CCC;
+    font-weight: bold;
+    text-align: center;
+    font-weight:bold; background-color: #E3E3E3;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:35px;
+}
+
+.div_help_class td {
+    width: auto;
+    padding-left:25px;
+    border: 1px solid #CCC;
+    text-align: left;
+    word-wrap:break-word; 
+    word-break:break-all;
+    max-width:1280px;
+    line-height:30px;
+}
+.help_table_class tr:nth-child(even) td { background: #F1F1F1; }   
+.help_table_class tr:nth-child(odd) td { background: #FEFEFE; }  
+
+.div_help_class td:last-child{
+}
+
+#td_right_id{text-align: left;}
+#label_id{color:#F00;text-align: center;font-weight: bold;}
+#mid_style{min-width:200px;}
+.td_right {
+    text-align: left;	
 }
 
 /* Cells in even rows (2,4,6...) are one color */	

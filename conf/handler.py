@@ -6,6 +6,7 @@ lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from collections import OrderedDict
 from conf import config
+from conf import description
 import re
 import argparse
 
@@ -17,6 +18,38 @@ class ConfigHandler():
         self.required_lists = self.list_required_config()
         for request_type in self.required_lists:
             self.get_group( request_type )
+
+    def get_help(self):
+        formated_report = {}
+        output = []
+        output.append("<table class='help_table_class'>")
+        output.append(" <thead>")
+        output.extend( self.getDescriptionTitle() )
+        output.append(" </thead>")
+        output.append(" <tbody>")
+        dict_desc = description.Description.get_all_description()
+        first_char = 'A'
+        output.append("<tr><td id = 'label_id' class = 'left_style'>------------> A <-----------</td><td id='mid_style'></td><td class = 'right_style'></td></tr>")
+        for key in dict_desc.keys():
+            if str(key)[0].upper() != first_char:
+                first_char = str(key)[0].upper()
+                output.append("<tr><td id = 'label_id' class = 'left_style'>------------> "+first_char+" <------------</td><td id='mid_style'></td><td class = 'right_style'></td></tr>")
+            tr_data = " <tr><td class = 'left_style'>"+key+" </td><td id='mid_style'>"+description.DefaultValue.get_defaultvalue_by_key(key)+"</td><td id = 'td_right_id' class='right_style'>"+dict_desc[key]+" </td> </tr>"
+            output.append(tr_data)
+        output.append(" </tbody>")
+        output.append("<script>")
+        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
+        output.append("</script>")
+        return "".join(output)
+
+    def getDescriptionTitle(self):
+        output = []
+        output.append(" <tr>")
+        output.append(" <th>Item</th>")
+        output.append(" <th>Default Value</th>")
+        output.append(" <th>Description</th>")
+        output.append(" </tr>")
+        return output
 
     def get_group(self, request_type):
         res = []
@@ -33,7 +66,10 @@ class ConfigHandler():
             return cases_conf
 
         for key, value in tmp_res.items():
-            res.append({"key":key,"value":value,"check":True,"dsc":""})
+	    self.desc = ""
+	    if key != "":
+		self.desc = description.Description.get_description_by_key(key)
+            res.append({"key":key,"value":value,"check":True,"dsc":self.desc})
 
         if request_type in self.required_lists:
             for required_key in self.required_lists[request_type]:
@@ -41,7 +77,6 @@ class ConfigHandler():
                      value = self.required_lists[request_type][required_key]
                      res.append({"key":required_key, "value":value, "check":False, "dsc":"please check or complete"})
                      self.set_config(request_type, required_key, value)
-
         return res
 
     def set_config(self, request_type, key, value):

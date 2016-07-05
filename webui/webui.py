@@ -15,7 +15,8 @@ urls = (
   '/', 'index',
   '/configuration/(.+)', 'configuration',
   '/monitor/(.+)', 'monitor',
-  '/results/(.+)', 'results'
+  '/descrption/(.+)','description',
+  '/results/(.+)', 'results',
 )
 
 web.cache = {}
@@ -40,6 +41,12 @@ class configuration:
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
         return json.dumps(conf.get_group(request_type))
+
+    def get_help(self):
+        conf = handler.ConfigHandler()
+        web.header("Content-Type","application/json")
+        return json.dumps(conf.get_help())
+        #return json.dumps(description.get_descripation())
 
     def set_config(self, request_type, key, value):
         conf = handler.ConfigHandler()
@@ -128,6 +135,23 @@ class monitor:
         res["content"] = "".join(res["content"])
         web.header("Content-Type","application/json")
         return json.dumps(res)
+
+class description:
+    def GET(self, function_name = ""):
+        return common.eval_args( self, function_name, web.input() )
+    def POST(self, function_name = ""):
+        print web.input()
+        return common.eval_args( self, function_name, web.input() )
+
+    def get_help(self):
+	view = visualizer.Visualizer({})
+        output = view.generate_description_view(False)
+        if not output:
+            return ""
+        html = ""
+        for line in output.split('\n'):
+            html += line.rstrip('\n')
+        return html
 
 class results:
     def GET(self, function_name = ""):
