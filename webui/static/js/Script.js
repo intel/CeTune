@@ -13,6 +13,7 @@ var address_Delete="../configuration/del_config";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";
 var address_Description="../configuration/get_help";
+var address_Guide="../configuration/get_guide";
 var address_Report_Detail="../results/get_detail";
 var address_Report_Detail_pic="../results/get_detail_pic";
 var address_Report_Detail_csv="../results/get_detail_csv";
@@ -95,6 +96,8 @@ function Helper(init){
     var timestamp = GetTimestamp();
 
     var data ;
+    var Data = GetDataByAjax(address_Guide);
+    $("#div_Markdown").html(Data);
     var consoleData = GetDataByAjax(address_Description);
     $("#div_Help").html(consoleData);
     $("#div_Help tr").dblclick(function(){

@@ -9,6 +9,8 @@ from visualizer import *
 import re
 import subprocess
 import signal
+import markdown
+import codecs
 
 render = web.template.render('templates/')
 urls = (
@@ -47,6 +49,12 @@ class configuration:
         web.header("Content-Type","application/json")
         return json.dumps(conf.get_help())
         #return json.dumps(description.get_descripation())
+
+    def get_guide(self):
+        input_file = codecs.open("%s/README.md" % lib_path, mode="r", encoding="utf-8")
+        text = input_file.read()
+        html = markdown.markdown(text)
+        return html
 
     def set_config(self, request_type, key, value):
         conf = handler.ConfigHandler()

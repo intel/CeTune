@@ -99,6 +99,11 @@ td{ max-width:500px;}
     width:100%;
 }
 
+.div_markdown_class {
+    padding: 20px 20px;
+    margin: 20px 0;
+}
+
 .help_table_class {
     width:100%;
 }
