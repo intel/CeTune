@@ -22,21 +22,27 @@ class ConfigHandler():
     def get_help(self):
         formated_report = {}
         output = []
-        output.append("<table class='help_table_class'>")
+        #output.append("<table class='help_table_class'>")
+        #output.append(" <thead>")
+        #output.extend( self.getDescriptionTitle() )
+        #output.append(" </thead>")
+        dict_desc = description.Description.get_all_description()
+        first_char = 'A'
+        output.append("</table><p id = 'label_id' class = 'left_style'>------------> A <-----------</p><table class='help_table_class'>")
         output.append(" <thead>")
         output.extend( self.getDescriptionTitle() )
         output.append(" </thead>")
         output.append(" <tbody>")
-        dict_desc = description.Description.get_all_description()
-        first_char = 'A'
-        output.append("<tr><td id = 'label_id' class = 'left_style'>------------> A <-----------</td><td id='mid_style'></td><td class = 'right_style'></td></tr>")
         for key in dict_desc.keys():
             if str(key)[0].upper() != first_char:
                 first_char = str(key)[0].upper()
-                output.append("<tr><td id = 'label_id' class = 'left_style'>------------> "+first_char+" <------------</td><td id='mid_style'></td><td class = 'right_style'></td></tr>")
+                output.append("</tbody></table><p id = 'label_id' class = 'left_style'>------------> "+first_char+" <------------</p><tbody><table class='help_table_class'>")
+                output.append(" <thead>")
+                output.extend( self.getDescriptionTitle() )
+                output.append(" </thead>")
             tr_data = " <tr><td class = 'left_style'>"+key+" </td><td id='mid_style'>"+description.DefaultValue.get_defaultvalue_by_key(key)+"</td><td id = 'td_right_id' class='right_style'>"+dict_desc[key]+" </td> </tr>"
             output.append(tr_data)
-        output.append(" </tbody>")
+        output.append(" </tbody></table>")
         output.append("<script>")
         output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
         output.append("</script>")

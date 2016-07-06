@@ -103,6 +103,23 @@ function Helper(init){
     $("#div_Help tr").dblclick(function(){
         return
     })
+    //add submenu to left
+    data = ""
+    $("#div_Markdown h4").each(function(){
+        text = $(this).text();
+        //$(this).insertBefore("<div id=\""+text+"\" style=\"postion:relative; top:-125px\"></div>");
+        $("<div id=\""+text+"\" style=\"position:relative; top:-125px\"></div>").insertBefore($(this));
+        data += "<li><a href='#"+text+"'>"+text+"</a></li>";
+    });
+    $("#ul_user_guide").html(data);
+    data = ""
+    $("#div_Help #label_id").each(function(){
+        text = $(this).text();
+        $("<div id=\""+text+"\" style=\"position:relative; top:-125px\"></div>").insertBefore($(this));
+        data += "<li><a href='#"+text+"'>"+text+"</a></li>";
+    });
+    $("#ul_manual").html(data);
+
 
 }
 
@@ -276,7 +293,6 @@ $(document).ready(function(){
 
 	    case "menu_help_id":
                 Helper(true);
-                timer_Helper = setInterval(Helper,interval_Description);
                 break;
                 
             default: 

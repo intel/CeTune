@@ -385,3 +385,10 @@
       border-bottom: 2px solid #e5e5e5;
       margin-left: 0px;
       border-radius: 5px 0 0 5px; }
+#dl_Helper_left_nav_accordion_id .sub_ul{
+    line-height:20px;
+    margin:0px 0px 0px 15px;
+}
+#dl_Helper_left_nav_accordion_id .sub_ul a{
+    padding: 5px 0 0 15px;
+}
