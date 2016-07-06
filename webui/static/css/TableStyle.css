@@ -64,6 +64,10 @@ td{ max-width:500px;}
    margin-buttom:1px;
 }
 
+.cetune_table thead{
+    position:fixed;
+    top:75px;
+}
 
 .cetune_table td, th { 
    border-buttom: 1px solid #CCC; /* No more visible border */
