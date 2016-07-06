@@ -131,8 +131,7 @@ td{ max-width:500px;}
     padding-left:25px;
     border: 1px solid #CCC;
     text-align: left;
-    word-wrap:break-word; 
-    word-break:break-all;
+    word-break:break-word;
     max-width:1280px;
     line-height:30px;
 }
@@ -141,6 +140,10 @@ td{ max-width:500px;}
 
 .div_help_class td:last-child{
 }
+
+.help_table_class .left_style{ width: 15%; }
+.help_table_class .mid_style{ width: 35%; }
+.help_table_class .right_style{ width: 50%; }
 
 #td_right_id{text-align: left;}
 #label_id{color:#F00;text-align: center;font-weight: bold;}
