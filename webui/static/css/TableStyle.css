@@ -141,8 +141,8 @@ td{ max-width:500px;}
 .div_help_class td:last-child{
 }
 
-.help_table_class .left_style{ width: 15%; }
-.help_table_class .mid_style{ width: 35%; }
+.help_table_class .left_style{ width: 20%; }
+.help_table_class .mid_style{ width: 30%; }
 .help_table_class .right_style{ width: 50%; }
 
 #td_right_id{text-align: left;}
