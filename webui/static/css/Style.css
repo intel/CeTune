@@ -13,7 +13,7 @@ body{ margin:0px; padding:0px;}
 #div_main_id{width:100%; height:auto;margin:0px; padding:0px; }
 
 /***************************************************************************************************************/
-#div_menu_id{ width:100%; height:25px;background: #000; margin:0; padding:0; border-bottom:1px solid #0CF;}
+#div_menu_id{ position:fixed; z-index:100; width:100%; height:25px;background: #000; margin:0; padding:0; border-bottom:1px solid #0CF;}
 #div_menu_id ul{ list-style:none; font-size:13px; color:#FFF; margin:0; padding-top:6px;}
 #div_menu_id ul li{ float:left;  margin-left:5px; cursor:pointer;}
 #div_menu_id ul li a{ padding:2px 15px 2px 15px; cursor:pointer; font-style:normal; color:#FFF; text-decoration:none;}
@@ -30,7 +30,7 @@ body{ margin:0px; padding:0px;}
                
 /***************************************************************************************************************/
 
-#div_top_id{ width:100%; height:55px; background-color:#337ab7; border-bottom:1px solid #2e6da4; box-shadow:2px 2px 3px #aaa;}
+#div_top_id{ position:fixed; top:25px; z-index:100; width:100%; height:55px; background-color:#337ab7; border-bottom:1px solid #2e6da4; box-shadow:2px 2px 3px #aaa;}
 #div_top_title_id{ float:left; width:50%; height:50px;}
 #div_top_status_id{ float:right; width:45%; height:50px;}
 
@@ -55,18 +55,19 @@ body{ margin:0px; padding:0px;}
 
 /***************************************************************************************************************/ 
 
-#div_Content_id{ margin:0;  padding-bottom:15px; width:100%; height:auto;}
+#div_Content_id{ min-height:500px; position:absolute; top:75px;  margin:0;  padding-bottom:15px; width:100%; height:auto;}
 
 .div_tab_class{width:95%;height:auto; margin:0 auto; background-color:#FFF; margin-bottom:15px;}
 
 #div_Configuration{ margin-top:3px; width:100%; display:block; padding-bottom:5px;}
 #div_Status{width:100%;  display:none;}
 #div_Reports{width:100%; display:none;}
+#div_Description{width:100%; display:none;}
 
 .tab_div_display{display:block;}
 
-.div_content_left_class{ width:19%; height:300px; float:left; }
-.div_content_right_class{ width:81%; height:300px; float:left; }
+.div_content_left_class{ width:19%; height:300px; position:fixed; }
+.div_content_right_class{ width:81%; height:300px; position:absolute; left:320px;}
 
 /***************************************************************************************************************/ 
 
@@ -117,6 +118,7 @@ body{ margin:0px; padding:0px;}
 
 /***************************************************************************************************************/
 #div_Status{ height:500px; min-height:500px; margin-top:5px;}
+#div_Description{ height:auto; min-height:500px; margin-top:5px;}
 
 #text_Status_id{  margin-left:10px;
                   width:95%;height:500px; min-height:500px; 

@@ -25,9 +25,9 @@ function part_disk {
     no_dd=$5
     if [ "$no_dd" != "1" ]; then
         echo "ssh $host dd if=/dev/zero of=$device bs=4M count=1 oflag=direct"
-        ssh $host "dd if=/dev/zero of=$device bs=4M count=1 oflag=direct" 2>/dev/null
+        #ssh $host "dd if=/dev/zero of=$device bs=4M count=1 oflag=direct" 2>/dev/null
         echo "ssh $host parted $device  mklabel gpt &>/dev/null"
-        ssh $host "parted $device  mklabel gpt &>/dev/null" 2>/dev/null
+        #ssh $host "parted $device  mklabel gpt &>/dev/null" 2>/dev/null
         start_pos="1"
         end_pos=$part_size
         for i in `seq 1 $part_count`
@@ -37,7 +37,7 @@ function part_disk {
                 part_size="0"
             fi
             echo ssh $host "parted $device mkpart data $start_pos $end_pos"
-            ssh $host "parted $device mkpart data $start_pos $end_pos &>/dev/null" 2>/dev/null
+            #ssh $host "parted $device mkpart data $start_pos $end_pos &>/dev/null" 2>/dev/null
             start_pos=$end_pos
             end_pos=$(( ${start_pos%%[[:alpha:]]*} + ${part_size%%[[:alpha:]]*} ))${part_size##*[0-9]}
         done
@@ -47,7 +47,7 @@ function part_disk {
         for i in `seq 1 $part_count`
         do
              echo ssh $host "parted $device mkpart journal $start_pos $end_pos"
-             ssh $host "parted $device mkpart journal $start_pos $end_pos &>/dev/null" 2>/dev/null
+             #ssh $host "parted $device mkpart journal $start_pos $end_pos &>/dev/null" 2>/dev/null
              start_pos=$end_pos
              end_pos=$(( ${start_pos%%[[:alpha:]]*} + ${part_size%%[[:alpha:]]*} ))${part_size##*[0-9]}
         done

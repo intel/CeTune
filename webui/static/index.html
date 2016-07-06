@@ -15,6 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/Style.css">
 <link rel="stylesheet" type="text/css" href="css/TableStyle.css">
 <link rel="stylesheet" type="text/css" href="css/NavStyle.css">
+<link rel="stylesheet" type="text/css" href="css/markdown.css">
 
 <link rel="stylesheet"  href="bootstrap3.3.5/css/bootstrap.min.css">
 <link rel="stylesheet" href="bootstrap3.3.5/css/bootstrap-theme.min.css">
@@ -65,19 +66,19 @@
                       <div>
                         <h4><div><input type="checkbox" class="check_control_class"  title="deploy"  onclick="ExecutvieCheck(event)">   Deploy</div></h4>            
                         <ul>           
-                          <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
-                          <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
+                          <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
                         </ul> 
                       </div>
                  
                       <div>
                         <h4><div><input type="checkbox" class="check_control_class"  title="benchmark" onclick="ExecutvieCheck(event)">   Benchmark</div></h4>          
                         <ul>           
-                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Executvie Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">System Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_tuning" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Tuning</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Benchmark Configuration</a></li>
-                          <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Analyzer Configuration</a></li>           
+                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Executvie Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">System Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_tuning" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Tuning</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Benchmark Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Analyzer Configuration</a></li>           
                         </ul> 
                       </div>
                   
@@ -155,15 +156,32 @@
    <div id="div_Reports" class = "div_tab_class">
      <!--<div id = "div_Reports_left_id" class="div_content_left_class"></div>
      <div id = "div_Reports_right_id" class="div_content_right_class">div_Reports_id</div>-->
-  </div>
+   </div>
    <div id="div_Description" class = "div_tab_class">
-       <h3 style="font-weight:bold; line-height:50px; border-bottom:2px solid #999">User Guide</h3>
-       <div id="div_Markdown" class = "div_markdown_class">
-      </div>
-       <h3 style="font-weight:bold">Configuration reference manual</h3>
-       <div id="div_Help" class = "div_help_class">
-      </div>
-  </div>
+       <div id = "div_Helper_left_id" class="div_content_left_class">
+           <div id="div_sidebar_id_helper">
+               <div>
+                   <dl id="dl_Helper_left_nav_accordion_id">
+                       <dt><div>CeTune</div></dt>
+                       <dd><div>
+                           <ul>           
+                               <li class="div_Helper_left_nav_li_class"><a class="active a_helper_class" href="#h3_helper_user_guide_id" onclick="$('.a_helper_class').removeClass('active');$(this).addClass('active');">User Guide</a></li>
+                               <li class="div_Helper_left_nav_li_class"><a class="a_helper_class" href="#h3_helper_manual_id" onclick="$('.a_helper_class').removeClass('active');$(this).addClass('active');">Configuration reference manual</a></li>
+                           </ul>
+                       </div></dd>
+                   </dl>
+               </div>
+            </div>
+       </div>
+       <div class="div_content_right_class">
+           <div id="h3_helper_user_guide_id" style="position:relative; top:-75px"></div>
+           <h3 style="font-weight:bold; line-height:50px; border-bottom:2px solid #999">User Guide</h3>
+           <div id="div_Markdown" class = "markdown-body"></div>
+           <div id="h3_helper_manual_id" style="position:relative; top:-75px"></div>
+           <h3 style="font-weight:bold">Configuration reference manual</h3>
+           <div id="div_Help" class = "div_help_class"></div>
+       </div>
+   </div>
   
   </div>
 

@@ -9,7 +9,8 @@ from visualizer import *
 import re
 import subprocess
 import signal
-import markdown
+import markdown2
+#import markdown
 import codecs
 
 render = web.template.render('templates/')
@@ -53,7 +54,8 @@ class configuration:
     def get_guide(self):
         input_file = codecs.open("%s/README.md" % lib_path, mode="r", encoding="utf-8")
         text = input_file.read()
-        html = markdown.markdown(text)
+        html = markdown2.markdown(text, extras=["fenced-code-blocks", "tables"])
+        #html = markdown.markdown(text, 'codehilite')
         return html
 
     def set_config(self, request_type, key, value):
