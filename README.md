@@ -2,16 +2,19 @@
 - CeTune is a toolkit/framework to deploy, benchmark, profile and tune *Ceph cluster performance. 
 - Aim to speed up the procedure of benchmarking *Ceph performance, and provide clear data charts of system metrics, latency breakdown data for users to analyze *Ceph performance.
 - CeTune provides test performance through three interfaces: block, file system and object to evaluate *Ceph.
+
 * * *
 ####Maintainance
 - CeTune is an opensource project, under LGPL V2.1, Drived by INTEL BDT CSE team.
 - Maillist: https://github.com/01org/CeTune
 - Subscribe maillist: https://lists.01.org/mailman/listinfo/cephperformance
+
 * * *
 ####Prepare
 - one node as CeTune controller(AKA head), Other nodes as CeTune worker(AKA worker)
 - Head is able to autossh to all workers include himself, head has a 'hosts' file contains all workers info.
 - All nodes are able to connect to yum/apt-get repository and also being able to wget/curl from ceph.com
+
 * * *
 ####Installation
 - Install to head:
