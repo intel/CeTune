@@ -22,8 +22,8 @@
 ```
 git clone https://github.com/01org/CeTune.git
 
-apt-get install -y python-pip pdsh unzip expect sysstat curl openjdk-7-jre haproxy python-matplotlib python-numpy python-yaml python-markdown
-pip install ceph-deploy argparse
+apt-get install -y python-pip pdsh unzip expect sysstat curl openjdk-7-jre haproxy python-matplotlib python-numpy python-yaml
+pip install ceph-deploy argparse markdown2
 apt-get install expect
 
 #make sure head is able to autossh all worker nodes and 127.0.0.1
