@@ -64,7 +64,7 @@ td{ max-width:500px;}
    margin-buttom:1px;
 }
 
-.cetune_table thead{
+#div_Reports .cetune_table thead{
     position:fixed;
     top:75px;
 }
