@@ -6,6 +6,7 @@ lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from collections import OrderedDict
 from conf import common
+from conf import description
 import re
 import argparse
 
@@ -169,15 +170,16 @@ class Config():
             tmp = []
             for add_key, add_value in res["addition"].items():
                 if add_key not in self.group[request_type]:
-                    tmp.append( self._set_config( request_type, add_key, add_value, option="update" ) )
+                    tmp.append( self._set_config( request_type, add_key, description.DefaultValue.get_defaultvalue_by_key(add_key), option="update" ) )
             res["addition"] = tmp
 
             self.conf_data[key] = value
+            if value in self.conf_data.keys():
+                self.conf_data[value] = description.DefaultValue.get_defaultvalue_by_key(value)
             if request_type not in self.group:
                 self.group[request_type] = []
             if key not in self.group[request_type]:
                 self.group[request_type].append(key)
-
         return res
     
     def check_config(self, key, value):
