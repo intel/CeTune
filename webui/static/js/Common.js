@@ -283,7 +283,7 @@ function Ok_Apply(rowNum){
         $("#td_value_id_"+rowNum).removeClass("error");
         $("#td_value_id_"+rowNum).parent().children().eq(3).children("label").text("");
     }
-    if(result.addition!=undefined){
+    if(result.check != false){
         $.each(result.addition, function(index, value){
             Append_Row_to_Configuration(value)
         });
