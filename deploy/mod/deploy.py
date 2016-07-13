@@ -298,16 +298,16 @@ class Deploy(object):
                 cephconf.append("    public addr = %s\n" % osds[osd]["public"])
                 cephconf.append("    cluster addr = %s\n" % osds[osd]["cluster"])
                 if ceph_disk:
-                    cephconf.append("    devs = %s\n" % (device_bundle[0]+"1"))
+                    cephconf.append("    devs = %s\n" % (device_bundle[0]))
                 else:
                     cephconf.append("    devs = %s\n" % device_bundle[0])
-                if device_bundle_len == 1:
+                if device_bundle_len == 1 or device_bundle[1] == "":
                     continue
                 if ceph_disk:
                     if backend_storage == "filestore":
-                        cephconf.append("    osd journal = %s\n" % (device_bundle[1]+"1"))
+                        cephconf.append("    osd journal = %s\n" % (device_bundle[1]))
                     else:
-                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[1]+"1"))
+                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[1]))
                 else:
                     if backend_storage == "filestore":
                         cephconf.append("    osd journal = %s\n" % device_bundle[1])
@@ -316,15 +316,15 @@ class Deploy(object):
                 if device_bundle_len == 2 or backend_storage == "filestore":
                     continue
                 if ceph_disk:
-                    cephconf.append("    bluestore_block_wal_path = %s\n" % (device_bundle[2]+"1"))
+                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[2]))
                 else:
-                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[2])
+                    cephconf.append("    bluestore_block_db_path = %s\n" % device_bundle[2])
                 if device_bundle_len == 3:
                     continue
                 if ceph_disk:
-                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[3]+"1"))
+                    cephconf.append("    bluestore_block_wal_path = %s\n" % (device_bundle[3]))
                 else:
-                    cephconf.append("    bluestore_block_db_path = %s\n" % device_bundle[3])
+                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[3])
                 for bluestore_block_path in self.bluestore_block_pathes:
                     if osds[osd].has_key(bluestore_block_path):
                         cephconf.append("    %s = %s\n" % (bluestore_block_path, osds[osd][bluestore_block_path]))
@@ -563,7 +563,6 @@ class Deploy(object):
             osd_num = 0
         else:
             osd_num = diff_map["osd_num"]
-
         stdout, stderr = common.pdsh( user, osds, 'mount -l', option="check_return" )
         mount_list = {}
         for node, mount_list_tmp in common.format_pdsh_return(stdout).items():
@@ -578,7 +577,6 @@ class Deploy(object):
                 journal_device = None
                 if self.cluster["ceph_conf"]["global"]["osd_objectstore"] == "filestore":
                     journal_device = device_bundle[0][1]
-
                 if not ceph_disk:
                     self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
                     self.make_osd( osd, osd_num, osd_device, journal_device )
@@ -614,9 +612,9 @@ class Deploy(object):
                 common.pdsh( user, [osd], 'rm -rf %s' % mounted_dir )
         except:
             pass
-        common.pdsh(user, [osd], 'ceph-disk zap %s' % osd_device)
-        common.pdsh(user, [osd], 'ceph-disk zap %s' % journal_device)
-        common.printout("LOG", "End clean up the dirty device and dir")
+        #common.pdsh(user, [osd], 'ceph-disk zap %s' % osd_device)
+        #common.pdsh(user, [osd], 'ceph-disk zap %s' % journal_device)
+        #common.printout("LOG", "End clean up the dirty device and dir")
 
         prepend_to_path = self._get_ceph_disk_config("prepend_to_path")
         statedir = self._get_ceph_disk_config("statedir")
@@ -643,7 +641,7 @@ class Deploy(object):
     def make_osd_ceph_disk_activate(self, osd, osd_deivce):
         common.printout("LOG", "Begin to use ceph-disk to activate osd")
         user = self.cluster["user"]
-        dev_path = osd_deivce + "1"
+        dev_path = osd_deivce
         cmd = "ceph-disk -v activate %s --mark-init upstart" % dev_path
         common.printout("LOG", "Command is " + cmd)
         common.pdsh(user, [osd], cmd)

@@ -71,7 +71,7 @@ class Benchmark(object):
         if need_to_create != 0:
             for i in range(0, need_to_create):
                 volume = 'volume-%s' % str(uuid.uuid4())
-                common.pdsh(user, [controller], "rbd create -p %s --size %s --image-format 2 %s" % (poolname, str(volume_size), volume))
+                common.pdsh(user, [controller], "rbd create -p %s --size %s %s --image-format 2" % (poolname, str(volume_size), volume))
             common.printout("LOG","%d RBD Image Created" % need_to_create)
 
     def get_rbd_list(self):
@@ -146,7 +146,7 @@ class Benchmark(object):
 
         #drop page cache
         user = self.cluster["user"]
-        time = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
+        time_tmp = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
         monitor_interval = self.cluster["monitoring_interval"]
@@ -154,7 +154,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "echo '%s' > /proc/sys/vm/drop_caches && sync" % self.cluster["cache_drop_level"])
 
         #send command to ceph cluster
-        common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
+        common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time_tmp/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
         common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' > %s/`hostname`_ps.txt" % (dest_dir))
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         common.printout("LOG","Start system data collector under %s " % nodes)
@@ -165,7 +165,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
-            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, monitor_interval, '%s', dest_dir), option="force")
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time_tmp, dest_dir, monitor_interval, '%s', dest_dir), option="force")
         if "blktrace" in self.cluster["collector"]:
             for node in nodes:
                 common.printout("LOG","Start blktrace data collector under %s " % node)
@@ -173,8 +173,11 @@ class Benchmark(object):
                     common.pdsh(user, [node], "cd %s; blktrace -d %s -o `hostname`_osd_%s 2>&1 > %s/`hostname`_blktrace_%s.log" % (dest_dir, osd_dev, osd_dev.replace("/","_"), dest_dir, osd_dev.replace("/","_")), option="force")
                 for journal_dev in self.cluster[node]["journals"]:
                     common.pdsh(user, [node], "cd %s; blktrace -d %s -o `hostname`_journal_%s 2>&1 > %s/`hostname`_blktrace_%s.log" % (dest_dir, journal_dev, journal_dev.replace("/","_"), dest_dir, journal_dev.replace("/","_")), option="force")
+            common.printout("LOG","Sleep 15s due to high cpu utilization when blktrace finish")
+            time.sleep(15)
         if "fatrace" in self.cluster["collector"]:
             common.printout("LOG","Start fatrace data collector under %s " % nodes)
+            time.sleep(15)
             common.pdsh(user, nodes, "fatrace -o %s/`hostname`_fatrace.txt &" % (dest_dir))
         if "strace" in self.cluster["collector"]:
             common.printout("LOG","Start strace data collector under %s " % nodes)
@@ -206,7 +209,7 @@ class Benchmark(object):
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
-        common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
+        common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time_tmp/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         common.printout("LOG","Start system data collector under %s " % nodes)
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_start.txt; echo `date +%s`' interrupt start' >> %s/`hostname`_process_log.txt" % (dest_dir, '%s', dest_dir))
@@ -216,7 +219,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
-            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*client*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time, dest_dir, monitor_interval, '%s', dest_dir), option="force")
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*client*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time_tmp, dest_dir, monitor_interval, '%s', dest_dir), option="force")
 
     def archive(self):
         user = self.cluster["user"]
