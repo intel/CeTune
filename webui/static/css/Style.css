@@ -10,13 +10,6 @@
 
 /***************************************************************************************************************/
 body{ margin:0px; padding:0px;}
-tbody{
-    margin-top:35px;
-    float:left;
-    display: table-row-group;
-    vertical-align: middle;
-    border-color: inherit;
-}
 #div_main_id{width:100%; height:auto;margin:0px; padding:0px; }
 
 /***************************************************************************************************************/
