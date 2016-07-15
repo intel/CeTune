@@ -67,7 +67,14 @@ td{ max-width:500px;}
 #div_Reports .cetune_table thead{
     position:fixed;
     top:75px;
+    float:left;
 }
+
+#div_Reports .cetune_table tbody{
+    margin-top:35px;
+    float:left;
+}
+
 
 .cetune_table td, th { 
    border-buttom: 1px solid #CCC; /* No more visible border */
