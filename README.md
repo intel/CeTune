@@ -34,6 +34,7 @@ cd ${CeTune_PATH}/deploy/prepare-scripts; ./configure_autossh.sh ${host} ${ssh_p
 
 ```
 apt-get install -y python-pip unzip sysstat curl openjdk-7-jre haproxy</code>
+apt-get install sqlite</code>
 ```
 
 * * *
