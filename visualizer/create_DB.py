@@ -11,6 +11,7 @@ class database(object):
         conn.execute('''create table tb_report
                 (runid_tr varchar(300) primary key not null,
                 runid int not null,
+                timestamp varchar(50) not null,
                 status varchar(15) not null,
                 description varchar(50) not null,
                 opsize varchar(10) not null,
@@ -38,9 +39,11 @@ class database(object):
         rowdata = data
         conn = sqlite3.connect(dbpath)
         print "Opened database successfully";
-        if rowdata[3] == '':
-            rowdata[3] = 'None'
-        sqlstr = "insert into tb_report (runid,runid_tr,status,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,sniops,snbw,snlatency) values ("+rowdata[1]+",'"+rowdata[0]+"','"+rowdata[2]+"','"+rowdata[3]+"','"+rowdata[4]+"','"+rowdata[5]+"','"+rowdata[6]+"','"+rowdata[7]+"',"+rowdata[8]+","+rowdata[9]+","+rowdata[10]+","+rowdata[11]+",'"+rowdata[12]+"','"+rowdata[13]+"','"+rowdata[14]+"','"+rowdata[15]+"','"+rowdata[16]+"','"+rowdata[17]+"')"
+        if rowdata[2] == '':
+            rowdata[2] =='None'
+        if rowdata[4] == '':
+            rowdata[4] = 'None'
+        sqlstr = "insert into tb_report (runid,runid_tr,timestamp,status,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,sniops,snbw,snlatency) values ("+rowdata[1]+",'"+rowdata[0]+"','"+rowdata[2]+"','"+rowdata[3]+"','"+rowdata[4]+"','"+rowdata[5]+"','"+rowdata[6]+"','"+rowdata[7]+"','"+rowdata[8]+"',"+rowdata[9]+","+rowdata[10]+","+rowdata[11]+","+rowdata[12]+",'"+rowdata[13]+"','"+rowdata[14]+"','"+rowdata[15]+"','"+rowdata[16]+"','"+rowdata[17]+"','"+rowdata[18]+"')"
         #sqlstr = "insert into tb_report (runid,runid_tr,utatus,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,sniops,snbw,snlatency) values (%d,'%s','%s','%s','%s','%s','%s','%s',%d,%d,%d,%d,%f,%f,%f,%f,%f,%f)"%(rowdata[1],rowdata[0],rowdata[2],rowdata[3],rowdata[4],rowdata[5],rowdata[6],rowdata[7],rowdata[8],rowdata[9],rowdata[10],rowdata[11],rowdata[12],rowdata[13],rowdata[14],rowdata[15],rowdata[16],rowdata[17])
         conn.execute(sqlstr)
         conn.commit()
