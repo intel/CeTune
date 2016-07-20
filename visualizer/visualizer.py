@@ -14,6 +14,7 @@ import matplotlib.pyplot as pyplot
 import json
 import yaml
 import numpy
+from create_DB import *
 
 pp = pprint.PrettyPrinter(indent=4)
 class Visualizer:
@@ -81,30 +82,98 @@ class Visualizer:
         common.bash("scp -r %s/cetune_history.html %s" % (self.path, self.dest_dir_remote_bak))
         common.bash("scp -r ../visualizer/include %s" % (self.dest_dir_remote_bak))
 
+    def dataparse(self,data):
+        #print data
+        rows = []
+        list_data = []
+        for i in data.keys():
+            list_data.append(data[i])
+        for i in list_data:
+            row = []
+            row.extend(re.findall('id=(.*?)>',re.search('(<tr.*?>)', i, re.S).group(1),re.S))
+            row.extend(re.findall('<td .*?>(.*?)</td>', i, re.S))
+            for i in range(len(row)):
+                row[i] = row[i].strip()
+            rows.append(row)
+        return rows
+
+    def parse_to_html(self,data):
+        lines = {}
+        for i in data:
+            i =list(i)
+            line = ''
+            for j in range(len(i)):
+                if j == 0:
+                    line += "<tr href=%s/%s.html id=%s>"%(i[j],i[j],i[j])
+                else:
+                    if type(i[j]) == float:
+                        line += "<td title='%.3f'>%.3f</td>\n"%(i[j],i[j])
+                    elif type(i[j]) == int:
+                        line += "<td title='%d'>%d</td>\n"%(i[j],i[j])
+                    else:
+                        line += "<td title='%s'>%s</td>\n"%(i[j],i[j])
+            if line != '':
+                line += "</tr>\n"
+            lines[i[1]] = line
+        return lines
+
+    def check_DB_case_list(self,remote_dir,dbpath):
+        if os.path.exists(dbpath):
+            output = os.popen("ls "+remote_dir)
+            local_list = output.readlines()
+            local_case_list = []
+            for i in local_list:
+                if i != 'cetune_report.db':
+                    local_case_list.append(i)
+            DB_list = database.get_runid_list(dbpath)
+            if local_case_list == DB_list:
+                return True
+            else:
+                return False
+        else:
+            return False
+
     def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format=True):
         common.printout("LOG","Generating history view")
-        stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
-        res = common.format_pdsh_return(stdout)
-        if remote_host not in res:
-            common.printout("ERROR","Generating history view failed")
-            return False
-        # some modification in greped trs
-        formated_report = {}
-        report_lines = re.findall('(<tr.*?</tr>)',res[remote_host],re.S)
-        for line in report_lines:
-            tr_start = re.search('(<tr.*?>)', line, re.S).group(1)
-            data = re.findall('<td>(.*?)</td>', line, re.S)
+        dbpath = "/mnt/data/cetune_report.db"
+        if not self.check_DB_case_list(remote_dir,dbpath):
+            stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+            res = common.format_pdsh_return(stdout)
+            if remote_host not in res:
+                common.printout("ERROR","Generating history view failed")
+                return False
+            # some modification in greped trs
+            formated_report = {}
+            report_lines = re.findall('(<tr.*?</tr>)',res[remote_host],re.S)
+            for line in report_lines:
+                tr_start = re.search('(<tr.*?>)', line, re.S).group(1)
+                data = re.findall('<td>(.*?)</td>', line, re.S)
 
-            runid = int(data[0])
-            if len(data) < 16:
-                data.insert(1, "Unknown")
-            if len(data) < 17:
-                data.insert(2, "")
-            formated_report[runid] = tr_start
-            for block in data:
-                formated_report[runid] += "<td title='%s'>%s</td>\n" % (block, block)
-            formated_report[runid] += "</tr>\n"
-            
+                runid = int(data[0])
+                if len(data) < 16:
+                    data.insert(1, "Unknown")
+                if len(data) < 17:
+                    data.insert(2, "")
+                formated_report[runid] = tr_start
+                for block in data:
+                    formated_report[runid] += "<td title='%s'>%s</td>\n" % (block, block)
+                formated_report[runid] += "</tr>\n"
+
+            #create DB and create TB
+            if not os.path.exists(dbpath):
+                database.createTB(dbpath)
+            rows = self.dataparse(formated_report)
+            runid_list = []
+            for i in rows:
+                runid_list.append(i[0])
+                if not database.check_case_exist(i[0],dbpath):
+                    database.insert_to_TB(i,dbpath)
+            #delete case from DB which is not exist
+            diff_case_list = [ i for i in database.get_runid_list(dbpath) if i not in runid_list ]
+            if len(diff_case_list) != 0:
+                for i in diff_case_list:
+                    database.delete_case_by_runid(i,dbpath)
+        lines = self.parse_to_html(database.select_report_list(dbpath))
         output = []
         #output.append("<h1>CeTune History Page</h1>")
         output.append("<table class='cetune_table'>")
@@ -113,8 +182,8 @@ class Visualizer:
         output.append(" </thead>")
         output.append(" <tbody>")
         #output.append(res[remote_host])
-        for runid in sorted(formated_report.keys()):
-            output.append(formated_report[runid])
+        for runid in sorted(lines.keys()):
+            output.append(lines[runid])
         output.append(" </tbody>")
         output.append("<script>")
         output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
