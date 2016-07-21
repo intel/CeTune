@@ -150,8 +150,6 @@ class Visualizer:
                 data = re.findall('<td>(.*?)</td>', line, re.S)
 
                 runid = int(data[0])
-                if len(data) < 16:
-                    data.insert(1, "Unknown")
                 if len(data) < 17:
                     data.insert(2, "")
                 formated_report[runid] = tr_start
@@ -167,6 +165,8 @@ class Visualizer:
             for i in rows:
                 runid_list.append(i[0])
                 if not database.check_case_exist(i[0],dbpath):
+                    if len(i) < 19:
+                        i.insert(2, "Unknown")
                     database.insert_to_TB(i,dbpath)
             #delete case from DB which is not exist
             diff_case_list = [ i for i in database.get_runid_list(dbpath) if i not in runid_list ]
@@ -197,6 +197,7 @@ class Visualizer:
         output = []
         output.append(" <tr>")
         output.append(" <th>runid</th>")
+        output.append(" <th><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
         output.append(" <th><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
         output.append(" <th><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
         output.append(" <th><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")

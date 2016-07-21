@@ -17,6 +17,7 @@ import copy
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
     def __init__(self, dest_dir):
+        self.dest_dir = dest_dir
         self.cluster = {}
         if os.path.isdir('%s/%s' % ( dest_dir, 'conf' )):
             self.cluster["dest_conf_dir"] = '%s/%s' % ( dest_dir, 'conf' )
@@ -173,6 +174,22 @@ class Analyzer:
 
         return output_sort
 
+    def get_execute_time(self):
+        dest_dir = self.dest_dir
+        cf = config.Config(dest_dir+"conf/all.conf")
+        head = ''
+        head = cf.get("head")
+        file_path = dest_dir+"raw/"+head+"/"+head+"_process_log.txt"
+        print file_path
+        if head != '':
+            if os.path.exists(dest_dir+"raw/"+head+"/"):
+                with open(file_path, "r") as f:
+                    lines = f.readlines()
+                if len(lines) != 0:
+                    return lines[0]
+            else:
+                return ''
+
     def summary_result(self, data):
         # generate summary
         benchmark_tool = ["fio", "cosbench"]
@@ -183,6 +200,7 @@ class Analyzer:
             return data
         data["summary"]["run_id"][res.group(1)] = OrderedDict()
         tmp_data = data["summary"]["run_id"][res.group(1)]
+        tmp_data["Timestamp"] = self.get_execute_time()
         tmp_data["Status"] = data["status"]
         tmp_data["Description"] = data["description"]
         tmp_data["Op_size"] = res.group(5)
