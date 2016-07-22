@@ -18,7 +18,7 @@ urls = (
   '/', 'index',
   '/configuration/(.+)', 'configuration',
   '/monitor/(.+)', 'monitor',
-  '/descrption/(.+)','description',
+  '/description/(.+)','description',
   '/results/(.+)', 'results',
 )
 
@@ -149,9 +149,21 @@ class monitor:
 class description:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
+
     def POST(self, function_name = ""):
-        print web.input()
-        return common.eval_args( self, function_name, web.input() )
+        data = web.input()
+        tr_id = data["tr_id"]
+        new_description = data["celltext"]
+        view = visualizer.Visualizer({})
+        view.update_report_list_db(tr_id,new_description)
+        #return common.eval_args( self, function_name, web.input() )
+
+    def update(self):
+        data = web.input()
+        tr_id = data["tr_id"]
+        new_description = data["celltext"]
+        view = visualizer.Visualizer({})
+        view.update_report_list_db(tr_id,new_description)
 
     def get_help(self):
 	view = visualizer.Visualizer({})
