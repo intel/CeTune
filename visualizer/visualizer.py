@@ -27,6 +27,7 @@ class Visualizer:
             else:
                 all_path = path
         self.all_conf_data = config.Config("%s/all.conf" % all_path)
+        self.db_path = self.all_conf_data.get("dest_dir")
         self.result = result
         self.output = []
         if path:
@@ -117,9 +118,65 @@ class Visualizer:
             lines[i[1]] = line
         return lines
 
-    def check_DB_case_list(self,remote_dir,dbpath):
+
+    def get_column_nu_and_ind(self,file_ph):
+        f = open(file_ph,'r+')
+        ft = f.read()
+        tr = re.findall('<tr>(.*?)</tr>', ft, re.S)
+        th = re.findall('<th>(.*?)</th>', tr[0], re.S)
+        f.close()
+        ind = 0
+        ind1 = 0
+        num = 0
+        for i in range(len(th)):
+            if "Description" in th[i]:
+                ind = i
+                break
+        if ind!=0:
+            f1 = open(file_ph,'r+')
+            data = f1.readlines()
+            for i in range(len(data)):
+                if '</td>' in data[i]:
+                    if ind1 == ind:
+                        num = i
+                        break
+                    ind1 += 1
+        if num != 0:
+            return num
+
+
+    def edit_html(self,file_path,num,new_description):
+        f = open(file_path,'r+')
+        ft = f.readlines()
+        ft[num] = "<td>"+new_description+"</td>\n"
+        f = open(file_path,'w+')
+        f.writelines(ft)
+        f.close()
+
+    def update_report_list_db(self,tr_id,new_description):
+        db_path = os.path.join(self.db_path,"cetune_report.db")
+        if os.path.exists(db_path):
+            database.update_by_runid(tr_id,'description',new_description,db_path)
+            file_path = self.db_path+tr_id+"/conf/description"
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                f = open(file_path, 'w')
+                f.write(new_description)
+                f.close()
+            else:
+                f = open(file_path, 'w')
+                f.write(new_description)
+                f.close()
+            html_path = os.path.join(self.db_path,tr_id,tr_id+".html")
+            nu = self.get_column_nu_and_ind(html_path)
+            if nu != 0:
+                self.edit_html(html_path,nu,new_description)
+        else:
+            print "Error:database -/mnt/data/cetune_report.db not exist."
+
+    def check_DB_case_list(self,re_dir,dbpath):
         if os.path.exists(dbpath):
-            output = os.popen("ls "+remote_dir)
+            output = os.popen("ls "+re_dir)
             local_list = output.readlines()
             local_case_list = []
             for i in local_list:
@@ -135,8 +192,8 @@ class Visualizer:
 
     def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format=True):
         common.printout("LOG","Generating history view")
-        dbpath = "/mnt/data/cetune_report.db"
-        if not self.check_DB_case_list(remote_dir,dbpath):
+        dbpath = os.path.join(self.db_path,"cetune_report.db")
+        if not self.check_DB_case_list(self.db_path,dbpath):
             stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
             res = common.format_pdsh_return(stdout)
             if remote_host not in res:

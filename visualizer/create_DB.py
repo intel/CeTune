@@ -110,9 +110,10 @@ class database(object):
         conn = sqlite3.connect(dbpath)
         print "Opened database successfully";
 
-        if database.check_case_exist(runid):
-            sqlstr = "update tb_report set "+column+" = '"+value+"' where runid_tr = %s"%(runid)
+        if database.check_case_exist(runid,dbpath):
+            sqlstr = "update tb_report set "+column+" = '"+value+"' where runid_tr = '%s'"%(runid)
             conn.execute(sqlstr)
+            print "Update "+runid+":"+column+" successfully";
             conn.commit()
             print "Closed database successfully";
             conn.close()

@@ -28,6 +28,7 @@ var timer_Report;
 var interval_RunStatus=3000;
 var interval_Console=500;
 var interval_Report=30000;
+var edit_flag = 0;
 
 /*************Interval function************************************************************************/
 
@@ -123,6 +124,49 @@ function Helper(init){
 
 }
 
+function getRowObj(obj){
+    var i = 0;
+    while(obj.tagName.toLowerCase() != "tr"){
+        obj = obj.parentNode;
+        if(obj.tagName.toLowerCase() == "table")
+            return null;
+    }
+    return obj;
+}
+//edit value cancel
+function Cancel_Click(tr_id,cellText){
+    var trObj = document.getElementById(tr_id);
+    cellHtml = "<td title='"+cellText+"'>"+cellText+"</td>"
+    trObj.cells[3].innerHTML = cellHtml;
+    edit_flag = 2;
+}
+
+//edir value OK
+function ok_click(tr_No,tr_id,cellText){
+    var trObj = document.getElementById(tr_id);
+    var txt = document.getElementById('text_id_'+tr_No);
+    cellHtml = "<td title='"+cellText+"'>"+txt.value+"</td>"
+    trObj.cells[3].innerHTML = cellHtml;
+    edit_flag = 2;
+    var postData = {
+        "tr_id": tr_id,
+        "celltext": txt.value
+    }
+    $.ajax({
+        type: "POST",
+        url: '../description/update',
+        data: postData,
+        async: false,
+        success: function(ResponseText) {
+            if(ResponseText == ''){
+                alert('update row data failed.');
+            }
+            else{
+                return;
+            }
+        }
+    });
+}
 
 function Report_Timer(init){
     init = !init?false:true;
@@ -133,6 +177,32 @@ function Report_Timer(init){
     reportSummaryData = reportSummaryData.replace(/<script>.*<\/script>/,'');
     $("#div_Reports").html(reportSummaryData);
 	
+    $("#div_Reports tr").click(function(){
+        var trObj = getRowObj(this);
+        var trArr = trObj.parentNode.children;
+        var tr_number = 0;
+        //connectsqlite();
+        for(var trNo=0;trNo<trArr.length;trNo++){
+            if(trObj == trObj.parentNode.children[trNo]){
+                //alert(trNo);
+                tr_number = trNo;
+                rowObj = trArr[trNo];
+                cellObj = rowObj.cells[3];
+                tr_id = rowObj.id;
+                cellText = cellObj.outerText;
+                cellHtml = cellObj.outerHTML;
+            }
+        }
+        //if(c==null || c==0){
+        if(edit_flag == 0){
+            edit_flag = 1;
+            var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
+            strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
+            strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
+            cellObj.innerHTML = strHtml;
+        }
+        if(edit_flag == 2){edit_flag = 0;}
+    });
 	
 	//----------------------------------------------
     $("#div_Reports tr").dblclick(function(){
