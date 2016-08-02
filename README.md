@@ -11,9 +11,9 @@
 
 * * *
 ####Prepare
-- one node as CeTune controller(AKA head), Other nodes as CeTune worker(AKA worker)
+- one node as CeTune controller(AKA head), Other nodes as CeTune worker(AKA worker).
 - Head is able to autossh to all workers include himself, head has a 'hosts' file contains all workers info.
-- All nodes are able to connect to yum/apt-get repository and also being able to wget/curl from ceph.com
+- All nodes are able to connect to yum/apt-get repository and also being able to wget/curl from ceph.com.
 
 * * *
 ####Installation
@@ -33,8 +33,8 @@ cd ${CeTune_PATH}/deploy/prepare-scripts; ./configure_autossh.sh ${host} ${ssh_p
 - Install to workers:
 
 ```
-apt-get install -y python-pip unzip sysstat curl openjdk-7-jre haproxy</code>
-apt-get install sqlite</code>
+apt-get install -y python-pip unzip sysstat curl openjdk-7-jre haproxy
+apt-get install sqlite
 ```
 
 * * *
@@ -49,7 +49,7 @@ cd webpy
 python setup.py install
 
 # run CeTune webui
-cd { CeTune_PATH}/webui/
+cd ${CeTune_PATH}/webui/
 Python webui.py
 
 #you will see below output
@@ -67,7 +67,7 @@ http://0.0.0.0:8080/
 - Configuration helper is both under 'helper' tag, right after 'User Guide' and shows on the configuration page.
 - Below is a brief intro of all configuration files' objective:
     - conf/all.conf
-        - This is a configuration file to describe cluster, benchmark
+        - This is a configuration file to describe cluster, benchmark.
     - conf/tuner.yaml
         - This is a configuration file to tune ceph cluster, including pool configuration, ceph.conf, disk tuning, etc.
     - conf/cases.conf
@@ -80,7 +80,7 @@ Assume ceph is installed on all nodes, this part is demonstrate the workflow of 
 
   KEY | VALUE | DESCRIPTION
 ------|-------|------------
-  clean build | true / false | Set true, clean current deployed ceph and redeploy a new cluster; Set false, try obtain current cluster layout, and add new osd to the existing cluster.
+  clean build | true / false | Set true, clean current deployed ceph and redeploy a new cluster; Set false, try obtain current cluster layout, and add new osd to the existing cluster
   head | ${hostname} | Cetune controller node hostname
   user | root | Only support root currently
   enable_rgw | true / false | Set true, cetune will also deploy radosgw; Set false, only deploy osd and rbd nodes
@@ -93,17 +93,17 @@ Assume ceph is installed on all nodes, this part is demonstrate the workflow of 
 
 ![webui_deploy.png](pic/webui_deploy.png)
 
-- WebUI will jump to 'CeTune Status' and you will about to see below console logs.
+- WebUI will jump to 'CeTune Status' and you will about to see below console logs
 
 ![webui_deploy_detail.png](pic/webui_deploy_detail.png)
 
 
 * * *
 ####Benchmark Ceph
-- Users are able to configure disk_read_ahead, scheduler, etc at 'system' settings;
+- Users are able to configure disk_read_ahead, scheduler, etc at 'system' settings.
 - Ceph.conf Tuning can be added to 'Ceph Tuning', so CeTune will runtime apply to ceph cluster.
 - 'Benchmark Configuration' is how we control the benchmark process, will give a detail explaination below.
-    - There are two parts under 'Benchmark Configuration'
+    - There are two parts under 'Benchmark Configuration'.
     - the first table is to control some basic settings like where to store result data, what data will be collected, etc.
     - The second table is to control what testcase will be run, users can add multi testcase, so all the testcases will be run one by one.
 
