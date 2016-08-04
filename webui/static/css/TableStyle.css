@@ -64,45 +64,35 @@ td{ max-width:500px;}
    margin-buttom:1px;
 }
 
-#div_Reports .cetune_table thead{
-    position:fixed;
-    top:75px;
-    float:left;
-}
 
 #div_Reports .cetune_table tbody{
-    margin-top:35px;
     float:left;
 }
 
 
 .cetune_table td, th { 
-   border-buttom: 1px solid #CCC; /* No more visible border */
-   height: 30px; 
-   width: 120px;
-   transition: all 0.3s;  /* Simple transition for hover effect */
+    border-buttom: 1px solid #CCC; /* No more visible border */
+    height: 30px; 
+    transition: all 0.3s;  /* Simple transition for hover effect */
+    text-align: left;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    min-width: 60px;
+    text-overflow: ellipsis;
+    word-wrap:break-word;
+    word-break:break-all;
 }
 
 .cetune_table th {
     /*background: #DFDFDF;   Darken header a bit */
-	border-top: 0px solid #CCC;
-    font-weight: bold;
-    text-align: left;
-	font-weight:bold; background-color: #E3E3E3;; 
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; height:35px;padding-left:5px;
+    border-left: 1px solid #CCC;
+    text-align:center;
+	font-weight:bold; 
+    background-color: #E3E3E3;; 
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; 
+    height:35px;
 }
 
-.cetune_table td {
-    /*background: #FAFAFA;*/
-    text-align: left;
-    padding-left:5px;
-    max-width: 150px;
-    text-overflow: ellipsis;
-    /*overflow: hidden;
-    white-space: nowrap;*/
-    word-wrap:break-word;
-    word-break:break-all;
-}
 #div_Help { 
     padding:0 auto;
     margin:0 0;
