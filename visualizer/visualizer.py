@@ -233,15 +233,17 @@ class Visualizer:
         lines = self.parse_to_html(database.select_report_list(dbpath))
         output = []
         #output.append("<h1>CeTune History Page</h1>")
-        output.append("<table class='cetune_table'>")
-        output.append(" <thead>")
+        output.append("<table id='report_list' class='cetune_table'>")
+        #output.append(" <thead>")
         output.extend( self.getSummaryTitle() )
-        output.append(" </thead>")
-        output.append(" <tbody>")
+        #output.append(" </thead>")
+        #output.append(" <tbody>")
         #output.append(res[remote_host])
         for runid in sorted(lines.keys()):
             output.append(lines[runid])
-        output.append(" </tbody>")
+        #output.append(" </tbody>")
+        output.append(" </table>")
+        output.extend(self.getscript())
         output.append("<script>")
         output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
         output.append("</script>")
@@ -249,6 +251,30 @@ class Visualizer:
             return self.add_html_framework(output)
         else:
             return "".join(output)
+
+    def getscript(self):
+        output = []
+        output.append("<script type='text/javascript'> ")
+        output.append("var tTD;")
+        output.append("var table = document.getElementById('report_list');")
+        output.append("for (j = 0; j < table.rows[0].cells.length; j++){ ")
+        output.append("table.rows[0].cells[j].onmousedown = function(){ ")
+        output.append("tTD = this; ")
+        output.append("if (event.offsetX > tTD.offsetWidth - 10){tTD.mouseDown = true;tTD.oldX = event.x;tTD.oldWidth = tTD.offsetWidth;}}; ")
+        output.append("table.rows[0].cells[j].onmouseup = function(){if (tTD == undefined) tTD = this;tTD.mouseDown = false;tTD.style.cursor = 'default';}; ")
+        output.append("table.rows[0].cells[j].onmousemove = function(){ ")
+        output.append("if (event.offsetX > this.offsetWidth - 10){this.style.cursor = 'col-resize';}else{this.style.cursor = 'default';}")
+        output.append("if (tTD == undefined) tTD = this; ")
+        output.append("if (tTD.mouseDown != null && tTD.mouseDown == true){ ")
+        output.append("tTD.style.cursor = 'default'; ")
+        output.append("if (tTD.oldWidth + (event.x - tTD.oldX)>0) ")
+        output.append("tTD.width = tTD.oldWidth + (event.x - tTD.oldX); ")
+        output.append("tTD.style.width = tTD.width; ")
+        output.append("tTD.style.cursor = 'col-resize'; ")
+        output.append("table = tTD; while (table.tagName != 'TABLE') table = table.parentElement; ")
+        output.append("for (j = 0; j < table.rows.length; j++){table.rows[j].cells[tTD.cellIndex].width = tTD.width;}}};} ")
+        output.append("</script> ")
+        return output
 
     def getSummaryTitle(self):
         output = []
@@ -271,7 +297,7 @@ class Visualizer:
         output.append(" <th><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
         output.append(" <th><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
         output.append(" <th><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
-        output.append(" <tr>")
+        output.append(" </tr>")
         return output
 
     def add_html_framework(self, maindata):

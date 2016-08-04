@@ -194,12 +194,14 @@ function Report_Timer(init){
             }
         }
         //if(c==null || c==0){
-        if(edit_flag == 0){
-            edit_flag = 1;
-            var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
-            strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
-            strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
-            cellObj.innerHTML = strHtml;
+        if(rowObj.cells[0].innerText != "runid"){
+            if(edit_flag == 0){
+                edit_flag = 1;
+                var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
+                strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
+                strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
+                cellObj.innerHTML = strHtml;
+            }
         }
         if(edit_flag == 2){edit_flag = 0;}
     });
