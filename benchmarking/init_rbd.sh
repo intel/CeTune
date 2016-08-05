@@ -54,7 +54,7 @@ if [ "`check_fio_rbd`" = "true" ]; then
         sleep(5)
         for client in $clients
         do
-            res=`ssh $client pgrep fio`
+            res=`ssh $client pgrep -x fio`
             if [ ! -z $res ]; then
                 continue
             fi
@@ -83,7 +83,7 @@ else
             sleep(5)
             for vclient in $nodes
             do
-                res=`ssh $vclient pgrep fio`
+                res=`ssh $vclient pgrep -x fio`
                 if [ ! -z $res ]; then
                     continue
                 fi

@@ -44,7 +44,7 @@ class FioCephFS(Benchmark):
 	    max_instance_num = self.benchmark["distribution"][client][-1]
             res = common.pdsh(user, [client], "for job_num in `seq 0 %d`; do %s/fio --output %s/`hostname`_${job_num}_fio.txt --write_bw_log=%s/`hostname`_${job_num}_fio --write_lat_log=%s/`hostname`_${job_num}_fio --write_iops_log=%s/`hostname`_${job_num}_fio --section %s --filename=`hostname`.${job_num} %s/fio.conf 2>%s/`hostname`_${job_num}_fio_errorlog.txt & done" % (max_instance_num, fio_dir, dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir, ), option = "force")         
             time.sleep(1)
-            res = common.pdsh(user, [client], "pgrep fio", option = "check_return")
+            res = common.pdsh(user, [client], "pgrep -x fio", option = "check_return")
             if res and not len(res[0].split('\n')) >= len(self.benchmark["distribution"][client]):
                 common.printout("ERROR","Failed to start FIO process")
                 raise KeyboardInterrupt
@@ -67,7 +67,7 @@ class FioCephFS(Benchmark):
         while not stop_flag:
             stop_flag = 1
             nodes = self.benchmark["distribution"].keys()
-            res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
+            res = common.pdsh(user, nodes, "pgrep -x fio", option = "check_return")
             if res and not res[1]:
                 stop_flag = 0
                 common.printout("WARNING","FIO stills run on %s" % str(res[0].split('\n')))
