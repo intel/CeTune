@@ -129,7 +129,7 @@ class Generic(Benchmark):
         while not stop_flag:
             stop_flag = 1
             nodes = self.benchmark["distribution"].keys()
-            res = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
+            res = common.pdsh(user, nodes, "pgrep -x fio", option = "check_return")
             if res and not res[1]:
                 stop_flag = 0
                 common.printout("WARNING","FIO stills run on %s" % str(res[0].split('\n')))

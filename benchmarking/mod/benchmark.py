@@ -343,7 +343,7 @@ class Benchmark(object):
 
     def check_fio_pgrep(self, nodes, fio_node_num = 1, check_type="jobnum"):
         user =  self.cluster["user"]
-        stdout, stderr = common.pdsh(user, nodes, "pgrep fio", option = "check_return")
+        stdout, stderr = common.pdsh(user, nodes, "pgrep -x fio", option = "check_return")
         res = common.format_pdsh_return(stdout)
         if res != []:
             fio_running_job_num = 0
