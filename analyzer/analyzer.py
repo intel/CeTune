@@ -185,8 +185,12 @@ class Analyzer:
             if os.path.exists(dest_dir+"raw/"+head+"/"):
                 with open(file_path, "r") as f:
                     lines = f.readlines()
-                if len(lines) != 0:
-                    return lines[0]
+                if len(lines) != 0 and lines != None:
+                    str_time = ''
+                    str_time = lines[0].replace('CST ','')
+                    str_time = str_time.replace('\n','')
+                    str_time = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(str_time))
+                    return str_time
             else:
                 return ''
 
