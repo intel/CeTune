@@ -176,7 +176,7 @@ class Analyzer:
 
     def get_execute_time(self):
         dest_dir = self.dest_dir
-        cf = config.Config(dest_dir+"conf/all.conf")
+        cf = config.Config(dest_dir+"/conf/all.conf")
         head = ''
         head = cf.get("head")
         file_path = dest_dir+"raw/"+head+"/"+head+"_process_log.txt"
