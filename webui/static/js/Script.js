@@ -181,6 +181,8 @@ function Report_Timer(init){
         var trObj = getRowObj(this);
         var trArr = trObj.parentNode.children;
         var tr_number = 0;
+        var e=event.srcElement;
+        var colnum = e.cellIndex;
         //connectsqlite();
         for(var trNo=0;trNo<trArr.length;trNo++){
             if(trObj == trObj.parentNode.children[trNo]){
@@ -194,7 +196,7 @@ function Report_Timer(init){
             }
         }
         //if(c==null || c==0){
-        if(rowObj.cells[0].innerText != "runid"){
+        if(rowObj.cells[0].innerText != "runid" && colnum == 3){
             if(edit_flag == 0){
                 edit_flag = 1;
                 var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
