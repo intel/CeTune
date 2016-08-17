@@ -68,26 +68,41 @@ class Analyzer:
                 continue
             if dir_name in self.cluster["osds"]:
                 self.result["ceph"][dir_name]={}
-                system, workload = self._process_data(dir_name)
+                nvme_list,system,workload = self._process_data(dir_name)
                 self.result["ceph"][dir_name]=system
+                for i,j in nvme_list.items():
+                    self.result["ceph"][i] = j
                 self.result["ceph"].update(workload)
             if dir_name in self.cluster["rgw"]:
                 self.result["rgw"][dir_name]={}
-                system, workload = self._process_data(dir_name)
+                nvme_list,system,workload = self._process_data(dir_name)
                 self.result["rgw"][dir_name]=system
+                for i,j in nvme_list.items():
+                    self.result["rgw"][i] = j
                 self.result["rgw"].update(workload)
+                #key_value,system, workload = self._process_data(dir_name)
+                #self.result["rgw"][dir_name]=system
+                #self.result["rgw"].update(workload)
             if dir_name in self.cluster["client"]:
                 self.result["client"][dir_name]={}
-                system, workload = self._process_data(dir_name)
+                nvme_list,system,workload = self._process_data(dir_name)
                 self.result["client"][dir_name]=system
+                for i,j in nvme_list.items():
+                    self.result["client"][i] = j
                 self.result["workload"].update(workload)
+                #self.result["client"][dir_name]=system
+                #self.result["workload"].update(workload)
             if dir_name in self.cluster["vclient"]:
                 params = self.result["session_name"].split('-')
                 self.cluster["vclient_disk"] = ["/dev/%s" % params[-1]]
                 self.result["vclient"][dir_name]={}
-                system, workload = self._process_data(dir_name)
+                nvme_list,system,workload = self._process_data(dir_name)
                 self.result["vclient"][dir_name]=system
+                for i,j in nvme_list.items():
+                    self.result["vclient"][i] = j
                 self.result["workload"].update(workload)
+                #self.result["vclient"][dir_name]=system
+                #self.result["workload"].update(workload)
 
         # switch result format for visualizer
         # desired format
@@ -171,7 +186,6 @@ class Analyzer:
                         output[field_type][node] = data[node_type][node][field_type]
             for key in sorted(output.keys()):
                 output_sort[node_type][key] = copy.deepcopy( output[key] )
-
         return output_sort
 
     def get_execute_time(self):
@@ -180,7 +194,6 @@ class Analyzer:
         head = ''
         head = cf.get("head")
         file_path = dest_dir+"raw/"+head+"/"+head+"_process_log.txt"
-        print file_path
         if head != '':
             if os.path.exists(dest_dir+"raw/"+head+"/"):
                 with open(file_path, "r") as f:
@@ -313,12 +326,35 @@ class Analyzer:
         result = {}
         fio_log_res = {}
         workload_result = {}
+        total_nvme = {}
+
         dest_dir = self.cluster["dest_dir"]
-        for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
+        list_file = os.listdir("%s/%s" % (dest_dir, node_name))
+        for dir_name in list_file:
+            key_name = ''
             common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
-            if 'smartinfo.txt' in dir_name:
-                res = self.process_smartinfo_data( "%s/%s/%s" % (dest_dir, node_name, dir_name))
-                result.update(res)
+            if 'smartinfo' in dir_name:
+                if 'end' in dir_name:
+                    startfile_name = dir_name.replace('end','start')
+                    endfile_path = os.path.join(dest_dir,node_name,dir_name)
+                    startfile_path = os.path.join(dest_dir,node_name,startfile_name)
+                    if os.path.exists(startfile_path):
+                        key_name = dir_name
+                        key_value = key_name.replace('.txt','')
+                        key_value = key_value.replace('_end','')
+                        key_value = key_value.replace('_smartinfo','')
+                        total_nvme[key_value] = self.get_nvme_diff_value(startfile_path,endfile_path)
+                    else:
+                        key_name = dir_name
+                        key_value = key_value.replace('_smartinfo','')
+                        key_value = key_name.replace('_end.txt','')
+                        res = self.process_smartinfo_data( "%s/%s/%s" % (dest_dir, node_name, dir_name))
+                        total_nvme[key_value] = res
+                elif 'start' not in dir_name:
+                    key_name = dir_name
+                    key_value = key_name.replace('_smartinfo.txt','')
+                    res = self.process_smartinfo_data( "%s/%s/%s" % (dest_dir, node_name, dir_name))
+                    total_nvme[key_value] = res
             if 'cosbench' in dir_name:
                 workload_result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name))
             if '_sar.txt' in dir_name:
@@ -352,7 +388,59 @@ class Analyzer:
                         workload_result[dir_name][key] = value
                 except:
                     pass
-        return [result, workload_result]
+        return [total_nvme,result, workload_result]
+
+    def get_nvme_diff_value(self,path_start,path_end):
+        dict_start = {}
+        dict_end   = {}
+        dict_diff  = {}
+        with open(path_start, 'r') as f_start:
+            tmp_start = f_start.read()
+        dict_start.update(json.loads(tmp_start, object_pairs_hook=OrderedDict))
+        with open(path_end, 'r') as f_end:
+            tmp_end = f_end.read()
+        dict_end.update(json.loads(tmp_end, object_pairs_hook=OrderedDict))
+        dict_diff = dict_start
+        for i in dict_start:
+            if i != 'nvme_basic':
+                for j in dict_start[i]:
+                    s_value_list = []
+                    e_value_list = []
+                    s_value_list = dict_start[i][j].split(' ')
+                    while '' in s_value_list:
+                        s_value_list.remove('')
+                    e_value_list = dict_end[i][j].split(' ')
+                    while '' in e_value_list:
+                        e_value_list.remove('')
+                    tmp = []
+                    for k in range(len(s_value_list)):
+                        start = (s_value_list[k].encode().replace('%','').replace(',',''))
+                        end   = (e_value_list[k].encode().replace('%','').replace(',',''))
+                        if '%' in s_value_list[k]:
+                            if ',' in s_value_list[k]:
+                                if start.isdigit():
+                                    tmp.append(unicode(float(end)-float(start))+'%,')
+                                else:
+                                    tmp.append(end+'%,')
+                            else:
+                                if start.isdigit():
+                                    tmp.append(unicode(float(end)-float(start))+'%')
+                                else:
+                                    tmp.append(end+'%')
+                        else:
+                            if start.isdigit():
+                                tmp.append(unicode(format((int(end)-int(start)),',')))
+                            else:
+                                tmp.append(end)
+                    if len(tmp)!=0:
+                        str_value = ''
+                        for t in range(len(tmp)):
+                            if t != len(tmp)-1:
+                                str_value += tmp[t]+'  '
+                            else:
+                                str_value += tmp[t]
+                        dict_diff[i][j] = str_value
+        return dict_diff
 
     def process_smartinfo_data(self, path):
         output = {}
