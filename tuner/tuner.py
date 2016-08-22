@@ -26,6 +26,7 @@ class Tuner:
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["rgw_enable"] = self.all_conf_data.get("enable_rgw")
+        self.cluster["disable_tuning_check"] = self.all_conf_data.get("disable_tuning_check")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
             self.cluster[osd] = []
@@ -64,8 +65,9 @@ class Tuner:
                     if not common.check_ceph_running( user, controller ):
                         run_deploy.main(['restart'])
                     common.printout("LOG","start to run performance test")
-                    self.apply_tuning(section)
-                    time.sleep(3)
+                    if self.cluster["disable_tuning_check"] not in ["true", "True", "TRUE"]:
+                        self.apply_tuning(section)
+                        time.sleep(3)
                     run_cases.main(['--tuning', section])
                 else:
                     common.printout("ERROR","Unknown tuner workstage %s" % work)
