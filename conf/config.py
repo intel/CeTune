@@ -210,6 +210,7 @@ class Config():
         required["list_vclient"] = {"type":"node_list"}
         required["monitoring_interval"] = {"type":"int"}
         required["disk_format"] = {"type":"diskformat"}
+        required["disable_tuning_check"] = {"type":"bool"}
 
         helper = ConfigHelper()
         if key in required:
