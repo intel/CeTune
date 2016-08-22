@@ -340,6 +340,11 @@ class Analyzer:
             if '_iostat.txt' in dir_name:
                 res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
                 result.update(res)
+            if '_interrupts_end.txt' in dir_name:
+                if os.path.exists("%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))):
+                    interrupt_start = "%s/%s/%s" % (dest_dir, node_name, dir_name)
+                    interrupt_end   = "%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))
+                    self.interrupt_diff(dest_dir,node_name,interrupt_start,interrupt_end)
             if '_process_log.txt' in dir_name:
                 res = self.process_log_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
                 result.update(res)
@@ -360,6 +365,65 @@ class Analyzer:
             tmp = f.read()
         output.update(json.loads(tmp, object_pairs_hook=OrderedDict))
         return output
+
+    def interrupt_diff(self,dest_dir,node_name,s_path,e_path):
+        s_p = s_path
+        e_p = e_path
+        result_name = node_name+'_interrupt.txt'
+        result_path = os.path.join(dest_dir.replace('raw','conf'),result_name)
+        s_l = []
+        e_l = []
+        diff_list = []
+        with open(s_p, 'r') as f:
+            s = f.readlines()
+        with open(e_p, 'r') as f:
+            e = f.readlines()
+        for i in s:
+            tmp = []
+            tmp = i.split(' ')
+            while '' in tmp:
+                tmp.remove('')
+            s_l.append(tmp)
+        for i in e:
+            tmp = []
+            tmp = i.split(' ')
+            while '' in tmp:
+                tmp.remove('')
+            e_l.append(tmp)
+        if self.check_interrupt(s_l,e_l):
+            for i in range(len(s_l)):
+                lines = []
+                for j in range(len(s_l[i])):
+                    if s_l[i][j].isdigit() and e_l[i][j].isdigit():
+                        diff_value = int(e_l[i][j]) - int(s_l[i][j])
+                        lines.append(int(e_l[i][j]) - int(s_l[i][j]))
+                    else:
+                        lines.append(e_l[i][j])
+                diff_list.append(lines)
+            if os.path.exists(result_path):
+                os.remove(result_path)
+            output = open(result_path,'w+')
+            for line in diff_list:
+                line_str = ''
+                for col in range(len(line)):
+                    if col != len(line)-1:
+                        line_str += str(line[col])+'    '
+                    else:
+                        line_str += str(line[col])
+                output.writelines(line_str)
+            output.close()
+        else:
+            print 'ERROR: interrupt_start lines and interrupt_end lines are diffrent ! can not calculate diffrent value!'
+
+    def check_interrupt(self,s_inter,e_inter):
+        result = "True"
+        if len(s_inter)!=len(e_inter):
+            result = "False"
+        else:
+            for i in range(len(s_inter)):
+                if len(s_inter[i])!=len(e_inter[i]):
+                    result = "False"
+        return result
 
     def process_log_data(self, path):
         result = {}
