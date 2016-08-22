@@ -151,7 +151,7 @@ class Benchmark(object):
         nodes = self.cluster["osd"]
         monitor_interval = self.cluster["monitoring_interval"]
         #nodes.extend(self.benchmark["distribution"].keys())
-        common.pdsh(user, nodes, "echo '%s' > /proc/sys/vm/drop_caches && sync" % self.cluster["cache_drop_level"])
+        common.pdsh(user, nodes, "sync && echo '%s' > /proc/sys/vm/drop_caches" % self.cluster["cache_drop_level"])
 
         #send command to ceph cluster
         common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time_tmp/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
