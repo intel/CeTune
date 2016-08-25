@@ -145,7 +145,7 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
-    args = ['pdsh', '-R', 'exec', '-w', _nodes, 'ssh', '%h', '-oConnectTimeout=15', command]
+    args = ['pdsh', '-R', 'exec', '-w', _nodes, '-f', str(len(nodes)), 'ssh', '%h', '-oConnectTimeout=15', command]
 #    args = ['pdsh', '-w', _nodes, command]
     printout("CONSOLE", args, screen=False)
 
