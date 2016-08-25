@@ -75,6 +75,8 @@ def main(args):
                 benchmark = generic.Generic()
             if testcase["engine"] == "hook":
                 benchmark = hook.Hook()
+            if testcase["engine"] == "vdbench":
+                benchmark = vdbench.VdBench()
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
             try:

@@ -196,7 +196,7 @@ class Analyzer:
 
     def summary_result(self, data):
         # generate summary
-        benchmark_tool = ["fio", "cosbench"]
+        benchmark_tool = ["fio", "cosbench", "vdbench"]
         data["summary"]["run_id"] = {}
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
@@ -323,6 +323,8 @@ class Analyzer:
                 workload_result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name))
             if '_sar.txt' in dir_name:
                 result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
+            if 'totals.html' in dir_name:
+                workload_result.update(self.process_vdbench_data("%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name)))
             if '_fio.txt' in dir_name:
                 workload_result.update(self.process_fio_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name))
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
@@ -596,6 +598,28 @@ class Analyzer:
             stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
             result[output] = common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
+        return result
+
+    def process_vdbench_data(self, path, dirname):
+        result = {}
+        vdbench_data = {}
+        runtime = int(common.bash("grep -o 'elapsed=[0-9]\+' "+path+" | cut -d = -f 2"))
+        stdout, stderr = common.bash("grep 'avg_2-' "+path, True)
+        vdbench_data = stdout.split()
+        output_vdbench_data = OrderedDict()
+        output_vdbench_data['read_lat'] = vdbench_data[8]
+        output_vdbench_data["read_iops"] = vdbench_data[7]
+        output_vdbench_data["read_bw"] = vdbench_data[11]
+        output_vdbench_data['read_runtime'] = runtime
+        output_vdbench_data['write_lat'] = vdbench_data[10]
+        output_vdbench_data["write_iops"] = vdbench_data[9]
+        output_vdbench_data["write_bw"] = vdbench_data[12]
+        output_vdbench_data['write_runtime'] = runtime
+        output_vdbench_data['lat_unit'] = 'msec'
+        output_vdbench_data['runtime_unit'] = 'sec'
+        output_vdbench_data['bw_unit'] = 'MB/s'
+        result[dirname] = {}
+        result[dirname]["vdbench"] = output_vdbench_data
         return result
 
     def process_fio_data(self, path, dirname):
