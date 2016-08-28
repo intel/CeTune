@@ -201,6 +201,7 @@ class Config():
         required["fio_capping"] = {"type":"bool"}
         required["enable_zipf"] = {"if":"true", "type":"bool", "addition":{"random_distribution":"zipf:1.2"}}
         required["perfcounter_time_precision_level"] = {"type":"int"}
+        required["Description"] = {"type":"parameters"}
         required["cosbench_controller"] = {"type":"node_list"}
         required["cosbench_driver"] = {"type":"node_list"}
         required["cosbench_cluster_ip"] = {"type":"ip"}
@@ -262,7 +263,7 @@ class BenchmarkConfig():
     def set_config(self, case_json_list):
         testcase_keys = [
             "benchmark_driver","worker", "container_size", "iopattern",
-            "op_size", "object_size/QD", "rampup", "runtime", "device", "desc"
+            "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc"
         ]
         case_list = []
         for tmp_dict in json.loads(case_json_list):
@@ -273,7 +274,7 @@ class BenchmarkConfig():
                 case_list.append(tmp)
         output = ""
         for case_items in case_list:
-            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\t%s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8], case_items[9] )
+            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\t%8s\t%s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8], case_items[9] ,case_items[10])
         with open("../conf/cases.conf","w") as f:
             f.write( output )
         return False
@@ -299,10 +300,10 @@ class BenchmarkConfig():
         p = testcase
         testcase_dict = {
             "benchmark_driver":p[0],"worker":p[1], "container_size":p[2], "iopattern":p[3],
-            "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8]
+            "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8], "parameter":p[9]
         }
-        if len(p) == 10:
-            testcase_dict["description"] = p[9]
+        if len(p) == 11:
+            testcase_dict["description"] = p[10]
         else:
             testcase_dict["description"] = ""
         return testcase_dict
@@ -325,6 +326,14 @@ class ConfigHelper():
         return output
     
     def check_type( self, key, value, value_type):
+        if value_type == "parameters":
+            for i in value.split(","):
+                tmp = i.split('=')
+                while '' in tmp:
+                    tmp.remove('')
+                if len(tmp) != 2:
+                    return [ False, "value type is invalid !" ]
+            return [ True, "" ]
         if value_type == "node_list":
             if not isinstance( value.split(','), list ):
                 return [ False, "Value is a %s, format %s" % (value_type, self.type_example(value_type)) ]

@@ -59,6 +59,8 @@ class configuration:
         return html
 
     def set_config(self, request_type, key, value):
+        import pdb
+        #pdb.set_trace()
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
         return json.dumps(conf.set_config(request_type, key, value))

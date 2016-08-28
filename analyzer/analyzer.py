@@ -55,6 +55,9 @@ class Analyzer:
         self.result["description"] = self.getDescription()
 
     def process_data(self):
+        case_type = self.cluster["dest_dir"].split('/')[3].split('-')[2]
+        if case_type == "vdbench":
+            self.result["description"] = "Description:"+ str(self.getDescription()) +"  Parameters:"+ str(self.getParameters())
         user = self.cluster["user"]
         dest_dir = self.cluster["dest_dir"]
         session_name = self.cluster["dest_dir_root"].split('/')
@@ -509,6 +512,16 @@ class Analyzer:
         except:
             pass
         return status
+
+    def getParameters(self):
+        dest_dir = self.cluster["dest_conf_dir"]
+        ps = ""
+        try:
+            with open("%s/parameters.cfg" % dest_dir.replace("conf","raw"), 'r') as f:
+                ps = f.read()
+        except:
+            pass
+        return ps
 
     def getDescription(self):
         dest_dir = self.cluster["dest_conf_dir"]
