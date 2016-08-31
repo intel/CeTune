@@ -87,6 +87,8 @@ class ConfigHandler():
 
     def set_config(self, request_type, key, value):
         conf_type = self.get_corresponde_config(request_type)
+        import pdb
+        #pdb.set_trace()
         if conf_type == "tuner":
             res = self.tuner_conf.set_config(key, value)
         elif conf_type == "all":
@@ -123,6 +125,7 @@ class ConfigHandler():
 
     def check_engine(self, engine):
         required = OrderedDict()
+        required["Description"] = "width=10,depth=1,files=10000,threads=16,rdpct=65"
         if engine == "qemurbd":
             required["list_vclient"] = "vclient01,vclient02..."
             required["fio_capping"] = "false"
@@ -213,6 +216,7 @@ class ConfigHandler():
         required_list["benchmark"]["collector"]="blktrace,strace,fatrace,lttng,perfcounter"
         required_list["benchmark"]["perfcounter_data_type"]="osd,filestore"
         required_list["benchmark"]["perfcounter_time_precision_level"]=6
+        required_list["benchmark"]["Description"]="width=10,depth=1,files=10000,threads=16,rdpct=65"
 
         required_list["workflow"] = OrderedDict()
         required_list["workflow"]["workstages"] = ["deploy","benchmark"]
