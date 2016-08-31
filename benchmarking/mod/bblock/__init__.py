@@ -1,3 +1,3 @@
-__all__ = ['qemurbd', 'fiorbd']
+__all__ = ['qemurbd', 'fiorbd', 'vdbench']
 
 
