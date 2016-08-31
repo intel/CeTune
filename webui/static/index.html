@@ -286,7 +286,6 @@
   </div>
 </div>
 
-<!----------------------------------------------------------------------------------------------------------------------------------->
 
 <div class="modal fade" id="BenchmarkModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
   <div class="modal-dialog" role="document">
@@ -301,71 +300,80 @@
       <div class="modal-body">
         <form>
           <div class="form-group">
-            <label for="recipient-benchmark_engine" class="control-label">benchmark_driver:</label>
-            <label class="testcase-dialog-description">options: qemurbd, fiorbd, cosbench, generic, hook</label>
-            <input type="text" class="form-control" id="recipient-benchmark_engine">
+              <label for="recipient_benchmark_engine" class="control-label">benchmark_driver:</label>
+              <label class="testcase-dialog-description">options: qemurbd, fiorbd, cosbench, generic, hook, vdbench</label>
+              <select name="select" id="recipient_benchmark_engine" class="form-control" onchange="Select_Value()">
+                  <option>qemurbd</option>
+                  <option>fiorbd</option>
+                  <option>cosbench</option>
+                  <option>generic</option>
+                  <option>hook</option>
+                  <option>vdbench</option>
+              </select>
           </div>
           
           <div class="form-group">
             <label for="message-dsc" class="control-label">worker:</label>
-            <label class="testcase-dialog-description">rbd-example: 140</label>
-            <label class="testcase-dialog-description">cosbench-example: 0(use 0 to initialize container) and 160(as worker)</label>
+            <label class="testcase-dialog-description" id="worker">example: 140</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-worker">
+             <input type="text" class="form-control" id="recipient_worker">
           </div>
           
           <div class="form-group">
             <label for="message-value" class="control-label">container_size:</label>
-            <label class="testcase-dialog-description">rbd-example: 10g</label>
-            <label class="testcase-dialog-description">cosbench-example: r(1,100)</label>
+            <label class="testcase-dialog-description" id="container_size">example: 10g</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-container_size">
+             <input type="text" class="form-control" id="recipient_container_size">
           </div>
           
           <div class="form-group">
             <label for="message-value" class="control-label">iopattern:</label>
-            <label class="testcase-dialog-description">rbd-options: seqwrite,seqread,randwrite,randread,readwrite,randrw</label>
-            <label class="testcase-dialog-description">cosbench-options: write, read</label>
+            <label class="testcase-dialog-description" id="iopattern">example: seqwrite,seqread,randwrite,randread,readwrite,randrw</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-io_pattern">
+             <input type="text" class="form-control" id="recipient_io_pattern">
           </div>
           
            <div class="form-group">
             <label for="message-value" class="control-label">opsize:</label>
-            <label class="testcase-dialog-description">rbd-example: 4k</label>
-            <label class="testcase-dialog-description">cosbench-example: 128KB</label>
+            <label class="testcase-dialog-description" id="opsize">example: 4k</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-block_size">
+             <input type="text" class="form-control" id="recipient_block_size">
           </div>
           
            <div class="form-group">
             <label for="message-value" class="control-label">object_size/QD:</label>
-            <label class="testcase-dialog-description">rbd-example: 64</label>
-            <label class="testcase-dialog-description">cosbench-example: r(1,100)</label>
+            <label class="testcase-dialog-description" id="object_size_QD">example: 64</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-work_depth">
+             <input type="text" class="form-control" id="recipient_work_depth">
           </div>
           
           
            <div class="form-group">
             <label for="message-value" class="control-label">rampup(sec):</label>
-            <label class="testcase-dialog-description">example: 100</label>
+            <label class="testcase-dialog-description" id="rampup">example: 100</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-ramup_time">
+             <input type="text" class="form-control" id="recipient_ramup_time">
           </div>
           
            <div class="form-group">
             <label for="message-value" class="control-label">runtime(sec):</label>
-            <label class="testcase-dialog-description">example: 400</label>
+            <label class="testcase-dialog-description" id="runtime">example: 400</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-run_time">
+             <input type="text" class="form-control" id="recipient_run_time">
+          </div>
+          
+           <div class="form-group">
+            <label for="message-value" class="control-label">Parameter</label>
+            <label class="testcase-dialog-description" id="Parameter">default:width=10,depth=1,files=10000,threads=16,rdpct=65 </label>
+            <!--<textarea class="form-control" id="message-text"></textarea>-->
+             <input type="text" class="form-control" id="recipient_parameter" readonly="readonly">
           </div>
           
            <div class="form-group">
             <label for="message-value" class="control-label">Tag/Description:</label>
-            <label class="testcase-dialog-description">example: librados_4MB_write</label>
+            <label class="testcase-dialog-description" id="Tag_Description">example: librados_4MB_write</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
-             <input type="text" class="form-control" id="recipient-desc">
+             <input type="text" class="form-control" id="recipient_desc">
           </div>
           
         </form>
