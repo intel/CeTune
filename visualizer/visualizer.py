@@ -177,13 +177,19 @@ class Visualizer:
     def check_DB_case_list(self,re_dir,dbpath):
         if os.path.exists(dbpath):
             output = os.popen("ls "+re_dir)
-            local_list = output.readlines()
-            local_case_list = []
-            for i in local_list:
-                if i != 'cetune_report.db':
-                    local_case_list.append(i)
+            li = output.readlines()
+            local_list = []
+            for i in li:
+                if os.path.exists(os.path.join('/mnt/data/data2/',i.strip('\n'),i.strip('\n')+'.html')):
+                    local_list.append(i.strip('\n'))
+            #local_case_list = []
+            #for i in local_list:
+            #    if i != 'cetune_report.db':
+            #        local_case_list.append(i)
             DB_list = database.get_runid_list(dbpath)
-            if local_case_list == DB_list:
+            local_list.sort()
+            DB_list.sort()
+            if local_list == DB_list:
                 return True
             else:
                 return False
@@ -206,7 +212,8 @@ class Visualizer:
                 tr_start = re.search('(<tr.*?>)', line, re.S).group(1)
                 data = re.findall('<td>(.*?)</td>', line, re.S)
 
-                runid = int(data[0])
+                #runid = int(data[0])
+                runid = re.findall('id=(.*?)>', tr_start, re.S)[0]
                 if len(data) < 17:
                     data.insert(2, "")
                 formated_report[runid] = tr_start
@@ -219,6 +226,8 @@ class Visualizer:
                 database.createTB(dbpath)
             rows = self.dataparse(formated_report)
             runid_list = []
+            while [] in rows:
+                rows.remove([])
             for i in rows:
                 runid_list.append(i[0])
                 if not database.check_case_exist(i[0],dbpath):
