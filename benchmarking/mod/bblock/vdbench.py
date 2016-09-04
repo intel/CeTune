@@ -157,6 +157,11 @@ class VdBench(Benchmark):
 	case_cfg.append("rd=rd1,fwd=fwd1,fwdrate=max,format=no,elapsed=%d,interval=1" % runtime)
         with open("../conf/vdbench_test.cfg", "w+") as f:
             f.write("\n".join(case_cfg)+"\n")
+
+	params_list = []
+	params_list.append("depth=%d,width=%d,files=%d,threads=%d,rdpct=%d" % (depth, width, files_num, threads_num, read_percentage))
+	with open("../conf/vdbench_params.txt", "w+") as f:
+            f.write("\n".join(params_list)+"\n")
         return True
 
     def parse_benchmark_cases(self, testcase):
@@ -194,6 +199,7 @@ class VdBench(Benchmark):
 	nodes = self.cluster["nodes_distribution"]
         head = self.cluster["head"]
         dest_dir = self.cluster["dest_dir"]
+	common.cp("%s/conf/vdbench_params.txt" % self.pwd, "%s/conf/" % dest_dir)
         #collect client data
 	for node in nodes:
             common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
