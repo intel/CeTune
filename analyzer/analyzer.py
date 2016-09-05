@@ -519,7 +519,7 @@ class Analyzer:
         dest_dir = self.cluster["dest_conf_dir"]
         ps = ""
         try:
-            with open("%s/parameters.cfg" % dest_dir.replace("conf","raw"), 'r') as f:
+            with open("%s/vdbench_params.txt" % dest_dir.replace("raw","conf"), 'r') as f:
                 ps = f.read()
         except:
             pass
