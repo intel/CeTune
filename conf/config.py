@@ -300,13 +300,33 @@ class BenchmarkConfig():
         p = testcase
         testcase_dict = {
             "benchmark_driver":p[0],"worker":p[1], "container_size":p[2], "iopattern":p[3],
-            "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8], "parameter":p[9]
+            "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8]
         }
+
         if len(p) == 11:
+            testcase_dict["parameter"] = p[9]
             testcase_dict["description"] = p[10]
         else:
-            testcase_dict["description"] = ""
+            if len(p) == 9:
+                testcase_dict["parameter"] = ""
+                testcase_dict["description"] = ""
+            else:
+                if self.check_parameter_style(p[9]):
+                    testcase_dict["parameter"] = p[9]
+                    testcase_dict["description"] = ""
+                else:
+                    testcase_dict["parameter"] = ""
+                    testcase_dict["description"] = p[9]
         return testcase_dict
+    
+    def check_parameter_style(self,paras):
+        if paras != "":
+            for i in paras.split(','):
+                if len(i.split('=')) != 2:
+                    return False
+            return True
+        else:
+            return False
 
 class ConfigHelper():
     def _check_config( self, key, value, requirement=None):
