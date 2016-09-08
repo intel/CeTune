@@ -55,7 +55,7 @@ class Analyzer:
         self.result["description"] = self.getDescription()
 
     def process_data(self):
-        case_type = self.cluster["dest_dir"].split('/')[3].split('-')[2]
+        case_type = re.findall('\d\-\S+', self.cluster["dest_dir"])[0].split('-')[2]
         if case_type == "vdbench":
             self.result["description"] = "Description:"+ str(self.getDescription()) +"  Parameters:"+ str(self.getParameters())
         user = self.cluster["user"]
