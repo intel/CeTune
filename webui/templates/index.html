@@ -12,27 +12,27 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>CeTune</title>
  
-<link rel="stylesheet" type="text/css" href="css/Style.css">
-<link rel="stylesheet" type="text/css" href="css/TableStyle.css">
-<link rel="stylesheet" type="text/css" href="css/NavStyle.css">
-<link rel="stylesheet" type="text/css" href="css/markdown.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css">
-<link rel="stylesheet" type="text/css" href="css/xlstablefilter.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.resizableColumns.css">
+<link rel="stylesheet" type="text/css" href="../static/css/Style.css">
+<link rel="stylesheet" type="text/css" href="../static/css/TableStyle.css">
+<link rel="stylesheet" type="text/css" href="../static/css/NavStyle.css">
+<link rel="stylesheet" type="text/css" href="../static/css/markdown.css">
+<link rel="stylesheet" type="text/css" href="../static/css/jquery-ui.min.css">
+<link rel="stylesheet" type="text/css" href="../static/css/xlstablefilter.css">
+<link rel="stylesheet" type="text/css" href="../static/css/jquery.resizableColumns.css">
 
-<link rel="stylesheet"  href="bootstrap3.3.5/css/bootstrap.min.css">
-<link rel="stylesheet" href="bootstrap3.3.5/css/bootstrap-theme.min.css">
+<link rel="stylesheet"  href="../static/bootstrap3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="../static/bootstrap3.3.5/css/bootstrap-theme.min.css">
 
 
-<script src="js/jquery.js"></script>
-<script src="js/store.js"></script>
-<script src="js/jquery.resizableColumns.min.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/store.js"></script>
+<script src="../static/js/jquery.resizableColumns.min.js"></script>
 
-<script src="js/jquery-ui.min.js"></script>
-<script type="text/javascript" src="js/jquery.xlstablefilter.js"></script>
-<script type="text/javascript" src="bootstrap3.3.5/js/bootstrap.js"></script>
-<script type="text/javascript" src="js/Script.js"></script>
-<script type="text/javascript" src="js/Common.js"></script>
+<script src="../static/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../static/js/jquery.xlstablefilter.js"></script>
+<script type="text/javascript" src="../static/bootstrap3.3.5/js/bootstrap.js"></script>
+<script type="text/javascript" src="../static/js/Script.js"></script>
+<script type="text/javascript" src="../static/js/Common.js"></script>
 
 
 </head>
@@ -57,6 +57,9 @@
        <h6 class='ceph_thr'></h6>
       <!-- <h1><a href="#"><img id="img_top_id" src="image/progruss.jpg" />Benchmark is runing.....</a></h1>-->
     </div>
+    <div id="div_user_status_id">
+        <tr id=""><label id="label_username_id"></label><td><img id="img_username_id" title="user:{{ username }}" src="../static/login/img/userpic1.png"></td><td><a href="/logout">Sign out >></a></td></tr>
+    </div>
    </div>
 
    <div id="div_Content_id">
@@ -74,19 +77,19 @@
                       <div>
                         <h4><div><input type="checkbox" class="check_control_class"  title="deploy"  onclick="ExecutvieCheck(event)">   Deploy</div></h4>            
                         <ul>           
-                          <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Cluster Configuration</a></li>
-                          <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Configuration</a></li>      
+                          <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Cluster Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Ceph Configuration</a></li>      
                         </ul> 
                       </div>
                  
                       <div>
                         <h4><div><input type="checkbox" class="check_control_class"  title="benchmark" onclick="ExecutvieCheck(event)">   Benchmark</div></h4>          
                         <ul>           
-                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Executvie Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">System Configuration</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_tuning" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Ceph Tuning</a></li>
-                          <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Benchmark Configuration</a></li>
-                          <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="image/config_OK.gif">Analyzer Configuration</a></li>           
+                          <li  class="div_Configuration_left_nav_li_class"><a id="workflow" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Executvie Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="system" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">System Configuration</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="ceph_tuning" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Ceph Tuning</a></li>
+                          <li  class="div_Configuration_left_nav_li_class"><a id="benchmark" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Benchmark Configuration</a></li>
+                          <li class="div_Configuration_left_nav_li_class"><a  id="analyzer" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Analyzer Configuration</a></li>           
                         </ul> 
                       </div>
                   
@@ -398,7 +401,7 @@
 
 
     <div id="myShow" style="display:none;">
-        <img alt="loading" src="image/ajax-loader_1.gif"/>
+        <img alt="loading" src="../static/image/ajax-loader_1.gif"/>
     </div>
 </body>
 

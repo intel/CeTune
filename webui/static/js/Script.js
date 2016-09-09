@@ -237,7 +237,7 @@ function Report_Timer(init){
 			 
 			 appendHtml +="<a id='menu_"+session_name+"'>"+ str +"</a>";
 		
-		     appendHtml +="<img class='img_menu_li_cancel_class' src='image/cancel.png'>";
+		     appendHtml +="<img class='img_menu_li_cancel_class' src='../static/image/cancel.png'>";
 		     appendHtml +="</li>";
 			 
 			 

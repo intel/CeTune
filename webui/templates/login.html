@@ -1,0 +1,28 @@
+<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" class="no-js">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <!--<meta charset="utf-8">-->
+        <title>Login</title>
+        <!-- CSS -->
+        <link rel="stylesheet" href="../static/login/css/style.css">
+        <!-- JS-->
+        <!--<script src="../static/login/js/login.js" ></script>-->
+        <!--<script src="../static/js/jquery.js" ></script>-->
+        <!--<script type="text/javascript" src="../static/bootstrap3.3.5/js/bootstrap.js"></script>-->
+    </head>
+    <body>
+    <FORM method=POST>
+        <div class="page-container">
+            <h1>Welcome to Cetune</h1>
+            <input id="username" type="text" name="username" class="username" placeholder="Enter the username！">
+            <input id="password" type="password" name="passwd" class="password" placeholder="Enter the password！">
+            <!--<div id="error"><span id="error_msg" text="{{ error_msg }}" style="color:red"></span></div>-->
+            <h3 id="error" style="color:red">{{ error_msg }}</h3>
+            <!--<button id="button" type="submit" class="submit_button" onclick="login()">GO</button>-->
+            <button id="button" type="submit" class="submit_button" >GO</button>
+        </div>
+    </form>
+    </body>
+</html>
