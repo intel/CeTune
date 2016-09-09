@@ -58,7 +58,7 @@ http://0.0.0.0:8080/
 ```
 - CeTune WebUI
 
-![webui.png](pic/webui.png)
+![webui.png](../static/pic/webui.png)
 
 * * *
 ####Configure
@@ -91,11 +91,11 @@ Assume ceph is installed on all nodes, this part is demonstrate the workflow of 
 
 - Uncheck 'Benchmark' and only check 'Deploy', then click 'Execute'
 
-![webui_deploy.png](pic/webui_deploy.png)
+![webui_deploy.png](../static/pic/webui_deploy.png)
 
 - WebUI will jump to 'CeTune Status' and you will about to see below console logs
 
-![webui_deploy_detail.png](pic/webui_deploy_detail.png)
+![webui_deploy_detail.png](../static/pic/webui_deploy_detail.png)
 
 
 * * *
@@ -112,11 +112,11 @@ Assume ceph is installed on all nodes, this part is demonstrate the workflow of 
 * * *
 ####Check Benchmark Results
 
-![webui_result.png](pic/webui_result.png)
+![webui_result.png](../static/pic/webui_result.png)
 
-![webui_result_detail.png](pic/webui_result_detail.png)
+![webui_result_detail.png](../static/pic/webui_result_detail.png)
 
-![webui_result_detail2.png](pic/webui_result_detail2.png)
+![webui_result_detail2.png](../static/pic/webui_result_detail2.png)
 
 
 * * *
