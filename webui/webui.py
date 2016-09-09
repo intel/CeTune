@@ -1,34 +1,70 @@
 import os, sys
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
+sys.path.append('/usr/local/lib/python2.7/dist-packages/web/')
 from conf import *
 from tuner import *
 import web
+from web.contrib.template import render_jinja
 import json
 from visualizer import *
+from login import *
 import re
 import subprocess
 import signal
 import markdown2
 #import markdown
 import codecs
+import ConfigParser
+import collections
+from web import form
+from login import *
 
-render = web.template.render('templates/')
 urls = (
   '/', 'index',
+  '/login', 'login',
+  '/logout', 'logout',
   '/configuration/(.+)', 'configuration',
   '/monitor/(.+)', 'monitor',
   '/description/(.+)','description',
   '/results/(.+)', 'results',
 )
 
+#render = web.template.render('templates/')
+render = render_jinja('templates/',encoding = 'utf-8',)
+web.config.debug = False
+app = web.application(urls, globals())
+session = web.session.Session(app, web.session.DiskStore('sessions'), initializer={'count': 0})
 web.cache = {}
 web.cache["tuner_thread"] = None
 web.cache["cetune_status"] = "idle"
 
 class index:
     def GET(self):
-        web.seeother('/static/index.html')
+        if session.get('logged_in',False):
+            return render.index(username = session.username)
+        raise web.seeother('/login')
+
+class login:
+    def GET(self):
+        return render.login(error_msg = "")
+
+    def POST(self):
+        i = web.input()
+        username = i.get('username')
+        passwd = i.get('passwd')
+        if UserClass.check_account([username,passwd]) == 'true':
+            session.logged_in = True
+            session.username = username
+            web.setcookie('system_mangement', '', 60)
+            raise web.seeother('/')
+        else:
+            return render.login(error_msg = "Failed:username or password is invalid !!")
+
+class logout:
+    def GET(self):
+        session.logged_in = False
+        raise web.seeother("/login")
 
 class configuration:
 
@@ -59,8 +95,6 @@ class configuration:
         return html
 
     def set_config(self, request_type, key, value):
-        import pdb
-        #pdb.set_trace()
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
         return json.dumps(conf.set_config(request_type, key, value))
@@ -247,5 +281,4 @@ class defaults_pic:
         return None
 
 if __name__ == "__main__":
-    app = web.application(urls, globals())
     app.run()
