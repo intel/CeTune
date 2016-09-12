@@ -291,7 +291,7 @@ class Tuner:
             pool_exist = False
             new_poolname = self.worksheet[jobname]['pool'].keys()[0]
             if 'size' in self.worksheet[jobname]['pool'][new_poolname]:
-                replica_size = self.worksheet[jobname]['pool'][new_poolname]['size']
+                replica_size = int(self.worksheet[jobname]['pool'][new_poolname]['size'])
             else:
                 replica_size = 2
             if 'pg_num' not in self.worksheet[jobname]['pool'][new_poolname]:
