@@ -553,14 +553,14 @@ class Analyzer:
                 data = line.split(",")
                 timestamp_sec = int(data[0])/time_shift
                 value = int(data[1])
-                while ( timestamp_sec > (cur_sec + 1) ):
-                    res.append( 0 )
-                    cur_sec += 1
-                if (cur_sec + 1) == timestamp_sec:
-                    res.append( value )
-                    cur_sec += 1
-                elif cur_sec == timestamp_sec:
-                    res[-1] = (res[-1] + value)/2
+                if timestamp_sec > cur_sec:
+                    if cur_sec >= 0:
+                        res.append(numpy.mean(tmp_res))
+                    tmp_res = []
+                    cur_sec = timestamp_sec
+                tmp_res.append( value )
+            if len(tmp_res) != 0:
+                res.append(numpy.mean(tmp_res))
         return result
 
 
