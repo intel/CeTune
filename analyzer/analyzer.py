@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*
 import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
@@ -635,9 +636,28 @@ class Analyzer:
         result[dirname]["vdbench"] = output_vdbench_data
         return result
 
+    def get_lat_persent_dict(self,fio_str):
+        lat_percent_dict = {}
+        tmp_list = fio_str.split(',')
+        for i in tmp_list:
+            li = i.split('=')
+            while '' in li:li.remove('')
+            if len(li) == 2 and li[1] != '':
+                key = re.findall('.*?th',li[0].strip('\n').strip('| ').strip(' ').replace(' ',''),re.S)
+                value = re.match(r'\[(.*?)\]',li[1].strip('\n').strip(' ').replace(' ','')).groups()
+                if len(key) != 0 and len(value) != 0:
+                    lat_percent_dict[key[0]] = value[0]
+        return lat_percent_dict
+
     def process_fio_data(self, path, dirname):
         result = {}
         stdout, stderr = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
+        stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
+        stdout2, stderr2 = common.bash("grep \" *clat percentiles\" "+path, True)
+        lat_per_dict = {}
+        if stdout1 != '':
+            lat_per_dict = self.get_lat_persent_dict(stdout1)
+
         fio_data_rw = {}
         fio_data_rw["read"] = {}
         fio_data_rw["write"] = {}
@@ -667,6 +687,16 @@ class Analyzer:
         output_fio_data['write_iops'] = 0
         output_fio_data['write_bw'] = 0
         output_fio_data['write_runtime'] = 0
+        if len(lat_per_dict) != 0:
+            if '99.99th' in lat_per_dict.keys():
+                #output_fio_data['99.99%_lat'] = lat_per_dict['99.99th']
+                lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
+                if len(lat_persent_unit) != 0:
+                    output_fio_data['99.99%_lat'] = float(common.time_to_sec("%s%s" % (lat_per_dict['99.99th'], lat_persent_unit[0]),'msec'))
+                else:
+                    output_fio_data['99.99%_lat'] = 'null'
+            else:
+                output_fio_data['99.99%_lat'] = 'null'
         output_fio_data['lat_unit'] = 'msec'
         output_fio_data['runtime_unit'] = 'sec'
         output_fio_data['bw_unit'] = 'MB/s'
