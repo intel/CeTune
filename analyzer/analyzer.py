@@ -593,7 +593,8 @@ class Analyzer:
                    tmp_dev_name = osd_journal[i].split('/')[2]
                    if 'nvme' in tmp_dev_name:
                        tmp_dev_name = common.parse_nvme( tmp_dev_name )
-                   disk_list.append( tmp_dev_name )
+                   if tmp_dev_name not in disk_list:
+                       disk_list.append( tmp_dev_name )
                 dict_diskformat[output_list[i]]=disk_list
         elif node in self.cluster["vclient"]:
             vdisk_list = []
@@ -605,7 +606,7 @@ class Analyzer:
         for output in output_list:
             if output != "vdisk":
                 disk_list = " ".join(dict_diskformat[output])
-                disk_num = len(dict_diskformat[output])
+                disk_num = len(list(set(dict_diskformat[output])))
             else:
                 disk_list = " ".join(vdisk_list)
                 disk_num = len(vdisk_list)
