@@ -125,7 +125,6 @@ class ConfigHandler():
 
     def check_engine(self, engine):
         required = OrderedDict()
-        required["Description"] = "width=10,depth=1,files=10000,threads=16,rdpct=65"
         if engine == "qemurbd":
             required["list_vclient"] = "vclient01,vclient02..."
             required["fio_capping"] = "false"
