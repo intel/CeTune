@@ -183,10 +183,9 @@ class Analyzer:
         cf = config.Config(dest_dir+"/conf/all.conf")
         head = ''
         head = cf.get("head")
-        file_path = dest_dir+"raw/"+head+"/"+head+"_process_log.txt"
-        print file_path
+        file_path = os.path.join(dest_dir,"raw",head,head+"_process_log.txt")
         if head != '':
-            if os.path.exists(dest_dir+"raw/"+head+"/"):
+            if os.path.exists(os.path.join(dest_dir,"raw",head)):
                 with open(file_path, "r") as f:
                     lines = f.readlines()
                 if len(lines) != 0 and lines != None:
