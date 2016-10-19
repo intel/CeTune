@@ -180,7 +180,7 @@ class Visualizer:
             li = output.readlines()
             local_list = []
             for i in li:
-                if os.path.exists(os.path.join('/mnt/data/data2/',i.strip('\n'),i.strip('\n')+'.html')):
+                if os.path.exists(os.path.join(re_dir,i.strip('\n'),i.strip('\n')+'.html')):
                     local_list.append(i.strip('\n'))
             #local_case_list = []
             #for i in local_list:
