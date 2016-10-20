@@ -327,10 +327,10 @@ class QemuRbd(Benchmark):
         testcase_dict = {
             "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
             "block_size":p[3], "qd":p[4], "rampup":p[5], 
-            "runtime":p[6], "vdisk":p[7]
+            "runtime":p[6], "vdisk":p[7], "poolname":p[8]
         }
-        if len(p) == 9:
-            testcase_dict["description"] = p[8]
+        if len(p) == 10:
+            testcase_dict["description"] = p[9]
         else:
             testcase_dict["description"] = ""
 

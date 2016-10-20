@@ -425,7 +425,13 @@ function DeleteModal_OK(type){
 }
 
 function Select_Value(){
-    var _example_list = [['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','librados_4MB_write'],['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','librados_4MB_write'],['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','librados_4MB_write'],['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','librados_4MB_write'],[' ',' ',' ',' ',' ',' ','400','librados_4MB_write'],['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','librados_4MB_write']]
+    var _example_list = [
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write'],
+        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write'],
+        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write'],
+        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write']]
     var select_value = document.getElementById("recipient_benchmark_engine");
     var item = 0
     if(select_value.value == "qemurbd"){
@@ -465,8 +471,11 @@ function Select_Value(){
     document.getElementById('recipient_work_depth').readOnly=readonly;
     document.getElementById('recipient_ramup_time').readOnly=readonly;
     if(select_value.value == "vdbench"){
-        width=10,depth=1,files=10000,threads=16,rdpct=65
         document.getElementById("recipient_parameter").value = "width=10,depth=1,files=10000,threads=16,rdpct=65";
+        document.getElementById('recipient_parameter').readOnly=false;
+    }
+    if(select_value.value == "fiorbd" || select_value.value == "qemurbd"){
+        document.getElementById("recipient_parameter").value = "rbd";
         document.getElementById('recipient_parameter').readOnly=false;
     }
     var worker = document.getElementById("worker");
@@ -483,8 +492,10 @@ function Select_Value(){
     rampup.innerHTML = "example: "+ _example_list[item][5]
     var runtime = document.getElementById("runtime");
     runtime.innerHTML = "example: "+ _example_list[item][6]
+    var parameter = document.getElementById("Parameter");
+    parameter.innerHTML = "example: "+ _example_list[item][7]
     var Tag_Description = document.getElementById("Tag_Description");
-    Tag_Description.innerHTML = "example: "+ _example_list[item][7]
+    Tag_Description.innerHTML = "example: "+ _example_list[item][8]
 }
 
 function ConfigurationModal_OK(key, value, dsc){
@@ -544,7 +555,7 @@ function Append_Row_to_Configuration(params){
     $("table.table_class tr:nth-child(odd)").addClass("altrow");
 }
 
-function CheckInput(key,value){
+function CheckInput(key="",value=""){
     var chk_result = 'true';
     if(value !== ""){
         if(key == "parameter"){
@@ -594,7 +605,8 @@ function BenchMarkModel_OK(){
         device = "/dev/vdb"
     if(benchmark_driver == "hook")
         device = "hook"
-    if(CheckInput('parameter',parameter) == "true"){
+    //if(CheckInput('parameter',parameter) == "true"){
+    if(CheckInput() == "true"){
 
         if(benchmark_driver == "" || worker== "" ||container_size  == "" || iopattern == "" || op_size == "" ||
             object_size == "" || rampup == "" || runtime == "" || device == "" ){

@@ -19,11 +19,11 @@ class Benchmark(object):
     def go(self, testcase, tuning):
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
+        self.benchmark = self.parse_benchmark_cases(testcase)
         self.load_parameter()
         self.get_runid()
         self.set_runid()
 
-        self.benchmark = self.parse_benchmark_cases(testcase)
         if not self.generate_benchmark_cases(self.benchmark):
             common.printout("ERROR", "Failed to generate Fio/cosbench configuration file.")
             sys.exit()
@@ -64,7 +64,7 @@ class Benchmark(object):
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
-        rbd_list = self.get_rbd_list()
+        rbd_list = self.get_rbd_list(poolname)
         need_to_create = 0
         if not len(rbd_list) >= int(volume_count):
             need_to_create = int(volume_count) - len(rbd_list)
@@ -74,10 +74,9 @@ class Benchmark(object):
                 common.pdsh(user, [controller], "rbd create -p %s --size %s %s --image-format 2" % (poolname, str(volume_size), volume))
             common.printout("LOG","%d RBD Image Created" % need_to_create)
 
-    def get_rbd_list(self):
+    def get_rbd_list(self, poolname):
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
-        poolname = "rbd"
         stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % poolname, option="check_return")
         if stderr:
             common.printout("ERROR","unable get rbd list, return msg: %s" % stderr)
