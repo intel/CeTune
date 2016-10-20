@@ -412,9 +412,11 @@ class MergableDict:
 
 def size_to_Kbytes(size, dest_unit='KB'):
     if not str(size).isdigit():
-        res = re.search('(\d+\.*\d*)\s*(\w+)',size)
+        res = re.search('(\d+\.*\d*)\s*(\D*)',size)
         space_num = float(res.group(1))
         space_unit = res.group(2)
+        if space_unit == "":
+            space_unit = 'B'
     else:
         space_num = float(size)
         space_unit = 'B'
