@@ -287,7 +287,7 @@ class BenchmarkConfig():
             for line in lines:
                 p = line.split()
                 testcase_list.append( self.parse_benchmark_cases( p ) )
-        except:    
+        except:
             common.bash("cp %s %s" % (self.default_conf_path, self.conf_path))
             with open(self.conf_path,"r") as f:
                 lines = f.readlines()
@@ -295,7 +295,7 @@ class BenchmarkConfig():
                 p = line.split()
                 testcase_list.append( self.parse_benchmark_cases( p ) )
         return testcase_list
-        
+
     def parse_benchmark_cases(self, testcase):
         p = testcase
         testcase_dict = {
