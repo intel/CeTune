@@ -55,6 +55,22 @@ class Analyzer:
         self.result["status"] = self.getStatus()
         self.result["description"] = self.getDescription()
 
+    def collect_node_ceph_version(self,dest_dir):
+        node_list = []
+        node_list.extend(self.cluster["osds"])
+        node_list.append(self.cluster["head"])
+        version_list = {}
+        for node in node_list:
+            if os.path.exists(os.path.join(dest_dir,node,node+'_ceph_version.txt')):
+                data = open(os.path.join(dest_dir,node,node+'_ceph_version.txt'),'r')
+                if data:
+                    version_list[node] = data.read().strip('\n')
+                else:
+                    version_list[node] = 'None'
+            else:
+                version_list[node] = 'None'
+        return version_list
+
     def process_data(self):
         case_type = re.findall('\d\-\S+', self.cluster["dest_dir"])[0].split('-')[2]
         if case_type == "vdbench":
@@ -114,6 +130,11 @@ class Analyzer:
         result = self.format_result_for_visualizer( self.result )
         result = self.summary_result( result )
         result["summary"]["Download"] = {"Configuration":{"URL":"<button class='cetune_config_button' href='../results/get_detail_zip?session_name=%s&detail_type=conf'><a>Click TO Download</a></button>" % self.result["session_name"]}}
+        node_ceph_version = {}
+        if self.collect_node_ceph_version(dest_dir):
+            for key,value in self.collect_node_ceph_version(dest_dir).items():
+                node_ceph_version[key] = {"ceph_version":value}
+        result["summary"]["Node"] = node_ceph_version
         dest_dir = self.cluster["dest_dir_root"]
         common.printout("LOG","Write analyzed results into result.json")
         with open('%s/result.json' % dest_dir, 'w') as f:
