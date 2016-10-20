@@ -640,12 +640,13 @@ function loading(){
 function DisplayConfiguationDataTable(request_type){
     //(1) get data for json obj
     var jsonObj_Config = GetConfigurationData(request_type);
-    
-    var address_Benchmark = "../configuration/get_group?request_type=testcase"; 
+
+    var address_Benchmark = "../configuration/get_group?request_type=testcase";
     var jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
-    
+    console.log("jsonObj_Bnechmark");
     //(2) display table
     CreateDataTableForConfiguration(jsonObj_Config , jsonObj_Benchmark ,request_type);
+    console.log("CreateDataTableForConfiguration");
 }
 
 //get data by ajax(post)

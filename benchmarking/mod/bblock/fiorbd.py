@@ -5,7 +5,7 @@ import itertools
 class FioRbd(Benchmark):
     def load_parameter(self):
         super(self.__class__, self).load_parameter()
-        self.cluster["rbdlist"] = self.get_rbd_list()
+        self.cluster["rbdlist"] = self.get_rbd_list(self.benchmark["poolname"])
         if len(self.cluster["rbdlist"]) < int(self.all_conf_data.get("rbd_volume_count")):
             self.prepare_images()
 
@@ -21,13 +21,13 @@ class FioRbd(Benchmark):
         rbd_size = self.all_conf_data.get("volume_size")
         common.printout("LOG","Creating rbd volume")
         if rbd_count and rbd_size:
-            super(self.__class__, self).create_image(rbd_count, rbd_size, 'rbd')
+            super(self.__class__, self).create_image(rbd_count, rbd_size, self.benchmark["poolname"])
         else:
             common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf")
-        #start to init 
+        #start to init
         dest_dir = self.cluster["tmp_dir"]
         disk_num_per_client = self.cluster["disk_num_per_client"]
-        self.cluster["rbdlist"] = self.get_rbd_list()
+        self.cluster["rbdlist"] = self.get_rbd_list(self.benchmark["poolname"])
         instance_list = self.cluster["rbdlist"]
         self.testjob_distribution(disk_num_per_client, instance_list)
         fio_job_num_total = 0
@@ -35,7 +35,7 @@ class FioRbd(Benchmark):
         for client in self.cluster["testjob_distribution"]:
             common.scp(user, client, "../conf/fio_init.conf", dest_dir)
             rbdlist = ' '.join(self.cluster["testjob_distribution"][client])
-            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --section init-write %s/fio_init.conf  & done" % (rbdlist, 'rbd', dest_dir), option = "force")         
+            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --section init-write %s/fio_init.conf  & done" % (rbdlist, self.benchmark["poolname"], dest_dir), option = "force")
             fio_job_num_total += len(self.cluster["testjob_distribution"][client])
         time.sleep(1)
         if not self.check_fio_pgrep(clients, fio_job_num_total):
@@ -60,7 +60,7 @@ class FioRbd(Benchmark):
     def prepare_result_dir(self):
         #1. prepare result dir
         self.get_runid()
-        self.benchmark["section_name"] = "fiorbd-%s-%s-qd%s-%s-%s-%s-fiorbd" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
+        self.benchmark["section_name"] = "fiorbd-%s-%s-qd%s-%s-%s-%s-%s" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"], self.benchmark["poolname"])
         self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
         self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
         super(self.__class__, self).prepare_result_dir()
@@ -90,9 +90,10 @@ class FioRbd(Benchmark):
 
         nodes = self.benchmark["distribution"].keys()
         fio_job_num_total = 0
+        poolname = self.benchmark["poolname"]
         for client in self.benchmark["distribution"]:
             rbdlist = ' '.join(self.benchmark["distribution"][client])
-            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, 'rbd', dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
+            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, poolname, dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
             fio_job_num_total += len(self.benchmark["distribution"][client])
         self.chkpoint_to_log("fio start")
         time.sleep(1)
@@ -152,8 +153,9 @@ class FioRbd(Benchmark):
         runtime = testcase["runtime"]
         disk = testcase["vdisk"]
         description = testcase["description"]
+        poolname = testcase["poolname"]
 
-	fio_list = []
+        fio_list = []
         fio_list.append("[global]")
         fio_list.append("    direct=1")
         fio_list.append("    time_based")
@@ -164,7 +166,7 @@ class FioRbd(Benchmark):
             io_pattern_fio = "write"
 
         fio_template = []
-        fio_template.append("[fiorbd-%s-%s-qd%s-%s-%s-%s-fiorbd]" % (io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime ))
+        fio_template.append("[fiorbd-%s-%s-qd%s-%s-%s-%s-%s]" % (io_pattern, record_size, queue_depth, rbd_volume_size, warmup_time, runtime, poolname ))
         fio_template.append("    rw=%s" % io_pattern_fio)
         fio_template.append("    bs=%s" % record_size)
         fio_template.append("    iodepth=%s" % queue_depth)
@@ -212,10 +214,10 @@ class FioRbd(Benchmark):
         testcase_dict = {
             "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
             "block_size":p[3], "qd":p[4], "rampup":p[5], 
-            "runtime":p[6], "vdisk":p[7]
+            "runtime":p[6], "vdisk":p[7], "poolname":p[8]
         }
-        if len(p) == 9:
-            testcase_dict["description"] = p[8]
+        if len(p) == 10:
+            testcase_dict["description"] = p[9]
         else:
             testcase_dict["description"] = ""
         return testcase_dict
