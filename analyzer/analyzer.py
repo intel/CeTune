@@ -186,13 +186,18 @@ class Analyzer:
         file_path = os.path.join(dest_dir,"raw",head,head+"_process_log.txt")
         if head != '':
             if os.path.exists(os.path.join(dest_dir,"raw",head)):
-                with open(file_path, "r") as f:
-                    lines = f.readlines()
+                for file_path in os.listdir(os.path.join(dest_dir,"raw",head)):
+                    if file_path.endswith("_process_log.txt"):
+                        with open("%s/%s" % (os.path.join(dest_dir,"raw",head),file_path), "r") as f:
+                            lines = f.readlines()
                 if len(lines) != 0 and lines != None:
                     str_time = ''
-                    str_time = lines[0].replace('CST ','')
-                    str_time = str_time.replace('\n','')
-                    str_time = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(str_time))
+                    try:
+                        str_time = lines[0].replace('CST ','')
+                        str_time = str_time.replace('\n','')
+                        str_time = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(str_time))
+                    except:
+                        pass
                     return str_time
             else:
                 return ''
