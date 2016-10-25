@@ -263,7 +263,7 @@ class BenchmarkConfig():
     def set_config(self, case_json_list):
         testcase_keys = [
             "benchmark_driver","worker", "container_size", "iopattern",
-            "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc"
+            "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc","aditional_option"
         ]
         case_list = []
         for tmp_dict in json.loads(case_json_list):
@@ -274,7 +274,7 @@ class BenchmarkConfig():
                 case_list.append(tmp)
         output = ""
         for case_items in case_list:
-            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\t%8s\t%s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8], case_items[9] ,case_items[10])
+            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\t%8s\t%s\t%6s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8], case_items[9] ,case_items[10],case_items[11])
         with open("../conf/cases.conf","w") as f:
             f.write( output )
         return False
@@ -303,20 +303,45 @@ class BenchmarkConfig():
             "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8]
         }
 
-        if len(p) == 11:
+        if len(p) == 12:
             testcase_dict["parameter"] = p[9]
             testcase_dict["description"] = p[10]
+            testcase_dict["aditional_option"] = p[11]
         else:
+            option_list = ['restart','redeploy']
             if len(p) == 9:
                 testcase_dict["parameter"] = ""
                 testcase_dict["description"] = ""
-            else:
+                testcase_dict["aditional_option"] = ""
+            elif len(p) == 10:
                 if self.check_parameter_style(p[9]):
                     testcase_dict["parameter"] = p[9]
                     testcase_dict["description"] = ""
+                    testcase_dict["aditional_option"] = ""
+                elif p[9] in option_list:
+                    testcase_dict["parameter"] = ""
+                    testcase_dict["description"] = ""
+                    testcase_dict["aditional_option"] = p[9]
                 else:
                     testcase_dict["parameter"] = ""
                     testcase_dict["description"] = p[9]
+                    testcase_dict["aditional_option"] = ""
+
+            elif len(p) == 11:
+                if self.check_parameter_style(p[9]):
+                    if p[10] in option_list:
+                        testcase_dict["parameter"] = p[9]
+                        testcase_dict["description"] = ""
+                        testcase_dict["aditional_option"] = p[10]
+                    else:
+                        testcase_dict["parameter"] = p[9]
+                        testcase_dict["description"] = p[10]
+                        testcase_dict["aditional_option"] = ""
+                else:
+                    testcase_dict["parameter"] = ""
+                    testcase_dict["description"] = p[9]
+                    testcase_dict["aditional_option"] = p[10]
+
         return testcase_dict
     
     def check_parameter_style(self,paras):

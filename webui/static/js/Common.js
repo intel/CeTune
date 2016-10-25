@@ -171,6 +171,11 @@ function CreateTableHTML_Benchmark(jsonObj){
     tableHtml += "Description";
     tableHtml += "</th>";
 
+    tableHtml += "<th>";
+    tableHtml += "aditional_option";
+    tableHtml += "</th>";
+
+
     tableHtml += "</th>"
     tableHtml += "</tr>";
 
@@ -235,6 +240,24 @@ function CreateTableHTML_Benchmark(jsonObj){
         tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_11'>";
         tableHtml += "<label id='label_benchmark_id_"+index+"_11'  class = 'label_class' onclick = 'Label_benchmark_Click("+index+" ,11,&quot;"+ val.description+"&quot;)'>" + val.description;
         tableHtml +=  "</label>";
+        tableHtml += "</td>";
+
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
+
+        tableHtml += "<form onclick='Radio_button_click()' method='get'>"
+        if(val.aditional_option == "restart"){
+            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart' checked = 'checked'/>restart";
+            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+        }
+        if(val.aditional_option == "redeploy"){
+            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
+            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy' checked = 'checked'/>redeploy";
+        }
+        if(val.aditional_option == ""){
+            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
+            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+        }
+        tableHtml += "</form>";
         tableHtml += "</td>";
 
         tableHtml += "</tr>";
@@ -309,6 +332,12 @@ function Cancel_Apply(rowNum,value){
     otd.innerHTML =" <label id='label_id_"+rowNum+"' class = 'label_class' onclick='Label_Click("+rowNum+",&quot;"+ value+"&quot;)' >"+ value +"</label>";
 }
 //------------------------------------------------------------------------------------------------------
+//radio button click opertion
+function Radio_button_click(){
+    Submit_Benchmark();
+    CheckTableDataError();
+}
+
 //label click opertion
 function Label_benchmark_Click(rowNum , colNum , value){
     olabel = document.getElementById("label_benchmark_id_" + rowNum + "_" + colNum);
@@ -359,10 +388,12 @@ function Del(tableType){
             }
         });
     }
-//-------------------------
+//------------------------
     else if(tableType =="benchmark"){
+        var rowNum;
         $(".checkbox_benchmark_class").each(function(index,value){
             if($(this).is(':checked')){
+                rowNum = index;
                 $(this).parent().parent().remove(); 
             }
         });
@@ -426,12 +457,12 @@ function DeleteModal_OK(type){
 
 function Select_Value(){
     var _example_list = [
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write'],
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write'],
-        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write'],
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write'],
-        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write'],
-        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write']]
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy'],
+        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write','restart,redeploy'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write','restart,redeploy'],
+        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write','restart,redeploy'],
+        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write','restart,redeploy']]
     var select_value = document.getElementById("recipient_benchmark_engine");
     var item = 0
     if(select_value.value == "qemurbd"){
@@ -478,6 +509,7 @@ function Select_Value(){
         document.getElementById("recipient_parameter").value = "rbd";
         document.getElementById('recipient_parameter').readOnly=false;
     }
+    document.getElementById("aditional_option_select").value = 'restart';
     var worker = document.getElementById("worker");
     worker.innerHTML ="example: "+ _example_list[item][0]
     var container_size = document.getElementById("container_size");
@@ -496,6 +528,8 @@ function Select_Value(){
     parameter.innerHTML = "example: "+ _example_list[item][7]
     var Tag_Description = document.getElementById("Tag_Description");
     Tag_Description.innerHTML = "example: "+ _example_list[item][8]
+    var aditional_option = document.getElementById("aditional_option_label");
+    aditional_option.innerHTML = "example: "+ _example_list[item][9]
 }
 
 function ConfigurationModal_OK(key, value, dsc){
@@ -593,6 +627,7 @@ function BenchMarkModel_OK(){
     var parameter = document.getElementById("recipient_parameter").value;
     //var desc = $("#recipient-desc").val();
     var desc = document.getElementById("recipient_desc").value;
+    var aditional_option = document.getElementById("aditional_option_select").value;
     if(benchmark_driver == "qemurbd")
         device = "/dev/vdb"
     if(benchmark_driver == "fiorbd")
@@ -656,6 +691,23 @@ function BenchMarkModel_OK(){
             html +="<label id = 'label_benchmark_id_"+rows+"_11' class='label_class' onclick='Label_benchmark_Click("+rows+",11,&quot;"+ desc+"&quot;)'>"+ desc +"</label>";
             html +="</td>";
 
+            html += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
+            html += "<form onclick='Radio_button_click()' method='get'>"
+            if(aditional_option == "restart"){
+                html += "<label id ='label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart' checked = 'checked'/>restart";
+                html += "<label id ='label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+            }
+            if(aditional_option == "redeploy"){
+                html += "<label id ='label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
+                html += "<label id ='label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy' checked = 'checked'/>redeploy";
+            }
+            if(aditional_option == ""){
+                html += "<label id ='label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
+                html += "<label id ='label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+            }
+            html += "</form>";
+            html +="</td>";
+
             html += "<tr>";
 
             $("#table_benchmark_id").append(html); 
@@ -682,6 +734,14 @@ function Submit_Benchmark(){
         device = $(this).parent().parent().children().eq(9).children("label").text();
         parameter = $(this).parent().parent().children().eq(10).children("label").text();
         desc = $(this).parent().parent().children().eq(11).children("label").text();
+        var aditional = '';
+        var rowid = $(this).parent().parent().children().eq(12).children("form").children("label").eq(1).text()
+        var obj = document.getElementsByName("radio_benchmark_id_"+rowid);
+            for(var i=0; i<obj.length; i++){
+                if(obj[i].checked){
+                    aditional = obj[i].value;
+                }
+        }
 
         var data ={}; 
         data.benchmark_driver = benchmark_driver;
@@ -695,7 +755,7 @@ function Submit_Benchmark(){
         data.device = device;
         data.parameter = parameter;
         data.desc = desc;
-
+        data.aditional_option = aditional;
         table_data.push(data);
     });
 
