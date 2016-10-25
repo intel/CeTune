@@ -769,7 +769,7 @@ class Deploy(object):
                 ceph_conf = f.readlines()
         except:
             common.printout("ERROR",
-                            "Current Cluster ceph.conf file not exists under CeTune/conf/")
+                            "Current Cluster ceph_current_status file not exists under CeTune/conf/")
             sys.exit(1)
 
         num = 0
