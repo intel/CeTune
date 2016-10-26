@@ -12,6 +12,7 @@ from mod.bobject import *
 from mod.bcephfs import *
 from mod.generic import *
 from deploy import *
+from tuner import *
 
 def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')
@@ -82,17 +83,18 @@ def main(args):
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
             try:
-                aditional_option = ''
+                additional_option = ''
                 for i in testcase["parameter"]:
                     if i in ["restart","redeploy"]:
-                        aditional_option = i
-                if aditional_option != '':
-                    if aditional_option == "restart":
+                        additional_option = i
+                if additional_option != '':
+                    if additional_option == "restart":
                         run_deploy.main(['restart'])
-                        benchmark.go(testcase["parameter"], tuning_section)
-                    if aditional_option == "redeploy":
+                    if additional_option == "redeploy":
                         run_deploy.main(['redeploy'])
-                        benchmark.go(testcase["parameter"], tuning_section)
+                        tuner.main(['--section', tuning_section,'apply_tuning'])
+
+                    benchmark.go(testcase["parameter"], tuning_section)
                 else:
                     benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
