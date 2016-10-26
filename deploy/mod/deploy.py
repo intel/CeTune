@@ -341,9 +341,14 @@ class Deploy(object):
         cephconf_dict["radosgw"] = []
         tmp_dict = {}
 
+        ceph_conf = ""
         try:
-            with open("../conf/ceph_current_status", 'r') as f:
-                cephconf = f.readlines()
+            if not os.path.exists("../conf/ceph_current_status"):
+                with open("/etc/ceph/ceph.conf", 'r') as f:
+                    ceph_conf = f.readlines()
+            else:
+                with open("../conf/ceph_current_status", 'r') as f:
+                    cephconf = f.readlines()
         except:
             common.printout("WARNING", "Current Cluster ceph.conf file not exists under CeTune/conf/")
             return cephconf_dict
@@ -764,12 +769,17 @@ class Deploy(object):
                             "the daemon is not one of osd, mon or mds")
             sys.exit(1)
 
+        ceph_conf = ""
         try:
-            with open("../conf/ceph_current_status", 'r') as f:
-                ceph_conf = f.readlines()
+            if not os.path.exists("../conf/ceph_current_status"):
+                with open("/etc/ceph/ceph.conf", 'r') as f:
+                    ceph_conf = f.readlines()
+            else:
+                with open("../conf/ceph_current_status", 'r') as f:
+                    ceph_conf = f.readlines()
         except:
             common.printout("ERROR",
-                            "Current Cluster ceph.conf file not exists under CeTune/conf/")
+                            "Current Cluster ceph_current_status file not exists under CeTune/conf/")
             sys.exit(1)
 
         num = 0
@@ -828,6 +838,7 @@ class Deploy(object):
     def start_osd(self):
         user = self.cluster["user"]
         osd_list = self.get_daemon_info_from_ceph_conf("osd")
+        print osd_list
         for osd in osd_list:
             osd_name = osd["daemon_name"]
             osd_host = osd["daemon_host"]

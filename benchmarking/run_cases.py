@@ -2,6 +2,7 @@ import argparse
 import os, sys
 
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
+this_file_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(lib_path)
 
 from conf import *
@@ -10,6 +11,8 @@ from mod.bblock import *
 from mod.bobject import *
 from mod.bcephfs import *
 from mod.generic import *
+from deploy import *
+from tuner import *
 
 def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')
@@ -80,7 +83,20 @@ def main(args):
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
             try:
-                benchmark.go(testcase["parameter"], tuning_section)
+                additional_option = ''
+                for i in testcase["parameter"]:
+                    if i in ["restart","redeploy"]:
+                        additional_option = i
+                if additional_option != '':
+                    if additional_option == "restart":
+                        run_deploy.main(['restart'])
+                    if additional_option == "redeploy":
+                        run_deploy.main(['redeploy'])
+                        tuner.main(['--section', tuning_section,'apply_tuning'])
+
+                    benchmark.go(testcase["parameter"], tuning_section)
+                else:
+                    benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
                 common.printout("WARNING","Caught KeyboardInterrupt Interruption")
 

@@ -19,6 +19,9 @@ class Benchmark(object):
     def go(self, testcase, tuning):
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
+        user = self.all_conf_data.get("user")
+        controller = self.all_conf_data.get("head")
+        common.wait_ceph_to_health( user, controller )
         self.benchmark = self.parse_benchmark_cases(testcase)
         self.load_parameter()
         self.get_runid()
