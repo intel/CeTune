@@ -3,7 +3,7 @@ lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 sys.path.append('/usr/local/lib/python2.7/dist-packages/web/')
 from conf import *
-from tuner import *
+from workflow import *
 import web
 from web.contrib.template import render_jinja
 import json
@@ -119,7 +119,7 @@ class configuration:
             return "false"
         common.clean_console()
         #thread_num = tuner.main(["--by_thread"])
-        thread_num = subprocess.Popen("cd ../tuner/; python tuner.py", shell=True)
+        thread_num = subprocess.Popen("cd ../workflow/; python workflow.py", shell=True)
         if thread_num:
             web.cache["tuner_thread"] = thread_num
             web.cache["cetune_status"] = "running"

@@ -2,8 +2,6 @@ import os,sys
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from conf import *
-from deploy import *
-from benchmarking import *
 import os, sys
 import time
 import pprint
@@ -39,38 +37,6 @@ class Tuner:
     def default_all_conf(self):
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
-
-    def run(self):
-        user = self.cluster["user"]
-        controller = self.cluster["head"]
-        osds = self.cluster["osds"]
-        pwd = os.path.abspath(os.path.join('..'))
-        if len(self.cluster["rgw"]) and self.cluster["rgw_enable"]=="true":
-            with_rgw = True
-        else:
-            with_rgw = False
-        for section in self.worksheet:
-            for work in self.worksheet[section]['workstages'].split(','):
-                if work == "deploy":
-                    common.printout("LOG","Check ceph version, reinstall ceph if necessary")
-                    self.apply_version(section)
-                    self.apply_tuning(section, no_check=True)
-                    common.printout("LOG","Start to redeploy ceph")
-                    if with_rgw:
-                        run_deploy.main(['--with_rgw','redeploy'])
-                    else:
-                        run_deploy.main(['redeploy'])
-                    self.apply_tuning(section)
-                elif work == "benchmark":
-                    if not common.check_ceph_running( user, controller ):
-                        run_deploy.main(['restart'])
-                    common.printout("LOG","start to run performance test")
-                    if self.cluster["disable_tuning_check"] not in ["true", "True", "TRUE"]:
-                        self.apply_tuning(section)
-                        time.sleep(3)
-                    run_cases.main(['--tuning', section])
-                else:
-                    common.printout("ERROR","Unknown tuner workstage %s" % work)
 
     def handle_disk(self, option="get", param={'read_ahead_kb':2048, 'max_sectors_kb':512, 'scheduler':'deadline'}, fs_params=""):
         user = self.cluster["user"]
@@ -354,21 +320,9 @@ class Tuner:
         if no_check:
             return
 
-        #wait ceph health to be OK
-        waitcount = 0
-        try:
-            while not self.check_health() and waitcount < 300:
-                common.printout("WARNING","Applied tuning, waiting ceph to be healthy")
-                time.sleep(3)
-                waitcount += 3
-        except:
-            common.printout("WARNING","Caught KeyboardInterrupt, exit")
-            sys.exit()
-        if waitcount < 300:
-            common.printout("LOG","Tuning has applied to ceph cluster, ceph is Healthy now")
-        else:
-            common.printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually")
-            sys.exit()
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
+        common.wait_ceph_to_health( user, controller )
 
     def handle_pool(self, option="set", param = {}):
         user = self.cluster["user"]
@@ -398,37 +352,28 @@ class Tuner:
                 common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
 
-    def check_health(self):
-        user = self.cluster["user"]
-        controller = self.cluster["head"]
-        check_count = 0
-        stdout, stderr = common.pdsh(user, [controller], 'ceph health', option="check_return")
-        if "HEALTH_OK" in stdout:
-            return True
-        else:
-            return False
-
 def main(args):
-    parser = argparse.ArgumentParser(description='tuner')
-    parser.add_argument(
-        '--by_thread',
+    print args
+    tuner_parser = argparse.ArgumentParser(description='Tuner.')
+    tuner_parser.add_argument(
+        'operation',
+    )
+    tuner_parser.add_argument(
+        '--section',
+    )
+    tuner_parser.add_argument(
+        '--no_check',
         default = False,
         action = 'store_true'
-        )
-    args = parser.parse_args(args)
+    )
+    args = tuner_parser.parse_args(args)
     tuner = Tuner()
-    if args.by_thread:
-        print "tuner by thread"
-        new_thread = threading.Thread(target=tuner.run, args=())
-        new_thread.daemon = True
-        new_thread.start()
-        return new_thread
-    else:
-        tuner.run()
-        return None
+    if args.operation == "apply_tuning":
+        tuner.apply_tuning( args.section, args.no_check )
+    if args.operation == "apply_version":
+        tuner.apply_version( args.section )
 
 if __name__ == '__main__':
-    print "enter tuner"
-    tuner = Tuner()
-    tuner.run()
+    import sys
+    main( sys.argv[1:] )
 #tuner.apply_tuning('testjob1')
