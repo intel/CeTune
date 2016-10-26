@@ -172,7 +172,7 @@ function CreateTableHTML_Benchmark(jsonObj){
     tableHtml += "</th>";
 
     tableHtml += "<th>";
-    tableHtml += "aditional_option";
+    tableHtml += "additional_option";
     tableHtml += "</th>";
 
 
@@ -243,21 +243,32 @@ function CreateTableHTML_Benchmark(jsonObj){
         tableHtml += "</td>";
 
         tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
-
-        tableHtml += "<form onclick='Radio_button_click()' method='get'>"
-        if(val.aditional_option == "restart"){
-            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart' checked = 'checked'/>restart";
-            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+        tableHtml += "<label style='display:none;'>"+index+"</label>";
+        if(val.additional_option == "restart"){
+            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
+            tableHtml += "<option>null</option>";
+            tableHtml += "<option selected>restart</option>";
+            tableHtml += "<option>redeploy</option>";
         }
-        if(val.aditional_option == "redeploy"){
-            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
-            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy' checked = 'checked'/>redeploy";
+        if(val.additional_option == "redeploy"){
+            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+            tableHtml += "<option>null</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option selected>redeploy</option>";
         }
-        if(val.aditional_option == ""){
-            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
-            tableHtml += "<label id = 'label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+        if(val.additional_option == "null"){
+            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            tableHtml += "<option selected>null</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option>redeploy</option>";
         }
-        tableHtml += "</form>";
+        if(val.additional_option == ""){
+            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            tableHtml += "<option selected>null</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option>redeploy</option>";
+        }
+        tableHtml += "</select>"
         tableHtml += "</td>";
 
         tableHtml += "</tr>";
@@ -333,7 +344,7 @@ function Cancel_Apply(rowNum,value){
 }
 //------------------------------------------------------------------------------------------------------
 //radio button click opertion
-function Radio_button_click(){
+function Additional_option_change(){
     Submit_Benchmark();
     CheckTableDataError();
 }
@@ -509,7 +520,7 @@ function Select_Value(){
         document.getElementById("recipient_parameter").value = "rbd";
         document.getElementById('recipient_parameter').readOnly=false;
     }
-    document.getElementById("aditional_option_select").value = 'restart';
+    document.getElementById("additional_option_select").value = 'restart';
     var worker = document.getElementById("worker");
     worker.innerHTML ="example: "+ _example_list[item][0]
     var container_size = document.getElementById("container_size");
@@ -528,8 +539,8 @@ function Select_Value(){
     parameter.innerHTML = "example: "+ _example_list[item][7]
     var Tag_Description = document.getElementById("Tag_Description");
     Tag_Description.innerHTML = "example: "+ _example_list[item][8]
-    var aditional_option = document.getElementById("aditional_option_label");
-    aditional_option.innerHTML = "example: "+ _example_list[item][9]
+    var additional_option = document.getElementById("additional_option_label");
+    additional_option.innerHTML = "example: "+ _example_list[item][9]
 }
 
 function ConfigurationModal_OK(key, value, dsc){
@@ -627,7 +638,7 @@ function BenchMarkModel_OK(){
     var parameter = document.getElementById("recipient_parameter").value;
     //var desc = $("#recipient-desc").val();
     var desc = document.getElementById("recipient_desc").value;
-    var aditional_option = document.getElementById("aditional_option_select").value;
+    var additional_option = document.getElementById("additional_option_select").value;
     if(benchmark_driver == "qemurbd")
         device = "/dev/vdb"
     if(benchmark_driver == "fiorbd")
@@ -692,20 +703,32 @@ function BenchMarkModel_OK(){
             html +="</td>";
 
             html += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
-            html += "<form onclick='Radio_button_click()' method='get'>"
-            if(aditional_option == "restart"){
-                html += "<label id ='label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart' checked = 'checked'/>restart";
-                html += "<label id ='label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+            html += "<label style='display:none;'>"+index+"</label>";
+            if(additional_option == "restart"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
+                html += "<option>null</option>";
+                html += "<option selected>restart</option>";
+                html += "<option>redeploy</option>";
             }
-            if(aditional_option == "redeploy"){
-                html += "<label id ='label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
-                html += "<label id ='label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy' checked = 'checked'/>redeploy";
+            if(additional_option == "redeploy"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+                html += "<option>null</option>";
+                html += "<option>restart</option>";
+                html += "<option selected>redeploy</option>";
             }
-            if(aditional_option == ""){
-                html += "<label id ='label_benchmark_id_"+index+"_12_l' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='restart'>restart";
-                html += "<label id ='label_benchmark_id_"+index+"_12_r' style='display:none;'>"+index+"</label><input name='radio_benchmark_id_"+index+"'  type='radio' value ='redeploy'/>redeploy";
+            if(additional_option == "null"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+                html += "<option selected>null</option>";
+                html += "<option>restart</option>";
+                html += "<option>redeploy</option>";
             }
-            html += "</form>";
+            if(additional_option == ""){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+                html += "<option selected>null</option>";
+                html += "<option>restart</option>";
+                html += "<option>redeploy</option>";
+            }
+            html += "</select>"
             html +="</td>";
 
             html += "<tr>";
@@ -734,14 +757,9 @@ function Submit_Benchmark(){
         device = $(this).parent().parent().children().eq(9).children("label").text();
         parameter = $(this).parent().parent().children().eq(10).children("label").text();
         desc = $(this).parent().parent().children().eq(11).children("label").text();
-        var aditional = '';
-        var rowid = $(this).parent().parent().children().eq(12).children("form").children("label").eq(1).text()
-        var obj = document.getElementsByName("radio_benchmark_id_"+rowid);
-            for(var i=0; i<obj.length; i++){
-                if(obj[i].checked){
-                    aditional = obj[i].value;
-                }
-        }
+        var additional = '';
+        var rowid = $(this).parent().parent().children().eq(12).children().eq(0).text();
+        additional = document.getElementById("additional_option_dropdown_"+rowid).value;
 
         var data ={}; 
         data.benchmark_driver = benchmark_driver;
@@ -755,7 +773,8 @@ function Submit_Benchmark(){
         data.device = device;
         data.parameter = parameter;
         data.desc = desc;
-        data.aditional_option = aditional;
+        if(additional == "null"){data.additional_option="";}
+        else{data.additional_option = additional;}
         table_data.push(data);
     });
 
