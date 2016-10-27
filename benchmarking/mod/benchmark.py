@@ -19,6 +19,9 @@ class Benchmark(object):
     def go(self, testcase, tuning):
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
         common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
+        user = self.all_conf_data.get("user")
+        controller = self.all_conf_data.get("head")
+        common.wait_ceph_to_health( user, controller )
         self.benchmark = self.parse_benchmark_cases(testcase)
         self.load_parameter()
         self.get_runid()
@@ -162,6 +165,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "iostat -p ALL -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "ceph -v >> %s/`hostname`_ceph_version.txt" % (dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
             common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time_tmp, dest_dir, monitor_interval, '%s', dest_dir), option="force")
