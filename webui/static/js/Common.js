@@ -246,25 +246,25 @@ function CreateTableHTML_Benchmark(jsonObj){
         tableHtml += "<label style='display:none;'>"+index+"</label>";
         if(val.additional_option == "restart"){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
-            tableHtml += "<option>null</option>";
+            tableHtml += "<option>NULL</option>";
             tableHtml += "<option selected>restart</option>";
             tableHtml += "<option>redeploy</option>";
         }
         if(val.additional_option == "redeploy"){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
-            tableHtml += "<option>null</option>";
+            tableHtml += "<option>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option selected>redeploy</option>";
         }
-        if(val.additional_option == "null"){
+        if(val.additional_option == "NULL"){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
-            tableHtml += "<option selected>null</option>";
+            tableHtml += "<option selected>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
         }
         if(val.additional_option == ""){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
-            tableHtml += "<option selected>null</option>";
+            tableHtml += "<option selected>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
         }

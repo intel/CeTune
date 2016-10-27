@@ -261,6 +261,7 @@ class BenchmarkConfig():
         self.default_conf_path = "../conf/cases.default.conf"
  
     def set_config(self, case_json_list):
+        print "=======================set_config=========================="
         testcase_keys = [
             "benchmark_driver","worker", "container_size", "iopattern",
             "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc","additional_option"
@@ -269,6 +270,8 @@ class BenchmarkConfig():
         for tmp_dict in json.loads(case_json_list):
             tmp = []
             for key in testcase_keys:
+                if tmp_dict[key] == "":
+                    tmp_dict[key] = "NULL"
                 tmp.append(tmp_dict[key])
             if tmp not in case_list:
                 case_list.append(tmp)
