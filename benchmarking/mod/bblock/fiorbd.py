@@ -37,6 +37,7 @@ class FioRbd(Benchmark):
             rbdlist = ' '.join(self.cluster["testjob_distribution"][client])
             res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --section init-write %s/fio_init.conf  & done" % (rbdlist, 'rbd', dest_dir), option = "force")         
             fio_job_num_total += len(self.cluster["testjob_distribution"][client])
+            common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
         time.sleep(1)
         if not self.check_fio_pgrep(clients, fio_job_num_total):
             common.printout("ERROR","Failed to start FIO process")
@@ -45,7 +46,6 @@ class FioRbd(Benchmark):
         if not fio_job_num_total:
             common.printout("ERROR","Planed to run 0 Fio Job, please check all.conf")
             raise KeyboardInterrupt
-        common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
 
         common.printout("LOG","Wait rbd initialization stop")
         #wait fio finish
