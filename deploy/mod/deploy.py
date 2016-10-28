@@ -341,11 +341,11 @@ class Deploy(object):
         cephconf_dict["radosgw"] = []
         tmp_dict = {}
 
-        ceph_conf = ""
+        cephconf = ""
         try:
             if not os.path.exists("../conf/ceph_current_status"):
                 with open("/etc/ceph/ceph.conf", 'r') as f:
-                    ceph_conf = f.readlines()
+                    cephconf = f.readlines()
             else:
                 with open("../conf/ceph_current_status", 'r') as f:
                     cephconf = f.readlines()
