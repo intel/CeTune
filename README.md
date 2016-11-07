@@ -18,14 +18,18 @@
 
 * * *
 ####Installation
+- Install to head and workers:
+```
+head and workers need deploy apt-get,wget,pip proxy.
+apt-get install -y python
+
 - Install to head:
 
 ```
 git clone https://github.com/01org/CeTune.git
 
-apt-get install -y python-pip pdsh unzip expect sysstat curl openjdk-7-jre haproxy python-matplotlib python-numpy python-yaml
-pip install ceph-deploy argparse markdown2
-apt-get install expect
+cd /CeTune/deploy/
+python controller_dependencies_install.py
 
 #make sure head is able to autossh all worker nodes and 127.0.0.1
 cd ${CeTune_PATH}/deploy/prepare-scripts; ./configure_autossh.sh ${host} ${ssh_password}
@@ -34,8 +38,8 @@ cd ${CeTune_PATH}/deploy/prepare-scripts; ./configure_autossh.sh ${host} ${ssh_p
 - Install to workers:
 
 ```
-apt-get install -y python-pip unzip sysstat curl openjdk-7-jre haproxy
-apt-get install sqlite
+cd /CeTune/deploy/
+python worker_dependencies_install.py
 ```
 
 * * *
