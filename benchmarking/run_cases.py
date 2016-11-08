@@ -62,7 +62,11 @@ def main(args):
 
     else:
         with open("../conf/cases.conf", "r") as f:
-            for line in f.readlines():
+            case_lines = f.readlines()
+            for i in case_lines:
+                if i.strip() == "":
+                    case_lines.remove(i)
+            for line in case_lines:
                 p = line.split()
                 testcase_list.append({"engine":p[0],"parameter":p[1:]})
         for testcase in testcase_list:
