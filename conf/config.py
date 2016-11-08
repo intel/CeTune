@@ -287,6 +287,9 @@ class BenchmarkConfig():
         try:
             with open(self.conf_path,"r") as f:
                 lines = f.readlines()
+            for i in lines:
+                if i.strip() == "":
+                    lines.remove(i)
             for line in lines:
                 p = line.split()
                 testcase_list.append( self.parse_benchmark_cases( p ) )
@@ -294,6 +297,9 @@ class BenchmarkConfig():
             common.bash("cp %s %s" % (self.default_conf_path, self.conf_path))
             with open(self.conf_path,"r") as f:
                 lines = f.readlines()
+            for i in lines:
+                if i.strip() == "":
+                    lines.remove(i)
             for line in lines:
                 p = line.split()
                 testcase_list.append( self.parse_benchmark_cases( p ) )
