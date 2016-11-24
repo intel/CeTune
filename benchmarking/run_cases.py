@@ -63,12 +63,10 @@ def main(args):
     else:
         with open("../conf/cases.conf", "r") as f:
             case_lines = f.readlines()
-            for i in case_lines:
-                if i.strip() == "":
-                    case_lines.remove(i)
             for line in case_lines:
                 p = line.split()
-                testcase_list.append({"engine":p[0],"parameter":p[1:]})
+                if len(p) > 0 and p!="\n":
+                    testcase_list.append({"engine":p[0],"parameter":p[1:]})
         for testcase in testcase_list:
             if testcase["engine"] == "qemurbd":
                 benchmark = qemurbd.QemuRbd()
