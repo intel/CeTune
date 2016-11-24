@@ -64,9 +64,14 @@ def main(args):
         with open("../conf/cases.conf", "r") as f:
             case_lines = f.readlines()
             for line in case_lines:
+                #if line.startswith("#"):
+                    #continue
                 p = line.split()
                 if len(p) > 0 and p!="\n":
-                    testcase_list.append({"engine":p[0],"parameter":p[1:]})
+                    if not p[0].startswith('#'):
+                        testcase_list.append({"engine":p[0],"parameter":p[1:]})
+            print testcase_list
+            return
         for testcase in testcase_list:
             if testcase["engine"] == "qemurbd":
                 benchmark = qemurbd.QemuRbd()
