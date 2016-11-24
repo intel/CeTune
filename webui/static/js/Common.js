@@ -276,7 +276,8 @@ function CreateTableHTML_Benchmark(jsonObj){
     });
 
     tableHtml += "</tbody>";
-    tableHtml += "</table>"
+    tableHtml += "</table>";
+    tableHtml += "<div><li class='error'>If case start with '#',workflow will not running this cases.</li></div>";
     return tableHtml;
 }
 
