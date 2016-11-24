@@ -64,8 +64,6 @@ def main(args):
         with open("../conf/cases.conf", "r") as f:
             case_lines = f.readlines()
             for line in case_lines:
-                #if line.startswith("#"):
-                    #continue
                 p = line.split()
                 if len(p) > 0 and p!="\n":
                     if not p[0].startswith('#'):
