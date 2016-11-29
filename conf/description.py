@@ -50,5 +50,5 @@ class DefaultValue(object):
         if key in DefaultValue.read_defaultvalue_to_dict().keys():
             return DefaultValue.read_defaultvalue_to_dict()[key]
         else:
-            print "the key is not exists."
+            #print "the key is not exists."
             return
