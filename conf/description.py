@@ -27,7 +27,7 @@ class Description(object):
 	if key in Description.read_conf_to_dict().keys():
             return Description.read_conf_to_dict()[key]
         else:
-            print "the key is not exists."
+            #print "the key is not exists."
             return ""
 
 class DefaultValue(object):
