@@ -345,7 +345,7 @@ $(document).ready(function(){
             case "menu_Configuration_id":
                 clearTimer(timer_Console);
                 clearTimer(timer_Report);
-                RunStatus_Timer();
+                //RunStatus_Timer();
                 timer_RunStatus = setInterval(RunStatus_Timer,interval_RunStatus);
                break;
             
@@ -432,9 +432,9 @@ $(document).ready(function(){
 	
     
     //traverse the sub menu li, check Configuation Data is true----------------------------------
-    CheckTableDataError();
+    //CheckTableDataError();
 	
-    ExecutvieCheckSync();
+    //ExecutvieCheckSync();
 	
     //Executive 
     if(CheckIsExecutive() == "true"){    
@@ -584,7 +584,7 @@ function Init(){
 	 
 	
     //(4)decide server is runing,start the timer;
-    RunStatus_Timer();
+    //RunStatus_Timer();
     timer_RunStatus = setInterval(RunStatus_Timer,interval_RunStatus);
 	
 }
@@ -641,9 +641,13 @@ function DisplayConfiguationDataTable(request_type){
     //(1) get data for json obj
     var jsonObj_Config = GetConfigurationData(request_type);
 
-    var address_Benchmark = "../configuration/get_group?request_type=testcase";
-    var jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
-    console.log("jsonObj_Bnechmark");
+    var jsonObj_Benchmark;
+    if(request_type == "benchmark"){
+	    var address_Benchmark = "../configuration/get_group?request_type=testcase";
+	    jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
+	    //var jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
+	    console.log("jsonObj_Bnechmark");
+    }
     //(2) display table
     CreateDataTableForConfiguration(jsonObj_Config , jsonObj_Benchmark ,request_type);
     console.log("CreateDataTableForConfiguration");
