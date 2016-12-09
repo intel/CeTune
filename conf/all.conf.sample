@@ -10,6 +10,8 @@ journal_partition_size=30G
 rgw_server=rgw
 rgw_start_index=1
 rgw_num_per_server=5
+distributed=1
+#0:local,1:remote
 #
 #=====================VCLIENT========================
 list_vclient=vclient01,vclient02,vclient03,vclient04,vclient05,vclient06,vclient07,vclient08,vclient09,vclient10,vclient11,vclient12,vclient13,vclient14,vclient15,vclient16,vclient17,vclient18,vclient19,vclient20,vclient21,vclient22,vclient23,vclient24,vclient25,vclient26,vclient27,vclient28,vclient29,vclient30,vclient31,vclient32,vclient33,vclient34,vclient35,vclient36,vclient37,vclient38,vclient39,vclient40,vclient41,vclient42,vclient43,vclient44,vclient45,vclient46,vclient47,vclient48,vclient49,vclient50,vclient51,vclient52,vclient53,vclient54,vclient55,vclient56,vclient57,vclient58,vclient59,vclient60,vclient61,vclient62,vclient63,vclient64,vclient65,vclient66,vclient67,vclient68,vclient69,vclient70,vclient71,vclient72,vclient73,vclient74,vclient75,vclient76,vclient77,vclient78,vclient79,vclient80
