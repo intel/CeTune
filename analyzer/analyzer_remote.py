@@ -3,8 +3,7 @@ import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
-from conf import *
-from visualizer import *
+import common as cn
 import os, sys
 import time
 import pprint
@@ -14,24 +13,23 @@ from collections import OrderedDict
 import json
 import numpy
 import copy
-import getpass
+import config
 from multiprocessing import Process
 
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
-    def __init__(self, dest_dir):
+    def __init__(self, dest_dir,name):
+        self.common = cn
+        self.common.cetune_log_file = "cetune_process.log"
+        self.common.cetune_error_file = "cetune_error.log"
+        self.common.cetune_console_file="cetune_console.log"
+
         self.dest_dir = dest_dir
         self.cluster = {}
-        if os.path.isdir('%s/%s' % ( dest_dir, 'conf' )):
-            self.cluster["dest_conf_dir"] = '%s/%s' % ( dest_dir, 'conf' )
-        else:
-            self.cluster["dest_conf_dir"] = dest_dir
-        if os.path.isdir('%s/%s' % ( dest_dir, 'raw' )):
-            self.cluster["dest_dir"] = '%s/%s' % ( dest_dir, 'raw' )
-        else:
-            self.cluster["dest_dir"] = dest_dir
+        self.cluster["dest_dir"] = dest_dir
+        self.cluster["dest_conf_dir"] = dest_dir
         self.cluster["dest_dir_root"] = dest_dir
-        self.all_conf_data = config.Config("%s/all.conf" % self.cluster["dest_conf_dir"])
+        self.all_conf_data = config.Config("all.conf") 
         self.cluster["user"] = self.all_conf_data.get("user")
         self.cluster["head"] = self.all_conf_data.get("head")
         self.cluster["diskformat"] = self.all_conf_data.get("disk_format", dotry=True)
@@ -59,6 +57,9 @@ class Analyzer:
         self.result["status"] = self.getStatus()
         self.result["description"] = self.getDescription()
 
+        self.whoami = name
+
+
     def collect_node_ceph_version(self,dest_dir):
         node_list = []
         node_list.extend(self.cluster["osds"])
@@ -75,17 +76,12 @@ class Analyzer:
                 version_list[node] = 'None'
         return version_list
 
-    def _process_remote(self,node):
-        common.pdsh(self.cluster['user'], [node], "cd "+ self.cluster["tmp_dir"] +";python analyzer_remote.py --path "+self.cluster["tmp_dir"] +" --name "+ node +" process_data" )
+    def test_write_json(self,data,file):
+        json.dump(data,open(file,'w'))
 
-    def _process_remote_data(self,process_file):
-        node_result = json.load(open(process_file,'r'))
-        return node_result
 
     def process_data(self):
-        case_type = re.findall('\d\-\S+', self.cluster["dest_dir"])[0].split('-')[2]
-        if case_type == "vdbench":
-            self.result["description"] = "Description:"+ str(self.getDescription()) +"  Parameters:"+ str(self.getParameters())
+        process_list = []
         user = self.cluster["user"]
         dest_dir = self.cluster["dest_dir"]
         session_name = self.cluster["dest_dir_root"].split('/')
@@ -94,100 +90,32 @@ class Analyzer:
         else:
             self.result["session_name"] = session_name[-2]
 
-        #-------------------remote   start------------------------
-        if self.cluster["distributed"] == "1":
-            self.workpath = os.path.join(self.cluster["dest_dir"],"remote_tmp")
-            remote_file = "../analyzer/analyzer_remote.py"
-            remote_file1 = "../conf/all.conf"
-            remote_file2 = "../conf/common.py"
-            remote_file3 = "../conf/config.py"
-            remote_file4 = "../conf/description.py"
+        if self.whoami in self.cluster["osds"]:
+            self.result["ceph"][self.whoami]={}
+            p = Process(target=self._process_data,args=())
+            process_list.append(p)
+        if self.whoami in self.cluster["rgw"]:
+            self.result["rgw"][self.whoami]={}
+            p = Process(target=self._process_data,args=())
+            process_list.append(p)
+        if self.whoami in self.cluster["client"]:
+            self.result["client"][self.whoami]={}
+            p = Process(target=self._process_data,args=())
+            process_list.append(p)
+        if self.whoami in self.cluster["vclient"]:
+            params = self.result["session_name"].split('-')
+            self.cluster["vclient_disk"] = ["/dev/%s" % params[-1]]
+            self.result["vclient"][self.whoami]={}
+            p = Process(target=self._process_data,args=())
+            process_list.append(p)
 
-            if not os.path.isdir(self.workpath):
-                os.mkdir(self.workpath)
+        for poc in process_list:
+            poc.daemon = True
+            poc.start()
+        poc.join()
 
-            all_node = []
-            for node in self.cluster["osds"] + self.cluster["client"]:
-                common.printout("LOG","note "+ node + " start analysis")
-                common.scp(self.cluster["user"],node,remote_file,self.cluster["tmp_dir"])
-                common.scp(self.cluster["user"],node,remote_file1,self.cluster["tmp_dir"])
-                common.scp(self.cluster["user"],node,remote_file2,self.cluster["tmp_dir"])
-                common.scp(self.cluster["user"],node,remote_file3,self.cluster["tmp_dir"])
-                common.scp(self.cluster["user"],node,remote_file4,self.cluster["tmp_dir"])
-                p = Process(target=self._process_remote,args=(node,))
-                all_node.append(p)
 
-            common.printout("LOG","waiting for all note finish analysis")
-            for proc in all_node:
-                proc.daemon = True
-                proc.start()
-            proc.join()
-            common.printout("LOG","all note finish analysis")
-
-            for node in self.cluster["osds"] + self.cluster["client"]:
-                common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-system.json"))
-                common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
-
-            common.printout("LOG","Merging node process.")
-            for dir_name in  self.cluster["osds"] + self.cluster["client"]:
-                system_file = os.path.join(self.workpath,dir_name+"-system.json")
-                workload_file = os.path.join(self.workpath,dir_name+"-workload.json")
-
-                if dir_name in self.cluster["osds"]:
-                    self.result["ceph"][dir_name]={}
-                    system = self._process_remote_data(system_file)
-                    workload = self._process_remote_data(workload_file)
-                    self.result["ceph"][dir_name]=system
-                    self.result["ceph"].update(workload)
-                elif dir_name in self.cluster["rgw"]:
-                    self.result["rgw"][dir_name]={}
-                    system = self._process_remote_data(system_file)
-                    workload = self._process_remote_data(workload_file)
-                    self.result["rgw"][dir_name]=system
-                    self.result["rgw"].update(workload)
-                elif dir_name in self.cluster["client"]:
-                    self.result["client"][dir_name]={}
-                    system = self._process_remote_data(system_file)
-                    workload = self._process_remote_data(workload_file)
-                    self.result["client"][dir_name]=system
-                    self.result["workload"].update(workload)
-                elif dir_name in self.cluster["vclient"]:
-                    params = self.result["session_name"].split('-')
-                    self.cluster["vclient_disk"] = ["/dev/%s" % params[-1]]
-                    self.result["vclient"][dir_name]={}
-                    system = self._process_remote_data(system_file)
-                    workload = self._process_remote_data(workload_file)
-                    self.result["vclient"][dir_name]=system
-                    self.result["workload"].update(workload)
-            
-        #-------------------remote   end--------------------------
-        else:
-            for dir_name in os.listdir(dest_dir):
-                if not os.path.isdir("%s/%s" % (dest_dir, dir_name)):
-                    continue
-                if dir_name in self.cluster["osds"]:
-                    self.result["ceph"][dir_name]={}
-                    system, workload = self._process_data(dir_name)
-                    self.result["ceph"][dir_name]=system
-                    self.result["ceph"].update(workload)
-                if dir_name in self.cluster["rgw"]:
-                    self.result["rgw"][dir_name]={}
-                    system, workload = self._process_data(dir_name)
-                    self.result["rgw"][dir_name]=system
-                    self.result["rgw"].update(workload)
-                if dir_name in self.cluster["client"]:
-                    self.result["client"][dir_name]={}
-                    system, workload = self._process_data(dir_name)
-                    self.result["client"][dir_name]=system
-                    self.result["workload"].update(workload)
-                if dir_name in self.cluster["vclient"]:
-                    params = self.result["session_name"].split('-')
-                    self.cluster["vclient_disk"] = ["/dev/%s" % params[-1]]
-                    self.result["vclient"][dir_name]={}
-                    system, workload = self._process_data(dir_name)
-                    self.result["vclient"][dir_name]=system
-                    self.result["workload"].update(workload)
-
+        return
 
         # switch result format for visualizer
         # desired format
@@ -216,7 +144,7 @@ class Analyzer:
                 node_ceph_version[key] = {"ceph_version":value}
         result["summary"]["Node"] = node_ceph_version
         dest_dir = self.cluster["dest_dir_root"]
-        common.printout("LOG","Write analyzed results into result.json")
+        self.common.printout("LOG","Write analyzed results into result.json")
         with open('%s/result.json' % dest_dir, 'w') as f:
             json.dump(result, f, indent=4)
         view = visualizer.Visualizer(result, dest_dir)
@@ -231,7 +159,7 @@ class Analyzer:
             return output_sort
         rampup = int(res.group(8))
         runtime = int(res.group(9))
-        diskformat = common.parse_disk_format( self.cluster['diskformat'] )
+        diskformat = self.common.parse_disk_format( self.cluster['diskformat'] )
         phase_name_map_for_disk = {}
         for typename in diskformat:
             phase_name_map_for_disk[typename] = "iostat" 
@@ -309,7 +237,7 @@ class Analyzer:
         data["summary"]["run_id"] = {}
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
-            common.printout("ERROR", "Unable to get result infomation")
+            self.common.printout("ERROR", "Unable to get result infomation")
             return data
         data["summary"]["run_id"][res.group(1)] = OrderedDict()
         tmp_data = data["summary"]["run_id"][res.group(1)]
@@ -375,7 +303,7 @@ class Analyzer:
         write_SN_IOPS = 0
         write_SN_BW = 0
         write_SN_Latency = 0
-        diskformat = common.parse_disk_format( self.cluster['diskformat'] )
+        diskformat = self.common.parse_disk_format( self.cluster['diskformat'] )
         if len(diskformat):
             typename = diskformat[0]
         else:
@@ -418,24 +346,25 @@ class Analyzer:
             tmp_data["CN_Number"] = 0
         return data
 
-    def _process_data(self, node_name):
+    def _process_data(self):
         result = {}
         fio_log_res = {}
         workload_result = {}
         dest_dir = self.cluster["dest_dir"]
-        for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
-            common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
+        self.common.printout("LOG","dest_dir:%s"%dest_dir)
+        for dir_name in os.listdir(dest_dir):
             if 'smartinfo.txt' in dir_name:
-                res = self.process_smartinfo_data( "%s/%s/%s" % (dest_dir, node_name, dir_name))
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
+                res = self.process_smartinfo_data( "%s/%s" % (dest_dir, dir_name))
                 result.update(res)
             if 'cosbench' in dir_name:
-                workload_result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name))
+                workload_result.update(self.process_cosbench_data("%s/%s" %(dest_dir,  dir_name), dir_name))
             if '_sar.txt' in dir_name:
-                result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
+                result.update(self.process_sar_data("%s/%s" % (dest_dir, dir_name)))
             if 'totals.html' in dir_name:
-                workload_result.update(self.process_vdbench_data("%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name)))
+                workload_result.update(self.process_vdbench_data("%s/%s" % (dest_dir, dir_name), "%s_%s" % (self.whoami, dir_name)))
             if '_fio.txt' in dir_name:
-                workload_result.update(self.process_fio_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name))
+                workload_result.update(self.process_fio_data("%s/%s" % (dest_dir,  dir_name), dir_name))
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
                 if "_fio_iops.1.log" in dir_name:
                     volume = dir_name.replace("_fio_iops.1.log", "")
@@ -446,28 +375,30 @@ class Analyzer:
                 if volume not in fio_log_res:
                     fio_log_res[volume] = {}
                     fio_log_res[volume]["fio_log"] = {}
-                fio_log_res[volume]["fio_log"] = self.process_fiolog_data("%s/%s/%s" % (dest_dir, node_name, dir_name), fio_log_res[volume]["fio_log"] )
+                fio_log_res[volume]["fio_log"] = self.process_fiolog_data("%s/%s" % (dest_dir,  dir_name), fio_log_res[volume]["fio_log"] )
                 workload_result.update(fio_log_res)
             if '_iostat.txt' in dir_name:
-                res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
+                res = self.process_iostat_data( self.whoami, "%s/%s" % (dest_dir,  dir_name))
                 result.update(res)
             if '_interrupts_end.txt' in dir_name:
-                if os.path.exists("%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))):
-                    interrupt_start = "%s/%s/%s" % (dest_dir, node_name, dir_name)
-                    interrupt_end   = "%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))
-                    self.interrupt_diff(dest_dir,node_name,interrupt_start,interrupt_end)
+                if os.path.exists("%s/%s" % (dest_dir,  dir_name.replace('end','start'))):
+                    interrupt_start = "%s/%s" % (dest_dir,  dir_name)
+                    interrupt_end   = "%s/%s" % (dest_dir,  dir_name.replace('end','start'))
+                    self.interrupt_diff(dest_dir,self.whoami,interrupt_start,interrupt_end)
             if '_process_log.txt' in dir_name:
-                res = self.process_log_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
+                res = self.process_log_data( "%s/%s" % (dest_dir,  dir_name) )
                 result.update(res)
             if '.asok.txt' in dir_name:
                 try:
-                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name))
+                    res = self.process_perfcounter_data("%s/%s" % (dest_dir,  dir_name))
                     for key, value in res.items():
                         if dir_name not in workload_result:
                             workload_result[dir_name] = OrderedDict()
                         workload_result[dir_name][key] = value
                 except:
                     pass
+        self.test_write_json(result,self.whoami+"-system.json")
+        self.test_write_json(workload_result,self.whoami+"-workload.json")
         return [result, workload_result]
 
     def process_smartinfo_data(self, path):
@@ -584,9 +515,9 @@ class Analyzer:
         result["cosbench"] = OrderedDict()
         result["cosbench"]["cosbench"] = OrderedDict([("read_lat",0), ("read_bw",0), ("read_iops",0), ("write_lat",0), ("write_bw",0), ("write_iops",0), ("lat_unit",'msec'), ('runtime_unit','sec'), ('bw_unit','MB/s')])
         tmp = result
-        keys = common.bash("head -n 1 %s/%s.csv" %(path, dirname))
+        keys = self.common.bash("head -n 1 %s/%s.csv" %(path, dirname))
         keys = keys.split(',')
-        values = common.bash('tail -n 1 %s/%s.csv' %(path, dirname) )
+        values = self.common.bash('tail -n 1 %s/%s.csv' %(path, dirname) )
         values = values.split(',')
         size = len(keys)
         for i in range(size):
@@ -596,17 +527,17 @@ class Analyzer:
         tmp = result["cosbench"]["cosbench"]
         io_pattern = result["Op-Type"]["detail"]["value"]
         tmp["%s_lat" % io_pattern] = result["Avg-ResTime"]["detail"]["value"]
-        tmp["%s_bw" % io_pattern] = common.size_to_Kbytes('%s%s' % (result["Bandwidth"]["detail"]["value"], 'B'), 'MB')
+        tmp["%s_bw" % io_pattern] = self.common.size_to_Kbytes('%s%s' % (result["Bandwidth"]["detail"]["value"], 'B'), 'MB')
         tmp["%s_iops" % io_pattern] = result["Throughput"]["detail"]["value"]
         return result
 
     def get_validate_runtime(self):
         self.validate_time = 0
         dest_dir = self.cluster["dest_dir"]
-        stdout = common.bash( 'grep " runt=.*" -r %s' % (dest_dir) )
+        stdout = self.common.bash('grep " runt=.*" -r %s' % (dest_dir))
         fio_runtime_list = re.findall('runt=\s*(\d+\wsec)', stdout)
         for fio_runtime in fio_runtime_list:
-            validate_time = common.time_to_sec(fio_runtime, 'sec')
+            validate_time = self.common.time_to_sec(fio_runtime, 'sec')
             if validate_time < self.validate_time or self.validate_time == 0:
                 self.validate_time = validate_time
 
@@ -673,16 +604,16 @@ class Analyzer:
     def process_sar_data(self, path):
         result = {}
         #1. cpu
-        stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
-        result["cpu"] = common.convert_table_to_2Dlist(stdout)
+        stdout = self.common.bash("grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i    ++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'")
+        result["cpu"] = self.common.convert_table_to_2Dlist(stdout)
 
         #2. memory
-        stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
-        result["memory"] = common.convert_table_to_2Dlist(stdout)
+        stdout = self.common.bash("grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}    {for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'")
+        result["memory"] = self.common.convert_table_to_2Dlist(stdout)
 
         #3. nic
-        stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
-        result["nic"] = common.convert_table_to_2Dlist(stdout)
+        stdout = self.common.bash("grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==    \"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";ne    xt}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'")
+        result["nic"] = self.common.convert_table_to_2Dlist(stdout)
         #4. tps
         return result
 
@@ -691,13 +622,13 @@ class Analyzer:
         output_list = []
         dict_diskformat = {}
         if node in self.cluster["osds"]:
-            output_list = common.parse_disk_format( self.cluster['diskformat'] )
+            output_list = self.common.parse_disk_format( self.cluster['diskformat'] )
             for i in range(len(output_list)):
                 disk_list=[]
-                for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
+                for osd_journal in self.common.get_list(self.all_conf_data.get_list(node)): 
                    tmp_dev_name = osd_journal[i].split('/')[2]
                    if 'nvme' in tmp_dev_name:
-                       tmp_dev_name = common.parse_nvme( tmp_dev_name )
+                       tmp_dev_name = self.common.parse_nvme( tmp_dev_name )
                    if tmp_dev_name not in disk_list:
                        disk_list.append( tmp_dev_name )
                 dict_diskformat[output_list[i]]=disk_list
@@ -707,7 +638,7 @@ class Analyzer:
                 vdisk_list.append( disk.split('/')[2] )
             output_list = ["vdisk"]
         # get total second
-        runtime = common.bash("grep 'Device' "+path+" | wc -l ").strip()
+        runtime = self.common.bash("grep 'Device' "+path+" | wc -l ").strip()
         for output in output_list:
             if output != "vdisk":
                 disk_list = " ".join(dict_diskformat[output])
@@ -715,16 +646,16 @@ class Analyzer:
             else:
                 disk_list = " ".join(vdisk_list)
                 disk_num = len(vdisk_list)
-            stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
-            result[output] = common.convert_table_to_2Dlist(stdout)
+            stdout = self.common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
+            result[output] = self.common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
         return result
 
     def process_vdbench_data(self, path, dirname):
         result = {}
         vdbench_data = {}
-        runtime = int(common.bash("grep -o 'elapsed=[0-9]\+' "+path+" | cut -d = -f 2"))
-        stdout, stderr = common.bash("grep 'avg_2-' "+path, True)
+        runtime = int(self.common.bash("grep -o 'elapsed=[0-9]\+' "+path+" | cut -d = -f 2"))
+        stdout, stderr = self.common.bash("grep 'avg_2-' "+path, True)
         vdbench_data = stdout.split()
         output_vdbench_data = OrderedDict()
         output_vdbench_data['read_lat'] = vdbench_data[8]
@@ -757,9 +688,10 @@ class Analyzer:
 
     def process_fio_data(self, path, dirname):
         result = {}
-        stdout, stderr = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
-        stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
-        stdout2, stderr2 = common.bash("grep \" *clat percentiles\" "+path, True)
+        stdout = self.common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path)
+        stdout1 = self.common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path)
+        stdout2 = self.common.bash("grep \" *clat percentiles\" "+path)
+
         lat_per_dict = {}
         if stdout1 != '':
             lat_per_dict = self.get_lat_persent_dict(stdout1)
@@ -798,7 +730,7 @@ class Analyzer:
                 #output_fio_data['99.99%_lat'] = lat_per_dict['99.99th']
                 lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
                 if len(lat_persent_unit) != 0:
-                    output_fio_data['99.99%_lat'] = float(common.time_to_sec("%s%s" % (lat_per_dict['99.99th'], lat_persent_unit[0]),'msec'))
+                    output_fio_data['99.99%_lat'] = float(self.common.time_to_sec("%s%s" % (lat_per_dict['99.99th'], lat_persent_unit[0]),'msec'))
                 else:
                     output_fio_data['99.99%_lat'] = 'null'
             else:
@@ -814,12 +746,12 @@ class Analyzer:
             list_len = len(fio_data_rw[io_pattern][first_item])
             for index in range(0, list_len):
                 fio_data = fio_data_rw[io_pattern]
-                output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
+                output_fio_data['%s_lat' % io_pattern] += float(self.common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
                 output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
                 res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
                 if res:
-                    output_fio_data['%s_bw' % io_pattern] += float( common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
-                output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
+                    output_fio_data['%s_bw' % io_pattern] += float( self.common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
+                output_fio_data['%s_runtime' % io_pattern] += float( self.common.time_to_sec(fio_data['runt'][index], 'sec') )
             output_fio_data['%s_lat' % io_pattern] /= list_len
             output_fio_data['%s_runtime' % io_pattern] /= list_len
         result[dirname] = {}
@@ -838,7 +770,7 @@ class Analyzer:
     def process_perfcounter_data(self, path):
         precise_level = int(self.cluster["perfcounter_time_precision_level"])
 #        precise_level = 6
-        common.printout("LOG","loading %s" % path)
+        self.common.printout("LOG","loading %s" % path)
         perfcounter = []
         with open(path,"r") as fd:
             data = fd.readlines()
@@ -851,7 +783,7 @@ class Analyzer:
                 perfcounter.append({})
         if not len(perfcounter) > 0:
             return False
-        result = common.MergableDict()
+        result = self.common.MergableDict()
         lastcounter = perfcounter[0]
         for counter in perfcounter[1:]:
             result.update(counter, dedup=False, diff=False)
@@ -908,8 +840,11 @@ def main(args):
     parser.add_argument(
         '--node',
         )
+    parser.add_argument(
+        '--name',
+        )
     args = parser.parse_args(args)
-    process = Analyzer(args.path)
+    process = Analyzer(args.path,args.name)
     if args.operation == "process_data":
         process.process_data()
     else:
