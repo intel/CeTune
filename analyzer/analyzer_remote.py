@@ -79,16 +79,6 @@ class Analyzer:
     def test_write_json(self,data,file):
         json.dump(data,open(file,'w'))
 
-    def call_back(self,file1,file2):
-        node =""
-        ip = ""
-        remotefile=""
-        with open(".call_back.tmp",'r') as f:
-            ip,node,remotefile = f.read().split()
-        self.common.scp(node,ip,file1,remotefile)
-        self.common.scp(node,ip,file2,remotefile)
-        self.common.pdsh(node,[ip],"echo "+self.whoami+" >> "+os.path.join(remotefile,"result_flag.txt"))
-
 
     def process_data(self):
         process_list = []
@@ -409,7 +399,6 @@ class Analyzer:
                     pass
         self.test_write_json(result,self.whoami+"-system.json")
         self.test_write_json(workload_result,self.whoami+"-workload.json")
-        self.call_back(self.whoami+"-system.json",self.whoami+"-workload.json")
         return [result, workload_result]
 
     def process_smartinfo_data(self, path):
