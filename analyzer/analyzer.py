@@ -82,11 +82,6 @@ class Analyzer:
         node_result = json.load(open(process_file,'r'))
         return node_result
 
-    def set_call_back(self,file,ip,whoami):
-        f = open(file,'w')
-        f.write(whoami+" " +ip+" " +self.workpath)
-        f.close()
-
     def process_data(self):
         case_type = re.findall('\d\-\S+', self.cluster["dest_dir"])[0].split('-')[2]
         if case_type == "vdbench":
@@ -102,51 +97,39 @@ class Analyzer:
         #-------------------remote   start------------------------
         if self.cluster["distributed"] == "1":
             self.workpath = os.path.join(self.cluster["dest_dir"],"remote_tmp")
-            tmp_result_file = os.path.join(self.workpath,"result_flag.txt")
             remote_file = "../analyzer/analyzer_remote.py"
             remote_file1 = "../conf/all.conf"
             remote_file2 = "../conf/common.py"
             remote_file3 = "../conf/config.py"
             remote_file4 = "../conf/description.py"
-            remote_file5 = "./.call_back.tmp"
-
-            whoami = getpass.getuser()
 
             if not os.path.isdir(self.workpath):
                 os.mkdir(self.workpath)
-            f = open(tmp_result_file,'w')
-            f.close()
 
-            all_node = set()
+            all_node = []
             for node in self.cluster["osds"] + self.cluster["client"]:
-                target_ip = common.bash("grep "+ node +" /etc/hosts").split()[0]
-                ip = common.bash("ifconfig -a|grep "+target_ip).split(':')[1].split()[0]
-                self.set_call_back(remote_file5,whoami,ip)
-
+                common.printout("LOG","note "+ node + " start analysis")
                 common.scp(self.cluster["user"],node,remote_file,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file1,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file2,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file3,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file4,self.cluster["tmp_dir"])
-                common.scp(self.cluster["user"],node,remote_file5,self.cluster["tmp_dir"])
                 p = Process(target=self._process_remote,args=(node,))
-                p.daemon = True
-                p.start()
-                all_node.add(node)
+                all_node.append(p)
 
+            common.printout("LOG","waiting for all note finish analysis")
+            for proc in all_node:
+                proc.daemon = True
+                proc.start()
+            proc.join()
+            common.printout("LOG","all note finish analysis")
 
-            finish_node = []
-            common.printout("LOG","Waiting for node process.")
-            while(1):
-                with open(tmp_result_file,'r') as f:
-                    finish_node = f.read().splitlines()
-                if set(finish_node) >= all_node :
-                    break
-                time.sleep(1)
-            common.printout("LOG",str(all_node) +" is done " +str(finish_node))
+            for node in self.cluster["osds"] + self.cluster["client"]:
+                common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-system.json"))
+                common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
 
             common.printout("LOG","Merging node process.")
-            for dir_name in finish_node:
+            for dir_name in  self.cluster["osds"] + self.cluster["client"]:
                 system_file = os.path.join(self.workpath,dir_name+"-system.json")
                 workload_file = os.path.join(self.workpath,dir_name+"-workload.json")
 
