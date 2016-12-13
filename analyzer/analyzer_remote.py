@@ -20,9 +20,9 @@ pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
     def __init__(self, dest_dir,name):
         self.common = cn
-        self.common.cetune_log_file = "cetune_process.log"
-        self.common.cetune_error_file = "cetune_error.log"
-        self.common.cetune_console_file="cetune_console.log"
+        self.common.cetune_log_file = name+"-cetune_process.log"
+        self.common.cetune_error_file = name+"-cetune_error.log"
+        self.common.cetune_console_file= name+"-cetune_console.log"
 
         self.dest_dir = dest_dir
         self.cluster = {}
