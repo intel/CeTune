@@ -82,6 +82,30 @@ class Analyzer:
         node_result = json.load(open(process_file,'r'))
         return node_result
 
+    def print_remote_log(self,node_log,node):
+        try:
+            get_log = ""
+            get_line = "wc -l "+ self.cluster["tmp_dir"] +node+"-cetune_console.log"
+            stdout = common.pdsh(self.cluster["user"],[node],get_line,'check_return')
+            h = int(stdout[0].split()[1])
+
+            if not node_log.has_key(node):
+                node_log[node] = h
+                get_log = "sed -n '1,"+ str(h) +"p' "+ self.cluster["tmp_dir"] +node+"-cetune_console.log"
+            elif h > node_log[node]:
+                get_log = "sed -n '"+ str(node_log[node]) +","+ str(h) +"p' "+ self.cluster["tmp_dir"] +node+"-cetune_console.log"
+
+            if len(get_log):
+                log = common.pdsh(self.cluster["user"],[node],get_log,'check_return')[0]
+                list = log.split('\n')
+                for l in list:
+                    common.printout("LOG",l)
+            node_log[node] = h + 1
+        except Exception as e:
+                common.printout("ERROR","print_remote_log failed")
+                common.printout("ERROR",str(e))
+            
+
     def process_data(self):
         case_type = re.findall('\d\-\S+', self.cluster["dest_dir"])[0].split('-')[2]
         if case_type == "vdbench":
@@ -115,19 +139,27 @@ class Analyzer:
                 common.scp(self.cluster["user"],node,remote_file3,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file4,self.cluster["tmp_dir"])
                 p = Process(target=self._process_remote,args=(node,))
-                all_node.append(p)
+                p.daemon = True
+                p.start()
+                all_node.append((p,node))
 
             common.printout("LOG","waiting for all note finish analysis")
-            for proc in all_node:
-                proc.daemon = True
-                proc.start()
-            proc.join()
+            log_line = {}
+            while(1):
+                count = 0
+                for proc,node in all_node:
+                    if proc.is_alive():
+                        self.print_remote_log(log_line,node)
+                    else:
+                        count += 1
+                        common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-system.json"))
+                        common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
+                        self.print_remote_log(log_line,node)
+                if count == len(all_node):
+                    break
+                time.sleep(1)
+
             common.printout("LOG","all note finish analysis")
-
-            for node in self.cluster["osds"] + self.cluster["client"]:
-                common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-system.json"))
-                common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
-
             common.printout("LOG","Merging node process.")
             for dir_name in  self.cluster["osds"] + self.cluster["client"]:
                 system_file = os.path.join(self.workpath,dir_name+"-system.json")
