@@ -5,8 +5,12 @@ import json
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from collections import OrderedDict
-from conf import common
-from conf import description
+try:
+    from conf import common
+    from conf import description
+except:
+    import common 
+    import description
 import re
 import argparse
 
