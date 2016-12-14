@@ -25,6 +25,7 @@ class database(object):
                 iops float not null,
                 bw float not null,
                 latency float not null,
+                latency_99 float not null,
                 sniops float not null,
                 snbw float not null,
                 snlatency float not null
@@ -43,8 +44,13 @@ class database(object):
             rowdata[2] =='None'
         if rowdata[4] == '':
             rowdata[4] = 'None'
-        sqlstr = "insert into tb_report (runid,runid_tr,timestamp,status,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,sniops,snbw,snlatency) values ("+rowdata[1]+",'"+rowdata[0]+"','"+rowdata[2]+"','"+rowdata[3]+"','"+rowdata[4]+"','"+rowdata[5]+"','"+rowdata[6]+"','"+rowdata[7]+"','"+rowdata[8]+"',"+rowdata[9]+","+rowdata[10]+","+rowdata[11]+","+rowdata[12]+",'"+rowdata[13]+"','"+rowdata[14]+"','"+rowdata[15]+"','"+rowdata[16]+"','"+rowdata[17]+"','"+rowdata[18]+"')"
+        if len(rowdata) == 19:
+            sqlstr = "insert into tb_report (runid,runid_tr,timestamp,status,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,latency_99,sniops,snbw,snlatency) values ("+rowdata[1]+",'"+rowdata[0]+"','"+rowdata[2]+"','"+rowdata[3]+"','"+rowdata[4]+"','"+rowdata[5]+"','"+rowdata[6]+"','"+rowdata[7]+"','"+rowdata[8]+"',"+rowdata[9]+","+rowdata[10]+","+rowdata[11]+","+rowdata[12]+",'"+rowdata[13]+"','"+rowdata[14]+"','"+rowdata[15]+"','0.00','"+rowdata[16]+"','"+rowdata[17]+"','"+rowdata[18]+"')"
+        else:
+            sqlstr = "insert into tb_report (runid,runid_tr,timestamp,status,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,latency_99,sniops,snbw,snlatency) values ("+rowdata[1]+",'"+rowdata[0]+"','"+rowdata[2]+"','"+rowdata[3]+"','"+rowdata[4]+"','"+rowdata[5]+"','"+rowdata[6]+"','"+rowdata[7]+"','"+rowdata[8]+"',"+rowdata[9]+","+rowdata[10]+","+rowdata[11]+","+rowdata[12]+",'"+rowdata[13]+"','"+rowdata[14]+"','"+rowdata[15]+"','"+rowdata[16]+"','"+rowdata[17]+"','"+rowdata[18]+"','"+rowdata[19]+"')"
+
         #sqlstr = "insert into tb_report (runid,runid_tr,utatus,description,opsize,optype,qd,driver,snnumber,cnnumber,worker,runtime,iops,bw,latency,sniops,snbw,snlatency) values (%d,'%s','%s','%s','%s','%s','%s','%s',%d,%d,%d,%d,%f,%f,%f,%f,%f,%f)"%(rowdata[1],rowdata[0],rowdata[2],rowdata[3],rowdata[4],rowdata[5],rowdata[6],rowdata[7],rowdata[8],rowdata[9],rowdata[10],rowdata[11],rowdata[12],rowdata[13],rowdata[14],rowdata[15],rowdata[16],rowdata[17])
+        print sqlstr
         conn.execute(sqlstr)
         conn.commit()
         print "Add data to TB successfully."
