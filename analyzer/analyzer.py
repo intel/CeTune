@@ -146,16 +146,15 @@ class Analyzer:
             common.printout("LOG","waiting for all note finish analysis")
             log_line = {}
             while(1):
-                count = 0
                 for proc,node in all_node:
                     if proc.is_alive():
                         self.print_remote_log(log_line,node)
                     else:
-                        count += 1
                         common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-system.json"))
                         common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
                         self.print_remote_log(log_line,node)
-                if count == len(all_node):
+                        all_node.remove((proc,node))
+                if not len(all_node):
                     break
                 time.sleep(1)
 
