@@ -154,6 +154,7 @@ class Analyzer:
                         common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
                         self.print_remote_log(log_line,node)
                         all_node.remove((proc,node))
+                        common.pdsh(self.cluster["user"],[node],"rm %s/%s-cetune_console.log" % (self.cluster["tmp_dir"],node))
                 if not len(all_node):
                     break
                 time.sleep(1)
@@ -360,6 +361,7 @@ class Analyzer:
         tmp_data["IOPS"] = 0
         tmp_data["BW(MB/s)"] = 0
         tmp_data["Latency(ms)"] = 0
+        tmp_data["99.99%_lat(ms)"] = 0
         tmp_data["SN_IOPS"] = 0
         tmp_data["SN_BW(MB/s)"] = 0
         tmp_data["SN_Latency(ms)"] = 0
@@ -372,6 +374,7 @@ class Analyzer:
             write_IOPS = 0
             write_BW = 0
             write_Latency = 0
+            max_lat = 0
             for engine_candidate in data["workload"].keys():
                 if engine_candidate in benchmark_tool:
                     engine = engine_candidate
@@ -383,6 +386,7 @@ class Analyzer:
                 write_IOPS += float(node_data["write_iops"])
                 write_BW += float(node_data["write_bw"])
                 write_Latency += float(node_data["write_lat"])
+                max_lat += float(node_data["99.99%_lat"])
             if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
                 tmp_data["IOPS"] = "%.3f" % read_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % read_BW
@@ -398,6 +402,8 @@ class Analyzer:
                 tmp_data["BW(MB/s)"] = "%.3f, %.3f" % (read_BW, write_BW)
                 if rbd_count > 0:
                     tmp_data["Latency(ms)"] = "%.3f, %.3f" % ((read_Latency/rbd_count), (write_Latency/rbd_count))
+            if rbd_count > 0:
+                tmp_data["99.99%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
         except:
             pass
         read_SN_IOPS = 0
