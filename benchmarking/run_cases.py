@@ -88,7 +88,7 @@ def main(args):
             try:
                 additional_option = ''
                 for i in testcase["parameter"]:
-                    if i in ["restart","redeploy"]:
+                    if i in ["restart","redeploy","resetPerf"]:
                         additional_option = i
                 if additional_option != '':
                     if additional_option == "restart":
@@ -96,10 +96,10 @@ def main(args):
                     if additional_option == "redeploy":
                         run_deploy.main(['redeploy'])
                         tuner.main(['--section', tuning_section,'apply_tuning'])
+                    if additional_option == "resetPerf":
+                        run_deploy.main(['osd_perf_reset'])
 
-                    benchmark.go(testcase["parameter"], tuning_section)
-                else:
-                    benchmark.go(testcase["parameter"], tuning_section)
+                benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
                 common.printout("WARNING","Caught KeyboardInterrupt Interruption")
 

@@ -358,14 +358,19 @@ class Analyzer:
                 res = self.process_smartinfo_data( "%s/%s" % (dest_dir, dir_name))
                 result.update(res)
             if 'cosbench' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 workload_result.update(self.process_cosbench_data("%s/%s" %(dest_dir,  dir_name), dir_name))
             if '_sar.txt' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 result.update(self.process_sar_data("%s/%s" % (dest_dir, dir_name)))
             if 'totals.html' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 workload_result.update(self.process_vdbench_data("%s/%s" % (dest_dir, dir_name), "%s_%s" % (self.whoami, dir_name)))
             if '_fio.txt' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 workload_result.update(self.process_fio_data("%s/%s" % (dest_dir,  dir_name), dir_name))
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 if "_fio_iops.1.log" in dir_name:
                     volume = dir_name.replace("_fio_iops.1.log", "")
                 if "_fio_bw.1.log" in dir_name:
@@ -378,17 +383,21 @@ class Analyzer:
                 fio_log_res[volume]["fio_log"] = self.process_fiolog_data("%s/%s" % (dest_dir,  dir_name), fio_log_res[volume]["fio_log"] )
                 workload_result.update(fio_log_res)
             if '_iostat.txt' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 res = self.process_iostat_data( self.whoami, "%s/%s" % (dest_dir,  dir_name))
                 result.update(res)
             if '_interrupts_end.txt' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 if os.path.exists("%s/%s" % (dest_dir,  dir_name.replace('end','start'))):
                     interrupt_start = "%s/%s" % (dest_dir,  dir_name)
                     interrupt_end   = "%s/%s" % (dest_dir,  dir_name.replace('end','start'))
                     self.interrupt_diff(dest_dir,self.whoami,interrupt_start,interrupt_end)
             if '_process_log.txt' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 res = self.process_log_data( "%s/%s" % (dest_dir,  dir_name) )
                 result.update(res)
             if '.asok.txt' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 try:
                     res = self.process_perfcounter_data("%s/%s" % (dest_dir,  dir_name))
                     for key, value in res.items():
