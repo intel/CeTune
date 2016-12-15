@@ -154,7 +154,7 @@ class Analyzer:
                         common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
                         self.print_remote_log(log_line,node)
                         all_node.remove((proc,node))
-                        common.pdsh(self.cluster["user"],[node],"rm %s/%s-cetune_console.log" % (self.cluster["tmp_dir"],node))
+                        #common.pdsh(self.cluster["user"],[node],"rm %s/%s-cetune_console.log" % (self.cluster["tmp_dir"],node))
                 if not len(all_node):
                     break
                 time.sleep(1)
