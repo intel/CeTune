@@ -97,9 +97,8 @@ def main(args):
                         run_deploy.main(['redeploy'])
                         tuner.main(['--section', tuning_section,'apply_tuning'])
 
-                    benchmark.go(testcase["parameter"], tuning_section)
-                else:
-                    benchmark.go(testcase["parameter"], tuning_section)
+                run_deploy.main(['osd_perf_reset'])
+                benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
                 common.printout("WARNING","Caught KeyboardInterrupt Interruption")
 
