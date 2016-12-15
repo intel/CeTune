@@ -855,3 +855,13 @@ class Deploy(object):
                         'exec %s"' % (lttng_prefix, cmd), option="console",
                         except_returncode=1)
             common.printout("LOG","Started osd.%s daemon on %s" % (osd_name, osd_host))
+
+    def osd_perf_reset(self):
+        osd_list = self.get_daemon_info_from_ceph_conf("osd")
+        user = self.cluster["user"]
+        for osd in osd_list:
+            osd_name = osd["daemon_name"]
+            osd_host = osd["daemon_host"]
+            cmd = "ceph daemon osd.{0} perf reset all".format(osd_name)
+            common.pdsh(user, [osd_host],cmd)
+            common.printout("LOG","ceph daemon osd.{0} perf clean on {1}. ".format (osd_name, osd_host))

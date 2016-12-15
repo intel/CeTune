@@ -96,6 +96,9 @@ def main(args):
     if args.operation == "restart_rgw":
         mydeploy = deploy_rgw.Deploy_RGW()
         mydeploy.restart_rgw()
+    if args.operation == "osd_perf_reset":
+        mydeploy = deploy.Deploy()
+        mydeploy.osd_perf_reset()
 
 if __name__ == '__main__':
     import sys
