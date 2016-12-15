@@ -249,24 +249,35 @@ function CreateTableHTML_Benchmark(jsonObj){
             tableHtml += "<option>NULL</option>";
             tableHtml += "<option selected>restart</option>";
             tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
         }
         if(val.additional_option == "redeploy"){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
             tableHtml += "<option>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option selected>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
+        }
+        if(val.additional_option == "resetPerf"){
+            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+            tableHtml += "<option>NULL</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option selected>resetPerf</option>";
         }
         if(val.additional_option == "NULL"){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
             tableHtml += "<option selected>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
         }
         if(val.additional_option == ""){
             tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
             tableHtml += "<option selected>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
         }
         tableHtml += "</select>"
         tableHtml += "</td>";
@@ -469,12 +480,12 @@ function DeleteModal_OK(type){
 
 function Select_Value(){
     var _example_list = [
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy'],
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy'],
-        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write','restart,redeploy'],
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write','restart,redeploy'],
-        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write','restart,redeploy'],
-        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write','restart,redeploy']]
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write','restart,redeploy,resetPerf'],
+        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write','restart,redeploy,resetPerf']]
     var select_value = document.getElementById("recipient_benchmark_engine");
     var item = 0
     if(select_value.value == "qemurbd"){
@@ -710,24 +721,35 @@ function BenchMarkModel_OK(){
                 html += "<option>null</option>";
                 html += "<option selected>restart</option>";
                 html += "<option>redeploy</option>";
+                html += "<option>resetPerf</option>";
             }
             if(additional_option == "redeploy"){
                 html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
                 html += "<option>null</option>";
                 html += "<option>restart</option>";
                 html += "<option selected>redeploy</option>";
+                html += "<option>resetPerf</option>";
+            }
+            if(additional_option == "resetPerf"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+                html += "<option>null</option>";
+                html += "<option>restart</option>";
+                html += "<option>redeploy</option>";
+                html += "<option selected>resetPerf</option>";
             }
             if(additional_option == "null"){
                 html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
                 html += "<option selected>null</option>";
                 html += "<option>restart</option>";
                 html += "<option>redeploy</option>";
+                html += "<option>resetPerf</option>";
             }
             if(additional_option == ""){
                 html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
                 html += "<option selected>null</option>";
                 html += "<option>restart</option>";
                 html += "<option>redeploy</option>";
+                html += "<option>resetPerf</option>";
             }
             html += "</select>"
             html +="</td>";
