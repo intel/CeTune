@@ -102,8 +102,8 @@ class Analyzer:
                     common.printout("LOG",l)
             node_log[node] = h + 1
         except Exception as e:
-                common.printout("ERROR","print_remote_log failed")
-                common.printout("ERROR",str(e))
+                common.printout("WARNING","print_remote_log failed")
+                common.printout("WARNING",str(e))
             
 
     def process_data(self):
@@ -138,6 +138,12 @@ class Analyzer:
                 common.scp(self.cluster["user"],node,remote_file2,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file3,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file4,self.cluster["tmp_dir"])
+                
+                try:
+                    common.pdsh(self.cluster["user"],[node],"echo \"\" > " + self.cluster["tmp_dir"] +node+"-cetune_console.log")
+                except:
+                    pass
+
                 p = Process(target=self._process_remote,args=(node,))
                 p.daemon = True
                 p.start()
@@ -154,7 +160,6 @@ class Analyzer:
                         common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
                         self.print_remote_log(log_line,node)
                         all_node.remove((proc,node))
-                        #common.pdsh(self.cluster["user"],[node],"rm %s/%s-cetune_console.log" % (self.cluster["tmp_dir"],node))
                 if not len(all_node):
                     break
                 time.sleep(1)

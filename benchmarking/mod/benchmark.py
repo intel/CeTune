@@ -152,12 +152,6 @@ class Benchmark(object):
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
         monitor_interval = self.cluster["monitoring_interval"]
-
-        #clean up worker environment
-        worker = self.cluster["osd"] + self.cluster["client"]
-        common.pdsh(user,nodes,"rm -rf {0}/*".format(self.cluster["tmp_dir"]))
-
-
         #nodes.extend(self.benchmark["distribution"].keys())
         common.pdsh(user, nodes, "sync && echo '%s' > /proc/sys/vm/drop_caches" % self.cluster["cache_drop_level"])
 
