@@ -161,7 +161,10 @@ class Tuner:
 
         config = {}
         #get [system] config
-        config["disk"] = self.handle_disk(option="get")
+        try:
+            config["disk"] = self.handle_disk(option="get")
+        except:
+            pass
 
         #get [ceph version]
         #config['version'] = self.get_version()
@@ -254,6 +257,43 @@ class Tuner:
         else:
             tmp_tuning_diff = ['global']
 
+        if 'disk' in tmp_tuning_diff:
+            param = {}
+            for param_name, param_data in self.worksheet[jobname]['disk'].items():
+                param[param_name] = param_data
+            try:
+                if param != {}:
+                    self.handle_disk( option="set", param=param )
+                else:
+                    self.handle_disk( option="set" )
+            except:
+                pass
+        if 'global' in tmp_tuning_diff or 'osd' in tmp_tuning_diff or 'mon' in tmp_tuning_diff:
+            if self.cluster["rgw_enable"]=="true" and len(self.cluster["rgw"]):
+                with_rgw = True
+            else:
+                with_rgw = False
+            tuning = {}
+            for section_name, section in self.worksheet[jobname].items():
+                if section_name in ["version","workstages","pool","benchmark_engine"]:
+                    continue
+                tuning[section_name] = section
+            common.printout("LOG","Apply osd and mon tuning to ceph.conf")
+            if with_rgw:
+                run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
+            else:
+                run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
+            common.printout("LOG","Distribute ceph.conf")
+            if with_rgw:
+                run_deploy.main(['--with_rgw','distribute_conf'])
+            else:
+                run_deploy.main(['distribute_conf'])
+            if not no_check:
+                common.printout("LOG","Restart ceph cluster")
+                if with_rgw:
+                    run_deploy.main(['--with_rgw','restart'])
+                else:
+                    run_deploy.main(['restart'])
         if 'pool' in tmp_tuning_diff:
             pool_exist = False
             new_poolname = self.worksheet[jobname]['pool'].keys()[0]
@@ -283,40 +323,6 @@ class Tuner:
                     continue
                 if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                     self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
-        if 'global' in tmp_tuning_diff or 'osd' in tmp_tuning_diff or 'mon' in tmp_tuning_diff:
-            if self.cluster["rgw_enable"]=="true" and len(self.cluster["rgw"]):
-                with_rgw = True
-            else:
-                with_rgw = False
-            tuning = {}
-            for section_name, section in self.worksheet[jobname].items():
-                if section_name in ["version","workstages","pool","benchmark_engine"]:
-                    continue
-                tuning[section_name] = section
-            common.printout("LOG","Apply osd and mon tuning to ceph.conf")
-            if with_rgw:
-                run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
-            else:
-                run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
-            common.printout("LOG","Distribute ceph.conf")
-            if with_rgw:
-                run_deploy.main(['--with_rgw','distribute_conf'])
-            else:
-                run_deploy.main(['distribute_conf'])
-            if not no_check:
-                common.printout("LOG","Restart ceph cluster")
-                if with_rgw:
-                    run_deploy.main(['--with_rgw','restart'])
-                else:
-                    run_deploy.main(['restart'])
-        if 'disk' in tmp_tuning_diff:
-            param = {}
-            for param_name, param_data in self.worksheet[jobname]['disk'].items():
-                param[param_name] = param_data
-            if param != {}:
-                self.handle_disk( option="set", param=param )
-            else:
-                self.handle_disk( option="set" )
 
         if no_check:
             return
