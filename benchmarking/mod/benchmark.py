@@ -1,11 +1,15 @@
 import subprocess
 from conf import *
 import copy
+import json
 import os, sys
 import time
 import re
 import uuid
+from visualizer import *
 from analyzer import *
+from collections import OrderedDict
+import threading
 lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 class Benchmark(object):
@@ -59,10 +63,77 @@ class Benchmark(object):
             self.setStatus("Completed")
 
         common.printout("LOG","Post Process Result Data")
+        total_result = self.combine_nodes_result()
+        common.printout("LOG","Write analyzed results into result.json")
         try:
-            analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
+            with open('%s/result.json' % self.cluster["dest_dir"], 'w') as f:
+                json.dump(total_result, f, indent=4)
+            view = visualizer.Visualizer(total_result, self.cluster["dest_dir"])
+            output = view.generate_summary_page()
         except:
-            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
+             common.printout("ERROR","Write analyzed results into result.json failed")
+
+
+    def combine_nodes_result(self):
+        self.ab_nodes = self.check_osd_result_exists()
+        self.combine_result = OrderedDict()
+        self.nodes_result = OrderedDict()
+        self.clients_result = OrderedDict()
+        try:
+            for node in self.cluster["osd"]:
+                if node not in self.ab_nodes:
+                    node_result = json.load(open('%s/raw/%s/%s_result.json' %(self.cluster["dest_dir"],node,node)), object_pairs_hook=OrderedDict)
+                    if len(self.nodes_result) == 0:
+                        self.nodes_result.update(node_result)
+                    else:
+                        for col in self.nodes_result["ceph"].keys():
+                            self.nodes_result["ceph"][col].update(node_result["ceph"][col])
+            self.combine_result.update(self.nodes_result)
+        except Exception:
+            common.printout("ERROR","combine osd result failed!")
+            pass
+
+        try:
+            for client in self.benchmark["distribution"].keys():
+                client_reult = json.load(open('%s/raw/%s/%s_result.json' %(self.cluster["dest_dir"],client,client)), object_pairs_hook=OrderedDict)
+                if len(self.clients_result) == 0:
+                    self.clients_result.update(client_reult)
+                else:
+                    self.clients_result["workload"].update(client_reult["workload"])
+                    self.clients_result["client"].update(client_reult["client"])
+
+            self.combine_result["workload"] = self.clients_result["workload"]
+            self.combine_result["client"] = self.clients_result["client"]
+        except Exception:
+            common.printout("ERROR","combine client result failed!")
+            pass
+        ana = analyzer.Analyzer(self.cluster["dest_dir"])
+        try:
+            self.combine_result["status"] = ana.getStatus()
+            self.combine_result["description"] = ana.getDescription()
+        except Exception:
+            common.printout("ERROR","combine status or decription failed!")
+            pass
+
+        if len(self.combine_result) != 0:
+            self.combine_result = ana.summary_result(self.combine_result)
+            self.combine_result["summary"]["Download"] = {"Configuration":{"URL":"<button class='cetune_config_button' href='../results/get_detail_zip?session_name=%s&detail_type=conf'><a>Click TO Download</a></button>" % self.combine_result["session_name"]}}
+            node_ceph_version = {}
+            if ana.collect_node_ceph_version(os.path.join(self.cluster["dest_dir"],'raw')):
+                for key,value in ana.collect_node_ceph_version(os.path.join(self.cluster["dest_dir"],"raw")).items():
+                    node_ceph_version[key] = {"ceph_version":value}
+            self.combine_result["summary"]["Node"] = node_ceph_version
+	return self.combine_result
+
+    def check_osd_result_exists(self):
+        nodes = self.cluster["osd"]
+        abnormal_node = []
+        for osd in self.cluster["osd"]:
+            result_path = "%s/raw/%s/%s_result.json"%(self.cluster["dest_dir"],osd,osd)
+            if not os.path.exists(result_path):
+                abnormal_node.append(osd)
+        return abnormal_node
+
 
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]
@@ -225,6 +296,9 @@ class Benchmark(object):
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
             common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*client*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time_tmp, dest_dir, monitor_interval, '%s', dest_dir), option="force")
 
+    def sleep(self):
+        time.sleep(30)
+
     def archive(self):
         user = self.cluster["user"]
         head = self.cluster["head"]
@@ -248,24 +322,97 @@ class Benchmark(object):
         #write description to dir
         with open( "%s/conf/description" % dest_dir, 'w+' ) as f:
             f.write( self.benchmark["description"] )
+
+        #copy all.conf to all node's log path
+        self.cetune_path = os.path.join(self.cluster["tmp_dir"],'CeTune/')
+        self.loacl_cetune_path = '/'
+        try:
+            for i in os.path.join(os.getcwd().split('/')[:-1]):
+                self.loacl_cetune_path = os.path.join(self.loacl_cetune_path,i)
+            for osd in self.cluster["osd"]:
+                common.scp(user, osd, "%s/conf/all.conf" % (self.loacl_cetune_path), "%s/all.conf" % self.cluster["tmp_dir"])
+
+            for client in self.benchmark["distribution"].keys():
+                common.scp(user, client, "%s/conf/all.conf" % (self.loacl_cetune_path), "%s/all.conf" % self.cluster["tmp_dir"])
+        except Exception:
+            common.printout("ERROR","copy all.conf to nodes failed!")
+            pass
+
+        #do analyzer at node
+        abnormal_node = []
+        self.threads = []
+        self.thrad_id = {}
+        for node in self.cluster["osd"]:
+            self.node_list = []
+            self.node_list.append(node)
+            if self.check_node_cetune('root',node,self.cetune_path):
+                tr_name = 'tr_'+node
+                tr_name  = threading.Thread(target=common.pdsh,args=(user, self.node_list,"cd /%s/analyzer/;python node_analyzer.py --path /%s node_process_data --case_name %s --node_name %s"%(self.cetune_path,self.cluster["tmp_dir"],dest_dir.split('/')[-1],node)))
+                self.threads.append(tr_name)
+        for i in self.threads:
+            i.setDaemon(True)
+            i.start()
+	i.join()
+
+        time.sleep(15)
+
         #collect osd data
         for node in self.cluster["osd"]:
+
             common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.json" % self.cluster["tmp_dir"])
             if "blktrace" in self.cluster["collector"]:
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*blktrace*" % self.cluster["tmp_dir"])
             if "lttng" in self.cluster["collector"]:
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/lttng-traces" % self.cluster["tmp_dir"])
 
+        #do analyzer at client
+        abnormal_client = []
+        self.threads = []
+        self.thrad_id = {}
+        for client in self.benchmark["distribution"].keys():
+            self.client_list = []
+            self.client_list.append(client)
+            if self.check_node_cetune('root',client,self.cetune_path):
+                tr_name = 'tr_'+client
+                if client in self.cluster["head"]:
+                    tr_name  = threading.Thread(target=common.pdsh,args=(user, self.client_list,"cd /%s/analyzer/;python node_analyzer.py --path /%s node_process_data --case_name %s --node_name %s"%(self.loacl_cetune_path,self.cluster["tmp_dir"],dest_dir.split('/')[-1],client)))
+                else:
+                    tr_name  = threading.Thread(target=common.pdsh,args=(user, self.client_list,"cd /%s/analyzer/;python node_analyzer.py --path /%s node_process_data --case_name %s --node_name %s"%(self.cetune_path,self.cluster["tmp_dir"],dest_dir.split('/')[-1],client)))
+                self.threads.append(tr_name)
+        for i in self.threads:
+            i.setDaemon(True)
+            i.start()
+	i.join()
+
+        time.sleep(15)
+
         #collect client data
         for node in self.benchmark["distribution"].keys():
             common.bash( "mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.json" % self.cluster["tmp_dir"])
 
         #save real runtime
         if self.real_runtime:
             with open("%s/real_runtime.txt" % dest_dir, "w") as f:
                 f.write(str(int(self.real_runtime)))
+
+    def check_node_cetune(self,user,node,cetune_path):
+        try:
+            nodes = []
+            nodes.append(node)
+            reback_msg = common.pdsh(user, nodes,"ls /%s"%cetune_path,option = "check_return")
+            self.status = True
+            for i in reback_msg:
+                if "No such file" in i:
+                    self.status = False
+            return self.status
+        except e,Exception:
+            return False
+
+
 
     def stop_data_collecters(self):
         #2. clean running process

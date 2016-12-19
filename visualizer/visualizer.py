@@ -27,12 +27,13 @@ class Visualizer:
             else:
                 all_path = path
         self.all_conf_data = config.Config("%s/all.conf" % all_path)
+        #self.db_path = "/home/"
         self.db_path = self.all_conf_data.get("dest_dir")
         self.result = result
         self.output = []
         if path:
             self.path = path
-            self.session_name = os.path.basename(path.strip('/'))
+            self.result["session_name"] = os.path.basename(path.strip('/'))
         self.dest_dir_remote_bak = self.all_conf_data.get("dest_dir_remote_bak", dotry = True)
         self.user = self.all_conf_data.get("user")
 
