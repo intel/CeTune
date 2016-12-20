@@ -60,6 +60,7 @@ class Benchmark(object):
 
         common.printout("LOG","Post Process Result Data")
         try:
+	    common.printout("LOG","%s"%self.cluster["dest_dir"])
             analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
         except:
             common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])

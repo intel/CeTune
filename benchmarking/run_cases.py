@@ -83,6 +83,8 @@ def main(args):
                 benchmark = hook.Hook()
             if testcase["engine"] == "vdbench":
                 benchmark = vdbench.VdBench()
+            if testcase["engine"] == "sysbench":
+                benchmark = sysbench.SysBench()
             if not benchmark:
                 common.printout("ERROR","Unknown benchmark engine")
             try:

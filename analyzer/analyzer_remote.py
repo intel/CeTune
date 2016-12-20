@@ -361,6 +361,9 @@ class Analyzer:
             if 'cosbench' in dir_name:
                 self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 workload_result.update(self.process_cosbench_data("%s/%s" %(dest_dir,  dir_name), dir_name))
+            if 'sysbench' in dir_name:
+                self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
+                workload_result.update(self.process_sysbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), node_name, dir_name))
             if '_sar.txt' in dir_name:
                 self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 result.update(self.process_sar_data("%s/%s" % (dest_dir, dir_name)))
@@ -669,6 +672,40 @@ class Analyzer:
             stdout = self.common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
             result[output] = self.common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
+        return result
+
+    def process_sysbench_data(self, path,node_name, dirname):
+        result = {}
+        sysbench_data = {}
+        runtime_tmp = path.replace(self.all_conf_data.get("dest_dir"),'').split('/')
+        while '' in runtime_tmp:
+            runtime_tmp.remove('')
+        runtime = runtime_tmp[0].split('-')[-2]
+        with open(path,"r") as fd:
+            self.data = fd.readlines()
+        self.sysbench_data = {}
+        if len(self.data) != 0:
+            for i in self.data:
+                self.line = i.strip('\n').split(':')
+                while '' in self.line:
+                    self.line.remove('')
+                if len(self.line) == 2:
+                    self.sysbench_data[self.line[0].strip()] = self.line[1].strip()
+            output_sysbench_data = OrderedDict()
+            output_sysbench_data['read_lat'] = '%.3f'%float(self.sysbench_data["avg"].strip("ms"))
+            output_sysbench_data["read_iops"] = '%.3f'%(int(self.sysbench_data["read"])/int(runtime))
+            output_sysbench_data["read_bw"] = '0.000'
+            output_sysbench_data['read_runtime'] = '%.3f'%float(runtime)
+            output_sysbench_data['write_lat'] = '%.3f'%float(self.sysbench_data["avg"].strip("ms"))
+            output_sysbench_data["write_iops"] = '%.3f'%(int(self.sysbench_data["write"])/int(runtime))
+            output_sysbench_data["write_bw"] = '0.000'
+            output_sysbench_data["99.99%_lat"] = '%.3f'%float(self.sysbench_data["approx.  99 percentile"].strip("ms"))
+            output_sysbench_data['write_runtime'] = '%.3f'%float(runtime)
+            output_sysbench_data['lat_unit'] = 'msec'
+            output_sysbench_data['runtime_unit'] = 'sec'
+            output_sysbench_data['bw_unit'] = 'MB/s'
+            result[node_name] = {}
+            result[node_name]["sysbench"] = output_sysbench_data
         return result
 
     def process_vdbench_data(self, path, dirname):
