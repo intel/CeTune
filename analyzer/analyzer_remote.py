@@ -15,6 +15,7 @@ import numpy
 import copy
 import config
 from multiprocessing import Process
+import csv
 
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
@@ -389,8 +390,8 @@ class Analyzer:
             if '_interrupts_end.txt' in dir_name:
                 self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
                 if os.path.exists("%s/%s" % (dest_dir,  dir_name.replace('end','start'))):
-                    interrupt_start = "%s/%s" % (dest_dir,  dir_name)
-                    interrupt_end   = "%s/%s" % (dest_dir,  dir_name.replace('end','start'))
+                    interrupt_end = "%s/%s" % (dest_dir,  dir_name)
+                    interrupt_start   = "%s/%s" % (dest_dir,  dir_name.replace('end','start'))
                     self.interrupt_diff(dest_dir,self.whoami,interrupt_start,interrupt_end)
             if '_process_log.txt' in dir_name:
                 self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
@@ -420,8 +421,8 @@ class Analyzer:
     def interrupt_diff(self,dest_dir,node_name,s_path,e_path):
         s_p = s_path
         e_p = e_path
-        result_name = node_name+'_interrupt.txt'
-        result_path = os.path.join(dest_dir.replace('raw','conf'),result_name)
+        result_name = node_name+'_interrupt.csv'
+        result_path_node = os.path.join(dest_dir,result_name)
         s_l = []
         e_l = []
         diff_list = []
@@ -446,25 +447,35 @@ class Analyzer:
                 lines = []
                 for j in range(len(s_l[i])):
                     if s_l[i][j].isdigit() and e_l[i][j].isdigit():
-                        diff_value = int(e_l[i][j]) - int(s_l[i][j])
                         lines.append(int(e_l[i][j]) - int(s_l[i][j]))
                     else:
                         lines.append(e_l[i][j])
                 diff_list.append(lines)
-            if os.path.exists(result_path):
-                os.remove(result_path)
-            output = open(result_path,'w+')
-            for line in diff_list:
-                line_str = ''
-                for col in range(len(line)):
-                    if col != len(line)-1:
-                        line_str += str(line[col])+'    '
-                    else:
-                        line_str += str(line[col])
-                output.writelines(line_str)
-            output.close()
+            ##write interrupt to node and conf
+            self.common.printout("LOG","write interrput to node and conf.")
+            if os.path.exists(result_path_node):
+                os.remove(result_path_node)
+            output_node = file(result_path_node,'wb')
+            interrupt_csv_node = csv.writer(output_node)
+            if len(diff_list) != 0:
+                diff_list[0][0] = ""
+                interrupt_csv_node.writerow(diff_list[0])
+                del diff_list[0]
+                new_diff_list = self.delete_colon(diff_list)
+                for i in new_diff_list:
+                    interrupt_csv_node.writerows([i])
+                output_node.close()
+            else:
+                self.common.printout("WARNING","no interrupt.")
         else:
-            print 'ERROR: interrupt_start lines and interrupt_end lines are diffrent ! can not calculate diffrent value!'
+            self.common.printout("ERROR",'interrupt_start lines and interrupt_end lines are different ! can not calculate different value!')
+
+    def delete_colon(self,data_list):
+        self.d_list = data_list
+        for i in range(len(self.d_list)):
+            self.d_list[i][0] = self.d_list[i][0].replace(":","")
+            self.d_list[i][-1] = self.d_list[i][-1].strip("\n")
+        return self.d_list
 
     def check_interrupt(self,s_inter,e_inter):
         result = "True"
