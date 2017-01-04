@@ -714,18 +714,33 @@ class Analyzer:
         time_shift = 1000
         with open( path, "r" ) as f:
             cur_sec = -1
-            for line in f.readlines():
-                data = line.split(",")
-                timestamp_sec = int(data[0])/time_shift
-                value = int(data[1])
-                if timestamp_sec > cur_sec:
-                    if cur_sec >= 0:
-                        res.append(numpy.mean(tmp_res))
-                    tmp_res = []
-                    cur_sec = timestamp_sec
-                tmp_res.append( value )
-            if len(tmp_res) != 0:
-                res.append(numpy.mean(tmp_res))
+            self.tmp_res = []
+            if 'iops' in path:
+                self.iops_value = 0
+                for line in f.readlines():
+                    data = line.split(",")
+                    value = int(data[1])
+                    timestamp_sec = int(data[0])/time_shift
+                    if timestamp_sec > cur_sec:
+                        if cur_sec >= 0:
+                            self.tmp_res.append( self.iops_value )
+                            self.iops_value = 0
+                        cur_sec = timestamp_sec
+                    self.iops_value += value
+                if len(self.tmp_res) != 0:
+                    res.extend(self.tmp_res)
+            else:
+                for line in f.readlines():
+                    data = line.split(",")
+                    timestamp_sec = int(data[0])/time_shift
+                    value = int(data[1])
+                    if timestamp_sec > cur_sec:
+                        if cur_sec >= 0:
+                            res.append(numpy.mean(self.tmp_res))
+                        cur_sec = timestamp_sec
+                    self.tmp_res.append( value )
+                if len(self.tmp_res) != 0:
+                    res.append(numpy.mean(self.tmp_res))
         return result
 
 
