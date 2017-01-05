@@ -200,14 +200,16 @@ class Visualizer:
         common.printout("LOG","Generating history view")
         dbpath = os.path.join(self.db_path,"cetune_report.db")
         if not self.check_DB_case_list(self.db_path,dbpath):
-            stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
-            res = common.format_pdsh_return(stdout)
-            if remote_host not in res:
-                common.printout("ERROR","Generating history view failed")
-                return False
+            #stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
+            #res = common.format_pdsh_return(stdout)
+            #if remote_host not in res:
+            #    common.printout("ERROR","Generating history view failed")
+            #    return False
             # some modification in greped trs
+            stdout = common.bash("find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir)
+            res_tmp = stdout.split("\n");
             formated_report = {}
-            report_lines = re.findall('(<tr.*?</tr>)',res[remote_host],re.S)
+            report_lines = re.findall('(<tr.*?</tr>)',res_tmp,re.S)
             for line in report_lines:
                 tr_start = re.search('(<tr.*?>)', line, re.S).group(1)
                 data = re.findall('<td>(.*?)</td>', line, re.S)
@@ -247,7 +249,7 @@ class Visualizer:
         output.extend( self.getSummaryTitle() )
         #output.append(" </thead>")
         #output.append(" <tbody>")
-        #output.append(res[remote_host])
+        #output.append(res_tmp)
         for runid in sorted(lines.keys()):
             output.append(lines[runid])
         #output.append(" </tbody>")
