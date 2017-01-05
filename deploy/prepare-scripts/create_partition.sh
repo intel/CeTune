@@ -55,7 +55,7 @@ function part_disk {
     fi
 }
 
-if [ $# -ne 5 ] && [ $# -ne 3 ] && [ $# -ne 5 ]
+if [ $# -ne 5 ] && [ $# -ne 3 ] && [ $# -ne 5 ] && [ $# -ne 6 ]
 then
         echo $#
         echo "Description:"
@@ -105,7 +105,7 @@ do
             list_device $host $osd_disk
             ;;
         -w)
-            if [[ "$6" == "1" ]]
+            if [[ "$6" == "-a" ]]
             then
                 do_partition_to_dev $host $osd_disk $osd_partition_count $osd_partition_size 1
             else
