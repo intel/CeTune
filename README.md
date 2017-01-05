@@ -19,9 +19,11 @@
 * * *
 ####Installation
 - Install to head and workers:
+
 ```
 head and workers need deploy apt-get,wget,pip proxy.
 apt-get install -y python
+```
 
 - Install to head:
 
@@ -31,7 +33,7 @@ git clone https://github.com/01org/CeTune.git
 cd /CeTune/deploy/
 python controller_dependencies_install.py
 
-#make sure head is able to autossh all worker nodes and 127.0.0.1
+# make sure head is able to autossh all worker nodes and 127.0.0.1
 cd ${CeTune_PATH}/deploy/prepare-scripts; ./configure_autossh.sh ${host} ${ssh_password}
 ```
 
@@ -57,13 +59,13 @@ python setup.py install
 cd ${CeTune_PATH}/webui/
 Python webui.py
 
-#you will see below output
+# you will see below output
 root@client01:/CeTune/webui# python webui.py
 http://0.0.0.0:8080/
 ```
 - CeTune WebUI
 
-![webui.png](../static/pic/webui.png)
+![webui.png](static/pic/webui.png)
 
 * * *
 ####Configure
@@ -96,11 +98,11 @@ Assume ceph is installed on all nodes, this part is demonstrate the workflow of 
 
 - Uncheck 'Benchmark' and only check 'Deploy', then click 'Execute'
 
-![webui_deploy.png](../static/pic/webui_deploy.png)
+![webui_deploy.png](static/pic/webui_deploy.png)
 
 - WebUI will jump to 'CeTune Status' and you will about to see below console logs
 
-![webui_deploy_detail.png](../static/pic/webui_deploy_detail.png)
+![webui_deploy_detail.png](static/pic/webui_deploy_detail.png)
 
 
 * * *
@@ -117,11 +119,11 @@ Assume ceph is installed on all nodes, this part is demonstrate the workflow of 
 * * *
 ####Check Benchmark Results
 
-![webui_result.png](../static/pic/webui_result.png)
+![webui_result.png](static/pic/webui_result.png)
 
-![webui_result_detail.png](../static/pic/webui_result_detail.png)
+![webui_result_detail.png](static/pic/webui_result_detail.png)
 
-![webui_result_detail2.png](../static/pic/webui_result_detail2.png)
+![webui_result_detail2.png](static/pic/webui_result_detail2.png)
 
 
 * * *
