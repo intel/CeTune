@@ -207,7 +207,7 @@ class Visualizer:
             #    return False
             # some modification in greped trs
             stdout = common.bash("find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir)
-            res_tmp = stdout.split("\n");
+            res_tmp = stdout;
             formated_report = {}
             report_lines = re.findall('(<tr.*?</tr>)',res_tmp,re.S)
             for line in report_lines:
