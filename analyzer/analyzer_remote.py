@@ -45,7 +45,7 @@ class Analyzer:
         self.cluster["osd_daemon_num"] = 0
         self.cluster["perfcounter_data_type"] = self.all_conf_data.get_list("perfcounter_data_type")
         self.cluster["perfcounter_time_precision_level"] = self.all_conf_data.get("perfcounter_time_precision_level")
-        self.cluster["distributed"] = self.all_conf_data.get("distributed")
+        self.cluster["distributed"] = self.all_conf_data.get("distributed_data_process")
         self.cluster["tmp_dir"] =self.all_conf_data.get("tmp_dir")
         self.result = OrderedDict()
         self.result["workload"] = OrderedDict()
