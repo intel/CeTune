@@ -208,6 +208,7 @@ class ConfigHandler():
         required_list["ceph_hard_config"]["osd_objectstore"] = "filestore"
         required_list["benchmark"] = OrderedDict()
         required_list["benchmark"]["disable_tuning_check"] = "false"
+        required_list["benchmark"]["distributed_data_process"] = "false"
         required_list["benchmark"]["tmp_dir"]="/opt/"
         required_list["benchmark"]["dest_dir"]="/mnt/data/"
         required_list["benchmark"]["cache_drop_level"]=1
