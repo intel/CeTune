@@ -216,6 +216,7 @@ class Config():
         required["monitoring_interval"] = {"type":"int"}
         required["disk_format"] = {"type":"diskformat"}
         required["disable_tuning_check"] = {"type":"bool"}
+        required["distributed_data_process"] = {"type":"bool"}
 
         helper = ConfigHelper()
         if key in required:
