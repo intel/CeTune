@@ -57,7 +57,19 @@ class IPHandler:
 
     def getIpByHostInSubnet(self, hostname, subnet ):
         "Get IP by hostname and filter with subnet"
-        (hostname, aliaslist, ipaddrlist) = socket.gethostbyname_ex(hostname)
+        stdout, stderr = pdsh('root', [hostname] ,"ifconfig", option = "check_return")
+        if len(stderr):
+            printout("ERROR", 'Error to get ips: %s' % stderr)
+            sys.exit()
+        ipaddrlist = []
+        res = re.findall("inet addr:\d+\.\d+\.\d+\.\d+",stdout)
+        for item in res:
+            b = item.split(':')
+            if b[1] != "127.0.0.1":
+                ipaddrlist.append(b[1])
+        if len(ipaddrlist) == 0:
+            printout("ERROR", "No IP found")
+            sys.exit()
         try:
             network, netmask = self.networkMask(subnet)
         except:
