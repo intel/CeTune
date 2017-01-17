@@ -292,7 +292,7 @@ class Visualizer:
         output.append(" <th data-resizable-column-id='12'><a title='Benchmarked IOPS' id='runid_fio_iops' href='#'>IOPS</a></th>")
         output.append(" <th data-resizable-column-id='13'><a title='Benchmarked Bandwidth' id='runid_fio_bw' href='#'>BW(MB/s)</a></th>")
         output.append(" <th data-resizable-column-id='14'><a title='Benchmarked Latency' id='runid_fio_latency' href='#'>Latency(ms)</a></th>")
-        output.append(" <th data-resizable-column-id='15'><a title='Benchmarked Latency 99.99' id='runid_fio_latency_99' href='#'>99.99% Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='15'><a title='Benchmarked Latency 99.00' id='runid_fio_latency_99' href='#'>99.00% Latency(ms)</a></th>")
         output.append(" <th data-resizable-column-id='16'><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
         output.append(" <th data-resizable-column-id='17'><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
         output.append(" <th data-resizable-column-id='18'><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
