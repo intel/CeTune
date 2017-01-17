@@ -365,7 +365,7 @@ class Analyzer:
         tmp_data["IOPS"] = 0
         tmp_data["BW(MB/s)"] = 0
         tmp_data["Latency(ms)"] = 0
-        tmp_data["99.99%_lat(ms)"] = 0
+        tmp_data["99.00th%_lat(ms)"] = 0
         tmp_data["SN_IOPS"] = 0
         tmp_data["SN_BW(MB/s)"] = 0
         tmp_data["SN_Latency(ms)"] = 0
@@ -390,7 +390,7 @@ class Analyzer:
                 write_IOPS += float(node_data["write_iops"])
                 write_BW += float(node_data["write_bw"])
                 write_Latency += float(node_data["write_lat"])
-                max_lat += float(node_data["99.99%_lat"])
+                max_lat += float(node_data["99.00th%_lat"])
             if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
                 tmp_data["IOPS"] = "%.3f" % read_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % read_BW
@@ -407,7 +407,7 @@ class Analyzer:
                 if rbd_count > 0:
                     tmp_data["Latency(ms)"] = "%.3f, %.3f" % ((read_Latency/rbd_count), (write_Latency/rbd_count))
             if rbd_count > 0:
-                tmp_data["99.99%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
+                tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
         except:
             pass
         read_SN_IOPS = 0
@@ -867,16 +867,17 @@ class Analyzer:
         output_fio_data['write_iops'] = 0
         output_fio_data['write_bw'] = 0
         output_fio_data['write_runtime'] = 0
+
         if len(lat_per_dict) != 0:
-            if '99.99th' in lat_per_dict.keys():
-                #output_fio_data['99.99%_lat'] = lat_per_dict['99.99th']
-                lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
-                if len(lat_persent_unit) != 0:
-                    output_fio_data['99.99%_lat'] = float(common.time_to_sec("%s%s" % (lat_per_dict['99.99th'], lat_persent_unit[0]),'msec'))
+            for tmp_key in ["99.00th", "99.99th"]:
+                if tmp_key in lat_per_dict.keys():
+                    lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
+                    if len(lat_persent_unit) != 0:
+                        output_fio_data[tmp_key+"%_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict[tmp_key], lat_persent_unit[0]),'msec'))
+                    else:
+                        output_fio_data[tmp_key+"%_lat"] = 'null'
                 else:
-                    output_fio_data['99.99%_lat'] = 'null'
-            else:
-                output_fio_data['99.99%_lat'] = 'null'
+                    output_fio_data[tmp_key+"%_lat"] = 'null'
         output_fio_data['lat_unit'] = 'msec'
         output_fio_data['runtime_unit'] = 'sec'
         output_fio_data['bw_unit'] = 'MB/s'
