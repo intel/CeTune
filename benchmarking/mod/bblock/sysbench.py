@@ -1,0 +1,334 @@
+from ..benchmark import *
+from collections import OrderedDict
+import itertools
+from multiprocessing import Process
+import time
+
+class SysBench(Benchmark):
+    def load_parameter(self):
+        super(self.__class__, self).load_parameter()
+        self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
+        disk_num_per_client = self.cluster["disk_num_per_client"]
+        self.volume_size = self.all_conf_data.get("volume_size")
+        self.instance_list = self.cluster["vclient"]
+        self.testjob_distribution(disk_num_per_client, self.instance_list)
+
+    def prepare_result_dir(self):
+        #1. prepare result dir
+        self.get_runid()
+        vdisk = self.benchmark["vdisk"].split('/')[-1]
+        self.benchmark["section_name"] = "sysbench-%s-%s-qd%s-%s-%s-%s-%s" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"], vdisk)
+        self.benchmark["dirname"] = "%s-%s-%s" % (str(self.runid), str(self.benchmark["instance_number"]), self.benchmark["section_name"])
+        self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
+
+        if common.remote_dir_exist( self.cluster["user"], self.cluster["head"], self.cluster["dest_dir"] ):
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            sys.exit()
+
+        common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
+
+    def prepare_images(self):
+        pass
+        '''
+        user =  self.cluster["user"]
+        dest_dir = self.cluster["tmp_dir"]
+        controller =  self.cluster["head"]
+        rbd_count = len(self.instance_list)
+        rbd_size = self.all_conf_data.get("volume_size")
+        if rbd_count and rbd_size:
+            super(self.__class__, self).create_image(rbd_count, rbd_size, 'rbd')
+        else:
+            common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf")
+
+        #create image xml
+        common.printout("LOG","create rbd volume vm attach xml")
+        common.scp(user, controller, "%s/vm-scripts" % (self.pwd), "/opt/");
+        common.scp(user, controller, "%s/conf" % (self.pwd), "/opt/");
+        common.pdsh(user, [controller], "cd /opt/vm-scripts; echo 3 | bash create-volume.sh create_disk_xml", "check_return")
+        common.rscp(user, controller, "%s/vm-scripts/" % (self.pwd), "/opt/vm-scripts/vdbs/");
+        common.printout("LOG","Distribute vdbs xml")
+        for client in self.cluster["testjob_distribution"]:
+            common.scp(user, client, "../vm-scripts/vdbs", dest_dir)
+
+        #attach to vm
+        self.attach_images(self.cluster["testjob_distribution"])
+
+        #init
+        common.printout("LOG","rbd initialization finished")
+        '''
+
+    def prerun_check(self):
+        super(self.__class__, self).prerun_check()
+        pass
+        '''#1. check is vclient alive
+        user = self.cluster["user"]
+        vdisk = self.benchmark["vdisk"]
+        planed_space = str(len(self.instance_list) * int(self.volume_size)) + "MB"
+        common.printout("LOG","Prerun_check: check if rbd volume be intialized")
+        if not self.check_rbd_init_completed(planed_space):
+            common.printout("WARNING","rbd volume initialization has not be done")
+            self.prepare_images()
+
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend( self.benchmark["distribution"][client] )
+
+        #common.printout("LOG","Prerun_check: check if fio installed in vclient")
+        #common.pdsh(user, nodes, "fio -v")
+        common.printout("LOG","Prerun_check: check if rbd volume attached")
+        need_to_attach = False
+        stdout, stderr = common.pdsh(user, nodes, "fdisk -l %s" % vdisk, option="check_return")
+        res = common.format_pdsh_return(stdout)
+        if len(nodes) != len(res.keys()):
+            need_to_attach = True
+        if need_to_attach:
+            common.printout("WARNING","vclients are not attached with rbd volume")
+            self.attach_images()
+            common.printout("WARNING","vclients attached rbd volume now")
+        common.printout("LOG","Prerun_check: check if sysstat installed on %s" % nodes)
+        common.pdsh(user, nodes, "mpstat")
+        '''
+
+    def attach_images(self, to_attach_dict = None):
+        pass
+        '''
+        user = self.cluster["user"]
+        vdisk = self.benchmark["vdisk"]
+        dest_dir = self.cluster["tmp_dir"]
+        if not to_attach_dict:
+            to_attach_dict = self.benchmark["distribution"]
+        for client in to_attach_dict:
+            nodes = to_attach_dict[client]
+            for node in nodes:
+                common.printout("LOG","Attach rbd image to %s" % node)
+                stdout, stderr = common.pdsh(user, [node], "fdisk -l %s" % vdisk, option="check_return")
+                res = common.format_pdsh_return(stdout)
+                if node not in res:
+                   common.pdsh(user, [client], "cd %s/vdbs; virsh attach-device %s %s.xml" % (dest_dir, node, node), except_returncode=1)
+        '''
+
+    def detach_images(self):
+        pass
+        '''
+        user = self.cluster["user"]
+        vdisk = self.benchmark["vdisk"]
+        tmp_vdisk = re.search('/dev/(\w+)',vdisk)
+        vdisk_suffix = tmp_vdisk.group(1)
+        #for client in self.cluster["testjob_distribution"]:
+        for client in self.benchmark["distribution"]:
+            nodes = self.benchmark["distribution"][client]
+            for node in nodes:
+                common.printout("LOG","Detach rbd image from %s" % node)
+                stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
+                if not stderr:
+                   common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix), except_returncode=1)
+        '''
+
+    def prepare_mysql_on_node(self,node):
+        user = self.cluster["user"]
+        #common.pdsh(user, [node], "cd /%s/;bash prepare_mysql.sh" %self.cluster["tmp_dir"])
+        common.pdsh(user, [node], "cd /%s/;python pre_test.py" %self.cluster["tmp_dir"])
+
+    def run_sysbench_on_node(self,node,threads,readonly,dist_type):
+        user = self.cluster["user"]
+        common.pdsh(user, [node], "cd %s; ./run_sysbench.sh %s %s %s %s %s %s %s %s %s" %(self.cluster["tmp_dir"],'oltp','on',threads,readonly,dist_type,self.benchmark["runtime"],0,99,self.cluster["tmp_dir"]))
+
+
+    def prepare_run(self):
+        super(self.__class__, self).prepare_run()
+        user = self.cluster["user"]
+        dest_dir = self.cluster["tmp_dir"]
+        #common.printout("LOG","Prepare_run: distribute fio.conf to vclient")
+        #for client in self.benchmark["distribution"]:
+        #    for vclient in self.benchmark["distribution"][client]:
+        #        common.scp(user, vclient, "../conf/fio.conf", self.cluster["tmp_dir"])
+        self.cleanup()
+        #1. copy shell code to all node
+        #copy mysql_deploy_file and sysbench_shell to vms's tmp_dir
+        common.printout("LOG","copy mysql_deploy_file and sysbench_shell to vms's tmp_dir")
+        for vclient in self.cluster["vclient"]:
+            sh_path = os.path.join(os.path.dirname(os.getcwd()),'conf')
+            print  "%s/run_sysbench.sh" %sh_path, "%s/" %self.cluster["tmp_dir"],vclient
+            #common.scp(user, vclient, "%s/prepare_mysql.sh" %sh_path, "%s/" %self.cluster["tmp_dir"])
+            common.scp(user, vclient, "%s/pre_test.py" %sh_path, "%s/" %self.cluster["tmp_dir"])
+            common.scp(user, vclient,"%s/run_sysbench.sh" %sh_path,"%s/" %self.cluster["tmp_dir"])
+
+        #2. set all vclient mysql
+        common.printout("LOG","start set all vclient mysql!")
+        self.all_prepare_mysql_proc = []
+        for vclient in self.cluster["vclient"]:
+            p_proc = Process(target=self.prepare_mysql_on_node,args=(vclient,))
+            p_proc.daemon = True
+            p_proc.start()
+            self.all_prepare_mysql_proc.append((p_proc,vclient))
+        while(len(self.all_prepare_mysql_proc)!=0):
+            time.sleep(5)
+            self.preparing_nodes = ''
+            for p_proc,vclient in self.all_prepare_mysql_proc:
+                if not p_proc.is_alive():
+                    self.all_prepare_mysql_proc.remove((p_proc,vclient))
+                if self.preparing_nodes == '':
+                    self.preparing_nodes += vclient
+                else:
+                    self.preparing_nodes += ","+vclient
+            common.printout("WARNING","Nodes:%s are still in preparing ."%self.preparing_nodes)
+        common.printout("LOG","Set all vclient mysql completed!")
+
+    def run(self):
+        super(self.__class__, self).run()
+        user = self.cluster["user"]
+        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+        dest_dir = self.cluster["tmp_dir"]
+        monitor_interval = self.cluster["monitoring_interval"]
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+
+        #run log collect process
+        common.printout("LOG", "Start Log Collect Process!")
+        for node in nodes:
+            common.pdsh(user, [node], "date > %s/`hostname`_process_log.txt" % (dest_dir)) 
+            common.pdsh(user, [node], "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir)) 
+            common.pdsh(user, [node], "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir)) 
+            common.pdsh(user, [node], "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir)) 
+            common.pdsh(user, [node], "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        #3. run sysbench on all vms
+        common.printout("LOG", "Start Running SysBench!")
+        params = {}
+        for i in self.benchmark["poolname"].split(","):
+            params[i.split('=')[0]] = i.split('=')[1]
+        #params:$test_type $init_rng $num_thread $oltp_read_only $oltp_dist_type $timeout $max_requests $percentile $resultsdir
+        if len(params) == 3:
+            self.all_runcase_proc = []
+            for node in nodes:
+                run_proc = Process(target=self.run_sysbench_on_node,args=(node,str(params['num-threads']),params['oltp-read-only'],params['oltp-dist-type'],))
+                run_proc.daemon = True
+                run_proc.start()
+                self.all_runcase_proc.append((run_proc,node))
+            while(len(self.all_runcase_proc)!=0):
+                time.sleep(5)
+                self.running_nodes = ''
+                for run_proc,node in self.all_runcase_proc:
+                    if not run_proc.is_alive():
+                        self.all_runcase_proc.remove((run_proc,node))
+                    if self.running_nodes == '':
+                        self.running_nodes += node
+                    else:
+                        self.running_nodes += ","+node
+                common.printout("WARNING","Nodes:%s are still in running sysbench ."%self.running_nodes)
+        else:
+            common.printout("ERROR","params:num-threads,oltp-read-only or oltp-dist-type is NULL !!")
+        common.printout("LOG", "SysBench test is completed!")
+
+
+    def chkpoint_to_log(self, log_str):
+        super(self.__class__, self).chkpoint_to_log(log_str)
+        dest_dir = self.cluster["tmp_dir"]
+        user = self.cluster["user"]
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+        common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
+
+    def cleanup(self):
+        super(self.__class__, self).cleanup()
+        #1. clean the tmp res dir
+        user = self.cluster["user"]
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+        common.pdsh(user, nodes, "rm -f %s/*.txt" % self.cluster["tmp_dir"])
+        common.pdsh(user, nodes, "rm -f %s/*.log" % self.cluster["tmp_dir"])
+        common.pdsh(user, nodes, "rm -f %s/*.res" % self.cluster["tmp_dir"])
+
+    def wait_workload_to_stop(self):
+        pass
+        '''common.printout("LOG","Waiting Workload to complete its work")
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+        max_check_times = 30
+        cur_check = 0
+        while self.check_fio_pgrep(nodes):
+            if cur_check > max_check_times:
+                break
+            time.sleep(10)
+            cur_check += 1
+        common.printout("LOG","Workload completed")
+        '''
+
+    def stop_data_collecters(self):
+        super(self.__class__, self).stop_data_collecters()
+        user = self.cluster["user"]
+        dest_dir = self.cluster["tmp_dir"]
+        for client in self.benchmark["distribution"]:
+            nodes = self.benchmark["distribution"][client]
+            common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "killall -9 mpstat; echo `date +%s`' mpstat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
+
+    def stop_workload(self):
+        user = self.cluster["user"]
+        for client in self.benchmark["distribution"]:
+            nodes = self.benchmark["distribution"][client]
+            common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
+        common.printout("LOG","Workload stopped, detaching rbd volume from vclient")
+        self.chkpoint_to_log("fio stop")
+        try:
+            self.detach_images()
+        except KeyboardInterrupt:
+            common.printout("WARNING","Caught KeyboardInterrupt, stop detaching")
+
+    def archive(self):
+        super(self.__class__, self).archive()
+        user = self.cluster["user"]
+        head = self.cluster["head"]
+        dest_dir = self.cluster["dest_dir"]
+        for client in self.benchmark["distribution"]:
+            nodes = self.benchmark["distribution"][client]
+            for node in nodes:
+                common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
+                common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.res" % self.cluster["tmp_dir"])
+                common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
+        common.cp("/etc/ceph/ceph.conf", "%s/conf/" % dest_dir)
+        common.bash("mkdir -p %s/conf/fio_errorlog/;find %s/raw/ -name '*_fio_errorlog.txt' | while read file; do cp $file %s/conf/fio_errorlog/;done" % (dest_dir, dest_dir, dest_dir))
+
+    def generate_benchmark_cases(self, testcase):
+        return True
+
+    def parse_benchmark_cases(self, testcase):
+        p = testcase
+        testcase_dict = {
+            "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
+            "block_size":p[3], "qd":p[4], "rampup":p[5], 
+            "runtime":p[6], "vdisk":p[7], "poolname":p[8]
+        }
+        if len(p) >= 10:
+            testcase_dict["description"] = p[9]
+        else:
+            testcase_dict["description"] = ""
+
+        return testcase_dict
+
+    def check_sb_pgrep(self, nodes, sb_node_num = 1, check_type="jobnum"):
+        user =  self.cluster["user"]
+        stdout, stderr = common.pdsh(user, nodes, "pgrep -x sysbench", option = "check_return")
+        res = common.format_pdsh_return(stdout)
+        if res != []:
+            sb_running_job_num = 0
+            sb_running_node_num = 0
+            for node in res:
+                sb_running_node_num += 1
+                sb_running_job_num += len(str(res[node]).strip().split('\n'))
+            if (check_type == "jobnum" and sb_running_job_num >= sb_node_num) or (check_type == "nodenum" and sb_running_node_num >= sb_node_num):
+                common.printout("WARNING","%d sb job still runing" % sb_running_job_num)
+                return True
+            else:
+                if check_type == "nodenum":
+                    common.printout("WARNING","Expecting %d nodes run sb, detect %d node runing" % (sb_node_num, sb_running_node_num))
+                if check_type == "jobnum":
+                    common.printout("WARNING","Expecting %d nodes run sb, detect %d node runing" % (sb_node_num, sb_running_job_num))
+                return False
+            common.printout("WARNING","Detect no sysbench job runing" % (sb_node_num, sb_running_node_num))
+            return False

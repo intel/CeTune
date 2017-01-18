@@ -120,9 +120,10 @@ vm_num_per_client=$2
 img_path_prefix=$3
 ip_prefix=$4
 cpuset_start=$cpuset
-if [ -z "$5" ]; then
-    ip_fix=201
-fi
+#if [ -z "$5" ]; then
+#    ip_fix=201
+#fi
+ip_fix=$5
 . ../conf/common.sh
 get_conf
 main $cpuset_start $vm_num_per_client $img_path_dir $ip_prefix $ip_fix

@@ -485,7 +485,8 @@ function Select_Value(){
         ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write','restart,redeploy,resetPerf'],
         ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write','restart,redeploy,resetPerf'],
         [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write','restart,redeploy,resetPerf'],
-        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write','restart,redeploy,resetPerf']]
+        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','num-threads=10,oltp-read-only=off,oltp-dist-type=uniform','librados_4MB_write','restart,redeploy,resetPerf']]
     var select_value = document.getElementById("recipient_benchmark_engine");
     var item = 0
     if(select_value.value == "qemurbd"){
@@ -505,6 +506,9 @@ function Select_Value(){
     }
     if(select_value.value == "vdbench"){
         item = 5;
+    }
+    if(select_value.value == "sysbench"){
+        item = 6;
     }
     var readonly = false;
     if(select_value.value == "hook"){
@@ -526,6 +530,10 @@ function Select_Value(){
     document.getElementById('recipient_ramup_time').readOnly=readonly;
     if(select_value.value == "vdbench"){
         document.getElementById("recipient_parameter").value = "width=10,depth=1,files=10000,threads=16,rdpct=65";
+        document.getElementById('recipient_parameter').readOnly=false;
+    }
+    if(select_value.value == "sysbench"){
+        document.getElementById("recipient_parameter").value = "num-threads=10,oltp-read-only=off,oltp-dist-type=uniform";
         document.getElementById('recipient_parameter').readOnly=false;
     }
     if(select_value.value == "fiorbd" || select_value.value == "qemurbd"){
@@ -660,6 +668,8 @@ function BenchMarkModel_OK(){
     if(benchmark_driver == "generic")
         device = "generic"
     if(benchmark_driver == "vdbench")
+        device = "/dev/vdb"
+    if(benchmark_driver == "sysbench")
         device = "/dev/vdb"
     if(benchmark_driver == "hook")
         device = "hook"
