@@ -124,7 +124,7 @@ class VdBench(Benchmark):
    #Updated wait_workload_to_stop and stop_workload
     def wait_workload_to_stop(self):
         common.printout("LOG","Waiting Workload to complete its work")
-        nodes = self.cluster["nodes_distribution"]
+        nodes = []
         for client in self.benchmark["distribution"]:
             nodes.extend(self.benchmark["distribution"][client])
         max_check_times = 30
@@ -138,13 +138,14 @@ class VdBench(Benchmark):
         
    #Add Stop_data_collecters
     def stop_data_collecters(self):
+        super(self.__class__, self).stop_data_collecters()
         user = self.cluster["user"]
         for client in self.benchmark["distribution"]:
-         nodes = self.benchmark["distribution"][client]
-         common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
-         common.pdsh(user, nodes, "killall -9 mpstat", option = "check_return")
-         common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
-         common.pdsh(user, nodes, "killall -9 top", option = "check_return")
+            nodes = self.benchmark["distribution"][client]
+            common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
+            common.pdsh(user, nodes, "killall -9 mpstat", option = "check_return")
+            common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+            common.pdsh(user, nodes, "killall -9 top", option = "check_return")
     
     def chkpoint_to_log(self, log_str):
         super(self.__class__, self).chkpoint_to_log(log_str)
@@ -223,6 +224,8 @@ class VdBench(Benchmark):
 
         params_list = []
         params_list.append("depth=%d,width=%d,files=%d,threads=%d,rdpct=%d" % (depth, width, files_num, threads_num, read_percentage))
+        self.benchmark["test_cmd_run_options"]="".join(params_list)
+	common.printout("LOG", "run options: %s" % self.benchmark["test_cmd_run_options"])
         with open("../conf/vdbench_params.txt", "w+") as f:
             f.write("\n".join(params_list)+"\n")
         return True
@@ -247,10 +250,44 @@ class VdBench(Benchmark):
     def run(self):
         super(self.__class__, self).run()
         user = self.cluster["user"]
-        nodes = self.cluster["nodes_distribution"]
-        waittime = 15
+        #nodes = self.cluster["nodes_distribution"]
+        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
+        dest_dir = self.cluster["tmp_dir"]
+        monitor_interval = self.cluster["monitoring_interval"]
         common.printout("LOG", "Start Running VdBench!")
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+	common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.printout("LOG","Start system data collector under %s " % nodes)
+        common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "cd %s; ./vdbench -f vdbench_test.cfg -o %s" % (self.cluster["bench_dir"], self.cluster["result_dir"]))
+        
+
+        self.benchmark["test_cmd_run"]="Vdbench %s run" % self.benchmark["test_cmd_run_options"]
+	common.printout("LOG", "!!!! test_cmd_run = %s" % self.benchmark["test_cmd_run"])
+        vd_job_num_total = 0
+        for node in nodes:
+            common.pdsh(user, [node], "%s > %s/`hostname`_vd.txt 2>%s/`hostname`_vd_errorlog.txt" % (self.benchmark["test_cmd_run"], dest_dir, dest_dir), option = "force")
+            vd_job_num_total += 1
+
+        self.chkpoint_to_log("vdbench start")
+        time.sleep(5)
+        if not self.check_vdbench_pgrep(nodes, vd_job_num_total, check_type = "nodenum"):
+            common.printout("ERROR","Failed to start vdbench process")
+            raise KeyboardInterrupt
+        if not vd_job_num_total:
+            common.printout("ERROR","Planned to start 0 vdbench process, seems to be an error")
+            raise KeyboardInterrupt
+
+        common.printout("LOG","Vdbench Jobs starts on %s" % str(nodes))
+
+        while self.check_vdbench_pgrep(nodes):
+            time.sleep(5)
+        
         check_file = "%s/summary.html" % self.cluster["result_dir"]
         self.check_run_success(check_file, 100)
         for wait in range(1, waittime):
