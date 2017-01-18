@@ -168,7 +168,10 @@ class Benchmark(object):
         common.pdsh(user, nodes, "ceph -v > %s/`hostname`_ceph_version.txt" % (dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
-            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time_tmp, dest_dir, monitor_interval, '%s', dest_dir), option="force")
+            self.create_admin_daemon_dump_script(dest_dir, time_tmp, monitor_interval)
+            for node in nodes:
+                common.scp(user, node, "ceph_admin.bash", dest_dir);
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; bash %s/ceph_admin.bash; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; rm -rf %s/ceph_admin.bash" % ('%s', dest_dir, dest_dir, '%s', dest_dir, dest_dir), option="force")
         if "blktrace" in self.cluster["collector"]:
             for node in nodes:
                 common.printout("LOG","Start blktrace data collector under %s " % node)
@@ -223,7 +226,10 @@ class Benchmark(object):
         common.pdsh(user, nodes, "ceph -v > %s/`hostname`_ceph_version.txt" % (dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
-            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; for i in `seq 1 %d`; do find /var/run/ceph -name '*client*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt;" % ('%s', dest_dir, time_tmp, dest_dir, monitor_interval, '%s', dest_dir), option="force")
+            self.create_admin_daemon_dump_script(dest_dir, time_tmp, monitor_interval)
+            for node in nodes:
+                common.scp(user, node, "ceph_admin.bash", dest_dir);
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter start' >> %s/`hostname`_process_log.txt; bash %s/ceph_admin.bash; echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; rm -rf %s/ceph_admin.bash" % ('%s', dest_dir, dest_dir, '%s', dest_dir, dest_dir), option="force")
 
     def archive(self):
         user = self.cluster["user"]
@@ -279,7 +285,7 @@ class Benchmark(object):
         if "lttng" in self.cluster["collector"]:
             common.pdsh(user, nodes, "export HOME=%s; lttng stop; lttng destroy;" % dest_dir, option = "check_return")
         if "perfcounter" in self.cluster["collector"]:
-            stdout, stderr = common.pdsh(user, nodes, "echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; ps aux | grep asok |awk '{print $2}'| while read pid;do kill $pid;done" % ('%s', dest_dir), option = "check_return")
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; ps aux | grep ceph_admin | grep -v 'grep' | awk '{print $2}' | while read pid;do kill $pid;done" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
@@ -294,6 +300,8 @@ class Benchmark(object):
 
         #2. send command to client
         nodes = self.benchmark["distribution"].keys()
+        if "perfcounter" in self.cluster["collector"]:
+            common.pdsh(user, nodes, "echo `date +%s`' perfcounter stop' >> %s/`hostname`_process_log.txt; ps aux | grep ceph_admin | grep -v 'grep' | awk '{print $2}' | while read pid;do kill $pid;done" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 top; echo `date +%s`' top stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 sar; echo `date +%s`' sar stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
         common.pdsh(user, nodes, "killall -9 iostat; echo `date +%s`' iostat stop' >> %s/`hostname`_process_log.txt" % ('%s', dest_dir), option = "check_return")
@@ -386,6 +394,10 @@ class Benchmark(object):
             return False
         else:
             return True
+
+    def create_admin_daemon_dump_script(self, dest_dir, total_count, monitor_interval):
+        with open('ceph_admin.bash', 'w') as f:
+            f.write("for i in `seq 1 %d`; do find /var/run/ceph -name '*osd*asok' | while read path; do filename=`echo $path | awk -F/ '{print $NF}'`;res_file=%s/`hostname`_${filename}.txt; echo `ceph --admin-daemon $path perf dump`, >> ${res_file} & done; sleep %s; done;" % (total_count, dest_dir, monitor_interval))
 
     def generate_benchmark_cases(self):
         return [[],[]]
