@@ -761,15 +761,16 @@ class Analyzer:
         output_fio_data['write_bw'] = 0
         output_fio_data['write_runtime'] = 0
         if len(lat_per_dict) != 0:
-            if '99.99th' in lat_per_dict.keys():
-                #output_fio_data['99.99%_lat'] = lat_per_dict['99.99th']
-                lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
-                if len(lat_persent_unit) != 0:
-                    output_fio_data['99.99%_lat'] = float(self.common.time_to_sec("%s%s" % (lat_per_dict['99.99th'], lat_persent_unit[0]),'msec'))
+            for tmp_key in ["99.00th", "99.99th"]:
+                if tmp_key in lat_per_dict.keys():
+                    #output_fio_data['99.99%_lat'] = lat_per_dict['99.99th']
+                    lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
+                    if len(lat_persent_unit) != 0:
+                        output_fio_data[tmp_key+"%_lat"] = float(self.common.time_to_sec("%s%s" % (lat_per_dict[tmp_key], lat_persent_unit[0]),'msec'))
+                    else:
+                        output_fio_data[tmp_key+"%_lat"] = 'null'
                 else:
-                    output_fio_data['99.99%_lat'] = 'null'
-            else:
-                output_fio_data['99.99%_lat'] = 'null'
+                    output_fio_data[tmp_key+"%_lat"] = 'null'
         output_fio_data['lat_unit'] = 'msec'
         output_fio_data['runtime_unit'] = 'sec'
         output_fio_data['bw_unit'] = 'MB/s'
