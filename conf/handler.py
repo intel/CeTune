@@ -87,8 +87,6 @@ class ConfigHandler():
 
     def set_config(self, request_type, key, value):
         conf_type = self.get_corresponde_config(request_type)
-        import pdb
-        #pdb.set_trace()
         if conf_type == "tuner":
             res = self.tuner_conf.set_config(key, value)
         elif conf_type == "all":

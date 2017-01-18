@@ -266,7 +266,6 @@ class BenchmarkConfig():
         self.default_conf_path = "../conf/cases.default.conf"
  
     def set_config(self, case_json_list):
-        print "=======================set_config=========================="
         testcase_keys = [
             "benchmark_driver","worker", "container_size", "iopattern",
             "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc","additional_option"
