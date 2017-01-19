@@ -15,7 +15,8 @@ import json
 import numpy
 import copy
 import getpass
-from multiprocessing import Process
+from multiprocessing import Process, Lock, Queue
+import multiprocessing
 import csv
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -59,6 +60,7 @@ class Analyzer:
         self.result["runtime"] = int(float(self.validate_time))
         self.result["status"] = self.getStatus()
         self.result["description"] = self.getDescription()
+        self.workpool = WorkPool()
 
     def collect_node_ceph_version(self,dest_dir):
         node_list = []
@@ -464,19 +466,19 @@ class Analyzer:
         fio_log_res = {}
         workload_result = {}
         dest_dir = self.cluster["dest_dir"]
+        process_return_val_queue = Queue()
         for dir_name in os.listdir("%s/%s" % (dest_dir, node_name)):
             common.printout("LOG","Processing %s_%s" % (node_name, dir_name))
             if 'smartinfo.txt' in dir_name:
-                res = self.process_smartinfo_data( "%s/%s/%s" % (dest_dir, node_name, dir_name))
-                result.update(res)
+                self.workpool.schedule( self.process_smartinfo_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name))
             if 'cosbench' in dir_name:
-                workload_result.update(self.process_cosbench_data("%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name))
+                self.workpool.schedule( self.process_cosbench_data, process_return_val_queue, "%s/%s/%s" %(dest_dir, node_name, dir_name), dir_name)
             if '_sar.txt' in dir_name:
-                result.update(self.process_sar_data("%s/%s/%s" % (dest_dir, node_name, dir_name)))
+                self.workpool.schedule( self.process_sar_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name))
             if 'totals.html' in dir_name:
-                workload_result.update(self.process_vdbench_data("%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name)))
+                self.workpool.schedule( self.process_vdbench_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name))
             if '_fio.txt' in dir_name:
-                workload_result.update(self.process_fio_data("%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name))
+                self.workpool.schedule( self.process_fio_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
                 if "_fio_iops.1.log" in dir_name:
                     volume = dir_name.replace("_fio_iops.1.log", "")
@@ -484,38 +486,58 @@ class Analyzer:
                     volume = dir_name.replace("_fio_bw.1.log", "")
                 if "_fio_lat.1.log" in dir_name:
                     volume = dir_name.replace("_fio_lat.1.log", "")
-                if volume not in fio_log_res:
-                    fio_log_res[volume] = {}
-                    fio_log_res[volume]["fio_log"] = {}
-                fio_log_res[volume]["fio_log"] = self.process_fiolog_data("%s/%s/%s" % (dest_dir, node_name, dir_name), fio_log_res[volume]["fio_log"] )
-                workload_result.update(fio_log_res)
+                self.workpool.schedule( self.process_fiolog_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name), volume )
             if '_iostat.txt' in dir_name:
-                res = self.process_iostat_data( node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
-                result.update(res)
+                self.workpool.schedule( self.process_iostat_data, process_return_val_queue, node_name, "%s/%s/%s" % (dest_dir, node_name, dir_name))
             if '_interrupts_end.txt' in dir_name:
                 if os.path.exists("%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))):
                     interrupt_end = "%s/%s/%s" % (dest_dir, node_name, dir_name)
-                    interrupt_start   = "%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))
+                    interrupt_start = "%s/%s/%s" % (dest_dir, node_name, dir_name.replace('end','start'))
                     self.interrupt_diff(dest_dir,node_name,interrupt_start,interrupt_end)
             if '_process_log.txt' in dir_name:
-                res = self.process_log_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
-                result.update(res)
+                self.workpool.schedule( self.process_log_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name) )
             if '.asok.txt' in dir_name:
-                try:
-                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name))
-                    for key, value in res.items():
-                        if dir_name not in workload_result:
-                            workload_result[dir_name] = OrderedDict()
-                        workload_result[dir_name][key] = value
-                except:
-                    pass
+                self.workpool.schedule( self.process_perfcounter_data, process_return_val_queue, "%s/%s/%s" % (dest_dir, node_name, dir_name) )
+
+        self.workpool.wait_all()
+        while not process_return_val_queue.empty():
+            res = process_return_val_queue.get()
+            if res[0] == "process_smartinfo_data":
+                result.update(res[1])
+            elif res[0] == "process_cosbench_data":
+                workload_result.update(res[1])
+            elif res[0] == "process_sar_data":
+                result.update(res[1])
+            elif res[0] == "process_vdbench_data":
+                workload_result.update(res[1])
+            elif res[0] == "process_fio_data":
+                workload_result.update(res[1])
+            elif res[0] == "process_fiolog_data":
+                volume = res[1]
+                if volume not in fio_log_res:
+                    fio_log_res[volume] = {}
+                    fio_log_res[volume]["fio_log"] = {}
+                fio_log_res[volume]["fio_log"].update(res[2])
+                workload_result.update(fio_log_res)
+            elif res[0] == "process_iostat_data":
+                result.update(res[1])
+            elif res[0] == "process_log_data":
+                result.update(res[1])
+            elif res[0] == "process_perfcounter_data":
+                for key, value in res[1].items():
+                    if dir_name not in workload_result:
+                        workload_result[dir_name] = OrderedDict()
+                    workload_result[dir_name][key] = value
+
         return [result, workload_result]
 
-    def process_smartinfo_data(self, path):
+    def process_smartinfo_data(self, return_queue, path):
         output = {}
         with open(path, 'r') as f:
             tmp = f.read()
         output.update(json.loads(tmp, object_pairs_hook=OrderedDict))
+        if( return_queue ):
+            return_queue.put( ["process_smartinfo_data", output] )
         return output
 
     def interrupt_diff(self,dest_dir,node_name,s_path,e_path):
@@ -595,7 +617,7 @@ class Analyzer:
                     result = "False"
         return result
 
-    def process_log_data(self, path):
+    def process_log_data(self, return_queue, path):
         result = {}
         result["phase"] = {}
         with open( path, 'r') as f:
@@ -636,9 +658,11 @@ class Analyzer:
                     result["phase"][tool]["benchmark_stop"] = 0
             except:
                 result["phase"][tool]["benchmark_stop"] = None
+        if return_queue:
+            return_queue.put( ["process_log_data", result] )
         return result
 
-    def process_cosbench_data(self, path, dirname):
+    def process_cosbench_data(self, return_queue, path, dirname):
         result = {}
         result["cosbench"] = OrderedDict()
         result["cosbench"]["cosbench"] = OrderedDict([("read_lat",0), ("read_bw",0), ("read_iops",0), ("write_lat",0), ("write_bw",0), ("write_iops",0), ("lat_unit",'msec'), ('runtime_unit','sec'), ('bw_unit','MB/s')])
@@ -657,6 +681,8 @@ class Analyzer:
         tmp["%s_lat" % io_pattern] = result["Avg-ResTime"]["detail"]["value"]
         tmp["%s_bw" % io_pattern] = common.size_to_Kbytes('%s%s' % (result["Bandwidth"]["detail"]["value"], 'B'), 'MB')
         tmp["%s_iops" % io_pattern] = result["Throughput"]["detail"]["value"]
+        if return_queue:
+            return_queue.put( ["process_cosbench_data", result ])
         return result
 
     def get_validate_runtime(self):
@@ -700,7 +726,8 @@ class Analyzer:
             pass
         return desc
 
-    def process_fiolog_data(self, path, result):
+    def process_fiolog_data(self, return_queue, path, volume_name):
+        result = {}
         if "fio_iops" in path:
             result["iops"] = []
             res = result["iops"]
@@ -741,10 +768,12 @@ class Analyzer:
                     self.tmp_res.append( value )
                 if len(self.tmp_res) != 0:
                     res.append(numpy.mean(self.tmp_res))
+        if return_queue:
+            return_queue.put( ["process_fiolog_data", volume_name, result] )
         return result
 
 
-    def process_sar_data(self, path):
+    def process_sar_data(self, return_queue, path):
         result = {}
         #1. cpu
         stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
@@ -758,9 +787,11 @@ class Analyzer:
         stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
         result["nic"] = common.convert_table_to_2Dlist(stdout)
         #4. tps
+        if return_queue:
+            return_queue.put( ["process_sar_data", result] )
         return result
 
-    def process_iostat_data(self, node, path):
+    def process_iostat_data(self, return_queue, node, path):
         result = {}
         output_list = []
         dict_diskformat = {}
@@ -792,9 +823,11 @@ class Analyzer:
             stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
             result[output] = common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
+        if return_queue:
+            return_queue.put( ["process_iostat_data", result] )
         return result
 
-    def process_vdbench_data(self, path, dirname):
+    def process_vdbench_data(self, return_queue, path, dirname):
         result = {}
         vdbench_data = {}
         runtime = int(common.bash("grep -o 'elapsed=[0-9]\+' "+path+" | cut -d = -f 2"))
@@ -814,6 +847,8 @@ class Analyzer:
         output_vdbench_data['bw_unit'] = 'MB/s'
         result[dirname] = {}
         result[dirname]["vdbench"] = output_vdbench_data
+        if return_queue:
+            return_queue.put( ["process_vdbench_data", result] )
         return result
 
     def get_lat_persent_dict(self,fio_str):
@@ -829,7 +864,7 @@ class Analyzer:
                     lat_percent_dict[key[0]] = value[0]
         return lat_percent_dict
 
-    def process_fio_data(self, path, dirname):
+    def process_fio_data(self, return_queue, path, dirname):
         result = {}
         stdout, stderr = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
         stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
@@ -899,18 +934,18 @@ class Analyzer:
             output_fio_data['%s_runtime' % io_pattern] /= list_len
         result[dirname] = {}
         result[dirname]["fio"] = output_fio_data
+        
+        if return_queue:
+            return_queue.put( ["process_fio_data", result] )
         return result
 
     def process_lttng_data(self, path):
         pass
 
-    def process_perf_data(self, path):
-        pass
-
     def process_blktrace_data(self, path):
         pass
 
-    def process_perfcounter_data(self, path):
+    def process_perfcounter_data(self, return_queue, path):
         precise_level = int(self.cluster["perfcounter_time_precision_level"])
 #        precise_level = 6
         common.printout("LOG","loading %s" % path)
@@ -967,6 +1002,8 @@ class Analyzer:
                             current[param].append(0)
                         last_sum = data['sum'][i]
                         last_avgcount = data['avgcount'][i]
+        if return_queue:
+            return_queue.put( ["process_perfcounter_data", output] )
         return output
 
 def main(args):
@@ -991,6 +1028,57 @@ def main(args):
         func = getattr(process, args.operation)
         if func:
             func(args.path_detail)
+
+class WorkPool:
+    def __init__(self):
+        #1. get system available 
+        self.cpu_total = multiprocessing.cpu_count()
+        self.cpu_total_free = self.cpu_total
+        #self.cpu_total_free = 1
+        self.running_process = []
+        self.lock = Lock()
+
+    def schedule(self, function_name, return_val_queue, *argv):
+        args = []
+        args.append( return_val_queue )
+        for arg in argv:
+            args.append(arg)
+        self.wait_at_least_one_free_process()
+        if self.cpu_total_free > 0: 
+            p = Process(target=function_name, args=tuple(args))
+            p.daemon = True
+            p.start()
+            #print "Process "+str(p.pid)+", function_name:"+str(function_name.__name__)+" ,args:"+str(args)
+            self.lock.acquire()
+            self.running_process.append(p)
+            self.cpu_total_free -= 1
+            self.lock.release()
+
+    def wait_at_least_one_free_process(self):
+        print "wait_at_least_one_free_process"
+        while self.cpu_total_free <= 0:
+            for proc in self.running_process:
+                if not proc.is_alive():
+                    print "wait process %s to join" % str(proc.pid)
+                    proc.join()
+                    self.lock.acquire()
+                    self.running_process.remove(proc)
+                    self.cpu_total_free += 1
+                    self.lock.release()
+                    print "Process "+str(proc.pid)+" joined"
+                    return
+            #print "Found none, still %d proc pending" % len(self.running_process)
+
+    def wait_all(self):
+        print "Wait all Process Done"
+        for proc in self.running_process:
+            proc.join()
+            self.lock.acquire()
+            self.running_process.remove(proc)
+            self.cpu_total_free += 1
+            self.lock.release()
+            print "Process "+str(proc.pid)+" joined"
+        print "All Process Done"
 
 if __name__ == '__main__':
     import sys
