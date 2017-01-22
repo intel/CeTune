@@ -17,6 +17,7 @@ import copy
 import getpass
 from multiprocessing import Process, Lock, Queue
 import multiprocessing
+import threading
 import csv
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -60,7 +61,7 @@ class Analyzer:
         self.result["runtime"] = int(float(self.validate_time))
         self.result["status"] = self.getStatus()
         self.result["description"] = self.getDescription()
-        self.workpool = WorkPool()
+        self.workpool = WorkPool(common)
 
     def collect_node_ceph_version(self,dest_dir):
         node_list = []
@@ -78,8 +79,13 @@ class Analyzer:
                 version_list[node] = 'None'
         return version_list
 
-    def _process_remote(self,node):
-        common.scp(self.cluster['user'], node, "%s/%s/" % (self.cluster["dest_dir"], node), self.cluster["tmp_dir"] )
+    def _process_remote(self,node,use_tmp):
+        if not use_tmp:
+            common.printout("LOG","scp %s/%s/ to %s:/%s" % (self.cluster["dest_dir"], node, node, self.cluster["tmp_dir"]))
+            common.scp(self.cluster['user'], node, "%s/%s/" % (self.cluster["dest_dir"], node), self.cluster["tmp_dir"] )
+        else:
+            files = " ".join(os.listdir("%s/%s" % (self.cluster["dest_dir"], node)))
+            common.pdsh(self.cluster['user'], [node], "cd %s; mkdir -p %s; mv %s %s/;" % (self.cluster["tmp_dir"], node, files, node),'check_return' )
         common.pdsh(self.cluster['user'], [node], "cd "+ self.cluster["tmp_dir"] +";python analyzer_remote.py --path "+self.cluster["tmp_dir"] +" --name "+ node +" process_data" )
 
     def _process_remote_data(self,process_file):
@@ -109,7 +115,7 @@ class Analyzer:
                 common.printout("WARNING","print_remote_log failed")
                 common.printout("WARNING",str(e))
 
-    def process_data(self):
+    def process_data(self, use_tmp):
         case_type = re.findall('\d\-\S+', self.cluster["dest_dir"])[0].split('-')[2]
         if case_type == "vdbench":
             self.result["description"] = "Description:"+ str(self.getDescription()) +"  Parameters:"+ str(self.getParameters())
@@ -125,7 +131,7 @@ class Analyzer:
         if self.cluster["distributed"] == "true":
             self.workpath = os.path.join(self.cluster["dest_dir"],"remote_tmp")
             remote_file = "../analyzer/analyzer_remote.py"
-            remote_file1 = "../conf/all.conf"
+            remote_file1 = "%s/all.conf" % self.cluster["dest_conf_dir"]
             remote_file2 = "../conf/common.py"
             remote_file3 = "../conf/config.py"
             remote_file4 = "../conf/description.py"
@@ -146,7 +152,7 @@ class Analyzer:
                 except:
                     pass
 
-                p = Process(target=self._process_remote,args=(node,))
+                p = Process(target=self._process_remote,args=(node,use_tmp))
                 p.daemon = True
                 p.start()
                 all_node.append((p,node))
@@ -158,9 +164,9 @@ class Analyzer:
                     if proc.is_alive():
                         self.print_remote_log(log_line,node)
                     else:
-                        common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-system.json"))
-                        common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node+"-workload.json"))
-                        common.rscp(self.cluster["user"],node,self.cluster["dest_dir"].replace('raw','conf'),os.path.join(self.cluster["tmp_dir"],node+"_interrupt.csv"))
+                        common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node,node+"-system.json"))
+                        common.rscp(self.cluster["user"],node,self.workpath,os.path.join(self.cluster["tmp_dir"],node,node+"-workload.json"))
+                        common.rscp(self.cluster["user"],node,self.cluster["dest_dir"].replace('raw','conf'),os.path.join(self.cluster["tmp_dir"],node,node+"_interrupt.csv"))
                         self.print_remote_log(log_line,node)
                         all_node.remove((proc,node))
                 if not len(all_node):
@@ -499,12 +505,12 @@ class Analyzer:
             if '_process_log.txt' in dir_name:
                 self.workpool.schedule( self.process_log_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name) )
             if '.asok.txt' in dir_name:
-                #self.workpool.schedule( self.process_perfcounter_data, dir_name, "%s/%s/%s" % (dest_dir, node_name, dir_name) )
-                res = self.process_perfcounter_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
-                for key, value in res.items():
-                    if dir_name not in workload_result:
-                        workload_result[dir_name] = OrderedDict()
-                    workload_result[dir_name][key] = value
+                self.workpool.schedule( self.process_perfcounter_data, dir_name, "%s/%s/%s" % (dest_dir, node_name, dir_name) )
+#                res = self.process_perfcounter_data( "%s/%s/%s" % (dest_dir, node_name, dir_name) )
+#                for key, value in res.items():
+#                    if dir_name not in workload_result:
+#                        workload_result[dir_name] = OrderedDict()
+#                    workload_result[dir_name][key] = value
 
         self.workpool.wait_all()
         return [result, workload_result]
@@ -917,8 +923,8 @@ class Analyzer:
     def process_blktrace_data(self, path):
         pass
 
-    #def process_perfcounter_data(self, return_queue, dir_name, path):
-    def process_perfcounter_data(self, path):
+    def process_perfcounter_data(self, dir_name, path):
+    #def process_perfcounter_data(self, path):
         precise_level = int(self.cluster["perfcounter_time_precision_level"])
 #        precise_level = 6
         common.printout("LOG","loading %s" % path)
@@ -975,20 +981,19 @@ class Analyzer:
                             current[param].append(0)
                         last_sum = data['sum'][i]
                         last_avgcount = data['avgcount'][i]
-        #if return_queue:
-        #    try:
-        #        return_queue.put( ["process_perfcounter_data", dir_name, output] )
-        #    except:
-        #        print "put failed"
+        self.workpool.enqueue_data( ["process_perfcounter_data", dir_name, output] )
         return output
 
 class WorkPool:
-    def __init__(self):
+    def __init__(self, cn):
         #1. get system available
         self.cpu_total = multiprocessing.cpu_count()
         self.running_process = []
         self.lock = Lock()
         self.process_return_val_queue = Queue()
+        self.common = cn
+        self.queue_check = False
+        self.inflight_process_count = 0
 
     def schedule(self, function_name, *argv):
         self.wait_at_least_one_free_process()
@@ -996,8 +1001,13 @@ class WorkPool:
             p = Process(target=function_name, args=tuple(argv))
             p.daemon = True
             self.running_process.append(p)
+            self.inflight_process_count += 1
             p.start()
-            print "Process "+str(p.pid)+", function_name:"+str(function_name.__name__)
+            self.common.printout("LOG","Process "+str(p.pid)+", function_name:"+str(function_name.__name__))
+
+            check_thread = threading.Thread(target=self.update_result, args = ())
+            check_thread.daemon = True
+            check_thread.start()
 
     def wait_at_least_one_free_process(self):
         start = time.clock()
@@ -1006,31 +1016,38 @@ class WorkPool:
                 if not proc.is_alive():
                     proc.join()
                     self.running_process.remove(proc)
-                    self.update_result()
                     return
             if time.clock() - start > 1:
-                print "Still %d proc pending, pids are: %s" % (len(self.running_process), [x.pid for x in self.running_process])
+                self.common.printout("LOG","Looking for available process, %d proc pending, pids are: %s" % (len(self.running_process), [x.pid for x in self.running_process]))
                 start = time.clock()
 
     def wait_all(self):
         running_proc = self.running_process
-        print "Waiting %d Processes to be done" % len(running_proc)
+        self.common.printout("LOG","Waiting %d Processes to be done" % len(running_proc))
   
         for proc in running_proc:
-            print "Joining %d" % proc.pid
             proc.join()
             self.running_process.remove(proc)
-            self.update_result()
-        print "All Process Done"
+            self.common.printout("LOG","PID %d Joined" % proc.pid)
+        while self.inflight_process_count:
+            time.sleep(1)
 
-    def set_return_data_set(self, fio_log_res, workload_result, result ):
+    def set_return_data_set(self, fio_log_res, workload_result, result):
         self.fio_log_res = fio_log_res
         self.workload_result = workload_result
         self.result = result
 
     def update_result(self):
-        while not self.process_return_val_queue.empty():
+        if self.queue_check:
+            return
+        self.queue_check = True
+        while self.inflight_process_count:
+            if self.process_return_val_queue.empty():
+                time.sleep(1)
+                continue
             res = self.process_return_val_queue.get()
+            self.inflight_process_count -= 1
+            self.common.printout("LOG", "Updating on %s" % res[0])
             if res[0] == "process_smartinfo_data":
                 self.result.update(res[1])
             elif res[0] == "process_cosbench_data":
@@ -1058,6 +1075,7 @@ class WorkPool:
                     if dir_name not in self.workload_result:
                         self.workload_result[dir_name] = OrderedDict()
                     self.workload_result[dir_name][key] = value
+        self.queue_check = False
 
     def enqueue_data(self, data):
         self.process_return_val_queue.put(data)
@@ -1076,10 +1094,16 @@ def main(args):
     parser.add_argument(
         '--node',
         )
+    parser.add_argument(
+        '--copy_data_to_remote',
+        default = False,
+        action='store_true'
+        )
     args = parser.parse_args(args)
     process = Analyzer(args.path)
     if args.operation == "process_data":
-        process.process_data()
+        use_tmp = not args.copy_data_to_remote
+        process.process_data(use_tmp)
     else:
         func = getattr(process, args.operation)
         if func:

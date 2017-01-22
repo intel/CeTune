@@ -16,6 +16,7 @@ import copy
 import config
 from multiprocessing import Process, Lock, Queue
 import multiprocessing
+import threading
 import csv
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -60,7 +61,7 @@ class Analyzer:
         self.result["description"] = self.getDescription()
 
         self.whoami = name
-        self.workpool = WorkPool()
+        self.workpool = WorkPool( self.common )
 
 
     def collect_node_ceph_version(self,dest_dir):
@@ -392,17 +393,18 @@ class Analyzer:
                 self.workpool.schedule( self.process_log_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name) )
             if '.asok.txt' in dir_name:
                 self.common.printout("LOG","Processing %s_%s" % (self.whoami, dir_name))
-                try:
-                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name))
-                    for key, value in res.items():
-                        if dir_name not in workload_result:
-                            workload_result[dir_name] = OrderedDict()
-                        workload_result[dir_name][key] = value
-                except:
-                    pass
+                self.workpool.schedule( self.process_perfcounter_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name )
+#                try:
+#                    res = self.process_perfcounter_data("%s/%s/%s" % (dest_dir, node_name, dir_name))
+#                    for key, value in res.items():
+#                        if dir_name not in workload_result:
+#                            workload_result[dir_name] = OrderedDict()
+#                        workload_result[dir_name][key] = value
+#                except:
+#                    pass
         self.workpool.wait_all()
-        self.test_write_json(result,self.whoami+"-system.json")
-        self.test_write_json(workload_result,self.whoami+"-workload.json")
+        self.test_write_json(result,"%s/%s" % (node_name, self.whoami+"-system.json"))
+        self.test_write_json(workload_result,"%s/%s" % (node_name, self.whoami+"-workload.json"))
         return [result, workload_result]
 
     def process_smartinfo_data(self, path):
@@ -806,7 +808,7 @@ class Analyzer:
     def process_blktrace_data(self, path):
         pass
 
-    def process_perfcounter_data(self, path):
+    def process_perfcounter_data(self, path, dir_name):
         precise_level = int(self.cluster["perfcounter_time_precision_level"])
 #        precise_level = 6
         self.common.printout("LOG","loading %s" % path)
@@ -863,16 +865,20 @@ class Analyzer:
                             current[param].append(0)
                         last_sum = data['sum'][i]
                         last_avgcount = data['avgcount'][i]
+        self.workpool.enqueue_data(["process_perfcounter_data", dir_name, output])
         return output
 
 
 class WorkPool:
-    def __init__(self):
+    def __init__(self, cn):
         #1. get system available
         self.cpu_total = multiprocessing.cpu_count()
         self.running_process = []
         self.lock = Lock()
         self.process_return_val_queue = Queue()
+        self.common = cn
+        self.queue_check = False
+        self.inflight_process_count = 0
 
     def schedule(self, function_name, *argv):
         self.wait_at_least_one_free_process()
@@ -880,8 +886,13 @@ class WorkPool:
             p = Process(target=function_name, args=tuple(argv))
             p.daemon = True
             self.running_process.append(p)
+            self.inflight_process_count += 1
             p.start()
-            print "Process "+str(p.pid)+", function_name:"+str(function_name.__name__)
+            self.common.printout("LOG","Process "+str(p.pid)+", function_name:"+str(function_name.__name__))
+
+            check_thread = threading.Thread(target=self.update_result, args = ())
+            check_thread.daemon = True
+            check_thread.start()
 
     def wait_at_least_one_free_process(self):
         start = time.clock()
@@ -890,22 +901,21 @@ class WorkPool:
                 if not proc.is_alive():
                     proc.join()
                     self.running_process.remove(proc)
-                    self.update_result()
                     return
             if time.clock() - start > 1:
-                print "Still %d proc pending, pids are: %s" % (len(self.running_process), [x.pid for x in self.running_process])
+                self.common.printout("LOG","Looking for available process, %d proc pending, pids are: %s" % (len(self.running_process), [x.pid for x in self.running_process]))
                 start = time.clock()
 
     def wait_all(self):
         running_proc = self.running_process
-        print "Waiting %d Processes to be done" % len(running_proc)
+        self.common.printout("LOG","Waiting %d Processes to be done" % len(running_proc))
   
         for proc in running_proc:
-            print "Joining %d" % proc.pid
             proc.join()
             self.running_process.remove(proc)
-            self.update_result()
-        print "All Process Done"
+            self.common.printout("LOG","PID %d Joined" % proc.pid)
+        while self.inflight_process_count:
+            time.sleep(1)
 
     def set_return_data_set(self, fio_log_res, workload_result, result):
         self.fio_log_res = fio_log_res
@@ -913,8 +923,16 @@ class WorkPool:
         self.result = result
 
     def update_result(self):
-        while not self.process_return_val_queue.empty():
+        if self.queue_check:
+            return
+        self.queue_check = True
+        while self.inflight_process_count:
+            if self.process_return_val_queue.empty():
+                time.sleep(1)
+                continue
             res = self.process_return_val_queue.get()
+            self.inflight_process_count -= 1
+            self.common.printout("LOG", "Updating on %s" % res[0])
             if res[0] == "process_smartinfo_data":
                 self.result.update(res[1])
             elif res[0] == "process_cosbench_data":
@@ -942,6 +960,7 @@ class WorkPool:
                     if dir_name not in self.workload_result:
                         self.workload_result[dir_name] = OrderedDict()
                     self.workload_result[dir_name][key] = value
+        self.queue_check = False
 
     def enqueue_data(self, data):
         self.process_return_val_queue.put(data)
