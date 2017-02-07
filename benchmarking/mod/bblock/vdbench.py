@@ -257,8 +257,6 @@ class VdBench(Benchmark):
         self.chkpoint_to_log("vdbench start")       
         check_file = "%s/summary.html" % self.cluster["result_dir"]
         self.check_run_success(check_file, 100, "test")
-        for wait in range(1, waittime):
-            time.sleep(1)
 
     def archive(self):
         super(self.__class__, self).archive()
