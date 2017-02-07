@@ -765,9 +765,8 @@ class Analyzer:
         output_fio_data['write_bw'] = 0
         output_fio_data['write_runtime'] = 0
         if len(lat_per_dict) != 0:
-            for tmp_key in ["99.00th", "99.99th"]:
+            for tmp_key in ["95.00th", "99.00th", "99.99th"]:
                 if tmp_key in lat_per_dict.keys():
-                    #output_fio_data['99.99%_lat'] = lat_per_dict['99.99th']
                     lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
                     if len(lat_persent_unit) != 0:
                         output_fio_data[tmp_key+"%_lat"] = float(self.common.time_to_sec("%s%s" % (lat_per_dict[tmp_key], lat_persent_unit[0]),'msec'))

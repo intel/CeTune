@@ -883,7 +883,7 @@ class Analyzer:
         output_fio_data['write_runtime'] = 0
 
         if len(lat_per_dict) != 0:
-            for tmp_key in ["99.00th", "99.99th"]:
+            for tmp_key in ["95.00th", "99.00th", "99.99th"]:
                 if tmp_key in lat_per_dict.keys():
                     lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
                     if len(lat_persent_unit) != 0:
