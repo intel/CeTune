@@ -82,10 +82,11 @@ class Analyzer:
     def _process_remote(self,node,use_tmp):
         if not use_tmp:
             common.printout("LOG","scp %s/%s/ to %s:/%s" % (self.cluster["dest_dir"], node, node, self.cluster["tmp_dir"]))
+            common.pdsh(self.cluster['user'], [node], "cd %s; rm -rf %s;" % (self.cluster["tmp_dir"], node),'check_return' )
             common.scp(self.cluster['user'], node, "%s/%s/" % (self.cluster["dest_dir"], node), self.cluster["tmp_dir"] )
         else:
             files = " ".join(os.listdir("%s/%s" % (self.cluster["dest_dir"], node)))
-            common.pdsh(self.cluster['user'], [node], "cd %s; mkdir -p %s; mv %s %s/;" % (self.cluster["tmp_dir"], node, files, node),'check_return' )
+            common.pdsh(self.cluster['user'], [node], "cd %s; rm -rf %s; mkdir -p %s; mv %s %s/;" % (self.cluster["tmp_dir"], node, node, files, node),'check_return' )
         common.pdsh(self.cluster['user'], [node], "cd "+ self.cluster["tmp_dir"] +";python analyzer_remote.py --path "+self.cluster["tmp_dir"] +" --name "+ node +" process_data" )
 
     def _process_remote_data(self,process_file):
