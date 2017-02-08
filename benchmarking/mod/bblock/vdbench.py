@@ -242,7 +242,6 @@ class VdBench(Benchmark):
         super(self.__class__, self).run()
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
-        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
         monitor_interval = self.cluster["monitoring_interval"]
         common.printout("LOG", "Start Running VdBench!")
@@ -254,7 +253,7 @@ class VdBench(Benchmark):
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "cd %s; ./vdbench -f vdbench_test.cfg -o %s" % (self.cluster["bench_dir"], self.cluster["result_dir"]))
        
-        self.chkpoint_to_log("vdbench start")       
+	self.chkpoint_to_log("vdbench start")       
         check_file = "%s/summary.html" % self.cluster["result_dir"]
         self.check_run_success(check_file, 100, "test")
 
