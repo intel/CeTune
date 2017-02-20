@@ -98,12 +98,70 @@ class VdBench(Benchmark):
 	# format
 	self.format_run()
 
+    #Add new method to check vdbench
+    def check_vdbench_pgrep(self, nodes, vdbench_node_num = 1, check_type="jobnum"):
+        user =  self.cluster["user"]
+        stdout, stderr = common.pdsh(user, nodes, "pgrep -x java", option = "check_return")
+        res = common.format_pdsh_return(stdout)
+        if res:
+            vdbench_running_job_num = 0
+            vdbench_running_node_num = 0
+            for node in res:
+                vdbench_running_node_num += 1
+                vdbench_running_job_num += len(str(res[node]).strip().split('\n'))
+            if (check_type == "jobnum" and vdbench_running_job_num >= vdbench_node_num) or (check_type == "nodenum" and vdbench_running_node_num >= vdbench_node_num):
+                common.printout("WARNING","%d vdbench job still runing" % vdbench_running_job_num)
+                return True
+            else:
+                if check_type == "nodenum":
+                    common.printout("WARNING","Expecting %d nodes run vdbench, detect %d node runing" % (vdbench_node_num, vdbench_running_node_num))
+                if check_type == "jobnum":
+                    common.printout("WARNING","Expecting %d nodes run vdbench, detect %d node runing" % (vdbench_node_num, vdbench_running_job_num))
+                return False
+        common.printout("WARNING","Detect no vdbench job runing")
+        return False
+
     def wait_workload_to_stop(self):
-        pass
+        common.printout("LOG","Waiting Workload to complete its work")
+        nodes = self.cluster["nodes_distribution"]
+        max_check_times = 30
+        cur_check = 0
+        while self.check_vdbench_pgrep(nodes):
+            if cur_check > max_check_times:
+                break
+            time.sleep(10)
+            cur_check += 1
+        common.printout("LOG","Workload completed")
 
     def stop_workload(self):
-        pass
+        user = self.cluster["user"]
+        nodes = self.cluster["nodes_distribution"]
+        common.pdsh(user, nodes, "killall -9 java", option = "check_return")
+        common.printout("LOG","Workload stopped, detaching rbd volume from vclient")
+        self.chkpoint_to_log("vdbench stop")
+        try:
+            self.detach_images()
+        except KeyboardInterrupt:
+            common.printout("WARNING","Caught KeyboardInterrupt, stop detaching")
+    
+    #Add Stop_data_collecters
+    def stop_data_collecters(self):
+        super(self.__class__, self).stop_data_collecters()
+        user = self.cluster["user"]
+        nodes = self.cluster["nodes_distribution"]
+        common.pdsh(user, nodes, "killall -9 sar", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 mpstat", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 iostat", option = "check_return")
+        common.pdsh(user, nodes, "killall -9 top", option = "check_return")
 
+    #Log the start and stop
+    def chkpoint_to_log(self, log_str):
+        super(self.__class__, self).chkpoint_to_log(log_str)
+        dest_dir = self.cluster["tmp_dir"]
+        user = self.cluster["user"]
+        nodes = self.cluster["nodes_distribution"]
+        common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
+   
     def generate_benchmark_cases(self, testcase):
         io_pattern = testcase["iopattern"]
         block_size = testcase["block_size"]
@@ -185,13 +243,19 @@ class VdBench(Benchmark):
 	super(self.__class__, self).run()
         user = self.cluster["user"]
 	nodes = self.cluster["nodes_distribution"]
-	waittime = 15
+	dest_dir = self.cluster["tmp_dir"]
+        monitor_interval = self.cluster["monitoring_interval"]
         common.printout("LOG", "Start Running VdBench!")
-	common.pdsh(user, nodes, "cd %s; ./vdbench -f vdbench_test.cfg -o %s" % (self.cluster["bench_dir"], self.cluster["result_dir"]))
+	common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+        common.printout("LOG","Start system data collector under %s " % nodes)
+        common.pdsh(user, nodes, "top -c -b -d %s > %s/`hostname`_top.txt & echo `date +%s`' top start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "mpstat -P ALL %s > %s/`hostname`_mpstat.txt & echo `date +%s`' mpstat start' >> %s/`hostname`_process_log.txt"  % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+        common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
+  	common.pdsh(user, nodes, "cd %s; ./vdbench -f vdbench_test.cfg -o %s" % (self.cluster["bench_dir"], self.cluster["result_dir"]))
+	self.chkpoint_to_log("vdbench start")
 	check_file = "%s/summary.html" % self.cluster["result_dir"]
 	self.check_run_success(check_file, 100)
-        for wait in range(1, waittime):
-            time.sleep(1)
 
     def archive(self):
         super(self.__class__, self).archive()
