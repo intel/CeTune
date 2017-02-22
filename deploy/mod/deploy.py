@@ -13,6 +13,16 @@ from threading import Thread
 from collections import OrderedDict
 
 pp = pprint.PrettyPrinter(indent=4)
+
+class FuncThread(Thread):
+  def __init__(self, method, *args):
+    self._method = method
+    self._args = args
+    Thread.__init__(self)
+
+  def run(self):
+    self._method(*self._args)
+
 class Deploy(object):
     def __init__(self, tunings=""):
         self.all_conf_data = config.Config("../conf/all.conf")
@@ -575,6 +585,7 @@ class Deploy(object):
             for line in mount_list_tmp.split('\n'):
                 tmp = line.split()
                 mount_list[node][tmp[0]] = tmp[2]
+        threads = []
         for osd in osds:
             for device_bundle_tmp in diff_map[osd]:
                 device_bundle = common.get_list(device_bundle_tmp)
@@ -583,12 +594,17 @@ class Deploy(object):
                 if self.cluster["ceph_conf"]["global"]["osd_objectstore"] == "filestore":
                     journal_device = device_bundle[0][1]
                 if not ceph_disk:
-                    self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
-                    self.make_osd( osd, osd_num, osd_device, journal_device )
+                    thr = FuncThread(self.make_osd_fs, osd, osd_num, osd_device, journal_device, mount_list)
+                    thr.start()
+                    threads.append(thr)
+                    # self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
+                    # self.make_osd( osd, osd_num, osd_device, journal_device )
                 else:
                     self.make_osd_ceph_disk_prepare(osd, osd_device, journal_device, mount_list)
                     self.make_osd_ceph_disk_activate(osd, osd_device)
                 osd_num = osd_num+1
+        for t in threads:
+            t.join()
 
     def make_osd_ceph_disk_prepare(self, osd, osd_device, journal_device, mount_list):
         """
@@ -669,6 +685,7 @@ class Deploy(object):
         osd_filedir = osd_filename.replace("$id", str(osd_num))
         common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
         common.pdsh( user, [osd], 'mount %s -t xfs %s %s/%s' % (mount_opts, osd_device, osd_basedir, osd_filedir))
+        self.make_osd(osd, osd_num, osd_device, journal_device)
 
     def make_osd(self, osd, osd_num, osd_device, journal_device):
         user = self.cluster["user"]
