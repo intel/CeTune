@@ -17,52 +17,58 @@ class Benchmark(object):
         self.pwd = os.path.abspath(os.path.join('..'))
 
     def go(self, testcase, tuning):
-        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
-        common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
-        user = self.all_conf_data.get("user")
-        controller = self.all_conf_data.get("head")
-        common.wait_ceph_to_health( user, controller )
-        self.benchmark = self.parse_benchmark_cases(testcase)
-        self.load_parameter()
-        self.get_runid()
-        self.set_runid()
-
-        if not self.generate_benchmark_cases(self.benchmark):
-            common.printout("ERROR", "Failed to generate Fio/cosbench configuration file.")
-            sys.exit()
-        self.benchmark["tuning_section"] = tuning
-
-        self.prepare_result_dir()
-        common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
-        self.cal_run_job_distribution()
-        self.prerun_check()
-        self.prepare_run()
-
-        common.printout("LOG","Run Benchmark Status: collect system metrics and run benchmark")
-        test_start_time = time.time()
-        interrupted_flag = False
         try:
-            self.run()
-        except KeyboardInterrupt:
-            interrupted_flag = True
-            self.setStatus("Interrupted")
-            common.printout("WARNING","Caught Signal to Cancel this run, killing Workload now, pls wait")
-            self.real_runtime = time.time() - test_start_time
-            self.stop_workload()
-            self.stop_data_collecters()
+            cancel_file = open("../conf/execute_op_type.conf","r")
+            execute_op_type = cancel_file.read().strip("\n")
+            if execute_op_type != "cancel_all":
+                common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
+                common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
+                user = self.all_conf_data.get("user")
+                controller = self.all_conf_data.get("head")
+                common.wait_ceph_to_health( user, controller )
+                self.benchmark = self.parse_benchmark_cases(testcase)
+                self.load_parameter()
+                self.get_runid()
+                self.set_runid()
 
-        self.real_runtime = time.time() - test_start_time
-        self.after_run()
-        common.printout("LOG","Collecting Data, this will takes quite long time depends on the network")
-        self.archive()
-        if not interrupted_flag:
-            self.setStatus("Completed")
+                if not self.generate_benchmark_cases(self.benchmark):
+                    common.printout("ERROR", "Failed to generate Fio/cosbench configuration file.")
+                    sys.exit()
+                self.benchmark["tuning_section"] = tuning
 
-        common.printout("LOG","Post Process Result Data")
-        try:
-            analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
+                self.prepare_result_dir()
+                common.printout("LOG","RUNID: %d, RESULT_DIR: %s" % (self.runid, self.cluster["dest_dir"]))
+                self.cal_run_job_distribution()
+                self.prerun_check()
+                self.prepare_run()
+
+                common.printout("LOG","Run Benchmark Status: collect system metrics and run benchmark")
+                test_start_time = time.time()
+                interrupted_flag = False
+                try:
+                    self.run()
+                except KeyboardInterrupt:
+                    interrupted_flag = True
+                    self.setStatus("Interrupted")
+                    common.printout("WARNING","Caught Signal to Cancel this run, killing Workload now, pls wait")
+                    self.real_runtime = time.time() - test_start_time
+                    self.stop_workload()
+                    self.stop_data_collecters()
+
+                self.real_runtime = time.time() - test_start_time
+                self.after_run()
+                common.printout("LOG","Collecting Data, this will takes quite long time depends on the network")
+                self.archive()
+                if not interrupted_flag:
+                    self.setStatus("Completed")
+
+                common.printout("LOG","Post Process Result Data")
+                try:
+                    analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
+                except:
+                    common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
         except:
-            common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
+            common.printout("ERROR","The test has been stopped.")
 
     def create_image(self, volume_count, volume_size, poolname):
         user =  self.cluster["user"]

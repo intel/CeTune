@@ -19,7 +19,8 @@ var address_Report_Detail_pic="../results/get_detail_pic";
 var address_Report_Detail_csv="../results/get_detail_csv";
 var address_GetRuningStatus="../monitor/cetune_status";
 var address_IntoRuningMode="../configuration/execute";
-var address_ExitRuningMode="../configuration/cancel";
+var address_ExitRuningMode_cancel_all="../configuration/cancel_all";
+var address_ExitRuningMode_cancel_one="../configuration/cancel_one";
 
 var timer_RunStatus;
 var timer_Console;
@@ -468,12 +469,31 @@ $(document).ready(function(){
             }
         }
         if(stat=="Cancel Job"){
-            var result = GetDataByAjax(address_ExitRuningMode);  // code on server
+            if (confirm("Are you sure to cancel the job?")) {
+                var result = GetDataByAjax(address_ExitRuningMode_cancel_all);  // code on server
+                if(result=="true"){
+                     $("#menu_Status_id").click();
+                }
+            }
+        }
+
+    });  
+
+    $("#bnt_Configuration_cancel_one").click(function(){
+        if (confirm("Are you sure to cancel the current case?")) {
+            var result = GetDataByAjax(address_ExitRuningMode_cancel_one);  // code on server
+            if(result=="true"){
+                 $("#menu_Status_id").click();
+            }
+         }
+    });  
+    $("#bnt_Configuration_cancel_all").click(function(){
+        if (confirm("Are you sure to cancel the all case?")) {
+            var result = GetDataByAjax(address_ExitRuningMode_cancel_all);  // code on server
             if(result=="true"){
                  $("#menu_Status_id").click();
             }
         }
-
     });  
 
 });
