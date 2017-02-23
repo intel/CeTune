@@ -123,15 +123,27 @@ class configuration:
         if thread_num:
             web.cache["tuner_thread"] = thread_num
             web.cache["cetune_status"] = "running"
+            os.system("echo 'execute' > ../conf/execute_op_type.conf")
 
-    def cancel(self):
+    def cancel_all(self):
         if web.cache["tuner_thread"]:
             pid = web.cache["tuner_thread"].pid
             os.kill((pid+1), signal.SIGINT)
             web.cache["cetune_status"] = "running, caught cancel request, working to close]"
+            os.system("echo 'cancel_all' > ../conf/execute_op_type.conf")
             #web.cache["tuner_thread"].wait()
             #web.cache["tuner_thread"] = None
             #web.cache["cetune_status"] = "idle"
+            return "true"
+        else:
+            return "false"
+
+    def cancel_one(self):
+        if web.cache["tuner_thread"]:
+            pid = web.cache["tuner_thread"].pid
+            os.kill((pid+1), signal.SIGINT)
+            web.cache["cetune_status"] = "running, caught cancel request, working to close]"
+            os.system("echo 'cancel_one' > ../conf/execute_op_type.conf")
             return "true"
         else:
             return "false"
