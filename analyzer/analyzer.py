@@ -846,7 +846,7 @@ class Analyzer:
 
     def process_fio_data(self, path, dirname):
         result = {}
-        stdout, stderr = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
+        stdout, stderr = common.bash("grep \" IOPS=.*BW=.*\| *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
         stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
         stdout2, stderr2 = common.bash("grep \" *clat percentiles\" "+path, True)
         lat_per_dict = {}
@@ -856,12 +856,13 @@ class Analyzer:
         fio_data_rw = {}
         fio_data_rw["read"] = {}
         fio_data_rw["write"] = {}
+        fio_data = {}
         for data in re.split(',|\n|:',stdout):
             try:
-                key, value = data.split("=")
-                if key.strip() not in fio_data:
-                    fio_data[key.strip()] = []
-                    fio_data[key.strip()].append( value.strip() )
+                key, value = data.split('=')
+                if key.strip().lower() not in fio_data:
+                    fio_data[key.strip().lower()] = []
+                    fio_data[key.strip().lower()].append( value.strip() )
             except:
                 if 'lat' in data:
                     res = re.search('lat\s*\((\w+)\)',data)
@@ -904,12 +905,16 @@ class Analyzer:
             list_len = len(fio_data_rw[io_pattern][first_item])
             for index in range(0, list_len):
                 fio_data = fio_data_rw[io_pattern]
-                output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
-                output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
-                res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
-                if res:
-                    output_fio_data['%s_bw' % io_pattern] += float( common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
-                output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
+                if "avg" in fio_data:
+                    output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
+                if "iops" in fio_data:
+                    output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
+                if "bw" in fio_data:
+                    res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
+                    if res:
+                        output_fio_data['%s_bw' % io_pattern] += float( common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
+                if "runt" in fio_data:
+                    output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
             output_fio_data['%s_lat' % io_pattern] /= list_len
             output_fio_data['%s_runtime' % io_pattern] /= list_len
         result[dirname] = {}

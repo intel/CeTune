@@ -436,6 +436,8 @@ def size_to_Kbytes(size, dest_unit='KB'):
         space_unit = 'K'
     if space_unit in ['Z','E','P','T','G','M','K']:
         space_unit += 'B'
+    if space_unit in ['ZiB','EiB','PiB','TiB','GiB','MiB','KiB']:
+        space_unit = space_unit.replace("i","")
     if space_unit == 'bytes':
         space_unit = 'B'
     unit_list = ['ZB','EB','PB','TB','GB','MB','KB','B']
