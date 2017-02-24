@@ -603,6 +603,7 @@ class Deploy(object):
             for line in mount_list_tmp.split('\n'):
                 tmp = line.split()
                 mount_list[node][tmp[0]] = tmp[2]
+
         opts = []
         for osd in osds:
             for device_bundle_tmp in diff_map[osd]:
@@ -713,6 +714,7 @@ class Deploy(object):
         osd_filedir = osd_filename.replace("$id", str(osd_num))
         common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
         common.pdsh( user, [osd], 'mount %s -t xfs %s %s/%s' % (mount_opts, osd_device, osd_basedir, osd_filedir))
+        self.make_osd(osd, osd_num, osd_device, journal_device)
 
     def make_osd(self, osd, osd_num, osd_device, journal_device):
         user = self.cluster["user"]
