@@ -218,6 +218,11 @@ class results:
         print web.input()
         return common.eval_args( self, function_name, web.input() )
 
+    def delete_result(self, request_type,key):
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        os.system("rm -rf %s/%s-*"%(dest_dir,key))
+
     def get_summary(self):
         view = visualizer.Visualizer({})
         conf = config.Config("../conf/all.conf")

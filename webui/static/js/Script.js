@@ -10,6 +10,7 @@ var address_Configuration_Get="../configuration/get_group?request_type=";
 var address_Configuration_Set="../configuration/set_config";
 var address_BenchmarkEngine_Check="../configuration/check_testcase";
 var address_Delete="../configuration/del_config";
+var address_Report_Delete="../results/delete_result?request_type=";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";
 var address_Description="../configuration/get_help";
@@ -31,6 +32,16 @@ var interval_Report=30000;
 var edit_flag = 0;
 
 /*************Interval function************************************************************************/
+function showtopdiv(){
+    $("#result_report_top").show("slow");
+}
+function mouse_on(){
+    $("#result_report_top").show("slow");
+    document.getElementById('result_report_top').style.display="block";
+}
+function Cancel_delete(){
+    $("#result_report_top").hide("slow");
+}
 
 function RunStatus_Timer(){
     var cetune_status = GetDataByAjax(address_GetRuningStatus);//?
