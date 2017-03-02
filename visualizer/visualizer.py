@@ -106,6 +106,7 @@ class Visualizer:
             for j in range(len(i)):
                 if j == 0:
                     line += "<tr href=%s/%s.html id=%s>"%(i[j],i[j],i[j])
+                    line += "<td><input type='checkbox' class = 'checkbox_configuration_class' id='checkbox_configuration_%s' name='checkbox_%s'></td>"%(j,j)
                 else:
                     if type(i[j]) == float:
                         line += "<td title='%.3f'>%.3f</td>\n"%(i[j],i[j])
@@ -244,6 +245,9 @@ class Visualizer:
         lines = self.parse_to_html(database.select_report_list(dbpath))
         output = []
         #output.append("<h1>CeTune History Page</h1>")
+        #output.append("<input type='button' style='width:100%;height:5px;' onmouseover='this.style.backgroundColor=#286090;' onmouseout='this.style.backgroundColor=#FFF;'></input>")
+        output.append("<input id='down_button' type='button' onclick='mouse_on()'></input>")
+        output.append("<div id='result_report_top'><div id='result_report_dropdown_title'><h4 class='modal-title'>Delete the selected item</h4></div><div id='div_Configuration_right_top_button'><div><input id='result_report_delete_Cancel' class='btn btn-primary' type='button' value='Cancel' onclick ='Cancel_delete()'/><input id='result_report_delete' class='btn btn-primary' type='button' value='Delete' data-toggle='modal'  data-target='#DeleteResultReportModal' data-whatever='@mdo'/></div></div></div>")
         output.append("<table id='report_list' class='cetune_table'>")
         #output.append(" <thead>")
         output.extend( self.getSummaryTitle() )
@@ -276,26 +280,28 @@ class Visualizer:
 
     def getSummaryTitle(self):
         output = []
-        output.append(" <tr>")
-        output.append(" <th data-resizable-column-id='0'>runid</th>")
-        output.append(" <th data-resizable-column-id='1'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
-        output.append(" <th data-resizable-column-id='2'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
-        output.append(" <th data-resizable-column-id='3'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
-        output.append(" <th data-resizable-column-id='4'><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")
-        output.append(" <th data-resizable-column-id='5'><a title='Type of Op Request' id='runid_op_type' href='#'>Op_Type</a></th>")
-        output.append(" <th data-resizable-column-id='6'><a title='Queue_depth/Container Number' id='runid_QD' href='#'>QD</a></th>")
-        output.append(" <th data-resizable-column-id='7'><a title='Type of Workload' id='runid_engine' href='#'>Driver</a></th>")
-        output.append(" <th data-resizable-column-id='8'><a title='Storage Node Number' id='runid_serverNum' href='#'>SN_Number</a></th>")
-        output.append(" <th data-resizable-column-id='9'><a title='Client Node Number' id='runid_clientNum' href='#'>CN_Number</a></th>")
-        output.append(" <th data-resizable-column-id='10'><a title='Workers Number/Objects Number' id='runid_rbdNum' href='#'>Worker</a></th>")
-        output.append(" <th data-resizable-column-id='11'><a title='Test Time be Profiled' id='runid_runtime' href='#'>Runtime(sec)</a></th>")
-        output.append(" <th data-resizable-column-id='12'><a title='Benchmarked IOPS' id='runid_fio_iops' href='#'>IOPS</a></th>")
-        output.append(" <th data-resizable-column-id='13'><a title='Benchmarked Bandwidth' id='runid_fio_bw' href='#'>BW(MB/s)</a></th>")
-        output.append(" <th data-resizable-column-id='14'><a title='Benchmarked Latency' id='runid_fio_latency' href='#'>Latency(ms)</a></th>")
-        output.append(" <th data-resizable-column-id='15'><a title='Benchmarked Latency 99.00' id='runid_fio_latency_99' href='#'>99.00% Latency(ms)</a></th>")
-        output.append(" <th data-resizable-column-id='16'><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
-        output.append(" <th data-resizable-column-id='17'><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
-        output.append(" <th data-resizable-column-id='18'><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
+        output.append(" <tr id = 'result_report_title' z-index='0'>")
+        output.append(" <th data-resizable-column-id='0'>Del</th>")
+        #output.append(" <th data-resizable-column-id='0'><input id='result_report_delete'  z-index='1' class='btn btn-primary' type='button' value='Del'/></th>")
+        output.append(" <th data-resizable-column-id='1'>runid</th>")
+        output.append(" <th data-resizable-column-id='2'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
+        output.append(" <th data-resizable-column-id='3'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
+        output.append(" <th data-resizable-column-id='4'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
+        output.append(" <th data-resizable-column-id='5'><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")
+        output.append(" <th data-resizable-column-id='6'><a title='Type of Op Request' id='runid_op_type' href='#'>Op_Type</a></th>")
+        output.append(" <th data-resizable-column-id='7'><a title='Queue_depth/Container Number' id='runid_QD' href='#'>QD</a></th>")
+        output.append(" <th data-resizable-column-id='8'><a title='Type of Workload' id='runid_engine' href='#'>Driver</a></th>")
+        output.append(" <th data-resizable-column-id='9'><a title='Storage Node Number' id='runid_serverNum' href='#'>SN_Number</a></th>")
+        output.append(" <th data-resizable-column-id='10'><a title='Client Node Number' id='runid_clientNum' href='#'>CN_Number</a></th>")
+        output.append(" <th data-resizable-column-id='11'><a title='Workers Number/Objects Number' id='runid_rbdNum' href='#'>Worker</a></th>")
+        output.append(" <th data-resizable-column-id='12'><a title='Test Time be Profiled' id='runid_runtime' href='#'>Runtime(sec)</a></th>")
+        output.append(" <th data-resizable-column-id='13'><a title='Benchmarked IOPS' id='runid_fio_iops' href='#'>IOPS</a></th>")
+        output.append(" <th data-resizable-column-id='14'><a title='Benchmarked Bandwidth' id='runid_fio_bw' href='#'>BW(MB/s)</a></th>")
+        output.append(" <th data-resizable-column-id='15'><a title='Benchmarked Latency' id='runid_fio_latency' href='#'>Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='16'><a title='Benchmarked Latency 99.00' id='runid_fio_latency_99' href='#'>99.00% Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='17'><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
+        output.append(" <th data-resizable-column-id='18'><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
+        output.append(" <th data-resizable-column-id='19'><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
         output.append(" </tr>")
         return output
 

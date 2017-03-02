@@ -422,6 +422,23 @@ function Del(tableType){
         });
         Submit_Benchmark();
     }
+    else if(tableType =="resultreport"){
+        var rowNum;
+        //address_report_Delete
+        $(".checkbox_configuration_class").each(function(index,value){
+            if($(this).is(':checked')){
+                var request_type,key;
+                request_type = "cluster"
+                key = $(this).parent().parent().children("td").get(1).innerHTML
+                var data ={};
+                data.request_type=request_type;
+                data.key = key;
+                var result = GetDataByAjax_POST(address_Report_Delete,data);
+
+                $(this).parent().parent().remove(); 
+            }
+        });
+    }
 
 }
 
@@ -476,6 +493,8 @@ function DeleteModal_OK(type){
   Del(type);
   setTimeout(function(){$("#DeleteModal").modal("hide")},100);
   setTimeout(function(){$("#DeleteBenchmarkModal").modal("hide")},100);
+  setTimeout(function(){$("#result_report_top").hide("slow")},100);
+  setTimeout(function(){$("#DeleteResultReportModal").modal("hide")},100);
 }
 
 function Select_Value(){
