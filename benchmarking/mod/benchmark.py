@@ -361,7 +361,7 @@ class Benchmark(object):
              else:
                  volume_num_upper_bound = volume_max_per_client
              self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
-             remained_instance_num = remained_instance_num - volume_num_upper_bound
+             remained_instance_num = remained_instance_num - (volume_num_upper_bound if len(self.cluster["testjob_distribution"][client]) > volume_num_upper_bound else len(self.cluster["testjob_distribution"][client]))
 
     def check_fio_pgrep(self, nodes, fio_node_num = 1, check_type="jobnum"):
         user =  self.cluster["user"]
