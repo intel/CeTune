@@ -63,10 +63,13 @@ class IPHandler:
             sys.exit()
         ipaddrlist = []
         res = re.findall("inet addr:\d+\.\d+\.\d+\.\d+",stdout)
+        if len(res) == 0:
+            res = re.findall("inet \d+\.\d+\.\d+\.\d+",stdout)
         for item in res:
-            b = item.split(':')
-            if b[1] != "127.0.0.1":
-                ipaddrlist.append(b[1])
+            tmp = re.findall("\d+\.\d+\.\d+\.\d+",item)
+            b = tmp[0]
+            if b != "127.0.0.1":
+                ipaddrlist.append(b)
         if len(ipaddrlist) == 0:
             printout("ERROR", "No IP found")
             sys.exit()
