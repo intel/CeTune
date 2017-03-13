@@ -63,6 +63,27 @@ Python webui.py
 root@client01:/CeTune/webui# python webui.py
 http://0.0.0.0:8080/
 ```
+#### Add user for CeTune
+```
+cd /CeTune/visualizer/
+# show help
+python user_Management.py --help
+
+# add a user
+cd /CeTune/visualizer/
+python user_Management.py -o add -user_name {set username} -passwd {set passwd} -role {set user role[admin|readonly]}
+
+# delete a user
+python user_Management.py -o del -user_name {username}
+
+# list all user
+python user_Management.py -o list
+
+# update a user role
+python user_Management.py -o up -user_name {username} -role {set user role[admin|readonly]}
+
+```
+
 - CeTune WebUI
 
 ![webui.png](static/pic/webui.png)
