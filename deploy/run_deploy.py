@@ -34,6 +34,11 @@ def main(args):
         action='store_true'
         )
     parser.add_argument(
+        '--parallel_deploy',
+        default=False,
+        action='store_true'
+        )
+    parser.add_argument(
         '--gen_cephconf',
         default = False,
         action='store_true'
@@ -53,9 +58,8 @@ def main(args):
         mydeploy = deploy.Deploy()
         if args.with_rgw:
             mydeploy = deploy_rgw.Deploy_RGW()
-#            mydeploy.deploy()
-        mydeploy.redeploy(args.gen_cephconf,
-                          ceph_disk=args.ceph_disk)
+
+        mydeploy.redeploy(args.gen_cephconf, ceph_disk=args.ceph_disk, parallel_deploy=args.parallel_deploy)
 
     if args.operation == "restart":
         mydeploy = deploy.Deploy()
