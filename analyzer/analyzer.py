@@ -328,14 +328,14 @@ class Analyzer:
     def get_execute_time(self):
         dest_dir = self.dest_dir
         cf = config.Config(dest_dir+"/conf/all.conf")
-        head = ''
-        head = cf.get("head")
-        file_path = os.path.join(dest_dir,"raw",head,head+"_process_log.txt")
-        if head != '':
-            if os.path.exists(os.path.join(dest_dir,"raw",head)):
-                for file_path in os.listdir(os.path.join(dest_dir,"raw",head)):
+        mon = ''
+        mon = cf.get("list_mon").split(",")[0]
+        file_path = os.path.join(dest_dir,"raw",mon,mon+"_process_log.txt")
+        if mon != '':
+            if os.path.exists(os.path.join(dest_dir,"raw",mon)):
+                for file_path in os.listdir(os.path.join(dest_dir,"raw",mon)):
                     if file_path.endswith("_process_log.txt"):
-                        with open("%s/%s" % (os.path.join(dest_dir,"raw",head),file_path), "r") as f:
+                        with open("%s/%s" % (os.path.join(dest_dir,"raw",mon),file_path), "r") as f:
                             lines = f.readlines()
                 if len(lines) != 0 and lines != None:
                     str_time = ''
