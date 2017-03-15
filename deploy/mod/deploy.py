@@ -129,6 +129,11 @@ class Deploy(object):
                         self.cluster["ceph_conf"]['mds'] = OrderedDict()
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['mds'][key] = value
+                if section_name == 'client':
+		    if 'client' not in self.cluster["ceph_conf"]:
+			self.cluster["ceph_conf"]['client'] = OrderedDict()
+		    for key, value in section.items():
+			self.cluster["ceph_conf"]['client'][key] = value
 
         self.map_diff = None
 
