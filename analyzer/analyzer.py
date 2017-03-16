@@ -486,6 +486,9 @@ class Analyzer:
                 self.workpool.schedule( self.process_sar_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name))
             if 'totals.html' in dir_name:
                 self.workpool.schedule( self.process_vdbench_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name))
+            if '_fio.json' in dir_name:
+                print '==============='
+                self.workpool.schedule( self.process_json_fio_data, "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
             if '_fio.txt' in dir_name:
                 self.workpool.schedule( self.process_fio_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
@@ -844,6 +847,15 @@ class Analyzer:
                     lat_percent_dict[key[0]] = value[0]
         return lat_percent_dict
 
+    def process_json_fio_data(self,path,dirname):
+        try:
+            import pdb
+            pdb.set_trace()
+            fio_data = json.loads(path, object_pairs_hook=OrderedDict)
+            print fio_data
+        except:
+            pass
+
     def process_fio_data(self, path, dirname):
         result = {}
         stdout, stderr = common.bash("grep \" *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
@@ -916,6 +928,9 @@ class Analyzer:
         result[dirname]["fio"] = output_fio_data
         
         self.workpool.enqueue_data( ["process_fio_data", result] )
+        print '---------------------------------'
+        print path,dirname
+        print result
         return result
 
     def process_lttng_data(self, path):
