@@ -796,6 +796,8 @@ class Analyzer:
         result[dirname] = {}
         result[dirname]["fio"] = output_fio_data
         self.workpool.enqueue_data(["process_fio_data", result])
+        print '======================================='
+        print result
         return result
 
     def process_lttng_data(self, path):

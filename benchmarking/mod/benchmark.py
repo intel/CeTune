@@ -265,6 +265,7 @@ class Benchmark(object):
             common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.csv" % self.cluster["tmp_dir"])
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.json" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/conf/" % (dest_dir), "%s/*.csv" % self.cluster["tmp_dir"])
             if "blktrace" in self.cluster["collector"]:
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*blktrace*" % self.cluster["tmp_dir"])
@@ -276,6 +277,7 @@ class Benchmark(object):
             common.bash( "mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.csv" % self.cluster["tmp_dir"])
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.json" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/conf/" % (dest_dir), "%s/*.csv" % self.cluster["tmp_dir"])
 
         #save real runtime
