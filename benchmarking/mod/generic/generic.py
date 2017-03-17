@@ -71,7 +71,7 @@ class Generic(Benchmark):
 
         #drop page cache
         user = self.cluster["user"]
-        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
+        waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
         nodes.extend(self.benchmark["distribution"].keys())
