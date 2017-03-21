@@ -76,6 +76,11 @@ class configuration:
         print "post_param:%s" % str(web.input())
         return common.eval_args( self, function_name, web.input() )
 
+    def user_role(self):
+        output = session.userrole
+        web.header("Content-Type","application/json")
+        return json.dumps(output)
+
     def get_group(self,request_type):
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
