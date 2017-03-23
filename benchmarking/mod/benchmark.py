@@ -388,12 +388,18 @@ class Benchmark(object):
     def check_rbd_init_completed(self, planed_space, pool_name="rbd"):
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
-        stdout, stderr = common.pdsh(user, [controller], "ceph df | grep %s | awk '{print $3}'" % pool_name, option = "check_return")
+        stdout, stderr = common.pdsh(user, [controller], "ceph df -f json", option="check_return")
         res = common.format_pdsh_return(stdout)
-        if controller not in res:
+        distPool = None
+        if controller in res:
+            for pool in res[controller]["pools"]:
+                if pool["name"] == pool_name:
+                    distPool = pool
+                    break
+        if distPool:
             common.printout("ERROR","cannot get ceph space, seems to be a dead error")
             #sys.exit()
-        cur_space = common.size_to_Kbytes(res[controller])
+        cur_space = distPool["stats"]["kb_used"]
         planned_space = common.size_to_Kbytes(planed_space)
         common.printout("WARNING","Ceph cluster used data occupied: %s KB, planned_space: %s KB " % (cur_space, planned_space))
         if cur_space < planned_space:
