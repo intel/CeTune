@@ -526,21 +526,21 @@ def eval_args( obj, function_name, args ):
     return res
 
 def wait_ceph_to_health( user, controller ):
-        #wait ceph health to be OK
-        waitcount = 0
-        try:
-            while not check_health( user, controller ) and waitcount < 300:
-                printout("WARNING","Applied tuning, waiting ceph to be healthy")
-                time.sleep(3)
-                waitcount += 3
-        except:
-            printout("WARNING","Caught KeyboardInterrupt, exit")
-            sys.exit()
-        if waitcount < 300:
-            printout("LOG","Tuning has applied to ceph cluster, ceph is Healthy now")
-        else:
-            printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually")
-            sys.exit()
+    #wait ceph health to be OK
+    waitcount = 0
+    try:
+        while not check_health( user, controller ) and waitcount < 300:
+            printout("WARNING","Applied tuning, waiting ceph to be healthy")
+            time.sleep(3)
+            waitcount += 3
+    except:
+        printout("WARNING","Caught KeyboardInterrupt, exit")
+        sys.exit()
+    if waitcount < 300:
+        printout("LOG","Tuning has applied to ceph cluster, ceph is Healthy now")
+    else:
+        printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually")
+        sys.exit()
 
 def check_health( user, controller ):
     check_count = 0
