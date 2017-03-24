@@ -62,9 +62,11 @@ Python webui.py
 # you will see below output
 root@client01:/CeTune/webui# python webui.py
 http://0.0.0.0:8080/
+
 ```
 #### Add user for CeTune
 ```
+
 cd /CeTune/visualizer/
 # show help
 python user_Management.py --help
