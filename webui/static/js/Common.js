@@ -114,8 +114,13 @@ function CreateTableHTML_Benchmark(jsonObj){
 
 
     tableHtml="<div id='div_benchmark_button_id'>";
-    tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' >Delete</button>";
-    tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' >Add</button>";
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' >Delete</button>";
+        tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' >Add</button>";
+    }else{
+        tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' disabled='disabled'>Delete</button>";
+        tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' disabled='disabled'>Add</button>";
+    }
     tableHtml +=  "</div>"
 
     tableHtml +=  "<table id='"+tableID+"' class='"+tableClass+"'>";
@@ -245,35 +250,59 @@ function CreateTableHTML_Benchmark(jsonObj){
         tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
         tableHtml += "<label style='display:none;'>"+index+"</label>";
         if(val.additional_option == "restart"){
-            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()' disabled='disabled'>";
+            }
             tableHtml += "<option>NULL</option>";
             tableHtml += "<option selected>restart</option>";
             tableHtml += "<option>redeploy</option>";
             tableHtml += "<option>resetPerf</option>";
         }
         if(val.additional_option == "redeploy"){
-            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";}
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()' disabled='disabled'>";
+            }
             tableHtml += "<option>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option selected>redeploy</option>";
             tableHtml += "<option>resetPerf</option>";
         }
         if(val.additional_option == "resetPerf"){
-            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()' disabled='disabled'>";
+            }
             tableHtml += "<option>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
             tableHtml += "<option selected>resetPerf</option>";
         }
         if(val.additional_option == "NULL"){
-            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()' disabled='disabled'>";
+            }
             tableHtml += "<option selected>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
             tableHtml += "<option>resetPerf</option>";
         }
         if(val.additional_option == ""){
-            tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()' disabled='disabled'>";
+            }
             tableHtml += "<option selected>NULL</option>";
             tableHtml += "<option>restart</option>";
             tableHtml += "<option>redeploy</option>";
@@ -295,18 +324,20 @@ function CreateTableHTML_Benchmark(jsonObj){
 //------------------------------  Events Definition ----------------------------
 //label click opertion
 function Label_Click(count,value){
-    var rowNum = count;
-    olabel = document.getElementById("label_id_"+rowNum);
-    olabel.style.backgroundColor = "#cff";
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        var rowNum = count;
+        olabel = document.getElementById("label_id_"+rowNum);
+        olabel.style.backgroundColor = "#cff";
 
-    otd = document.getElementById("td_value_id_"+rowNum);
-    otd.removeChild(olabel);
+        otd = document.getElementById("td_value_id_"+rowNum);
+        otd.removeChild(olabel);
 
-    var strHtml =  "<input class='text_class' id = 'text_id_"+rowNum+"' value = '"+value+"' type='text' name='fname'/>";
-    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_Apply("+rowNum+")' />";
-    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
+        var strHtml =  "<input class='text_class' id = 'text_id_"+rowNum+"' value = '"+value+"' type='text' name='fname'/>";
+        strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_Apply("+rowNum+")' />";
+        strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
 
-    otd.innerHTML =strHtml;
+        otd.innerHTML =strHtml;
+    }
 }
 
 //edit value apply
@@ -363,14 +394,16 @@ function Additional_option_change(){
 
 //label click opertion
 function Label_benchmark_Click(rowNum , colNum , value){
-    olabel = document.getElementById("label_benchmark_id_" + rowNum + "_" + colNum);
-    olabel.style.backgroundColor = "#cff";
-    otd = document.getElementById("td_benchmark_id_" + rowNum + "_" + colNum);
-    otd.removeChild(olabel);
-    var strHtml =  "<input class='text_class' id = 'text_benchmark_id_"+rowNum+"_"+ colNum +"' value = '"+value+"' type='text' name='fname'/>";
-    strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_ok_id_"+rowNum+"_"+colNum+"' type='button' value='OK' onclick= 'Ok_benchmark_Apply("+rowNum+","+ colNum+")' />";
-    strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_cancel_id_"+rowNum+"_"+colNum+"' type='button' value='Cancel' onclick= 'Cancel_benchmark_Apply("+rowNum+","+colNum+",&quot;"+value+"&quot;)'/>";
-    otd.innerHTML =strHtml;
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        olabel = document.getElementById("label_benchmark_id_" + rowNum + "_" + colNum);
+        olabel.style.backgroundColor = "#cff";
+        otd = document.getElementById("td_benchmark_id_" + rowNum + "_" + colNum);
+        otd.removeChild(olabel);
+        var strHtml =  "<input class='text_class' id = 'text_benchmark_id_"+rowNum+"_"+ colNum +"' value = '"+value+"' type='text' name='fname'/>";
+        strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_ok_id_"+rowNum+"_"+colNum+"' type='button' value='OK' onclick= 'Ok_benchmark_Apply("+rowNum+","+ colNum+")' />";
+        strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_cancel_id_"+rowNum+"_"+colNum+"' type='button' value='Cancel' onclick= 'Cancel_benchmark_Apply("+rowNum+","+colNum+",&quot;"+value+"&quot;)'/>";
+        otd.innerHTML =strHtml;
+    }
 }
 
 //edit value apply
