@@ -18,8 +18,10 @@ class Benchmark(object):
 
     def go(self, testcase, tuning):
         try:
-            cancel_file = open("../conf/execute_op_type.conf","r")
-            execute_op_type = cancel_file.read().strip("\n")
+            execute_op_type = "cancel_one"
+            if os.path.exists("../conf/execute_op_type.conf"):
+                cancel_file = open("../conf/execute_op_type.conf","r")
+                execute_op_type = cancel_file.read().strip("\n")
             if execute_op_type != "cancel_all":
                 common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
                 common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
