@@ -725,14 +725,13 @@ class Deploy(object):
         osds = sorted(self.cluster["osds"])
         if mons==None:
             mons = self.cluster["mons"]
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
-        common.bash("mkdir -p %s" % mon_basedir)
-
         # Keyring
         if not len(mons.keys()):
             return 
 
         mon = mons.keys()[0]
+	mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
+	common.pdsh(user, [mon], 'mkdir -p %s' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --create-keyring --gen-key --name=mon. %s/keyring --cap mon \'allow *\'' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --gen-key --name=client.admin --set-uid=0 --cap mon \'allow *\' --cap osd \'allow *\' --cap mds allow %s/keyring' % mon_basedir)
         common.rscp(user, mon, '%s/keyring.tmp' % mon_basedir, '%s/keyring' % mon_basedir )
