@@ -486,6 +486,9 @@ class Analyzer:
                 self.workpool.schedule( self.process_sar_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name))
             if 'totals.html' in dir_name:
                 self.workpool.schedule( self.process_vdbench_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name))
+            if '_fio.json' in dir_name:
+                if '.tmp' not in dir_name:
+                    self.workpool.schedule( self.process_json_fio_data, "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
             if '_fio.txt' in dir_name:
                 self.workpool.schedule( self.process_fio_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
@@ -844,6 +847,47 @@ class Analyzer:
                     lat_percent_dict[key[0]] = value[0]
         return lat_percent_dict
 
+    def process_json_fio_data(self,path,dirname):
+        result = {}
+        try:
+            js={}
+            f = open(path,'r')
+            a=f.readlines()
+            path_tmp = path+'.tmp'
+            dir_name = os.path.dirname(path)
+            os.system('rm %s/*.tmp'%dir_name)
+            f_tmp=open(path_tmp,'w')
+            b=''.join(a[1:])
+            f_tmp.write(b)
+            f.close()
+            f_tmp.close()
+            with open(path_tmp,'r') as f_json:
+                js.update(json.load(f_json,object_pairs_hook=OrderedDict))
+            output_fio_data = OrderedDict()
+            output_fio_data['read_lat'] = js['jobs'][0]["read"]['lat']['mean']
+            output_fio_data['read_iops'] = js['jobs'][0]["read"]['iops']
+            output_fio_data['read_bw'] = js['jobs'][0]["read"]['bw']
+            output_fio_data['read_runtime'] = js['jobs'][0]["read"]['runtime']
+            output_fio_data['write_lat'] = js['jobs'][0]["write"]['lat']['mean']
+            output_fio_data['write_iops'] = js['jobs'][0]["write"]['iops']
+            output_fio_data['write_bw'] = js['jobs'][0]["write"]['bw']
+            output_fio_data['write_runtime'] = js['jobs'][0]["write"]['runtime']
+            if js['jobs'][0]["read"]['clat']['percentile']['95.000000'] == 0:
+                 output_fio_data['95.00th%_lat'] =  js['jobs'][0]["write"]['clat']['percentile']['95.000000']
+            if js['jobs'][0]["read"]['clat']['percentile']['99.000000'] == 0:
+                 output_fio_data['99.00th%_lat'] =  js['jobs'][0]["write"]['clat']['percentile']['99.000000']
+            if js['jobs'][0]["read"]['clat']['percentile']['99.990000'] == 0:
+                 output_fio_data['99.99th%_lat'] =  js['jobs'][0]["write"]['clat']['percentile']['99.990000']
+            output_fio_data['lat_unit'] = 'msec'
+            output_fio_data['runtime_unit'] = 'sec'
+            output_fio_data['bw_unit'] = 'MB/s'
+            result[dirname] = {}
+            result[dirname]["fio"] = output_fio_data
+            self.workpool.enqueue_data( ["process_json_fio_data", result] )
+            return result
+        except:
+            return result
+
     def process_fio_data(self, path, dirname):
         result = {}
         stdout, stderr = common.bash("grep \" IOPS=.*BW=.*\| *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
@@ -921,6 +965,9 @@ class Analyzer:
         result[dirname]["fio"] = output_fio_data
         
         self.workpool.enqueue_data( ["process_fio_data", result] )
+        print '---------------------------------'
+        print path,dirname
+        print result
         return result
 
     def process_lttng_data(self, path):

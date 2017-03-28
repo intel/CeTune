@@ -18,8 +18,10 @@ class Benchmark(object):
 
     def go(self, testcase, tuning):
         try:
-            cancel_file = open("../conf/execute_op_type.conf","r")
-            execute_op_type = cancel_file.read().strip("\n")
+            execute_op_type = "cancel_one"
+            if os.path.exists("../conf/execute_op_type.conf"):
+                cancel_file = open("../conf/execute_op_type.conf","r")
+                execute_op_type = cancel_file.read().strip("\n")
             if execute_op_type != "cancel_all":
                 common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
                 common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
@@ -265,6 +267,7 @@ class Benchmark(object):
             common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.csv" % self.cluster["tmp_dir"])
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.json" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/conf/" % (dest_dir), "%s/*.csv" % self.cluster["tmp_dir"])
             if "blktrace" in self.cluster["collector"]:
                 common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*blktrace*" % self.cluster["tmp_dir"])
@@ -276,6 +279,7 @@ class Benchmark(object):
             common.bash( "mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.csv" % self.cluster["tmp_dir"])
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.json" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/conf/" % (dest_dir), "%s/*.csv" % self.cluster["tmp_dir"])
 
         #save real runtime
