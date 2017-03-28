@@ -68,6 +68,7 @@ def main(args):
                 if len(p) > 0 and p!="\n":
                     if not p[0].startswith('#'):
                         testcase_list.append({"engine":p[0],"parameter":p[1:]})
+        os.system("echo 'execute' > ../conf/execute_op_type.conf")
         for testcase in testcase_list:
             if testcase["engine"] == "qemurbd":
                 benchmark = qemurbd.QemuRbd()
