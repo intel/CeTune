@@ -62,6 +62,7 @@ class Workflow:
                     else:
                         run_deploy.main(['redeploy'])
                     tuner.main(['--section', section, 'apply_tuning'])
+                    re_weight.do()
                 elif work == "benchmark":
                     if not common.check_ceph_running( user, controller ):
                         run_deploy.main(['restart'])
