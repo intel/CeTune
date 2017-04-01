@@ -22,6 +22,7 @@ var address_GetRuningStatus="../monitor/cetune_status";
 var address_IntoRuningMode="../configuration/execute";
 var address_ExitRuningMode_cancel_all="../configuration/cancel_all";
 var address_ExitRuningMode_cancel_one="../configuration/cancel_one";
+var address_userrole="../configuration/user_role";
 
 var timer_RunStatus;
 var timer_Console;
@@ -37,8 +38,10 @@ function showtopdiv(){
     $("#result_report_top").show("slow");
 }
 function mouse_on(){
-    $("#result_report_top").show("slow");
-    document.getElementById('result_report_top').style.display="block";
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        $("#result_report_top").show("slow");
+        document.getElementById('result_report_top').style.display="block";
+    }
 }
 function Cancel_delete(){
     $("#result_report_top").hide("slow");
@@ -84,6 +87,11 @@ function Console_Timer(init){
        var consoleData = GetDataByAjax_POST(address_Status,data);
     }else{
        var consoleData = GetDataByAjax(address_Status);
+    }
+
+    if(GetDataByAjax(address_userrole) == 'readonly'){
+        document.getElementById("bnt_Configuration_cancel_one").disabled=true;
+        document.getElementById("bnt_Configuration_cancel_all").disabled=true;
     }
     
     if(consoleData.content == "")
@@ -149,7 +157,7 @@ function getRowObj(obj){
 function Cancel_Click(tr_id,cellText){
     var trObj = document.getElementById(tr_id);
     cellHtml = "<td title='"+cellText+"'>"+cellText+"</td>"
-    trObj.cells[3].innerHTML = cellHtml;
+    trObj.cells[4].innerHTML = cellHtml;
     edit_flag = 2;
 }
 
@@ -158,7 +166,7 @@ function ok_click(tr_No,tr_id,cellText){
     var trObj = document.getElementById(tr_id);
     var txt = document.getElementById('text_id_'+tr_No);
     cellHtml = "<td title='"+cellText+"'>"+txt.value+"</td>"
-    trObj.cells[3].innerHTML = cellHtml;
+    trObj.cells[4].innerHTML = cellHtml;
     edit_flag = 2;
     var postData = {
         "tr_id": tr_id,
@@ -201,20 +209,22 @@ function Report_Timer(init){
                 //alert(trNo);
                 tr_number = trNo;
                 rowObj = trArr[trNo];
-                cellObj = rowObj.cells[3];
+                cellObj = rowObj.cells[4];
                 tr_id = rowObj.id;
                 cellText = cellObj.outerText;
                 cellHtml = cellObj.outerHTML;
             }
         }
         //if(c==null || c==0){
-        if(rowObj.cells[0].innerText != "runid" && colnum == 3){
-            if(edit_flag == 0){
-                edit_flag = 1;
-                var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
-                strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
-                strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
-                cellObj.innerHTML = strHtml;
+        if(GetDataByAjax(address_userrole) == 'admin'){
+            if(rowObj.cells[0].innerText != "runid" && colnum == 4){
+                if(edit_flag == 0){
+                    edit_flag = 1;
+                    var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
+                    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
+                    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
+                    cellObj.innerHTML = strHtml;
+                }
             }
         }
         if(edit_flag == 2){edit_flag = 0;}
@@ -450,7 +460,7 @@ $(document).ready(function(){
 	
     //Executive 
     if(CheckIsExecutive() == "true"){    
-        $("#bnt_Configuration_exec_id").removeAttr("disabled");        //re-enable
+        //$("#bnt_Configuration_exec_id").removeAttr("disabled");        //re-enable
         $("#bnt_Configuration_exec_id").addClass("bnt_Configuration_exec");
     }else{
         $("#bnt_Configuration_exec_id").attr("disabled",true);
@@ -595,7 +605,14 @@ function ExecutvieCheck(event){
 
 //init setting
 function Init(){
-     
+     //check user_role
+    var userrole = GetDataByAjax(address_userrole);
+    if(userrole == 'readonly'){
+        $("#bnt_Configuration_exec_id").attr("disabled", true);
+        $("#bnt_Confguration_add_id").attr("disabled", true);
+        $("#bnt_Confguration_delete_id").attr("disabled", true);
+     }
+
     //(1)tab seting
     $("#div_menu_id ul li").eq(0).addClass("tab_background_click");
     $(".div_tab_class").eq(0).show().siblings(".div_tab_class").hide();

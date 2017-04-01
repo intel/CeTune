@@ -1,35 +1,45 @@
 #/usr/bin/python
 import ConfigParser
 import os
+import sys
 import collections
+sys.path.append("../visualizer/")
+from create_DB import *
 
 class UserClass(object):
     @classmethod
-    def read_conf_to_dict(self):
-        self.cf = ConfigParser.ConfigParser()
-        self.dict = collections.OrderedDict()
-        if os.path.exists("account.conf"):
-            self.cf.read("account.conf")
-            self.data = self.cf.items("account")
-            self.data = sorted(self.data)
-            for i in range(len(self.data)):
-                self.dict[self.data[i][0]]=self.data[i][1]
-        else:
-            print "ERROR:account.conf not exists."
-        return self.dict
+    def get_user_role(self,username):
+        dbpath = "user.db"
+        user_role = '1'
+        if os.path.exists("user.db"):
+            user_role = database.get_user_role(username,dbpath)
+        return user_role
 
-    @classmethod
-    def get_all_account(self):
-        return UserClass.read_conf_to_dict()
 
     @classmethod
     def check_account(self,key=[' ',' ']):
+        dbpath = "user.db"
         result = 'false'
-        if key[0] in UserClass.read_conf_to_dict().keys():
-            if UserClass.read_conf_to_dict()[key[0]] == key[1]:
-                result = 'true'
-                return result
-            return result
+        if os.path.exists("user.db"):
+            if database.check_user_exist(key[0],dbpath):
+                if database.check_user_mdfive_exist(key[0],dbpath):
+                    if database.check_user_passwd(key[0],key[1],dbpath):
+                        result = 'true'
+                        md = os.popen("echo -n %s | md5sum")
+                        mdfive = md.read()
+                        database.save_user_mdfive(key[0],mdfive,dbpath)
+                    else:
+                        result = 'false'
+                else:
+                    md = os.popen("echo -n %s | md5sum")
+                    mdfive = md.read()
+                    if database.check_user_mdfive(key[0],mdfive,dbpath):
+                        result = 'true'
+                    else:
+                        resulte = 'false'
+            else:
+                result = 'false'
         else:
-            print "ERROR:user not exists."
-            return result
+            result = 'false'
+        return result
+

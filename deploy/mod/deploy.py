@@ -39,6 +39,7 @@ class Deploy(object):
         self.cluster["ceph_conf"]["osd"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
         self.cluster["collector"] = self.all_conf_data.get_list("collector")
         self.cluster["ceph_disk"] = {}
+	self.cluster["disk_format"] = self.all_conf_data.get("disk_format")
 
         for key, value in self.all_conf_data.get_group("ceph_hard_config").items():
             section_name = "global"
@@ -294,45 +295,63 @@ class Deploy(object):
             cephconf.append("    mon addr = %s\n" % self.cluster["mons"][mon])
 
         backend_storage = self.cluster["ceph_conf"]["global"]["osd_objectstore"]
-        for osd in sorted(osds):
+
+	disk_format_list = common.parse_disk_format(self.cluster["disk_format"])
+
+        if backend_storage == "filestore":
+            assert(2 == len(disk_format_list))
+            osd_pos = disk_format_list.index("osd")
+            journal_pos = disk_format_list.index("journal")
+        elif backend_storage == "bluestore":
+            assert(3 <= len(disk_format_list))
+            assert(4 >= len(disk_format_list))
+            osd_pos = disk_format_list.index("osd")
+            block_pos = disk_format_list.index("data")
+            if (3 == len(disk_format_list)):
+                db_wal_pos = disk_format_list.index("db_wal")
+            else:
+                db_pos = disk_format_list.index("db")
+                wal_pos = disk_format_list.index("wal")
+	for osd in sorted(osds):
             for device_bundle in common.get_list(osd_dict[osd]):
-                device_bundle_len = len(device_bundle)
+                disk_format_list_len = len(disk_format_list)
+		assert(disk_format_list_len <= len(device_bundle))
                 cephconf.append("[osd.%d]\n" % osd_id)
                 osd_id += 1
                 cephconf.append("    host = %s\n" % osd)
                 cephconf.append("    public addr = %s\n" % osds[osd]["public"])
                 cephconf.append("    cluster addr = %s\n" % osds[osd]["cluster"])
                 if ceph_disk:
-                    cephconf.append("    devs = %s\n" % (device_bundle[0]))
+                    cephconf.append("    devs = %s\n" % (device_bundle[osd_pos]))
                 else:
-                    cephconf.append("    devs = %s\n" % device_bundle[0])
-                if device_bundle_len == 1 or device_bundle[1] == "":
+                    cephconf.append("    devs = %s\n" % device_bundle[osd_pos])
+                if disk_format_list_len == 1 or device_bundle[1] == "":
                     continue
                 if ceph_disk:
                     if backend_storage == "filestore":
-                        cephconf.append("    osd journal = %s\n" % (device_bundle[1]))
+                        cephconf.append("    osd journal = %s\n" % (device_bundle[journal_pos]))
                     else:
-                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[1]))
+                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[block_pos]))
                 else:
                     if backend_storage == "filestore":
-                        cephconf.append("    osd journal = %s\n" % device_bundle[1])
+                        cephconf.append("    osd journal = %s\n" % device_bundle[journal_pos])
                     else:
-                        cephconf.append("    bluestore_block_path = %s\n" % device_bundle[1])
-                if device_bundle_len == 2 or backend_storage == "filestore":
+                        cephconf.append("    bluestore_block_path = %s\n" % device_bundle[block_pos])
+                if disk_format_list_len == 2 or backend_storage == "filestore":
                     continue
-                if ceph_disk:
-                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[2]))
-                else:
-                    cephconf.append("    bluestore_block_db_path = %s\n" % device_bundle[2])
-                if device_bundle_len == 3:
+
+                # bluestore specific
+                if disk_format_list_len == 3:
+                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[db_wal_pos]))
                     continue
-                if ceph_disk:
-                    cephconf.append("    bluestore_block_wal_path = %s\n" % (device_bundle[3]))
-                else:
-                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[3])
+                if disk_format_list_len == 4:
+                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[db_pos]))
+                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[wal_pos])
+
                 for bluestore_block_path in self.bluestore_block_pathes:
                     if osds[osd].has_key(bluestore_block_path):
                         cephconf.append("    %s = %s\n" % (bluestore_block_path, osds[osd][bluestore_block_path]))
+	
 
         output = "".join(cephconf)
         with open("../conf/ceph.conf", 'w') as f:
@@ -706,14 +725,13 @@ class Deploy(object):
         osds = sorted(self.cluster["osds"])
         if mons==None:
             mons = self.cluster["mons"]
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
-        common.bash("mkdir -p %s" % mon_basedir)
-
         # Keyring
         if not len(mons.keys()):
             return 
 
         mon = mons.keys()[0]
+	mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
+	common.pdsh(user, [mon], 'mkdir -p %s' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --create-keyring --gen-key --name=mon. %s/keyring --cap mon \'allow *\'' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --gen-key --name=client.admin --set-uid=0 --cap mon \'allow *\' --cap osd \'allow *\' --cap mds allow %s/keyring' % mon_basedir)
         common.rscp(user, mon, '%s/keyring.tmp' % mon_basedir, '%s/keyring' % mon_basedir )

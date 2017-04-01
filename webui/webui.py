@@ -56,6 +56,7 @@ class login:
         if UserClass.check_account([username,passwd]) == 'true':
             session.logged_in = True
             session.username = username
+            session.userrole = UserClass.get_user_role(username)
             web.setcookie('system_mangement', '', 60)
             raise web.seeother('/')
         else:
@@ -76,6 +77,11 @@ class configuration:
         print "post_param:%s" % str(web.input())
         return common.eval_args( self, function_name, web.input() )
 
+    def user_role(self):
+        output = session.userrole
+        web.header("Content-Type","application/json")
+        return json.dumps(output)
+
     def get_group(self,request_type):
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
@@ -95,58 +101,65 @@ class configuration:
         return html
 
     def set_config(self, request_type, key, value):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.set_config(request_type, key, value))
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.set_config(request_type, key, value))
 
     def check_engine(self, engine_list):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.check_engine(engine_list.split(',')))
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.check_engine(engine_list.split(',')))
 
     def check_testcase(self):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.check_testcase())
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.check_testcase())
 
     def del_config(self, request_type, key):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.del_config(request_type, key))
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.del_config(request_type, key))
 
     def execute(self):
         if web.cache["tuner_thread"]:
             return "false"
-        common.clean_console()
-        #thread_num = tuner.main(["--by_thread"])
-        thread_num = subprocess.Popen("cd ../workflow/; python workflow.py", shell=True)
-        if thread_num:
-            web.cache["tuner_thread"] = thread_num
-            web.cache["cetune_status"] = "running"
-            os.system("echo 'execute' > ../conf/execute_op_type.conf")
+        if session.get('userrole') == 'admin':
+            common.clean_console()
+            #thread_num = tuner.main(["--by_thread"])
+            thread_num = subprocess.Popen("cd ../workflow/; python workflow.py", shell=True)
+            if thread_num:
+                web.cache["tuner_thread"] = thread_num
+                web.cache["cetune_status"] = "running"
+                os.system("echo 'execute' > ../conf/execute_op_type.conf")
 
     def cancel_all(self):
-        if web.cache["tuner_thread"]:
-            pid = web.cache["tuner_thread"].pid
-            os.kill((pid+1), signal.SIGINT)
-            web.cache["cetune_status"] = "running, caught cancel request, working to close]"
-            os.system("echo 'cancel_all' > ../conf/execute_op_type.conf")
-            #web.cache["tuner_thread"].wait()
-            #web.cache["tuner_thread"] = None
-            #web.cache["cetune_status"] = "idle"
-            return "true"
-        else:
-            return "false"
+        if session.get('userrole') == 'admin':
+            if web.cache["tuner_thread"]:
+                pid = web.cache["tuner_thread"].pid
+                os.kill((pid+1), signal.SIGINT)
+                web.cache["cetune_status"] = "running, caught cancel request, working to close]"
+                os.system("echo 'cancel_all' > ../conf/execute_op_type.conf")
+                #web.cache["tuner_thread"].wait()
+                #web.cache["tuner_thread"] = None
+                #web.cache["cetune_status"] = "idle"
+                return "true"
+            else:
+                return "false"
 
     def cancel_one(self):
-        if web.cache["tuner_thread"]:
-            pid = web.cache["tuner_thread"].pid
-            os.kill((pid+1), signal.SIGINT)
-            web.cache["cetune_status"] = "running, caught cancel request, working to close]"
-            os.system("echo 'cancel_one' > ../conf/execute_op_type.conf")
-            return "true"
-        else:
-            return "false"
+        if session.get('userrole') == 'admin':
+            if web.cache["tuner_thread"]:
+                pid = web.cache["tuner_thread"].pid
+                os.kill((pid+1), signal.SIGINT)
+                web.cache["cetune_status"] = "running, caught cancel request, working to close]"
+                os.system("echo 'cancel_one' > ../conf/execute_op_type.conf")
+                return "true"
+            else:
+                return "false"
 
 class monitor:
     def GET(self, function_name = ""):
@@ -202,16 +215,18 @@ class description:
         data = web.input()
         tr_id = data["tr_id"]
         new_description = data["celltext"]
-        view = visualizer.Visualizer({})
-        view.update_report_list_db(tr_id,new_description)
+        if session.get('userrole')== 'admin':
+            view = visualizer.Visualizer({})
+            view.update_report_list_db(tr_id,new_description)
         #return common.eval_args( self, function_name, web.input() )
 
     def update(self):
         data = web.input()
         tr_id = data["tr_id"]
         new_description = data["celltext"]
-        view = visualizer.Visualizer({})
-        view.update_report_list_db(tr_id,new_description)
+        if session.get('userrole')=='admin':
+            view = visualizer.Visualizer({})
+            view.update_report_list_db(tr_id,new_description)
 
     def get_help(self):
 	view = visualizer.Visualizer({})
@@ -231,9 +246,10 @@ class results:
         return common.eval_args( self, function_name, web.input() )
 
     def delete_result(self, request_type,key):
-        conf = config.Config("../conf/all.conf")
-        dest_dir = conf.get("dest_dir")
-        os.system("rm -rf %s/%s-*"%(dest_dir,key))
+        if session.get('userrole') == 'admin':
+            conf = config.Config("../conf/all.conf")
+            dest_dir = conf.get("dest_dir")
+            os.system("rm -rf %s/%s-*"%(dest_dir,key))
 
     def get_summary(self):
         view = visualizer.Visualizer({})
