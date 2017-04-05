@@ -532,6 +532,7 @@ class Deploy(object):
             self.start_osd_created_by_ceph_disk()
         else:
             self.start_osd()
+        self.start_mgr()
 
     def cleanup(self, ceph_disk=False):
         user = self.cluster["user"]
@@ -878,6 +879,15 @@ class Deploy(object):
                         'exec %s"' % (lttng_prefix, cmd), option="console",
                         except_returncode=1)
             common.printout("LOG","Started osd.%s daemon on %s" % (osd_name, osd_host))
+
+    def start_mgr(self):
+        outStr = common.bash("ceph status")
+        outList = [x.strip() for x in outStr.split('\n')]
+        if "mgr no daemons active" in outList:
+            common.bash("ceph auth get-or-create mgr.admin mon 'allow *' && ceph-mgr -i admin")
+            common.printout("LOG", "create mgr success: admin")
+        else:
+            common.printout("LOG", "not need create mgr")
 
     def osd_perf_reset(self):
         osd_list = self.get_daemon_info_from_ceph_conf("osd")
