@@ -142,7 +142,7 @@ class Analyzer:
 
             all_node = []
             for node in self.cluster["osds"] + self.cluster["client"]:
-                common.printout("LOG","note "+ node + " start analysis")
+                common.printout("LOG","node "+ node + " start analysis")
                 common.scp(self.cluster["user"],node,remote_file,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file1,self.cluster["tmp_dir"])
                 common.scp(self.cluster["user"],node,remote_file2,self.cluster["tmp_dir"])
@@ -158,7 +158,7 @@ class Analyzer:
                 p.start()
                 all_node.append((p,node))
 
-            common.printout("LOG","waiting for all note finish analysis")
+            common.printout("LOG","waiting for all nodes to finish analysis")
             log_line = {}
             while(1):
                 for proc,node in all_node:
@@ -174,7 +174,7 @@ class Analyzer:
                     break
                 time.sleep(1)
 
-            common.printout("LOG","all note finish analysis")
+            common.printout("LOG","all nodes finish analysis")
             common.printout("LOG","Merging node process.")
             for dir_name in  self.cluster["osds"] + self.cluster["client"]:
                 system_file = os.path.join(self.workpath,dir_name+"-system.json")
