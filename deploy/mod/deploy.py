@@ -15,6 +15,7 @@ from collections import OrderedDict
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy(object):
     def __init__(self, tunings=""):
+        common.printout("LOG", "============start deploy============",log_level="LVL3")
         self.all_conf_data = config.Config("../conf/all.conf")
         self.cluster = {}
         self.cluster["clean_build"] = self.all_conf_data.get("clean_build")
@@ -181,7 +182,7 @@ class Deploy(object):
                 if code in installed_list[0]:
                     version = version_name
         elif len(installed_list) >= 2:
-            common.printout("ERROR", "More than two versions of ceph installed, %s" % installed_list)
+            common.printout("ERROR", "More than two versions of ceph installed, %s" % installed_list,log_level="LVL1")
             sys.exit()
         if len(uninstall_nodes):
             self.uninstall_binary(uninstall_nodes)
@@ -784,12 +785,12 @@ class Deploy(object):
 
         if not daemon:
             common.printout("ERROR",
-                            "please select your daemon[osd, mon or mds]")
+                            "please select your daemon[osd, mon or mds]",log_level="LVL1")
             sys.exit(1)
 
         if daemon not in ["osd", "mon", "mds"]:
             common.printout("ERROR",
-                            "the daemon is not one of osd, mon or mds")
+                            "the daemon is not one of osd, mon or mds",log_level="LVL1")
             sys.exit(1)
 
         ceph_conf = ""
@@ -802,7 +803,7 @@ class Deploy(object):
                     ceph_conf = f.readlines()
         except:
             common.printout("ERROR",
-                            "Current Cluster ceph_current_status file not exists under CeTune/conf/")
+                            "Current Cluster ceph_current_status file not exists under CeTune/conf/",log_level="LVL1")
             sys.exit(1)
 
         num = 0

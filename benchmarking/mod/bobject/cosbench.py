@@ -8,9 +8,11 @@ from conf import *
 import itertools
 from collections import OrderedDict
 from deploy import *
+import sys
 
 class Cosbench(Benchmark):
     def load_parameter(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__,self).load_parameter()
         self.rgw={}
         self.rgw["rgw_server"]=self.all_conf_data.get_list("rgw_server")
@@ -33,6 +35,7 @@ class Cosbench(Benchmark):
         self.cluster["client"] = self.cosbench["cosbench_driver"]
 
     def parse_conobj_script(self, string):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         m = re.findall("(\w{1})\((\d+),(\d+)\)", string)
         result = {}
         if m:
@@ -43,6 +46,7 @@ class Cosbench(Benchmark):
         return result
 
     def prepare_result_dir(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.benchmark["container"] = self.parse_conobj_script( self.benchmark["container"] )
         self.benchmark["objecter"] = self.parse_conobj_script( self.benchmark["objecter"] )
 
@@ -52,11 +56,12 @@ class Cosbench(Benchmark):
         self.cluster["dest_dir"] = "/%s/%s" % (self.cluster["dest_dir"], self.benchmark["dirname"])
 
         if common.remote_dir_exist( self.cluster["user"], self.cluster["head"], self.cluster["dest_dir"] ):
-            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]),log_level="LVL1")
             sys.exit()
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def print_all_attributes(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         print "self.cosbench:"
         print self.cosbench
         print "self.rgw"
@@ -65,6 +70,7 @@ class Cosbench(Benchmark):
         print self.cluster
 
     def produce_cosbench_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         controller_config = []
         driver_config = []
         conf = controller_config
@@ -115,6 +121,7 @@ class Cosbench(Benchmark):
             common.scp(self.cluster["user"],node,file_path,self.cosbench["cosbench_folder"]+"/conf/driver.conf")
 
     def deploy_cosbench(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         common.printout('LOG', "Start to install cosbench on controllers and clients")
         cosbench_nodes = copy.deepcopy([self.cosbench["cosbench_controller"]])
         cosbench_nodes = common.unique_extend(cosbench_nodes, self.cosbench["cosbench_driver"])
@@ -137,7 +144,7 @@ class Cosbench(Benchmark):
                 need_to_install_java_nodes.append(node)
 
         if not ( len(need_to_install_curl_nodes) + len(need_to_install_java_nodes) ):
-            common.printout("ERROR","Please install curl and openjdk-7-jre on below nodes, curl:%s, java:%s" % (str(need_to_install_curl_nodes), str(need_to_install_java_nodes)))
+            common.printout("ERROR","Please install curl and openjdk-7-jre on below nodes, curl:%s, java:%s" % (str(need_to_install_curl_nodes), str(need_to_install_java_nodes)),log_level="LVL1")
             sys.exit()
 
         count = 0
@@ -152,7 +159,7 @@ class Cosbench(Benchmark):
         if int(stdout) == 0:
             common.printout("LOG", "Cosbench version %s downloaded successfully" % version)
         else:
-            common.printout("ERROR", "Cosbench version %s downloaded failed" % version)
+            common.printout("ERROR", "Cosbench version %s downloaded failed" % version,log_level="LVL1")
             sys.exit()
 
         for node in cosbench_nodes:
@@ -165,6 +172,7 @@ class Cosbench(Benchmark):
         common.printout('LOG', "Succeeded in installing cosbench on controllers and clients")
 
     def restart_cosbench_daemon(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         # distribute hosts file cosbench nodes
         nodes = []
         nodes.append(self.cosbench["cosbench_controller"])
@@ -177,6 +185,7 @@ class Cosbench(Benchmark):
         stdout,stderr = common.pdsh(self.cluster["user"],[self.cosbench["cosbench_controller"]],"cd %s;chmod +x *.sh; ./stop-controller.sh; http_proxy=%s ./start-controller.sh" %(self.cosbench["cosbench_folder"],self.cosbench["proxy"]),'check_return')
 
     def prerun_check(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).prerun_check()
         cosbench_server = []
         cosbench_server.append(self.cosbench["cosbench_controller"])
@@ -207,6 +216,7 @@ class Cosbench(Benchmark):
             self.restart_cosbench_daemon()
 
     def check_cosbench_runing(self, cosbench_controller, cosbench_driver):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         error_type = []
         stdout,stderr = common.pdsh(self.cluster["user"], [cosbench_controller], "http_proxy=%s sh %s/cli.sh info 2>/dev/null | grep driver" % (self.cosbench["proxy"], self.cosbench["cosbench_folder"]),'check_return')
         res = common.format_pdsh_return(stdout)
@@ -245,26 +255,28 @@ class Cosbench(Benchmark):
         return True
 
     def check_rgw_runing(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], "http_proxy=%s curl -D - -H 'X-Auth-User: %s' -H 'X-Auth-Key: %s' %s" % (self.cosbench["proxy"], self.cosbench["auth_username"], self.cosbench["auth_password"], self.cosbench["auth_url"]), option = "check_return|console")
         if re.search('(refused|error)', stderr):
-            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed",log_level="LVL1")
             return False
         if re.search('Failed', stderr):
-            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed",log_level="LVL1")
             return False
         if re.search('Service Unavailable', stdout):
-            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed",log_level="LVL1")
             return False
         if re.search('Error', stdout):
-            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed")
+            common.printout("ERROR","Cosbench connect to Radosgw Connection Failed",log_level="LVL1")
             return False
         if re.search("AccessDenied", stdout):
-            common.printout("[ERROR]","Cosbench connect to Radosgw Auth Failed")
+            common.printout("[ERROR]","Cosbench connect to Radosgw Auth Failed",log_level="LVL1")
             return False
         return True
 
     def check_cosbench_installed(self, cosbench_server):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         # check if cosbench installed
         installed = True
@@ -276,6 +288,7 @@ class Cosbench(Benchmark):
         return installed
 
     def stop_data_collectors(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).stop_data_collecters()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
@@ -288,6 +301,7 @@ class Cosbench(Benchmark):
         common.pdsh(user, nodes, "cat /proc/interrupts > %s/`hostname`_interrupts_stop.txt; echo `date +%s`' interrupt stop' >> %s/`hostname`_process_log.txt;" % (dest_dir, '%s', dest_dir))
 
     def prepare_run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).prepare_run()
         self.stop_data_collectors()
 
@@ -299,6 +313,7 @@ class Cosbench(Benchmark):
         self.cleanup()
 
     def run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).run()
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
@@ -321,7 +336,7 @@ class Cosbench(Benchmark):
         stdout, stderr = common.pdsh( user, [self.cosbench["cosbench_controller"]], run_command, option="check_return")
         m = re.search('Accepted with ID:\s*(\w+)', stdout)
         if not m:
-            common.printout("ERROR",'Cosbench controller and driver run failed!')
+            common.printout("ERROR",'Cosbench controller and driver run failed!',log_level="LVL1")
             raise KeyboardInterrupt
 
         common.printout("LOG", "Cosbench job start, in cosbench scope the job num will be %s" % m.group(1))
@@ -332,6 +347,7 @@ class Cosbench(Benchmark):
             time.sleep(5)
 
     def chkpoint_to_log(self, log_str):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).chkpoint_to_log(log_str)
         dest_dir = self.cluster["tmp_dir"]
         user = self.cluster["user"]
@@ -340,6 +356,7 @@ class Cosbench(Benchmark):
         common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
 
     def check_cosbench_testjob_running(self, node, runid ):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         stdout, stderr = common.pdsh(user, [node], "http_proxy=%s sh %s/cli.sh info 2>/dev/null | grep PROCESSING | awk '{print $1}'" % (self.cosbench["proxy"], self.cosbench["cosbench_folder"]), option="check_return")
         res = common.format_pdsh_return(stdout)
@@ -350,12 +367,14 @@ class Cosbench(Benchmark):
         return False
 
     def stop_workload(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cosbench["cosbench_controller"]
         common.pdsh( user, [controller], 'http_proxy=%s sh %s/cli.sh cancel %s' % (self.cosbench["proxy"], self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]), option="console")
         self.chkpoint_to_log("cosbench stop")
 
     def wait_workload_to_stop(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         common.printout("LOG","Waiting Workload to complete its work")
         max_check_times = 30
         cur_check = 0
@@ -367,6 +386,7 @@ class Cosbench(Benchmark):
         common.printout("LOG","Workload completed")
 
     def cleanup(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).cleanup()
         cosbench_server = copy.deepcopy(self.cosbench["cosbench_driver"])
         cosbench_server.append(self.cosbench["cosbench_controller"])
@@ -378,14 +398,17 @@ class Cosbench(Benchmark):
         common.pdsh(user, cosbench_server, "rm -rf %s/*.txt; rm -rf %s/*.log" % (dest_dir, dest_dir))
 
     def testjob_distribution(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         pass
 
     def cal_run_job_distribution(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.benchmark["distribution"] = {}
         for driver in self.cosbench["cosbench_driver"]:
             self.benchmark["distribution"][driver] = driver
 
     def archive(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).archive()
         user = self.cluster["user"]
         head = self.cluster["head"]
@@ -401,6 +424,7 @@ class Cosbench(Benchmark):
         common.rscp(user, cosbench_controller, "%s/raw/%s/"%(dest_dir, cosbench_controller), "%s/archive/%s-*"%(self.cosbench["cosbench_folder"], self.cosbench["cosbench_job_id"]))
 
     def parse_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         p = testcase
         testcase_dict = {
             "worker":p[0], "container":p[1], "iopattern":p[2],
@@ -414,6 +438,7 @@ class Cosbench(Benchmark):
         return testcase_dict
 
     def generate_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         benchmark = {}
         benchmark["cosbench_config_dir"]=self.all_conf_data.get("cosbench_config_dir")
         benchmark["cosbench_controller"]=self.all_conf_data.get("cosbench_controller")
@@ -467,6 +492,7 @@ class Cosbench(Benchmark):
         return True
 
     def replace_conf_xml(self, benchmark):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         with open(lib_path+"/benchmarking/mod/bobject/.template_config.xml",'r') as infile:
             with open(benchmark["configfile"],'w+') as outfile:
                 line = infile.read()

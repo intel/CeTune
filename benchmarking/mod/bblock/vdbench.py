@@ -1,9 +1,11 @@
 from ..benchmark import * 
 from collections import OrderedDict 
 import itertools
+import sys
 
 class VdBench(Benchmark):
     def __init__(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         print "try try"
         self.bench_type = "vdbench"
         super(self.__class__, self).__init__()
@@ -15,6 +17,7 @@ class VdBench(Benchmark):
         common.printout("LOG","bench dir: %s, format output dir: %s, result dir: %s" % (self.cluster["bench_dir"], self.cluster["format_output_dir"], self.cluster["result_dir"]))
 
     def load_parameter(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).load_parameter()
         self.custom_script = self.all_conf_data.get("custom_script", True )
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
@@ -25,6 +28,7 @@ class VdBench(Benchmark):
         self.testjob_distribution(disk_num_per_client, self.instance_list)
 
     def cal_run_job_distribution(self):
+         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
          number = int(self.benchmark["instance_number"])
          client_total = len(self.cluster["client"])
          # Assume number is always 50 here
@@ -40,6 +44,7 @@ class VdBench(Benchmark):
          self.cluster["nodes_distribution"] = nodes
 
     def prepare_result_dir(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #1. prepare result dir
         self.get_runid()
         vdisk = self.benchmark["vdisk"].split('/')[-1]
@@ -49,12 +54,13 @@ class VdBench(Benchmark):
 
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
         if not res[1]:
-            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]),log_level="LVL1")
             sys.exit()
 
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def cleanup(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).cleanup()
         #1. clean the tmp res dir
         user = self.cluster["user"]
@@ -63,6 +69,7 @@ class VdBench(Benchmark):
         common.pdsh(user, nodes, "rm -rf %s/*" % self.cluster["result_dir"])
 
     def check_run_success(self, check_file, max_time, run_type="format"):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
         cur_check = 0
@@ -78,11 +85,12 @@ class VdBench(Benchmark):
                 common.printout("LOG", "checking done,all nodes execute %s completely" % run_type)
                 return
             cur_check += 1
-        common.printout("ERROR","Checking run in %s failed" % check_file)
+        common.printout("ERROR","Checking run in %s failed" % check_file,log_level="LVL1")
         stdout, stderr = common.pdsh(user, nodes, "grep -q completed %s; if [ $? -ne 0 ]; then echo Run is not completed successfully; fi" % check_file, option="check_return")
     	sys.exit()
     	
     def format_run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         common.printout("LOG", "Start Formatting!")
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
@@ -91,6 +99,7 @@ class VdBench(Benchmark):
         self.check_run_success(check_file, 100)
         
     def prepare_run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
@@ -100,6 +109,7 @@ class VdBench(Benchmark):
         
     #Add new method to check vdbench
     def check_vdbench_pgrep(self, nodes, vdbench_node_num = 1, check_type="jobnum"):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user =  self.cluster["user"]
         stdout, stderr = common.pdsh(user, nodes, "pgrep -x java", option = "check_return")
         res = common.format_pdsh_return(stdout)
@@ -123,6 +133,7 @@ class VdBench(Benchmark):
     
    #Updated wait_workload_to_stop and stop_workload
     def wait_workload_to_stop(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         common.printout("LOG","Waiting Workload to complete its work")
         nodes = self.cluster["nodes_distribution"]
         max_check_times = 30
@@ -136,6 +147,7 @@ class VdBench(Benchmark):
         
    #Add Stop_data_collecters
     def stop_data_collecters(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).stop_data_collecters()
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
@@ -145,6 +157,7 @@ class VdBench(Benchmark):
         common.pdsh(user, nodes, "killall -9 top", option = "check_return")
     
     def chkpoint_to_log(self, log_str):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).chkpoint_to_log(log_str)
         dest_dir = self.cluster["tmp_dir"]
         user = self.cluster["user"]
@@ -152,6 +165,7 @@ class VdBench(Benchmark):
         common.pdsh(user, nodes, "echo `date +%s`' %s' >> %s/`hostname`_process_log.txt" % ('%s', log_str, dest_dir))
 	 
     def stop_workload(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
         common.pdsh(user, nodes, "killall -9 java", option = "check_return")
@@ -160,10 +174,11 @@ class VdBench(Benchmark):
         try:
             self.detach_images()
         except KeyboardInterrupt:
-            common.printout("WARNING","Caught KeyboardInterrupt, stop detaching")
+            common.printout("WARNING","Caught KeyboardInterrupt, stop detaching",log_level="LVL1")
             
     #end
     def generate_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         io_pattern = testcase["iopattern"]
         block_size = testcase["block_size"]
         queue_depth = testcase["qd"]
@@ -188,7 +203,7 @@ class VdBench(Benchmark):
                 read_percentage = int(str2[1]);
 
         if int(re.findall(r"\d", block_size)[0]) * depth * width > int(re.findall(r"\d", rbd_volume_size)[0]) * 1024 * 1024:
-            common.printout("ERROR","Files total size is too big, bigger than volume size!")
+            common.printout("ERROR","Files total size is too big, bigger than volume size!",log_level="LVL1")
             raise KeyboardInterrupt
 
         if io_pattern in ["randread", "randwrite", "randrw"]:
@@ -223,6 +238,7 @@ class VdBench(Benchmark):
         return True
 
     def parse_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         p = testcase
         testcase_dict = {
             "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
@@ -232,7 +248,7 @@ class VdBench(Benchmark):
         if len(p) == 10:
             testcase_dict["description"] = p[9]
         elif len(p) > 10:
-            common.printout("ERROR","Too much columns found for test case ")
+            common.printout("ERROR","Too much columns found for test case ",log_level="LVL1")
             sys.exit()
         else:
             testcase_dict["description"] = ""
@@ -240,6 +256,7 @@ class VdBench(Benchmark):
         return testcase_dict
 
     def run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).run()
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
@@ -259,6 +276,7 @@ class VdBench(Benchmark):
         self.check_run_success(check_file, 100, "test")
 
     def archive(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).archive()
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
@@ -272,6 +290,7 @@ class VdBench(Benchmark):
 
 
     def prepare_images(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user =  self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
         controller =  self.cluster["head"]
@@ -280,7 +299,7 @@ class VdBench(Benchmark):
         if rbd_count and rbd_size:
             super(self.__class__, self).create_image(rbd_count, rbd_size, 'rbd')
         else:
-            common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf")
+            common.printout("ERROR","need to set rbd_volume_count and volune_size in all.conf",log_level="LVL1")
 
         #create image xml
         common.printout("LOG","create rbd volume vm attach xml")
@@ -299,6 +318,7 @@ class VdBench(Benchmark):
         common.printout("LOG","rbd initialization finished")
 
     def prepare_case(self, user, nodes):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         stdout, stderr = common.pdsh(user, nodes, "test -d %s" % self.cluster["bench_dir"], option="check_return")
         if stderr:
             common.printout("LOG","Distribute vdbench benchmark execution file")
@@ -312,6 +332,7 @@ class VdBench(Benchmark):
             common.scp(user, node, "../conf/vdbench_test.cfg", "%s" % self.cluster["bench_dir"])
 
     def prerun_check(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).prerun_check()
         #1. check is vclient alive
         user = self.cluster["user"]
@@ -341,6 +362,7 @@ class VdBench(Benchmark):
         common.pdsh(user, nodes, "killall -9 java", option = "check_return")
 
     def attach_images(self, to_attach_dict = None):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
         dest_dir = self.cluster["tmp_dir"]
@@ -357,6 +379,7 @@ class VdBench(Benchmark):
                    common.pdsh(user, [node], "mount | grep /dev/vdb1; if [ $? ne 0]; then parted -s -a optimal /dev/vdb mklabel gpt -- mkpart primary ext4 1 100%; mkfs -t ext4 /dev/vdb1; mount /dev/vdb1 /mnt; fi")
 
     def detach_images(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
         tmp_vdisk = re.search('/dev/(\w+)',vdisk)
