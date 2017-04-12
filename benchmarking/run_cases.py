@@ -84,7 +84,7 @@ def main(args):
             if testcase["engine"] == "vdbench":
                 benchmark = vdbench.VdBench()
             if not benchmark:
-                common.printout("ERROR","Unknown benchmark engine")
+                common.printout("ERROR","Unknown benchmark engine",log_level="LVL1")
             try:
                 additional_option = ''
                 for i in testcase["parameter"]:
@@ -101,7 +101,7 @@ def main(args):
 
                 benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
-                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
+                common.printout("WARNING","Caught KeyboardInterrupt Interruption",log_level="LVL1")
 
 if __name__ == '__main__':
     import sys
