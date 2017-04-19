@@ -49,17 +49,18 @@ function Cancel_delete(){
 
 function RunStatus_Timer(){
     var cetune_status = GetDataByAjax(address_GetRuningStatus);//?
-    var line1 = "CeTune Status: "+cetune_status.cetune_status+" Ceph Status: "+cetune_status.ceph_status
+    var line1 = "CeTune Status: "+cetune_status.cetune_status+" Ceph Status: "+cetune_status.ceph_status;
     if(cetune_status.ceph_throughput != undefined)
-        var line2 = cetune_status.ceph_throughput
+        var line2 = cetune_status.ceph_throughput;
     else
-        var line2 = ""
+        var line2 = "";
+    loadinghide();
     if(cetune_status.cetune_status.indexOf("idle")<0)
     {
         $("#div_top_status_id h1").text(line1);
         $("#div_top_status_id .ceph_thr").text(line2);
         $("#div_Configuration_right_back_id").show()
-        $("#bnt_Configuration_exec_id").attr("value","Cancel Job")
+        $("#bnt_Configuration_exec_id").attr("value","Cancel Job");
     }
     else
     {
@@ -67,7 +68,7 @@ function RunStatus_Timer(){
         clearTimer(timer_RunStatus);
         $("#div_top_status_id h1").text(line1);
         $("#div_top_status_id .ceph_thr").text(line2);
-        $("#bnt_Configuration_exec_id").attr("value","Execute")
+        $("#bnt_Configuration_exec_id").attr("value","Execute");
     }
 }
 
@@ -103,6 +104,7 @@ function Console_Timer(init){
     consoleHTML += "</div>";
     
     //insert html
+    loadinghide();
     $("#div_console_id").append(consoleHTML);    
     var scroll_position = 0
     $("#div_console_id").children(".div_console_timestamp").each(function(){ scroll_position += $(this).height()});
@@ -116,8 +118,9 @@ function Helper(init){
         return
     var timestamp = GetTimestamp();
 
-    var data ;
+    var data;
     var Data = GetDataByAjax(address_Guide);
+    loadinghide();
     $("#div_Markdown").html(Data);
     var consoleData = GetDataByAjax(address_Description);
     $("#div_Help").html(consoleData);
@@ -125,7 +128,7 @@ function Helper(init){
         return
     })
     //add submenu to left
-    data = ""
+    data = "";
     $("#div_Markdown h4").each(function(){
         text = $(this).text();
         //$(this).insertBefore("<div id=\""+text+"\" style=\"postion:relative; top:-125px\"></div>");
@@ -133,7 +136,7 @@ function Helper(init){
         data += "<li><a href='#"+text+"'>"+text+"</a></li>";
     });
     $("#ul_user_guide").html(data);
-    data = ""
+    data = "";
     $("#div_Help #label_id").each(function(){
         text = $(this).text();
         $("<div id=\""+text+"\" style=\"position:relative; top:-125px\"></div>").insertBefore($(this));
@@ -194,6 +197,7 @@ function Report_Timer(init){
     if( cetune_status.indexOf("idle") > -1 && init != true )
         return
     var reportSummaryData = GetDataByAjax(address_Report);
+    loadinghide();
     reportSummaryData = reportSummaryData.replace(/<script>.*<\/script>/,'');
     $("#div_Reports").html(reportSummaryData);
 	
@@ -365,29 +369,32 @@ $(document).ready(function(){
         switch(menuName)
         {
             case "menu_Configuration_id":
+                loading();
                 clearTimer(timer_Console);
                 clearTimer(timer_Report);
                 //RunStatus_Timer();
                 timer_RunStatus = setInterval(RunStatus_Timer,interval_RunStatus);
-               break;
+                break;
             
-            case "menu_Status_id": 
-			
-	        //init left li style, default select first li
+            case "menu_Status_id":
+                loading();
+                //init left li style, default select first li
                 $(".div_Status_left_nav_li_class > a").eq(0).addClass('active');
 				
                 clearTimer(timer_Report);
                 Console_Timer(true);
                 timer_Console = setInterval(Console_Timer,interval_Console);
-               break;
+                break;
                
-            case "menu_Reports_id": 
+            case "menu_Reports_id":
+                loading();
                 clearTimer(timer_Console);
                 Report_Timer(true);
                 timer_Report = setInterval(Report_Timer,interval_Report);
                 break;
 
-	    case "menu_help_id":
+            case "menu_help_id":
+                loading();
                 Helper(true);
                 break;
                 
@@ -682,6 +689,11 @@ function GetConfigurationData(request_type){
 
 function loading(){
      $("#myShow").css({display:"",top:"40%",left:"50%",position:"absolute"});
+}
+
+
+function loadinghide(){
+     $("#myShow").hide();
 }
 
 //Display configuation data table and banchmark table on right page
