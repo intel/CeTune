@@ -9,10 +9,38 @@ import socket
 import uuid
 import argparse
 import json
-from threading import Thread
+import threading
 from collections import OrderedDict
 
 pp = pprint.PrettyPrinter(indent=4)
+
+class FuncThread(threading.Thread):
+    tlist = []
+    maxthreads = 8
+    evnt = threading.Event()
+    lck = threading.Lock()
+    def __init__(self, method, *args):
+        self._method = method
+        self._args = args
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self._method(*self._args)
+        FuncThread.lck.acquire()
+        FuncThread.tlist.remove(self)
+        if len(FuncThread.tlist) == FuncThread.maxthreads - 1:
+            FuncThread.evnt.set()
+            FuncThread.evnt.clear()
+        FuncThread.lck.release()
+
+    @staticmethod
+    def newthread(method, *args):
+        FuncThread.lck.acquire()
+        ft = FuncThread(method, *args)
+        FuncThread.tlist.append(ft)
+        FuncThread.lck.release()
+        ft.start()
+
 class Deploy(object):
     def __init__(self, tunings=""):
         self.all_conf_data = config.Config("../conf/all.conf")
@@ -599,7 +627,13 @@ class Deploy(object):
             for line in mount_list_tmp.split('\n'):
                 tmp = line.split()
                 mount_list[node][tmp[0]] = tmp[2]
+
+        opts_mkfs = {}
+        opts = []
+        maxlen_od = 0
         for osd in osds:
+            opts_mkfs[osd] = []
+            maxlen_od = len(diff_map[osd]) if len(diff_map[osd]) > maxlen_od else maxlen_od
             for device_bundle_tmp in diff_map[osd]:
                 device_bundle = common.get_list(device_bundle_tmp)
                 osd_device = device_bundle[0][0]
@@ -607,12 +641,33 @@ class Deploy(object):
                 if self.cluster["ceph_conf"]["global"]["osd_objectstore"] == "filestore":
                     journal_device = device_bundle[0][1]
                 if not ceph_disk:
-                    self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
-                    self.make_osd( osd, osd_num, osd_device, journal_device )
+                    opts_mkfs[osd].append((osd, osd_num, osd_device, journal_device, mount_list))
+                    opts.append((osd, osd_num, osd_device, journal_device))
+                    # self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
+                    # self.make_osd( osd, osd_num, osd_device, journal_device )
                 else:
                     self.make_osd_ceph_disk_prepare(osd, osd_device, journal_device, mount_list)
                     self.make_osd_ceph_disk_activate(osd, osd_device)
-                osd_num = osd_num+1
+                osd_num = osd_num + 1
+        FuncThread.maxthreads = 5 * len(opts_mkfs.keys())
+        for index in range(maxlen_od):
+            for key in sorted(opts_mkfs.keys()):
+                if index >= len(opts_mkfs[key]) or len(opts_mkfs[key][index]) < 5:
+                    continue
+                FuncThread.lck.acquire()
+                if len(FuncThread.tlist) >= FuncThread.maxthreads:
+                    FuncThread.lck.release()
+                    FuncThread.evnt.wait()
+                else:
+                    FuncThread.lck.release()
+                FuncThread.newthread(self.make_osd_fs, opts_mkfs[key][index][0], opts_mkfs[key][index][1], opts_mkfs[key][index][2], opts_mkfs[key][index][3], opts_mkfs[key][index][4])
+        for t in FuncThread.tlist:
+            t.join()
+        FuncThread.tlist = []
+
+        for opt in opts:
+            if len(opt) == 4:
+                self.make_osd(opt[0], opt[1], opt[2], opt[3])
 
     def make_osd_ceph_disk_prepare(self, osd, osd_device, journal_device, mount_list):
         """
