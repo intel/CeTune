@@ -323,6 +323,12 @@ class Analyzer:
             for key in sorted(output.keys()):
                 output_sort[node_type][key] = copy.deepcopy( output[key] )
 
+        cpu_core_data_dict = OrderedDict()
+        for key,value in output_sort["ceph"]["cpu"].items():
+            for name,data in value.items():
+                cpu_core_data_dict[name] = data
+        output_sort["ceph"]["cpu"] = cpu_core_data_dict
+
         return output_sort
 
     def get_execute_time(self):
@@ -759,8 +765,23 @@ class Analyzer:
     def process_sar_data(self, path):
         result = {}
         #1. cpu
-        stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A 1 | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
-        result["cpu"] = common.convert_table_to_2Dlist(stdout)
+        f = open(path,'r')
+        first_line = f.next().strip('\n')
+        f.close()
+        node_name = re.findall(r"\((.*?)\)",first_line)[0]
+        cpu_num = re.findall(r"\((.*?)\)",first_line)[1][0]
+        cpu_core_dict = OrderedDict()
+        for line in range(int(cpu_num)+1):
+            if line == 0:
+                stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
+            else:
+                stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\""+str(line-1)+"\")flag=1};if(flag==1)print \"\"}'" )
+            if line ==0:
+                cpu_core_dict[node_name+"_cpu_all"] = stdout
+            else:
+                cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
+        cpu_core_dict_new = common.format_cpu_core_data_to_list(cpu_core_dict)
+        result["cpu"] = cpu_core_dict_new
 
         #2. memory
         stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
