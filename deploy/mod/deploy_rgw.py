@@ -25,10 +25,10 @@ class Deploy_RGW(Deploy) :
         self.cluster["proxy"] = self.all_conf_data.get("cosbench_controller_proxy")
         self.cluster["auth_url"] = "http://%s/auth/v1.0;retry=9" % self.cluster["rgw"][0]
 
-    def redeploy(self, gen_cephconf, ceph_disk=False):
+    def redeploy(self, gen_cephconf, ceph_disk=False, parallel_deploy=False):
         self.map_diff = self.cal_cephmap_diff()
         rgw_nodes = self.map_diff["radosgw"]
-        super(self.__class__, self).redeploy(gen_cephconf, ceph_disk=False)
+        super(self.__class__, self).redeploy(gen_cephconf, ceph_disk=False, parallel_deploy=parallel_deploy)
         self.rgw_dependency_install()
         self.rgw_install()
         self.gen_cephconf(ceph_disk=ceph_disk)
