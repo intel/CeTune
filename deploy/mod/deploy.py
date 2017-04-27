@@ -478,7 +478,7 @@ class Deploy(object):
 
         return cephconf_dict
 
-    def redeploy(self, gen_cephconf, ceph_disk=False):
+    def redeploy(self, gen_cephconf, ceph_disk=False, parallel_deploy=False):
         common.printout("LOG","ceph.conf file generated")
         if self.cluster["clean_build"] == "true":
             clean_build = True
@@ -501,7 +501,7 @@ class Deploy(object):
             self.make_mon()
             common.printout("LOG","Succeeded in building mon daemon")
             common.printout("LOG","Started to build osd daemon")
-            self.make_osds(ceph_disk=ceph_disk)
+            self.make_osds(ceph_disk=ceph_disk, parallel_deploy=parallel_deploy)
             common.printout("LOG","Succeeded in building osd daemon")
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
 
@@ -584,7 +584,7 @@ class Deploy(object):
             common.pdsh(user, [node], "rm -rf /etc/ceph/ceph.conf")
             common.scp(user, node, "../conf/ceph.conf", "/etc/ceph/")
 
-    def make_osds(self, osds=None, diff_map=None, ceph_disk=False):
+    def make_osds(self, osds=None, diff_map=None, ceph_disk=False, parallel_deploy=False):
         user = self.cluster["user"]
         if osds==None:
             osds = sorted(self.cluster["osds"])
@@ -599,7 +599,13 @@ class Deploy(object):
             for line in mount_list_tmp.split('\n'):
                 tmp = line.split()
                 mount_list[node][tmp[0]] = tmp[2]
+
+        opts_mkfs = {}
+        opts = []
+        maxlen_od = 0
         for osd in osds:
+            opts_mkfs[osd] = []
+            maxlen_od = len(diff_map[osd]) if len(diff_map[osd]) > maxlen_od else maxlen_od
             for device_bundle_tmp in diff_map[osd]:
                 device_bundle = common.get_list(device_bundle_tmp)
                 osd_device = device_bundle[0][0]
@@ -607,12 +613,39 @@ class Deploy(object):
                 if self.cluster["ceph_conf"]["global"]["osd_objectstore"] == "filestore":
                     journal_device = device_bundle[0][1]
                 if not ceph_disk:
-                    self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
-                    self.make_osd( osd, osd_num, osd_device, journal_device )
+                    if parallel_deploy:
+                        opts_mkfs[osd].append((osd, osd_num, osd_device, journal_device, mount_list))
+                        opts.append((osd, osd_num, osd_device, journal_device))
+                    else:
+                        self.make_osd_fs( osd, osd_num, osd_device, journal_device, mount_list )
+                        self.make_osd( osd, osd_num, osd_device, journal_device )
                 else:
                     self.make_osd_ceph_disk_prepare(osd, osd_device, journal_device, mount_list)
                     self.make_osd_ceph_disk_activate(osd, osd_device)
-                osd_num = osd_num+1
+                osd_num = osd_num + 1
+        if parallel_deploy:
+            common.printout("LOG", "==============begin mkfs in parallel ==============")
+            FuncThread = common.FuncThread
+            FuncThread.maxthreads = 5 * len(opts_mkfs.keys())
+            for index in range(maxlen_od):
+                for key in sorted(opts_mkfs.keys()):
+                    if index >= len(opts_mkfs[key]) or len(opts_mkfs[key][index]) < 5:
+                        continue
+                    FuncThread.lck.acquire()
+                    if len(FuncThread.tlist) >= FuncThread.maxthreads:
+                        FuncThread.lck.release()
+                        FuncThread.evnt.wait()
+                    else:
+                        FuncThread.lck.release()
+                    FuncThread.newthread(self.make_osd_fs, opts_mkfs[key][index][0], opts_mkfs[key][index][1], opts_mkfs[key][index][2], opts_mkfs[key][index][3], opts_mkfs[key][index][4])
+            for t in FuncThread.tlist:
+                t.join()
+            FuncThread.tlist = []
+            common.printout("LOG", "===============end mkfs in parallel ===============")
+
+            for opt in opts:
+                if len(opt) == 4:
+                    self.make_osd(opt[0], opt[1], opt[2], opt[3])
 
     def make_osd_ceph_disk_prepare(self, osd, osd_device, journal_device, mount_list):
         """
