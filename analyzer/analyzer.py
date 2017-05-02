@@ -769,7 +769,8 @@ class Analyzer:
         first_line = f.next().strip('\n')
         f.close()
         node_name = re.findall(r"\((.*?)\)",first_line)[0]
-        cpu_num = re.findall(r"\((.*?)\)",first_line)[1][0]
+        cpu_line = re.findall(r"\((.*?)\)",first_line)[1]
+        cpu_num = re.findall(r"(\d+)",cpu_line)[0]
         cpu_core_dict = OrderedDict()
         for line in range(int(cpu_num)+1):
             if line == 0:
