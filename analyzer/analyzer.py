@@ -323,12 +323,21 @@ class Analyzer:
             for key in sorted(output.keys()):
                 output_sort[node_type][key] = copy.deepcopy( output[key] )
 
-        cpu_core_data_dict = OrderedDict()
-        for key,value in output_sort["ceph"]["cpu"].items():
-            for name,data in value.items():
-                cpu_core_data_dict[name] = data
-        output_sort["ceph"]["cpu"] = cpu_core_data_dict
-
+        for table in output_sort["ceph"].keys():
+            summary_data_dict = OrderedDict()
+            detail_data_dict = OrderedDict()
+            total_data_dict = OrderedDict()
+            if table == "cpu":
+                for key,value in output_sort["ceph"]["cpu"].items():
+                    for name,data in value.items():
+                        if 'all' in name:
+                            summary_data_dict[name] = data
+                        detail_data_dict[name] = data
+            else:
+                summary_data_dict = output_sort["ceph"][table]
+            total_data_dict["summary"] = summary_data_dict
+            total_data_dict["detail"] = detail_data_dict
+            output_sort["ceph"][table] = total_data_dict
         return output_sort
 
     def get_execute_time(self):
@@ -437,7 +446,7 @@ class Analyzer:
             typename = diskformat[0]
         else:
             typename = "osd"
-        for node, node_data in data["ceph"][typename].items():
+        for node, node_data in data["ceph"][typename]['summary'].items():
             osd_node_count += 1
             read_SN_IOPS += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
             read_SN_BW += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
