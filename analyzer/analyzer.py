@@ -261,6 +261,11 @@ class Analyzer:
             for key,value in self.collect_node_ceph_version(dest_dir).items():
                 node_ceph_version[key] = {"ceph_version":value}
         result["summary"]["Node"] = node_ceph_version
+        for key,value in result["summary"].items():
+            tmp_dict = {}
+            tmp_dict["detail"] = {}
+            tmp_dict["summary"] = value
+            result["summary"][key] = tmp_dict
         dest_dir = self.cluster["dest_dir_root"]
         common.printout("LOG","Write analyzed results into result.json")
         with open('%s/result.json' % dest_dir, 'w') as f:
@@ -270,7 +275,7 @@ class Analyzer:
 
     def format_result_for_visualizer(self, data):
         output_sort = OrderedDict()
-        monitor_interval = int(self.cluster["monitor_interval"]) 
+        monitor_interval = int(self.cluster["monitor_interval"])
         output_sort["summary"] = OrderedDict()
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
@@ -323,21 +328,20 @@ class Analyzer:
             for key in sorted(output.keys()):
                 output_sort[node_type][key] = copy.deepcopy( output[key] )
 
-        for table in output_sort["ceph"].keys():
-            summary_data_dict = OrderedDict()
-            detail_data_dict = OrderedDict()
-            total_data_dict = OrderedDict()
-            if table == "cpu":
-                for key,value in output_sort["ceph"]["cpu"].items():
-                    for name,data in value.items():
-                        if 'all' in name:
-                            summary_data_dict[name] = data
-                        detail_data_dict[name] = data
-            else:
-                summary_data_dict = output_sort["ceph"][table]
-            total_data_dict["summary"] = summary_data_dict
-            total_data_dict["detail"] = detail_data_dict
-            output_sort["ceph"][table] = total_data_dict
+        workload_dict = OrderedDict()
+        for key,value in output_sort["workload"].items():
+            if key in ["detail","summary"]:
+                for s_key,s_value in value.items():
+                    workload_dict[s_key] = s_value
+                continue
+            workload_dict[key] = value
+        output_sort["workload"] = workload_dict
+
+        cpu_core_data_dict = OrderedDict()
+        for key,value in output_sort["ceph"]["cpu"].items():
+            for name,data in value.items():
+                cpu_core_data_dict[name] = data
+        output_sort["ceph"]["cpu"] = cpu_core_data_dict
         return output_sort
 
     def get_execute_time(self):
@@ -446,20 +450,20 @@ class Analyzer:
             typename = diskformat[0]
         else:
             typename = "osd"
-        for node, node_data in data["ceph"][typename]['summary'].items():
+        for node, node_data in data["ceph"][typename].items():
             osd_node_count += 1
-            read_SN_IOPS += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
-            read_SN_BW += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
+            read_SN_IOPS += numpy.mean(node_data["summary"]["r/s"])*int(node_data["summary"]["disk_num"])
+            read_SN_BW += numpy.mean(node_data["summary"]["rMB/s"])*int(node_data["summary"]["disk_num"])
             lat_name = "r_await"
-            if lat_name not in node_data:
+            if lat_name not in node_data["summary"]:
                 lat_name = "await"
-            read_SN_Latency += numpy.mean(node_data[lat_name])
-            write_SN_IOPS += numpy.mean(node_data["w/s"])*int(node_data["disk_num"])
-            write_SN_BW += numpy.mean(node_data["wMB/s"])*int(node_data["disk_num"])
+            read_SN_Latency += numpy.mean(node_data["summary"][lat_name])
+            write_SN_IOPS += numpy.mean(node_data["summary"]["w/s"])*int(node_data["summary"]["disk_num"])
+            write_SN_BW += numpy.mean(node_data["summary"]["wMB/s"])*int(node_data["summary"]["disk_num"])
             lat_name = "w_await"
-            if lat_name not in node_data:
+            if lat_name not in node_data["summary"]:
                 lat_name = "await"
-            write_SN_Latency += numpy.mean(node_data[lat_name])
+            write_SN_Latency += numpy.mean(node_data["summary"][lat_name])
 
         if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
             tmp_data["SN_IOPS"] = "%.3f" % read_SN_IOPS
@@ -482,6 +486,7 @@ class Analyzer:
             tmp_data["CN_Number"] = len(data["client"]["cpu"])
         except:
             tmp_data["CN_Number"] = 0
+
         return data
 
     def _process_data(self, node_name):
@@ -619,6 +624,8 @@ class Analyzer:
     def process_log_data(self, path):
         result = {}
         result["phase"] = {}
+        result["phase"]["summary"] = {}
+        result["phase"]["detail"] = {}
         with open( path, 'r') as f:
             lines = f.readlines()
 
@@ -639,24 +646,24 @@ class Analyzer:
                 tmp[tool][status] = time
 
         for tool in tmp:
-            result["phase"][tool] = {}
-            result["phase"][tool]["start"] = 0
+            result["phase"]["summary"][tool] = {}
+            result["phase"]["summary"][tool]["start"] = 0
             try:
-                result["phase"][tool]["stop"] = int(tmp[tool]["stop"]) - int(tmp[tool]["start"])
+                result["phase"]["summary"][tool]["stop"] = int(tmp[tool]["stop"]) - int(tmp[tool]["start"])
             except:
-                result["phase"][tool]["stop"] = None
+                result["phase"]["summary"][tool]["stop"] = None
             try:
-                result["phase"][tool]["benchmark_start"] = int(benchmark["start"]) - int(tmp[tool]["start"])
-                if result["phase"][tool]["benchmark_start"] < 0:
-                    result["phase"][tool]["benchmark_start"] = 0
+                result["phase"]["summary"][tool]["benchmark_start"] = int(benchmark["start"]) - int(tmp[tool]["start"])
+                if result["phase"]["summary"][tool]["benchmark_start"] < 0:
+                    result["phase"]["summary"][tool]["benchmark_start"] = 0
             except:
-                result["phase"][tool]["benchmark_start"] = None
+                result["phase"]["summary"][tool]["benchmark_start"] = None
             try:
-                result["phase"][tool]["benchmark_stop"] = int(benchmark["stop"]) - int(tmp[tool]["start"])
-                if result["phase"][tool]["benchmark_stop"] < 0:
-                    result["phase"][tool]["benchmark_stop"] = 0
+                result["phase"]["summary"][tool]["benchmark_stop"] = int(benchmark["stop"]) - int(tmp[tool]["start"])
+                if result["phase"]["summary"][tool]["benchmark_stop"] < 0:
+                    result["phase"]["summary"][tool]["benchmark_stop"] = 0
             except:
-                result["phase"][tool]["benchmark_stop"] = None
+                result["phase"]["summary"][tool]["benchmark_stop"] = None
         self.workpool.enqueue_data( ["process_log_data", result] )
         return result
 
@@ -725,15 +732,17 @@ class Analyzer:
 
     def process_fiolog_data(self, path, volume_name):
         result = {}
+        result["summary"] = {}
+        result["detail"] = {}
         if "fio_iops" in path:
-            result["iops"] = []
-            res = result["iops"]
+            result["summary"]["iops"] = []
+            res = result["summary"]["iops"]
         if "fio_bw" in path:
-            result["bw"] = []
-            res = result["bw"]
+            result["summary"]["bw"] = []
+            res = result["summary"]["bw"]
         if "fio_lat" in path:
-            result["lat"] = []
-            res = result["lat"]
+            result["summary"]["lat"] = []
+            res = result["summary"]["lat"]
 
         time_shift = 1000
         with open( path, "r" ) as f:
@@ -780,27 +789,38 @@ class Analyzer:
         node_name = re.findall(r"\((.*?)\)",first_line)[0]
         cpu_num = re.findall(r"\((.*?)\)",first_line)[1][0]
         cpu_core_dict = OrderedDict()
+        cpu_core_dict_new = OrderedDict()
+        cpu_core_dict["summary"] = OrderedDict()
+        cpu_core_dict["detail"] = OrderedDict()
         for line in range(int(cpu_num)+1):
             if line == 0:
                 stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
             else:
                 stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\""+str(line-1)+"\")flag=1};if(flag==1)print \"\"}'" )
             if line ==0:
-                cpu_core_dict[node_name+"_cpu_all"] = stdout
+                cpu_core_dict["summary"][node_name+"_cpu_all"] = stdout
             else:
-                cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
-        cpu_core_dict_new = common.format_cpu_core_data_to_list(cpu_core_dict)
+                cpu_core_dict["detail"][node_name+"_cpu_"+str(line-1)] = stdout
+        cpu_core_dict_new["summary"] = common.format_cpu_core_data_to_list(cpu_core_dict["summary"])
+        cpu_core_dict_new["detail"] = common.format_cpu_core_data_to_list(cpu_core_dict["detail"])
         result["cpu"] = cpu_core_dict_new
 
         #2. memory
+        memory_dict=OrderedDict()
         stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
-        result["memory"] = common.convert_table_to_2Dlist(stdout)
+        memory_dict["summary"] = common.convert_table_to_2Dlist(stdout)
+        memory_dict["detail"] = {}
+        result["memory"]=memory_dict
 
         #3. nic
+        nic_dict=OrderedDict()
         stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
-        result["nic"] = common.convert_table_to_2Dlist(stdout)
+        nic_dict["summary"] = common.convert_table_to_2Dlist(stdout)
+        nic_dict["detail"] = {}
+        result["nic"] = nic_dict
         #4. tps
         self.workpool.enqueue_data( ["process_sar_data", result] )
+
         return result
 
     def process_iostat_data(self, node, path):
@@ -833,8 +853,14 @@ class Analyzer:
                 disk_list = " ".join(vdisk_list)
                 disk_num = len(vdisk_list)
             stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
-            result[output] = common.convert_table_to_2Dlist(stdout)
-            result[output]["disk_num"] = disk_num
+            output_dict = {}
+            output_dict = common.convert_table_to_2Dlist(stdout)
+            output_dict["disk_num"] = disk_num
+            #result[output] = common.convert_table_to_2Dlist(stdout)
+            #result[output]["disk_num"] = disk_num
+            result[output] = {}
+            result[output]["detail"] = {}
+            result[output]["summary"] = output_dict
         self.workpool.enqueue_data( ["process_iostat_data", result] )
         return result
 
@@ -947,8 +973,11 @@ class Analyzer:
                     output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
             output_fio_data['%s_lat' % io_pattern] /= list_len
             output_fio_data['%s_runtime' % io_pattern] /= list_len
-        result[dirname] = {}
-        result[dirname]["fio"] = output_fio_data
+        result["detail"] = {}
+        result["summary"] = {}
+        result["summary"][dirname] = {}
+        result["detail"][dirname] = {}
+        result["summary"][dirname]["fio"] = output_fio_data
         
         self.workpool.enqueue_data( ["process_fio_data", result] )
         return result
@@ -996,8 +1025,11 @@ class Analyzer:
                         break
             if not find:
                 continue
-            output["perfcounter_"+key] = {}
-            current = output["perfcounter_"+key]
+            output["summary"] = {}
+            output["detail"] = {}
+            output["summary"]["perfcounter_"+key] = {}
+            output["detail"]["perfcounter_"+key] = {}
+            current = output["summary"]["perfcounter_"+key]
             for param, data in result[result_key].items():
                 if isinstance(data, list):
                     if not param in current:

@@ -352,59 +352,49 @@ class Visualizer:
         if len(self.result[node_type].keys()) == 0:
             return output
         output.append("<div id='%s'>" % node_type)
-        if node_type == "ceph":
-            for field_type, field_data in self.result[node_type].items():
-                summary_data = OrderedDict()
-                detail_data = OrderedDict()
+        for field_type, field_data in self.result[node_type].items():
+            print field_type
+            if "summary" in field_data.keys():
                 chart_data = OrderedDict()
-                for node, node_data in field_data["summary"].items():
-                    if node not in summary_data:
-                        summary_data[node] = OrderedDict()
-                    for key, value in node_data.items():
-                        if not isinstance(value, list):
-                            summary_data[node][key] = value
-                        else:
-                            summary_data[node][key] = "%.3f" % numpy.mean(value)
-                            if key not in chart_data:
-                                chart_data[key] = OrderedDict()
-                            chart_data[key][node] = value
+                output = self.generate_output_view(output,field_data,field_type,node_type,data_type="summary")
                 if len(field_data["detail"]) != 0:
-                    for node, node_data in field_data["detail"].items():
-                        if node not in detail_data:
-                            detail_data[node] = OrderedDict()
-                        for key, value in node_data.items():
-                            if not isinstance(value, list):
-                                detail_data[node][key] = value
-                            else:
-                                detail_data[node][key] = "%.3f" % numpy.mean(value)
-                                if key not in chart_data:
-                                    chart_data[key] = OrderedDict()
-                                chart_data[key][node] = value
-                output.extend( self.generate_table_from_json(summary_data,'cetune_table', field_type) )
-                output.extend( self.generate_line_chart(chart_data, node_type, field_type ) )
-                if len(detail_data)!=0:
-                    self.save_data_to_csv(detail_data,field_type,self.result["session_name"])
-                if len(field_data["detail"]) != 0:
-                    output.extend( self.add_csv_download_button(field_type) )
-        else:
-            for field_type, field_data in self.result[node_type].items():
-                data = OrderedDict()
-                chart_data = OrderedDict()
-                for node, node_data in field_data.items():
-                    if node not in data:
-                        data[node] = OrderedDict()
-                    for key, value in node_data.items():
-                        if not isinstance(value, list):
-                            data[node][key] = value
-                        else:
-                            data[node][key] = "%.3f" % numpy.mean(value)
-                            if key not in chart_data:
-                                chart_data[key] = OrderedDict()
-                            chart_data[key][node] = value
-                output.extend( self.generate_table_from_json(data,'cetune_table', field_type) )
-                output.extend( self.generate_line_chart(chart_data, node_type, field_type ) )
+                    output = self.generate_output_view(output,field_data,field_type,node_type,data_type="detail")
+            elif "summary" in field_data.keys():
+                pass
+            else:
+                output = self.generate_output_view(output,field_data,field_type,node_type)
         output.append("</div>")
         return output
+
+    def generate_output_view(self,output,field_data,field_type,node_type,data_type=""):
+        data = OrderedDict()
+        chart_data = OrderedDict()
+        inputdata = field_data.items()
+        if data_type == "summary":
+            inputdata = field_data["summary"].items()
+        if data_type == "detail":
+            inputdata = field_data["detail"].items()
+        for node, node_data in inputdata:
+            if node not in data:
+                data[node] = OrderedDict()
+            for key, value in node_data.items():
+                if not isinstance(value, list):
+                    data[node][key] = value
+                else:
+                    data[node][key] = "%.3f" % numpy.mean(value)
+                    if key not in chart_data:
+                        chart_data[key] = OrderedDict()
+                    chart_data[key][node] = value
+        if data_type != "detail":
+            output.extend( self.generate_table_from_json(data,'cetune_table', field_type) )
+            output.extend( self.generate_line_chart(chart_data, node_type, field_type ) )
+        if data_type == "detail":
+            if len(data)!=0:
+                self.save_data_to_csv(data,field_type,self.result["session_name"])
+            if len(field_data["detail"]) != 0:
+                output.extend( self.add_csv_download_button(field_type) )
+        return output
+
 
     def add_csv_download_button(self,node_type):
         output = []
