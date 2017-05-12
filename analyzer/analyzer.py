@@ -240,10 +240,19 @@ class Analyzer:
         '''
          result = {
              tab1: {
-                 table1: { 
-                     row1: {
-                         column1: [value], column2: [value] , ...
-                           }
+                 table1: {
+                     summary: {
+                         row1: {
+                             column1: [value], column2: [value] , ...
+                         }
+                     },
+                     detail: {
+                         row1: {
+                              column1: [value], column2: [value] , ...
+                         },
+                         row2: {
+                              column1: [value], column2: [value] , ...
+                         }
                      }
                  }
              },
@@ -270,8 +279,8 @@ class Analyzer:
 
     def format_result_for_visualizer(self, data):
         output_sort = OrderedDict()
-        monitor_interval = int(self.cluster["monitor_interval"]) 
         output_sort["summary"] = OrderedDict()
+        monitor_interval = int(self.cluster["monitor_interval"])
         res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
         if not res:
             return output_sort
@@ -292,43 +301,50 @@ class Analyzer:
                 continue
             output = {}
             output_sort[node_type] = OrderedDict()
-            for node in sorted(data[node_type].keys()):
-                for field_type in sorted(data[node_type][node].keys()):
-                    if field_type == "phase":
-                        continue
-                    if field_type not in output:
-                        output[field_type] = OrderedDict()
-                    if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
-                        try:
-                            start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
-                            end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
-                            benchmark_active_time = end - start
-                            if benchmark_active_time > (rampup + runtime) or end <= 0:
-                                runtime_end = start + rampup + runtime
-                            else:
-                                runtime_end = end
-                            runtime_start = start + rampup
-                            output[field_type][node] = OrderedDict()
-                            runtime_start = runtime_start / monitor_interval
-                            runtime_end = runtime_end / monitor_interval
+            for data_group in ["summary", "detail"]:
+                for node in sorted(data[node_type].keys()):
+                    for field_type in sorted(data[node_type][node].keys()):
+                        tmp_group = data_group if data[node_type][node][field_type].has_key(data_group) else "summary"
+                        if tmp_group != data_group:
+                            if field_type not in output:
+                                output[field_type] = {}
+                            output[field_type][data_group] = {}
+                            continue
 
-                            for colume_name, colume_data in data[node_type][node][field_type].items():
-                                if isinstance(colume_data, list):
-                                    colume_data = colume_data[runtime_start:runtime_end]
-                                output[field_type][node][colume_name] = colume_data
-                        except:
-                            output[field_type][node] = data[node_type][node][field_type]
-                    else:
-                        output[field_type][node] = data[node_type][node][field_type]
+                        orgData = data[node_type][node][field_type][data_group] if data[node_type][node][field_type].has_key(data_group) else data[node_type][node][field_type]
+                        if field_type == "phase":
+                            continue
+                        if field_type not in output:
+                            output[field_type] = OrderedDict()
+                        if data_group not in output[field_type]:
+                            output[field_type][data_group] = OrderedDict()
+                        if node not in output[field_type][data_group]:
+                            output[field_type][data_group][node] = OrderedDict()
+
+                        if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
+                            try:
+                                start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
+                                end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
+                                benchmark_active_time = end - start
+                                if benchmark_active_time > (rampup + runtime) or end <= 0:
+                                    runtime_end = start + rampup + runtime
+                                else:
+                                    runtime_end = end
+                                runtime_start = start + rampup
+                                runtime_start = runtime_start / monitor_interval
+                                runtime_end = runtime_end / monitor_interval
+
+                                for colume_name, colume_data in orgData.items():
+                                    if isinstance(colume_data, list):
+                                        colume_data = colume_data[runtime_start:runtime_end]
+                                    output[field_type][data_group][node][colume_name] = colume_data
+                            except:
+                                output[field_type][data_group][node] = orgData
+                        else:
+                            output[field_type][data_group][node] = orgData
+
             for key in sorted(output.keys()):
                 output_sort[node_type][key] = copy.deepcopy( output[key] )
-
-        cpu_core_data_dict = OrderedDict()
-        for key,value in output_sort["ceph"]["cpu"].items():
-            for name,data in value.items():
-                cpu_core_data_dict[name] = data
-        output_sort["ceph"]["cpu"] = cpu_core_data_dict
-
         return output_sort
 
     def get_execute_time(self):
@@ -437,7 +453,7 @@ class Analyzer:
             typename = diskformat[0]
         else:
             typename = "osd"
-        for node, node_data in data["ceph"][typename].items():
+        for node, node_data in data["ceph"][typename]['summary'].items():
             osd_node_count += 1
             read_SN_IOPS += numpy.mean(node_data["r/s"])*int(node_data["disk_num"])
             read_SN_BW += numpy.mean(node_data["rMB/s"])*int(node_data["disk_num"])
@@ -783,7 +799,6 @@ class Analyzer:
                 cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
         cpu_core_dict_new = common.format_cpu_core_data_to_list(cpu_core_dict)
         result["cpu"] = cpu_core_dict_new
-
         #2. memory
         stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
         result["memory"] = common.convert_table_to_2Dlist(stdout)
@@ -791,6 +806,23 @@ class Analyzer:
         #3. nic
         stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
         result["nic"] = common.convert_table_to_2Dlist(stdout)
+
+        for tab in result.keys():
+            summary_data_dict = OrderedDict()
+            detail_data_dict = OrderedDict()
+            total_data_dict = OrderedDict()
+            if tab == "cpu":
+                for key, value in result["cpu"].items():
+                    if 'all' in key:
+                        for summary_node, summary_data in value.items():
+                            summary_data_dict[summary_node] = summary_data
+                    detail_data_dict[key] = value
+            else:
+                summary_data_dict = result[tab]
+            total_data_dict["summary"] = summary_data_dict
+            total_data_dict["detail"] = detail_data_dict
+            result[tab] = total_data_dict
+
         #4. tps
         self.workpool.enqueue_data( ["process_sar_data", result] )
         return result
