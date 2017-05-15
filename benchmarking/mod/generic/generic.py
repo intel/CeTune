@@ -1,9 +1,11 @@
 from ..benchmark import *
 from collections import OrderedDict
 import itertools
+import sys
 
 class Generic(Benchmark):
     def load_parameter(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).load_parameter()
         self.cluster["test_disks"] = self.all_conf_data.get_list("test_disks")
 
@@ -12,6 +14,7 @@ class Generic(Benchmark):
         self.testjob_distribution(disk_num_per_client, instance_list)
 
     def prepare_images(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
         fio_job_num_total = 0
@@ -22,11 +25,11 @@ class Generic(Benchmark):
             fio_job_num_total += len(self.cluster["testjob_distribution"][client])
         time.sleep(1)
         if not self.check_fio_pgrep(clients, fio_job_num_total):
-            common.printout("ERROR","Failed to start FIO process")
+            common.printout("ERROR","Failed to start FIO process",log_level="LVL1")
             common.pdsh(user, clients, "killall -9 fio", option = "check_return")
             raise KeyboardInterrupt
         if not fio_job_num_total:
-            common.printout("ERROR","Planed to run 0 Fio Job, please check all.conf")
+            common.printout("ERROR","Planed to run 0 Fio Job, please check all.conf",log_level="LVL1")
             raise KeyboardInterrupt
         common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
 
@@ -41,6 +44,7 @@ class Generic(Benchmark):
         common.printout("LOG","rbd initialization finished")
 
     def prepare_result_dir(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #1. prepare result dir
         self.get_runid()
         self.benchmark["section_name"] = "generic-%s-%s-qd%s-%s-%s-%s-generic" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
@@ -49,12 +53,13 @@ class Generic(Benchmark):
 	
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
 	if not res[1]:
-            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]),log_level="LVL1")
             sys.exit()
 
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def prerun_check(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #1. check is vclient alive
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
@@ -62,10 +67,11 @@ class Generic(Benchmark):
         common.printout("LOG","check if FIO rbd engine installed")
         res = common.pdsh(user, nodes, "fio -enghelp | grep libaio", option = "check_return")
         if res and not res[0]:
-            common.printout("ERROR","FIO libaio engine not installed")
+            common.printout("ERROR","FIO libaio engine not installed",log_level="LVL1")
             sys.exit()
      
     def run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
 
@@ -102,16 +108,17 @@ class Generic(Benchmark):
         self.chkpoint_to_log("fio start")
         time.sleep(1)
         if not self.check_fio_pgrep(self.benchmark["distribution"].keys(), fio_job_num_total):
-            common.printout("ERROR","Failed to start FIO process")
+            common.printout("ERROR","Failed to start FIO process",log_level="LVL1")
             raise KeyboardInterrupt
         if not fio_job_num_total:
-            common.printout("ERROR","Planned to start 0 FIO process, seems to be an error")
+            common.printout("ERROR","Planned to start 0 FIO process, seems to be an error",log_level="LVL1")
             raise KeyboardInterrupt
         common.printout("LOG","%d FIO Jobs starts on %s" % ( fio_job_num_total, str(self.benchmark["distribution"].keys())))
         while self.check_fio_pgrep(self.benchmark["distribution"].keys()):
             time.sleep(5)
 
     def prepare_run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
@@ -121,6 +128,7 @@ class Generic(Benchmark):
         self.cleanup()
     
     def wait_workload_to_stop(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         common.printout("LOG","Waiting Workload to complete its work")
         user = self.cluster["user"]
         stop_flag = 0
@@ -140,12 +148,14 @@ class Generic(Benchmark):
         common.printout("LOG","Workload completed")
 
     def stop_workload(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
         self.chkpoint_to_log("fio stop")
 
     def generate_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         fio_capping = self.all_conf_data.get('fio_capping')
 
         io_pattern = testcase["iopattern"]
@@ -191,7 +201,8 @@ class Generic(Benchmark):
             try:
                 rwmixread = self.all_conf_data.get('rwmixread')
                 fio_template.append("    rwmixread=%s" % rwmixread)
-            except:
+            except Exception,e:
+                common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
                 pass
         fio_list.extend(fio_template)
         with open("../conf/fio.conf", "w+") as f:
@@ -199,6 +210,7 @@ class Generic(Benchmark):
         return True
 
     def parse_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         p = testcase
         testcase_dict = {
             "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],
@@ -212,6 +224,7 @@ class Generic(Benchmark):
         return testcase_dict
 
     def archive(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).archive() 
         user = self.cluster["user"]
         head = self.cluster["head"]

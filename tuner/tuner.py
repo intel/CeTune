@@ -14,6 +14,7 @@ import threading
 pp = pprint.PrettyPrinter(indent=4)
 class Tuner:
     def __init__(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.cur_tuning = {}
         self.all_conf_data = config.Config("../conf/all.conf")
         self.worksheet = common.load_yaml_conf("../conf/tuner.yaml")
@@ -36,10 +37,12 @@ class Tuner:
                     self.cluster[osd].append( osd_journal[1] )
 
     def default_all_conf(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
 
     def handle_disk(self, option="get", param={'read_ahead_kb':2048, 'max_sectors_kb':512, 'scheduler':'deadline'}, fs_params=""):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         osds = self.cluster["osds"]
 
@@ -70,6 +73,7 @@ class Tuner:
                        stdout, stderr = common.pdsh(user, [osd], 'sh -c "echo %s > /sys/block/%s/queue/%s"' % (str(value), parsed_device_name, key), option="check_return")
 
     def get_version(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         osds = self.cluster["osds"]
         clients = self.cluster["client"]
@@ -109,10 +113,11 @@ class Tuner:
         return ceph_version.get()
 
     def get_osd_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         osds = self.cluster["osds"]
 
-        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return")
+        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return",loglevel="LVL6")
         res = common.format_pdsh_return(stdout)
         # merge config diff
         osd_config = common.MergableDict()
@@ -121,10 +126,11 @@ class Tuner:
         return osd_config.get()
 
     def get_mon_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         mons = self.cluster["mons"]
 
-        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return")
+        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return",loglevel="LVL6")
         res = common.format_pdsh_return(stdout)
         mon_config = common.MergableDict()
         for node in res:
@@ -132,6 +138,7 @@ class Tuner:
         return mon_config.get()
 
     def get_pool_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
 
@@ -147,11 +154,13 @@ class Tuner:
                 for index in range(4, len(raw_res),2):
                     try:
                         pool_config[name][raw_res[index]] = raw_res[index+1]
-                    except:
+                    except Exception,e:
+                        common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
                         pass
         return pool_config
 
     def dump_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
     # check ceph config and os config meet request
         user = self.cluster["user"]
         controller = self.cluster["head"]
@@ -163,7 +172,8 @@ class Tuner:
         #get [system] config
         try:
             config["disk"] = self.handle_disk(option="get")
-        except:
+        except Exception,e:
+            common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
             pass
 
         #get [ceph version]
@@ -180,6 +190,7 @@ class Tuner:
         return config
 
     def apply_version(self, jobname):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
         pwd = os.path.abspath(os.path.join('..'))
@@ -213,6 +224,7 @@ class Tuner:
             run_deploy.main(['install_binary', '--version', planed_version])
 
     def check_tuning(self, jobname):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         if not self.cur_tuning:
             self.cur_tuning = self.dump_config()
         tuning_diff = []
@@ -250,6 +262,7 @@ class Tuner:
         return tuning_diff
 
     def apply_tuning(self, jobname, no_check = False):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #check the diff between worksheet tuning and cur system
         if not no_check:
             common.printout("LOG","Calculate Difference between Current Ceph Cluster Configuration with tuning")
@@ -266,7 +279,8 @@ class Tuner:
                     self.handle_disk( option="set", param=param )
                 else:
                     self.handle_disk( option="set" )
-            except:
+            except Exception,e:
+                common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
                 pass
         if 'global' in tmp_tuning_diff or 'osd' in tmp_tuning_diff or 'mon' in tmp_tuning_diff:
             if self.cluster["rgw_enable"]=="true" and len(self.cluster["rgw"]):
@@ -332,6 +346,7 @@ class Tuner:
         common.wait_ceph_to_health( user, controller )
 
     def handle_pool(self, option="set", param = {}):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
         if option == "create":

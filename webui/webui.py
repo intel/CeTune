@@ -254,7 +254,7 @@ class results:
     def get_summary(self):
         view = visualizer.Visualizer({})
         conf = config.Config("../conf/all.conf")
-        dest_dir = conf.get("dest_dir")
+        dest_dir = conf.get("dest_dir",loglevel="LVL6")
         output = view.generate_history_view("127.0.0.1",dest_dir,"root",False)
         if not output:
             return ""
