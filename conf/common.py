@@ -364,6 +364,11 @@ def convert_table_to_2Dlist(table_str):
                 index += 1
     return res_dict
 
+def format_cpu_core_data_to_list(cpu_core_dict):
+    for key,value in cpu_core_dict.items():
+        cpu_core_dict[key] = convert_table_to_2Dlist(value)
+    return cpu_core_dict
+
 def check_if_adict_contains_bdict(adict, bdict):
     for key in bdict:
         if key in adict:
