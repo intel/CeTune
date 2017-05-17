@@ -481,7 +481,7 @@ $(document).ready(function(){
             var run_test = "true";
             var is_redeploy = GetDataByAjax(address_Redeploy_Check);
             if(is_redeploy == "true"){
-                if (!confirm("This job will deploy/redeploy ceph, are you sure do it?")){
+                if (!confirm("There is 'deploy'/'redeploy' action in this job, do you want to continue?")){
                     run_test = "false";
                 }
             }
