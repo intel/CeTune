@@ -20,6 +20,7 @@ var address_Report_Detail_pic="../results/get_detail_pic";
 var address_Report_Detail_csv="../results/get_detail_csv";
 var address_GetRuningStatus="../monitor/cetune_status";
 var address_IntoRuningMode="../configuration/execute";
+var address_Redeploy_Check="../configuration/redeploy_check";
 var address_ExitRuningMode_cancel_all="../configuration/cancel_all";
 var address_ExitRuningMode_cancel_one="../configuration/cancel_one";
 var address_userrole="../configuration/user_role";
@@ -477,16 +478,25 @@ $(document).ready(function(){
         //2 into the runing mode
         var stat = $(this).attr("value");
         if(stat=="Execute"){
-            var result = GetDataByAjax(address_IntoRuningMode);  // code on server
-            if(result != "false"){
-                 $(this).attr("value","Cancel Job")
-                 //show the runing status logo and title on top bar;
-                 $("#div_top_stauts_id h1").show(); 
-                 // a back div for keep out right opertion elements;
-                 RunStatus_Timer();
-                 $("#menu_Status_id").click();
-            }else{
-                 alert("Failed to start");
+            var run_test = "true";
+            var is_redeploy = GetDataByAjax(address_Redeploy_Check);
+            if(is_redeploy == "true"){
+                if (!confirm("This job will deploy/redeploy ceph, are you sure do it?")){
+                    run_test = "false";
+                }
+            }
+            if(run_test == "true"){
+                var result = GetDataByAjax(address_IntoRuningMode);  // code on server
+                if(result != "false"){
+                     $(this).attr("value","Cancel Job")
+                     //show the runing status logo and title on top bar;
+                     $("#div_top_stauts_id h1").show(); 
+                     // a back div for keep out right opertion elements;
+                     RunStatus_Timer();
+                     $("#menu_Status_id").click();
+                }else{
+                     alert("Failed to start");
+                }
             }
         }
         if(stat=="Cancel Job"){

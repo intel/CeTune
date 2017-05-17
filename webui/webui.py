@@ -161,6 +161,10 @@ class configuration:
             else:
                 return "false"
 
+    def redeploy_check(self):
+        if session.get('userrole') == 'admin':
+            return common.check_case_conf()
+
 class monitor:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
