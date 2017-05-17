@@ -20,6 +20,8 @@ import argparse
 cetune_log_file = "../conf/cetune_process.log"
 cetune_error_file = "../conf/cetune_error.log"
 cetune_console_file = "../conf/cetune_console.log"
+case_conf_file = "../conf/cases.conf"
+tuner_yaml_file = "../conf/tuner.yaml"
 no_die = False
 
 class bcolors:
@@ -92,6 +94,21 @@ def get_list( string ):
         else:
             res.append([value,""])
     return res
+
+def check_case_conf():
+    result = "false"
+    with open(case_conf_file,"r") as f:
+        case_list = f.readlines()
+    if len(case_list) != 0:
+        for line in case_list:
+            if "redeploy" in line:
+                result = "true"
+    with open(tuner_yaml_file,"r") as f:
+        yaml_data = yaml.load(f)
+    for key,value in yaml_data.items():
+        if "deploy" in value["workstages"]:
+            result = "true"
+    return result
 
 def get_largest_list_len( data ):
     max_len = 0;
