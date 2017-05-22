@@ -37,19 +37,20 @@ def main(args):
             result[trace_id][parent_span_id][span_id] = init_zipkin_data( event )
             zipkin_data = result[trace_id][parent_span_id][span_id]
             result[trace_id]["start_timestamp"] = event.timestamp
+            result[trace_id]["latency"] = 0
             if 'event' in event:
                 zipkin_data["events"][event['event']] = event.timestamp - result[trace_id]["start_timestamp"]
             elif 'key' in event and 'val' in event:
                 zipkin_data[event['key']] = event['val']
 #       add this tracepoint into a leveled op
         else:
-            zipkin_data = init_zipkin_data_by_parent_span_id( parent_span_id, result[trace_id], event, result[trace_id]["start_timestamp"] )
+            result[trace_id]["latency"] = event.timestamp - result[trace_id]["start_timestamp"]
+            init_zipkin_data_by_parent_span_id( parent_span_id, span_id, result[trace_id], event, result[trace_id]["start_timestamp"] )
 
     with open(output_path, 'w') as f:
         json.dump(result, f, indent=4)
 
-def init_zipkin_data_by_parent_span_id( parent_span_id, root, event, start_time ):
-    span_id = event["span_id"]
+def init_zipkin_data_by_parent_span_id( parent_span_id, span_id, root, event, start_time ):
     if parent_span_id in root:
         root = root[parent_span_id]
         if span_id not in root:
@@ -66,10 +67,10 @@ def init_zipkin_data_by_parent_span_id( parent_span_id, root, event, start_time 
             zipkin_data[tmp_key] = event['val']
         return
     else:
-        for span_id in root.keys():
-            if not isinstance(span_id, int):
+        for pid in root.keys():
+            if not isinstance(pid, long):
                 continue
-            init_zipkin_data_by_parent_span_id( parent_span_id, root[span_id], event, start_time )
+            init_zipkin_data_by_parent_span_id( parent_span_id, span_id, root[pid], event, start_time )
         return
 
 def init_zipkin_data( event ):
