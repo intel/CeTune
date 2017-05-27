@@ -272,6 +272,7 @@ class QemuRbd(Benchmark):
         fio_list.append("[global]")
         fio_list.append("    direct=1")
         fio_list.append("    time_based")
+        fio_list.append("    group_reporting")
 
         io_pattern_fio = io_pattern
         if io_pattern == "seqread":
