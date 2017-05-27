@@ -11,35 +11,6 @@ class Generic(Benchmark):
         instance_list = self.cluster["test_disks"]
         self.testjob_distribution(disk_num_per_client, instance_list)
 
-    def prepare_images(self):
-        user =  self.cluster["user"]
-        controller =  self.cluster["head"]
-        fio_job_num_total = 0
-        for client in self.cluster["testjob_distribution"]:
-            common.scp(user, client, "../conf/fio_init.conf", dest_dir)
-            test_disks_list = ' '.join(self.cluster["testjob_distribution"][client])
-            res = common.pdsh(user, [client], "for disk in %s; do DEVICE=${disk} fio --section init-write-disk %s/fio_init.conf  & done" % (test_disks_list, dest_dir), option = "force")         
-            fio_job_num_total += len(self.cluster["testjob_distribution"][client])
-        time.sleep(1)
-        if not self.check_fio_pgrep(clients, fio_job_num_total):
-            common.printout("ERROR","Failed to start FIO process")
-            common.pdsh(user, clients, "killall -9 fio", option = "check_return")
-            raise KeyboardInterrupt
-        if not fio_job_num_total:
-            common.printout("ERROR","Planed to run 0 Fio Job, please check all.conf")
-            raise KeyboardInterrupt
-        common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
-
-        common.printout("LOG","Wait rbd initialization stop")
-        #wait fio finish
-        try:
-            while self.check_fio_pgrep(self.cluster["testjob_distribution"].keys()):
-                time.sleep(5)
-        except KeyboardInterrupt:
-            clients = self.cluster["testjob_distribution"].keys()
-            common.pdsh(user, clients, "killall -9 fio", option = "check_return")
-        common.printout("LOG","rbd initialization finished")
-
     def prepare_result_dir(self):
         #1. prepare result dir
         self.get_runid()
