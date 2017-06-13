@@ -414,7 +414,7 @@ class Analyzer:
             for engine_candidate in data["workload"].keys():
                 if engine_candidate in benchmark_tool:
                     engine = engine_candidate
-            for node, node_data in data["workload"][engine].items():
+            for node, node_data in data["workload"][engine]["summary"].items():
                 rbd_count += 1
                 read_IOPS += float(node_data["read_iops"])
                 read_BW += float(node_data["read_bw"])
