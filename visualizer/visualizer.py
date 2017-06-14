@@ -442,7 +442,7 @@ class Visualizer:
         output.append("<table class='%s'>" % classname)
         output.append("<thead>")
         output.append("<tr>")
-        output.append("<th>%s</th>" % node_type)
+        output.append("<th><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:\"%s\"});'>%s</a></button></th>" % (node_type, node_type))
         max_col_key = data.keys()[0]
         max_col_count = 0
         for key, value in data.items():
@@ -452,7 +452,7 @@ class Visualizer:
                 max_col_key = key
         for key in data[max_col_key].keys():
             output.append("<th><a id='%s_%s' href='#%s_%s'>%s</a></th>" % (node_type, re.sub('[/%]','',key), node_type, re.sub('[/%]','',key), key))
-        output.append("<tr>")
+        output.append("</tr>")
         output.append("</thead>")
         output.append("<tbody>")
         for node, node_data in data.items():
