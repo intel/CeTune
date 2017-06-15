@@ -16,6 +16,7 @@ import socket
 import struct
 from collections import OrderedDict
 import argparse
+import threading
 
 cetune_log_file = "../conf/cetune_process.log"
 cetune_error_file = "../conf/cetune_error.log"
@@ -629,3 +630,31 @@ def parse_disk_format( disk_format_str ):
     disk_type_list = disk_format_str.split(":")
     return disk_type_list
 
+class FuncThread(threading.Thread):
+    tlist = []
+    atlist = []
+    maxthreads = 8
+    evnt = threading.Event()
+    lck = threading.Lock()
+    def __init__(self, method, *args):
+        self._method = method
+        self._args = args
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self._method(*self._args)
+        FuncThread.lck.acquire()
+        FuncThread.tlist.remove(self)
+        if len(FuncThread.tlist) == FuncThread.maxthreads - 1:
+            FuncThread.evnt.set()
+            FuncThread.evnt.clear()
+        FuncThread.lck.release()
+
+    @staticmethod
+    def newthread(method, *args):
+        FuncThread.lck.acquire()
+        ft = FuncThread(method, *args)
+        FuncThread.tlist.append(ft)
+        FuncThread.atlist.append(ft)
+        FuncThread.lck.release()
+        ft.start()

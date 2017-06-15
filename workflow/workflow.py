@@ -27,6 +27,7 @@ class Workflow:
         self.cluster["mons"] = self.all_conf_data.get_list("list_mon")
         self.cluster["rgw"] = self.all_conf_data.get_list("rgw_server")
         self.cluster["rgw_enable"] = self.all_conf_data.get("enable_rgw")
+        self.cluster["parallel_deploy"] = self.all_conf_data.get("parallel_deploy")
         self.cluster["disable_tuning_check"] = self.all_conf_data.get("disable_tuning_check")
         self.cluster["osd_daemon_num"] = 0
         for osd in self.cluster["osds"]:
@@ -46,10 +47,12 @@ class Workflow:
         controller = self.cluster["head"]
         osds = self.cluster["osds"]
         pwd = os.path.abspath(os.path.join('..'))
+        run_deploy_args = ['redeploy']
         if len(self.cluster["rgw"]) and self.cluster["rgw_enable"]=="true":
-            with_rgw = True
-        else:
-            with_rgw = False
+            run_deploy_args.append('--with_rgw')
+        if not (self.cluster.has_key("parallel_deploy") and self.cluster["parallel_deploy"]=="false"):
+            run_deploy_args.append('--parallel_deploy')
+
         for section in self.worksheet:
             for work in self.worksheet[section]['workstages'].split(','):
                 if work == "deploy":
@@ -57,10 +60,7 @@ class Workflow:
                     tuner.main(['--section', section, 'apply_version'])
                     tuner.main(['--section', section, '--no_check', 'apply_tuning'])
                     common.printout("LOG","Start to redeploy ceph")
-                    if with_rgw:
-                        run_deploy.main(['--with_rgw','redeploy'])
-                    else:
-                        run_deploy.main(['redeploy'])
+                    run_deploy.main(run_deploy_args)
                     tuner.main(['--section', section, 'apply_tuning'])
                 elif work == "benchmark":
                     if not common.check_ceph_running( user, controller ):
