@@ -1,43 +1,29 @@
-from ..benchmark import * 
-from collections import OrderedDict 
+from ..benchmark import *
+from collections import OrderedDict
 import itertools
 
 class VdBench(Benchmark):
     def __init__(self):
-        print "try try"
         self.bench_type = "vdbench"
         super(self.__class__, self).__init__()
         self.cluster["bench_dir"] = "%s/%s/" % (self.all_conf_data.get("tmp_dir"), self.bench_type)
         # Format default output dir: vdbench/output/
         self.cluster["format_output_dir"] = "%s/output/" % (self.cluster["bench_dir"])
+        # Rampup output dir: vdbench/ramup/
+        self.cluster["rampup_dir"] = "%s/ramup/" % (self.cluster["bench_dir"])
         # Run results dir: vdbench/results/
         self.cluster["result_dir"] = "%s/results/" % (self.cluster["bench_dir"])
-        common.printout("LOG","bench dir: %s, format output dir: %s, result dir: %s" % (self.cluster["bench_dir"], self.cluster["format_output_dir"], self.cluster["result_dir"]))
+        common.printout("LOG","bench dir: %s, format output dir: %s, rampup dir: %s, result dir: %s" % (self.cluster["bench_dir"], self.cluster["format_output_dir"], self.cluster["rampup_dir"], self.cluster["result_dir"]))
 
     def load_parameter(self):
         super(self.__class__, self).load_parameter()
-        self.custom_script = self.all_conf_data.get("custom_script", True )
+        self.custom_script = self.all_conf_data.get("custom_script", True)
         self.cluster["vclient"] = self.all_conf_data.get_list("list_vclient")
         disk_num_per_client = self.cluster["disk_num_per_client"]
         self.disk_num_per_client = disk_num_per_client
         self.volume_size = self.all_conf_data.get("volume_size")
         self.instance_list = self.cluster["vclient"]
         self.testjob_distribution(disk_num_per_client, self.instance_list)
-
-    def cal_run_job_distribution(self):
-         number = int(self.benchmark["instance_number"])
-         client_total = len(self.cluster["client"])
-         # Assume number is always 50 here
-         self.benchmark["distribution"] = {}
-         client_num = 0
-         for client in self.cluster["testjob_distribution"]:
-             vclient_total = int(self.disk_num_per_client[client_num])
-             self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:vclient_total])
-             client_num  += 1
-         nodes = []
-         for client in self.benchmark["distribution"]:
-             nodes.extend(self.benchmark["distribution"][client])
-         self.cluster["nodes_distribution"] = nodes
 
     def prepare_result_dir(self):
         #1. prepare result dir
@@ -60,6 +46,7 @@ class VdBench(Benchmark):
         user = self.cluster["user"]
         nodes = self.cluster["nodes_distribution"]
         common.pdsh(user, nodes, "rm -rf %s/*" % self.cluster["format_output_dir"])
+        common.pdsh(user, nodes, "rm -rf %s/*" % self.cluster["rampup_dir"])
         common.pdsh(user, nodes, "rm -rf %s/*" % self.cluster["result_dir"])
 
     def check_run_success(self, check_file, max_time, run_type="format"):
@@ -75,7 +62,7 @@ class VdBench(Benchmark):
             if len(nodes) != len(res.keys()):
                 time.sleep(sleep_sec)
             else:
-                common.printout("LOG", "checking done,all nodes execute %s completely" % run_type)
+                common.printout("LOG", "checking done, all nodes execute %s completely" % run_type)
                 return
             cur_check += 1
         common.printout("ERROR","Checking run in %s failed" % check_file)
@@ -98,43 +85,9 @@ class VdBench(Benchmark):
         # format
         self.format_run()
         
-    #Add new method to check vdbench
-    def check_vdbench_pgrep(self, nodes, vdbench_node_num = 1, check_type="jobnum"):
-        user =  self.cluster["user"]
-        stdout, stderr = common.pdsh(user, nodes, "pgrep -x java", option = "check_return")
-        res = common.format_pdsh_return(stdout)
-        if res:
-            vdbench_running_job_num = 0
-            vdbench_running_node_num = 0
-            for node in res:
-                vdbench_running_node_num += 1
-                vdbench_running_job_num += len(str(res[node]).strip().split('\n'))
-            if (check_type == "jobnum" and vdbench_running_job_num >= vdbench_node_num) or (check_type == "nodenum" and vdbench_running_node_num >= vdbench_node_num):
-                common.printout("WARNING","%d vdbench job still runing" % vdbench_running_job_num)
-                return True
-            else:
-                if check_type == "nodenum":
-                    common.printout("WARNING","Expecting %d nodes run vdbench, detect %d node runing" % (vdbench_node_num, vdbench_running_node_num))
-                if check_type == "jobnum":
-                    common.printout("WARNING","Expecting %d nodes run vdbench, detect %d node runing" % (vdbench_node_num, vdbench_running_job_num))
-                return False
-        common.printout("WARNING","Detect no vdbench job runing")
-        return False
-    
-   #Updated wait_workload_to_stop and stop_workload
     def wait_workload_to_stop(self):
-        common.printout("LOG","Waiting Workload to complete its work")
-        nodes = self.cluster["nodes_distribution"]
-        max_check_times = 30
-        cur_check = 0
-        while self.check_vdbench_pgrep(nodes):
-            if cur_check > max_check_times:
-                break
-            time.sleep(10)
-            cur_check += 1
         common.printout("LOG","Workload completed")
         
-   #Add Stop_data_collecters
     def stop_data_collecters(self):
         super(self.__class__, self).stop_data_collecters()
         user = self.cluster["user"]
@@ -156,19 +109,18 @@ class VdBench(Benchmark):
         nodes = self.cluster["nodes_distribution"]
         common.pdsh(user, nodes, "killall -9 java", option = "check_return")
         common.printout("LOG","Workload stopped, detaching rbd volume from vclient")
-        self.chkpoint_to_log("vdbench stop")
         try:
             self.detach_images()
         except KeyboardInterrupt:
             common.printout("WARNING","Caught KeyboardInterrupt, stop detaching")
-            
-    #end
+        self.chkpoint_to_log("vdbench stop")
+
     def generate_benchmark_cases(self, testcase):
         io_pattern = testcase["iopattern"]
         block_size = testcase["block_size"]
         queue_depth = testcase["qd"]
         rbd_volume_size = testcase["volume_size"]
-        warmup_time = testcase["rampup"]
+        warmup_time = int(testcase["rampup"])
         runtime = int(testcase["runtime"])
         disk = testcase["vdisk"]
         custom_params = testcase["custom_parameters"]
@@ -208,6 +160,14 @@ class VdBench(Benchmark):
         with open("../conf/format.cfg", "w+") as f:
             f.write("\n".join(format_cfg)+"\n")
 
+        rampup_cfg = []
+        rampup_cfg.append("fsd=fsd1,anchor=/mnt/,depth=%d,width=%d,files=%d,size=%s" % (depth, width, files_num, block_size))
+        rampup_cfg.append("fwd=default,xfersize=4k,fileio=%s,fileselect=random,threads=%d" % (fileio, threads_num))
+        rampup_cfg.append("fwd=fwd1,fsd=fsd1,rdpct=%d" % read_percentage)
+        rampup_cfg.append("rd=rd1,fwd=fwd1,fwdrate=max,format=no,elapsed=%d,interval=1" % warmup_time)
+        with open("../conf/vdbench_rampup.cfg", "w+") as f:
+            f.write("\n".join(rampup_cfg)+"\n")
+
         case_cfg = []
         case_cfg.append("fsd=fsd1,anchor=/mnt/,depth=%d,width=%d,files=%d,size=%s" % (depth, width, files_num, block_size))
         case_cfg.append("fwd=default,xfersize=4k,fileio=%s,fileselect=random,threads=%d" % (fileio, threads_num))
@@ -229,11 +189,8 @@ class VdBench(Benchmark):
             "block_size":p[3], "qd":p[4], "rampup":p[5],
             "runtime":p[6], "vdisk":p[7], "custom_parameters":p[8]
         }
-        if len(p) == 10:
+        if len(p) >= 10:
             testcase_dict["description"] = p[9]
-        elif len(p) > 10:
-            common.printout("ERROR","Too much columns found for test case ")
-            sys.exit()
         else:
             testcase_dict["description"] = ""
 
@@ -245,6 +202,10 @@ class VdBench(Benchmark):
         nodes = self.cluster["nodes_distribution"]
         dest_dir = self.cluster["tmp_dir"]
         monitor_interval = self.cluster["monitoring_interval"]
+
+        common.printout("LOG", "Start Ramping up VdBench!")
+        common.pdsh(user, nodes, "cd %s; ./vdbench -f vdbench_rampup.cfg -o %s" % (self.cluster["bench_dir"], self.cluster["rampup_dir"]))
+
         common.printout("LOG", "Start Running VdBench!")
 	common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         common.printout("LOG","Start system data collector under %s " % nodes)
@@ -253,7 +214,6 @@ class VdBench(Benchmark):
         common.pdsh(user, nodes, "iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "cd %s; ./vdbench -f vdbench_test.cfg -o %s" % (self.cluster["bench_dir"], self.cluster["result_dir"]))
-       
         self.chkpoint_to_log("vdbench start")       
         check_file = "%s/summary.html" % self.cluster["result_dir"]
         self.check_run_success(check_file, 100, "test")
@@ -306,9 +266,11 @@ class VdBench(Benchmark):
                 common.scp(user, node, '../conf/%s.tar.gz' % self.bench_type, '%s' % self.cluster["tmp_dir"])
             common.pdsh(user, nodes, 'cd %s; tar xzf %s.tar.gz' % (self.cluster["tmp_dir"], self.bench_type))
 
+        common.pdsh(user, nodes, "mkdir -p  %s" % self.cluster["rampup_dir"])
         common.pdsh(user, nodes, "mkdir -p  %s" % self.cluster["result_dir"])
         for node in nodes:
             common.scp(user, node, "../conf/format.cfg", "%s" % self.cluster["bench_dir"])
+            common.scp(user, node, "../conf/vdbench_rampup.cfg", "%s" % self.cluster["bench_dir"])
             common.scp(user, node, "../conf/vdbench_test.cfg", "%s" % self.cluster["bench_dir"])
 
     def prerun_check(self):
@@ -316,7 +278,10 @@ class VdBench(Benchmark):
         #1. check is vclient alive
         user = self.cluster["user"]
         vdisk = self.benchmark["vdisk"]
-        nodes = self.cluster["nodes_distribution"]
+        nodes = []
+        for client in self.benchmark["distribution"]:
+            nodes.extend(self.benchmark["distribution"][client])
+        self.cluster["nodes_distribution"] = nodes
         planed_space = str(len(self.instance_list) * int(self.volume_size)) + "MB"
         common.printout("LOG","Prerun_check: check if rbd volume be intialized")
         if not self.check_rbd_init_completed(planed_space):
@@ -354,7 +319,7 @@ class VdBench(Benchmark):
                 res = common.format_pdsh_return(stdout)
                 if node not in res:
                    common.pdsh(user, [client], "cd %s/vdbs; virsh attach-device %s %s.xml" % (dest_dir, node, node), except_returncode=1)
-                   common.pdsh(user, [node], "mount | grep /dev/vdb1; if [ $? ne 0]; then parted -s -a optimal /dev/vdb mklabel gpt -- mkpart primary ext4 1 100%; mkfs -t ext4 /dev/vdb1; mount /dev/vdb1 /mnt; fi")
+                common.pdsh(user, [node], "mount | grep /dev/vdb1; if [ $? -ne 0 ]; then parted -s -a optimal /dev/vdb mklabel gpt mkpart primary ext4 1 100%; mkfs -t ext4 /dev/vdb1; mount /dev/vdb1 /mnt; fi")
 
     def detach_images(self):
         user = self.cluster["user"]
@@ -366,7 +331,7 @@ class VdBench(Benchmark):
             nodes = self.benchmark["distribution"][client]
             for node in nodes:
                 common.printout("LOG","Detach rbd image from %s" % node)
+                common.pdsh(user, [node], "mount | grep /dev/vdb1; if [ $? -eq 0 ]; then umount /dev/vdb1; fi")
                 stdout, stderr = common.pdsh(user, [node], "df %s" % vdisk, option="check_return")
                 if not stderr:
                    common.pdsh(user, [client], "virsh detach-disk %s %s" % (node, vdisk_suffix), except_returncode=1)
-
