@@ -629,3 +629,5 @@ def parse_disk_format( disk_format_str ):
     disk_type_list = disk_format_str.split(":")
     return disk_type_list
 
+def download_result( key ):
+    return key

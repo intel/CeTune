@@ -198,16 +198,46 @@ class Visualizer:
         else:
             return False
 
-    def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format=True):
+    def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format = True):
         common.printout("LOG","Generating history view")
         dbpath = os.path.join(self.db_path,"cetune_report.db")
         if not self.check_DB_case_list(self.db_path,dbpath):
-            #stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
-            #res = common.format_pdsh_return(stdout)
-            #if remote_host not in res:
-            #    common.printout("ERROR","Generating history view failed")
-            #    return False
-            # some modification in greped trs
+            self.generate_history_from_folder(dbpath, remote_host, remote_dir, user)
+        return self.generate_history_from_DB(html_format)
+
+
+    def generate_history_from_DB(self, html_format = True, selected_lines = []):
+        dbpath = os.path.join(self.db_path,"cetune_report.db")
+        lines = self.parse_to_html(database.select_report_list(dbpath, selected_lines))
+        output = []
+        output.append("<input id='down_button' type='button' onclick='mouse_on()'></input>")
+        output.append("""<div id='result_report_top'><div id='result_report_dropdown_title'>
+                          <h4 class='modal-title'>Select desired operation to selected rows</h4>
+                          </div><div id='div_Configuration_right_top_button'><div>
+                              <input class='result_report_button btn btn-primary' id='result_report_delete_Cancel' type='button' value='Cancel' onclick ='Cancel_delete()'/>
+                              <input class='result_report_button btn btn-primary' id='result_report_delete' type='button' value='Delete' data-toggle='modal'  data-target='#DeleteResultReportModal' data-whatever='@mdo'/>
+                              <input class='result_report_button btn btn-primary' id='result_report_download' type='button' value='Download' data-toggle='modal' onclick='download_report()'/>
+                          </div></div></div>""")
+        output.append("<table id='report_list' class='cetune_table'>")
+        #output.append(" <thead>")
+        output.extend( self.getSummaryTitle() )
+        #output.append(" </thead>")
+        #output.append(" <tbody>")
+        #output.append(res_tmp)
+        for runid in sorted(lines.keys()):
+            output.append(lines[runid])
+        #output.append(" </tbody>")
+        output.append(" </table>")
+        output.extend(self.getscripthtml())
+        output.append("<script>")
+        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
+        output.append("</script>")
+        if html_format:
+            return self.add_html_framework(output)
+        else:
+            return "".join(output)
+
+    def generate_history_from_folder(self, dbpath, remote_host, remote_dir, user):
             stdout = common.bash("find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir)
             res_tmp = stdout;
             formated_report = {}
@@ -243,31 +273,6 @@ class Visualizer:
             if len(diff_case_list) != 0:
                 for i in diff_case_list:
                     database.delete_case_by_runid(i,dbpath)
-        lines = self.parse_to_html(database.select_report_list(dbpath))
-        output = []
-        #output.append("<h1>CeTune History Page</h1>")
-        #output.append("<input type='button' style='width:100%;height:5px;' onmouseover='this.style.backgroundColor=#286090;' onmouseout='this.style.backgroundColor=#FFF;'></input>")
-        output.append("<input id='down_button' type='button' onclick='mouse_on()'></input>")
-        output.append("<div id='result_report_top'><div id='result_report_dropdown_title'><h4 class='modal-title'>Delete the selected item</h4></div><div id='div_Configuration_right_top_button'><div><input id='result_report_delete_Cancel' class='btn btn-primary' type='button' value='Cancel' onclick ='Cancel_delete()'/><input id='result_report_delete' class='btn btn-primary' type='button' value='Delete' data-toggle='modal'  data-target='#DeleteResultReportModal' data-whatever='@mdo'/></div></div></div>")
-        output.append("<table id='report_list' class='cetune_table'>")
-        #output.append(" <thead>")
-        output.extend( self.getSummaryTitle() )
-        #output.append(" </thead>")
-        #output.append(" <tbody>")
-        #output.append(res_tmp)
-        for runid in sorted(lines.keys()):
-            output.append(lines[runid])
-        #output.append(" </tbody>")
-        output.append(" </table>")
-        output.extend(self.getscripthtml())
-        output.append("<script>")
-        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
-        output.append("</script>")
-        if html_format:
-            return self.add_html_framework(output)
-        else:
-            return "".join(output)
-
 
     def getscripthtml(self):
         output = []
@@ -282,9 +287,8 @@ class Visualizer:
     def getSummaryTitle(self):
         output = []
         output.append(" <tr id = 'result_report_title' z-index='0'>")
-        output.append(" <th data-resizable-column-id='0'>Del</th>")
-        #output.append(" <th data-resizable-column-id='0'><input id='result_report_delete'  z-index='1' class='btn btn-primary' type='button' value='Del'/></th>")
-        output.append(" <th data-resizable-column-id='1'>runid</th>")
+        output.append(" <th data-resizable-column-id='0'>Menu</th>")
+        output.append(" <th data-resizable-column-id='1'><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:history});'>runid</a></button></th>")
         output.append(" <th data-resizable-column-id='2'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
         output.append(" <th data-resizable-column-id='3'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
         output.append(" <th data-resizable-column-id='4'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
@@ -316,9 +320,7 @@ class Visualizer:
         output.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./include/css/TableStyle.css\">")
         output.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./include/css/bootstrap.min.css\">")
         output.append("<script src=\"./include/jquery.js\"></script>")
-#        output.append("<link href=\"./include/jquery/jquery-ui.css\" rel=\"stylesheet\">")
-#        output.append("<link href=\"./include/css/common.css\" rel=\"stylesheet\">")
-#        output.append("<script src=\"./include/jquery/jquery-ui.js\"></script>")
+        output.append("<script src=\"./include/jquery.table2excel.js\"></script>")
         output.append("</head>")
         output.append("<body>")
         output.extend(maindata)
