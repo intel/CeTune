@@ -425,6 +425,20 @@ function Cancel_benchmark_Apply(rowNum , colNum ,value){
 }
 
 /********************************************************************************************************************************************************/
+function download_report(){
+    var keys = [];
+    $(".checkbox_configuration_class").each(function(index,value){
+        if($(this).is(':checked')){
+            key = $(this).parent("td").next().text();
+            keys.push(key);
+        }
+    });
+    var data = {}
+    data.keys = JSON.stringify(keys);
+    //var result = GetDataByAjax_POST(address_Report_Download, data);
+    window.location = address_Report_Download + "?keys=" + data.keys;
+}
+
 //delete row when checkbox is checked
 function Del(tableType){
     if(tableType =="configuration"){
@@ -460,11 +474,9 @@ function Del(tableType){
         //address_report_Delete
         $(".checkbox_configuration_class").each(function(index,value){
             if($(this).is(':checked')){
-                var request_type,key;
-                request_type = "cluster"
+                var key;
                 key = $(this).parent().parent().children("td").get(1).innerHTML
                 var data ={};
-                data.request_type=request_type;
                 data.key = key;
                 var result = GetDataByAjax_POST(address_Report_Delete,data);
 

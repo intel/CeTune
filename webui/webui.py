@@ -19,6 +19,7 @@ import ConfigParser
 import collections
 from web import form
 from login import *
+from time import gmtime, strftime
 
 urls = (
   '/', 'index',
@@ -246,14 +247,37 @@ class results:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
     def POST(self, function_name = ""):
+        print function_name
         print web.input()
         return common.eval_args( self, function_name, web.input() )
 
-    def delete_result(self, request_type,key):
+    def delete_result(self, key):
         if session.get('userrole') == 'admin':
             conf = config.Config("../conf/all.conf")
             dest_dir = conf.get("dest_dir")
-            os.system("rm -rf %s/%s-*"%(dest_dir,key))
+            common.bash("rm -rf %s/%s-*"%(dest_dir,key))
+
+    def download_result(self, keys):
+        view = visualizer.Visualizer({})
+        # generate new summary page
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        path = "history_download_%s" % (strftime("%Y%m%d_%H%M", gmtime()))
+        common.bash("mkdir -p %s/%s" % (dest_dir, path))
+        with open( "%s/%s/history.html" % (dest_dir, path), "w+" ) as history_file:
+            history_file.write(view.generate_history_from_DB(True, json.loads(keys)))
+        # copy quired runs
+        filename_list = []
+        for runid in json.loads(keys):
+            session_name = common.bash("cd %s; find ./ -maxdepth 1 -name %s-*" % (dest_dir, runid)).strip('\t\n\r')
+            print session_name
+            common.bash("cd %s; mkdir -p %s/%s/; cp -r %s/*.html %s/include %s/conf %s/%s/;" % (dest_dir, path, session_name, session_name, session_name, session_name, path, session_name))
+        common.bash("mkdir -p %s/%s/include/; cp -r ../webui/static/css/ ../webui/static/js/jquery.js ../webui/static/js/src/jquery.table2excel.js %s/%s/include/;" % (dest_dir, path, dest_dir, path))
+        # tar to zip
+        common.bash("cd %s; zip %s.zip -r %s;" % (dest_dir, path, path))
+        web.header("Content-Type", "application/zip")
+        web.header('Content-disposition', 'attachment; filename=%s.zip' % (path))
+        return open( "%s/%s.zip" % ( dest_dir, path ), "rb" ).read()
 
     def get_summary(self):
         view = visualizer.Visualizer({})
