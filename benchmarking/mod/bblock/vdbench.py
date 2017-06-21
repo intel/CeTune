@@ -229,7 +229,7 @@ class VdBench(Benchmark):
         for node in nodes:
             common.bash("mkdir -p %s/raw/%s" % (dest_dir, node))
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*" % self.cluster["result_dir"])
-
+            common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
 
     def prepare_images(self):
         user =  self.cluster["user"]

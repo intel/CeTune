@@ -507,7 +507,7 @@ class Analyzer:
             if '_sar.txt' in dir_name:
                 self.workpool.schedule( self.process_sar_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name))
             if 'totals.html' in dir_name:
-                self.workpool.schedule( self.process_vdbench_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), "%s_%s" % (node_name, dir_name))
+                self.workpool.schedule( self.process_vdbench_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), node_name)
             if '_fio.txt' in dir_name:
                 self.workpool.schedule( self.process_fio_data,  "%s/%s/%s" % (dest_dir, node_name, dir_name), dir_name)
             if '_fio_iops.1.log' in dir_name or '_fio_bw.1.log' in dir_name or '_fio_lat.1.log' in dir_name:
@@ -880,6 +880,7 @@ class Analyzer:
         output_vdbench_data['lat_unit'] = 'msec'
         output_vdbench_data['runtime_unit'] = 'sec'
         output_vdbench_data['bw_unit'] = 'MB/s'
+        output_vdbench_data['99.00th%_lat'] = '0'
         result[dirname] = {}
         result[dirname]["vdbench"] = output_vdbench_data
         self.workpool.enqueue_data( ["process_vdbench_data", result] )
