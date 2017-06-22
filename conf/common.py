@@ -575,16 +575,16 @@ def check_health( user, controller ):
 def get_ceph_health(user, node):
     check_count = 0
     output = {}
-    stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s", option = "check_return")
+    stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s -f json", option = "check_return")
     res = format_pdsh_return(stdout)
     if len(res):
         stdout = res[node]
-        stdout = stdout.split('\n')
-        output["ceph_status"] = stdout[1]
-        if "client io" in stdout[-2]:
-            output["ceph_throughput"] = stdout[-2]
-        if "client io" in stdout[-1]:
-            output["ceph_throughput"] = stdout[-1]
+        output["ceph_status"] = stdout['health']['overall_status']
+        if "write_bytes_sec" in stdout['pgmap']:
+            str_wb = str(stdout['pgmap']['write_bytes_sec'] / 1024 / 1024) + ' MB/s wr, '
+            str_rop = '0 op/s rd, ' if stdout['pgmap']['read_op_per_sec'] == 0 else str(stdout['pgmap']['read_op_per_sec'] / 1024) + ' kop/s rd, '
+            str_wop = '0 op/s wr, ' if stdout['pgmap']['write_op_per_sec'] == 0 else str(stdout['pgmap']['write_op_per_sec'] / 1024) + ' kop/s wr'
+            output["ceph_throughput"] = 'client: ' + str_wb + str_rop + str_wop
     else:
         output["ceph_status"] = "NOT ALIVE"
     return output
