@@ -842,20 +842,28 @@ class Analyzer:
                    if tmp_dev_name not in disk_list:
                        disk_list.append( tmp_dev_name )
                 dict_diskformat[output_list[i]]=disk_list
-        elif node in self.cluster["vclient"]:
+        if node in self.cluster["vclient"]:
             vdisk_list = []
             for disk in self.cluster["vclient_disk"]:
                 vdisk_list.append( disk.split('/')[2] )
             output_list = ["vdisk"]
+        if node in self.cluster["client"]:
+            cdisk_list = []
+            for disk_name in self.all_conf_data.get_list(node):
+                cdisk_list.append( disk_name.split('/')[2] )
+            output_list = ["client_disk"]
         # get total second
         runtime = common.bash("grep 'Device' "+path+" | wc -l ").strip()
         for output in output_list:
-            if output != "vdisk":
-                disk_list = " ".join(dict_diskformat[output])
-                disk_num = len(list(set(dict_diskformat[output])))
-            else:
+            if output == "client_disk":
+                disk_list = " ".join(cdisk_list)
+                disk_num = len(cdisk_list)
+            elif output == "vdisk":
                 disk_list = " ".join(vdisk_list)
                 disk_num = len(vdisk_list)
+            else: #osd
+                disk_list = " ".join(dict_diskformat[output])
+                disk_num = len(list(set(dict_diskformat[output])))
             stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
             result[output] = common.convert_table_to_2Dlist(stdout)
             result[output]["disk_num"] = disk_num
