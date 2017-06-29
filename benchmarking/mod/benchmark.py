@@ -58,15 +58,25 @@ class Benchmark(object):
                 self.real_runtime = time.time() - test_start_time
                 self.after_run()
                 common.printout("LOG","Collecting Data, this will takes quite long time depends on the network")
-                self.archive()
-                if not interrupted_flag:
-                    self.setStatus("Completed")
+                interrupt_status = ""
+                dest_dir = self.cluster["dest_dir"]
+                if os.path.exists("%s/conf/status" % (dest_dir)):
+                    with open("%s/conf/status" % (dest_dir),"r") as f:
+                        interrupt_status=f.read().strip("\n")
+                if interrupt_status != "Interrupted":
+                    self.archive()
+                    if not interrupted_flag:
+                        self.setStatus("Completed")
 
-                common.printout("LOG","Post Process Result Data")
-                try:
-                    analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
-                except:
-                    common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
+                    common.printout("LOG","Post Process Result Data")
+                    try:
+                        analyzer.main(['--path', self.cluster["dest_dir"], 'process_data'])
+                    except:
+                        common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"])
+                else:
+                    self.stop_workload()
+                    self.stop_data_collecters()
+                    common.printout("ERROR","The test has been stopped.")
         except:
             common.printout("ERROR","The test has been stopped.")
 
