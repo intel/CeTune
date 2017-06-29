@@ -625,67 +625,75 @@ class Analyzer:
 
     def process_log_data(self, path):
         result = {}
-        result["phase"] = {}
-        with open( path, 'r') as f:
-            lines = f.readlines()
-
-        benchmark_tool = ["fio", "cosbench"]
-        tmp = {}
-        benchmark = {}
-
-        for line in lines:
-            try:
-                time, tool, status = line.split()
-            except:
-                continue
-            if tool not in tmp:
-               tmp[tool] = {}
-            if tool in benchmark_tool:
-                benchmark[status] = time
-            else:
-                tmp[tool][status] = time
-
-        for tool in tmp:
-            result["phase"][tool] = {}
-            result["phase"][tool]["start"] = 0
-            try:
-                result["phase"][tool]["stop"] = int(tmp[tool]["stop"]) - int(tmp[tool]["start"])
-            except:
-                result["phase"][tool]["stop"] = None
-            try:
-                result["phase"][tool]["benchmark_start"] = int(benchmark["start"]) - int(tmp[tool]["start"])
-                if result["phase"][tool]["benchmark_start"] < 0:
-                    result["phase"][tool]["benchmark_start"] = 0
-            except:
-                result["phase"][tool]["benchmark_start"] = None
-            try:
-                result["phase"][tool]["benchmark_stop"] = int(benchmark["stop"]) - int(tmp[tool]["start"])
-                if result["phase"][tool]["benchmark_stop"] < 0:
-                    result["phase"][tool]["benchmark_stop"] = 0
-            except:
-                result["phase"][tool]["benchmark_stop"] = None
+        try:
+            result["phase"] = {}
+            with open( path, 'r') as f:
+                lines = f.readlines()
+    
+            benchmark_tool = ["fio", "cosbench"]
+            tmp = {}
+            benchmark = {}
+    
+            for line in lines:
+                try:
+                    time, tool, status = line.split()
+                except:
+                    continue
+                if tool not in tmp:
+                   tmp[tool] = {}
+                if tool in benchmark_tool:
+                    benchmark[status] = time
+                else:
+                    tmp[tool][status] = time
+    
+            for tool in tmp:
+                result["phase"][tool] = {}
+                result["phase"][tool]["start"] = 0
+                try:
+                    result["phase"][tool]["stop"] = int(tmp[tool]["stop"]) - int(tmp[tool]["start"])
+                except:
+                    result["phase"][tool]["stop"] = None
+                try:
+                    result["phase"][tool]["benchmark_start"] = int(benchmark["start"]) - int(tmp[tool]["start"])
+                    if result["phase"][tool]["benchmark_start"] < 0:
+                        result["phase"][tool]["benchmark_start"] = 0
+                except:
+                    result["phase"][tool]["benchmark_start"] = None
+                try:
+                    result["phase"][tool]["benchmark_stop"] = int(benchmark["stop"]) - int(tmp[tool]["start"])
+                    if result["phase"][tool]["benchmark_stop"] < 0:
+                        result["phase"][tool]["benchmark_stop"] = 0
+                except:
+                    result["phase"][tool]["benchmark_stop"] = None
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_log_data", result] )
         return result
 
     def process_cosbench_data(self, path, dirname):
         result = {}
-        result["cosbench"] = OrderedDict()
-        result["cosbench"]["cosbench"] = OrderedDict([("read_lat",0), ("read_bw",0), ("read_iops",0), ("write_lat",0), ("write_bw",0), ("write_iops",0), ("lat_unit",'msec'), ('runtime_unit','sec'), ('bw_unit','MB/s')])
-        tmp = result
-        keys = common.bash("head -n 1 %s/%s.csv" %(path, dirname))
-        keys = keys.split(',')
-        values = common.bash('tail -n 1 %s/%s.csv' %(path, dirname) )
-        values = values.split(',')
-        size = len(keys)
-        for i in range(size):
-            tmp[keys[i]] = {}
-            tmp[keys[i]]["detail"] = {}
-            tmp[keys[i]]["detail"]["value"] = values[i]
-        tmp = result["cosbench"]["cosbench"]
-        io_pattern = result["Op-Type"]["detail"]["value"]
-        tmp["%s_lat" % io_pattern] = result["Avg-ResTime"]["detail"]["value"]
-        tmp["%s_bw" % io_pattern] = common.size_to_Kbytes('%s%s' % (result["Bandwidth"]["detail"]["value"], 'B'), 'MB')
-        tmp["%s_iops" % io_pattern] = result["Throughput"]["detail"]["value"]
+        try:
+            result["cosbench"] = OrderedDict()
+            result["cosbench"]["cosbench"] = OrderedDict([("read_lat",0), ("read_bw",0), ("read_iops",0), ("write_lat",0), ("write_bw",0), ("write_iops",0), ("lat_unit",'msec'), ('runtime_unit','sec'), ('bw_unit','MB/s')])
+            tmp = result
+            keys = common.bash("head -n 1 %s/%s.csv" %(path, dirname))
+            keys = keys.split(',')
+            values = common.bash('tail -n 1 %s/%s.csv' %(path, dirname) )
+            values = values.split(',')
+            size = len(keys)
+            for i in range(size):
+                tmp[keys[i]] = {}
+                tmp[keys[i]]["detail"] = {}
+                tmp[keys[i]]["detail"]["value"] = values[i]
+            tmp = result["cosbench"]["cosbench"]
+            io_pattern = result["Op-Type"]["detail"]["value"]
+            tmp["%s_lat" % io_pattern] = result["Avg-ResTime"]["detail"]["value"]
+            tmp["%s_bw" % io_pattern] = common.size_to_Kbytes('%s%s' % (result["Bandwidth"]["detail"]["value"], 'B'), 'MB')
+            tmp["%s_iops" % io_pattern] = result["Throughput"]["detail"]["value"]
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_cosbench_data", result ])
         return result
 
@@ -732,165 +740,181 @@ class Analyzer:
 
     def process_fiolog_data(self, path, volume_name):
         result = {}
-        if "fio_iops" in path:
-            result["iops"] = []
-            res = result["iops"]
-        if "fio_bw" in path:
-            result["bw"] = []
-            res = result["bw"]
-        if "fio_lat" in path:
-            result["lat"] = []
-            res = result["lat"]
-
-        time_shift = 1000
-        with open( path, "r" ) as f:
-            cur_sec = -1
-            self.tmp_res = []
-            if 'iops' in path:
-                self.iops_value = 0
-                for line in f.readlines():
-                    data = line.split(",")
-                    value = int(data[1])
-                    timestamp_sec = int(data[0])/time_shift
-                    if timestamp_sec > cur_sec:
-                        if cur_sec >= 0:
-                            self.tmp_res.append( self.iops_value )
-                            self.iops_value = 0
-                        cur_sec = timestamp_sec
-                        #print "%s %d" % (path, cur_sec)
-                    self.iops_value += value
-                if len(self.tmp_res) != 0:
-                    res.extend(self.tmp_res)
-            else:
-                for line in f.readlines():
-                    data = line.split(",")
-                    timestamp_sec = int(data[0])/time_shift
-                    value = int(data[1])
-                    if timestamp_sec > cur_sec:
-                        if cur_sec >= 0:
-                            res.append(numpy.mean(self.tmp_res))
-                        cur_sec = timestamp_sec
-                        #print "%s %d" % (path, cur_sec)
-                    self.tmp_res.append( value )
-                if len(self.tmp_res) != 0:
-                    res.append(numpy.mean(self.tmp_res))
+        try:
+            if "fio_iops" in path:
+                result["iops"] = []
+                res = result["iops"]
+            if "fio_bw" in path:
+                result["bw"] = []
+                res = result["bw"]
+            if "fio_lat" in path:
+                result["lat"] = []
+                res = result["lat"]
+    
+            time_shift = 1000
+            with open( path, "r" ) as f:
+                cur_sec = -1
+                self.tmp_res = []
+                if 'iops' in path:
+                    self.iops_value = 0
+                    for line in f.readlines():
+                        data = line.split(",")
+                        value = int(data[1])
+                        timestamp_sec = int(data[0])/time_shift
+                        if timestamp_sec > cur_sec:
+                            if cur_sec >= 0:
+                                self.tmp_res.append( self.iops_value )
+                                self.iops_value = 0
+                            cur_sec = timestamp_sec
+                            #print "%s %d" % (path, cur_sec)
+                        self.iops_value += value
+                    if len(self.tmp_res) != 0:
+                        res.extend(self.tmp_res)
+                else:
+                    for line in f.readlines():
+                        data = line.split(",")
+                        timestamp_sec = int(data[0])/time_shift
+                        value = int(data[1])
+                        if timestamp_sec > cur_sec:
+                            if cur_sec >= 0:
+                                res.append(numpy.mean(self.tmp_res))
+                            cur_sec = timestamp_sec
+                            #print "%s %d" % (path, cur_sec)
+                        self.tmp_res.append( value )
+                    if len(self.tmp_res) != 0:
+                        res.append(numpy.mean(self.tmp_res))
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_fiolog_data", volume_name, result] )
         #print "pid:%d done" % os.getpid()
         return result
 
     def process_sar_data(self, path):
         result = {}
-        #1. cpu
-        f = open(path,'r')
-        first_line = f.next().strip('\n')
-        f.close()
-        node_name = re.findall(r"\((.*?)\)",first_line)[0]
-        cpu_line = re.findall(r"\((.*?)\)",first_line)[1]
-        cpu_num = re.findall(r"(\d+)",cpu_line)[0]
-        cpu_core_dict = OrderedDict()
-        for line in range(int(cpu_num)+1):
-            if line == 0:
-                stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
-            else:
-                stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\""+str(line-1)+"\")flag=1};if(flag==1)print \"\"}'" )
-            if line ==0:
-                cpu_core_dict[node_name+"_cpu_all"] = stdout
-            else:
-                cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
-        cpu_core_dict_new = common.format_cpu_core_data_to_list(cpu_core_dict)
-        result["cpu"] = cpu_core_dict_new
-        #2. memory
-        stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
-        result["memory"] = common.convert_table_to_2Dlist(stdout)
-
-        #3. nic
-        stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
-        result["nic"] = common.convert_table_to_2Dlist(stdout)
-
-        for tab in result.keys():
-            summary_data_dict = OrderedDict()
-            detail_data_dict = OrderedDict()
-            total_data_dict = OrderedDict()
-            if tab == "cpu":
-                for key, value in result["cpu"].items():
-                    if 'all' in key:
-                        for summary_node, summary_data in value.items():
-                            summary_data_dict[summary_node] = summary_data
-                    detail_data_dict[key] = value
-            else:
-                summary_data_dict = result[tab]
-            total_data_dict["summary"] = summary_data_dict
-            total_data_dict["detail"] = detail_data_dict
-            result[tab] = total_data_dict
-
-        #4. tps
+        try:
+            #1. cpu
+            f = open(path,'r')
+            first_line = f.next().strip('\n')
+            f.close()
+            node_name = re.findall(r"\((.*?)\)",first_line)[0]
+            cpu_line = re.findall(r"\((.*?)\)",first_line)[1]
+            cpu_num = re.findall(r"(\d+)",cpu_line)[0]
+            cpu_core_dict = OrderedDict()
+            for line in range(int(cpu_num)+1):
+                if line == 0:
+                    stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\"all\")flag=1};if(flag==1)print \"\"}'" )
+                else:
+                    stdout = common.bash( "grep ' *CPU *%' -m 1 "+path+" | awk -F\"CPU\" '{print $2}'; cat "+path+" | grep ' *CPU *%' -A "+str(int(cpu_num)+1)+" | awk '{flag=0;if(NF<=3)next;for(i=1;i<=NF;i++){if(flag==1){printf $i\"\"FS}if($i==\""+str(line-1)+"\")flag=1};if(flag==1)print \"\"}'" )
+                if line ==0:
+                    cpu_core_dict[node_name+"_cpu_all"] = stdout
+                else:
+                    cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
+            cpu_core_dict_new = common.format_cpu_core_data_to_list(cpu_core_dict)
+            result["cpu"] = cpu_core_dict_new
+            #2. memory
+            stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
+            result["memory"] = common.convert_table_to_2Dlist(stdout)
+    
+            #3. nic
+            stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
+            result["nic"] = common.convert_table_to_2Dlist(stdout)
+    
+            for tab in result.keys():
+                summary_data_dict = OrderedDict()
+                detail_data_dict = OrderedDict()
+                total_data_dict = OrderedDict()
+                if tab == "cpu":
+                    for key, value in result["cpu"].items():
+                        if 'all' in key:
+                            for summary_node, summary_data in value.items():
+                                summary_data_dict[summary_node] = summary_data
+                        detail_data_dict[key] = value
+                else:
+                    summary_data_dict = result[tab]
+                total_data_dict["summary"] = summary_data_dict
+                total_data_dict["detail"] = detail_data_dict
+                result[tab] = total_data_dict
+    
+            #4. tps
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_sar_data", result] )
         return result
 
     def process_iostat_data(self, node, path):
         result = {}
-        output_list = []
-        dict_diskformat = {}
-        if node in self.cluster["osds"]:
-            output_list = common.parse_disk_format( self.cluster['diskformat'] )
-            for i in range(len(output_list)):
-                disk_list=[]
-                for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
-                   tmp_dev_name = osd_journal[i].split('/')[2]
-                   if 'nvme' in tmp_dev_name:
-                       tmp_dev_name = common.parse_nvme( tmp_dev_name )
-                   if tmp_dev_name not in disk_list:
-                       disk_list.append( tmp_dev_name )
-                dict_diskformat[output_list[i]]=disk_list
-        if node in self.cluster["vclient"]:
-            vdisk_list = []
-            for disk in self.cluster["vclient_disk"]:
-                vdisk_list.append( disk.split('/')[2] )
-            output_list = ["vdisk"]
-        if node in self.cluster["client"]:
-            cdisk_list = []
-            for disk_name in self.all_conf_data.get_list(node):
-                cdisk_list.append( disk_name.split('/')[2] )
-            output_list = ["client_disk"]
-        # get total second
-        runtime = common.bash("grep 'Device' "+path+" | wc -l ").strip()
-        for output in output_list:
-            if output == "client_disk":
-                disk_list = " ".join(cdisk_list)
-                disk_num = len(cdisk_list)
-            elif output == "vdisk":
-                disk_list = " ".join(vdisk_list)
-                disk_num = len(vdisk_list)
-            else: #osd
-                disk_list = " ".join(dict_diskformat[output])
-                disk_num = len(list(set(dict_diskformat[output])))
-            stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
-            result[output] = common.convert_table_to_2Dlist(stdout)
-            result[output]["disk_num"] = disk_num
+        try:
+            output_list = []
+            dict_diskformat = {}
+            if node in self.cluster["osds"]:
+                output_list = common.parse_disk_format( self.cluster['diskformat'] )
+                for i in range(len(output_list)):
+                    disk_list=[]
+                    for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
+                       tmp_dev_name = osd_journal[i].split('/')[2]
+                       if 'nvme' in tmp_dev_name:
+                           tmp_dev_name = common.parse_nvme( tmp_dev_name )
+                       if tmp_dev_name not in disk_list:
+                           disk_list.append( tmp_dev_name )
+                    dict_diskformat[output_list[i]]=disk_list
+            if node in self.cluster["vclient"]:
+                vdisk_list = []
+                for disk in self.cluster["vclient_disk"]:
+                    vdisk_list.append( disk.split('/')[2] )
+                output_list = ["vdisk"]
+            if node in self.cluster["client"]:
+                cdisk_list = []
+                for disk_name in self.all_conf_data.get_list(node):
+                    cdisk_list.append( disk_name.split('/')[2] )
+                output_list = ["client_disk"]
+            # get total second
+            runtime = common.bash("grep 'Device' "+path+" | wc -l ").strip()
+            for output in output_list:
+                if output == "client_disk":
+                    disk_list = " ".join(cdisk_list)
+                    disk_num = len(cdisk_list)
+                elif output == "vdisk":
+                    disk_list = " ".join(vdisk_list)
+                    disk_num = len(vdisk_list)
+                else: #osd
+                    disk_list = " ".join(dict_diskformat[output])
+                    disk_num = len(list(set(dict_diskformat[output])))
+                stdout = common.bash( "grep 'Device' -m 1 "+path+" | awk -F\"Device:\" '{print $2}'; cat "+path+" | awk -v dev=\""+disk_list+"\" -v line="+runtime+" 'BEGIN{split(dev,dev_arr,\" \");dev_count=0;for(k in dev_arr){count[k]=0;dev_count+=1};for(i=1;i<=line;i++)for(j=1;j<=NF;j++){res_arr[i,j]=0}}{for(k in dev_arr)if(dev_arr[k]==$1){cur_line=count[k];for(j=2;j<=NF;j++){res_arr[cur_line,j]+=$j;}count[k]+=1;col=NF}}END{for(i=1;i<=line;i++){for(j=2;j<=col;j++)printf (res_arr[i,j]/dev_count)\"\"FS; print \"\"}}'")
+                result[output] = common.convert_table_to_2Dlist(stdout)
+                result[output]["disk_num"] = disk_num
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_iostat_data", result] )
         return result
 
     def process_vdbench_data(self, path, dirname):
         result = {}
-        vdbench_data = {}
-        runtime = int(common.bash("grep -o 'elapsed=[0-9]\+' "+path+" | cut -d = -f 2"))
-        stdout, stderr = common.bash("grep 'avg_2-' "+path, True)
-        vdbench_data = stdout.split()
-        output_vdbench_data = OrderedDict()
-        output_vdbench_data['read_lat'] = vdbench_data[8]
-        output_vdbench_data["read_iops"] = vdbench_data[7]
-        output_vdbench_data["read_bw"] = vdbench_data[11]
-        output_vdbench_data['read_runtime'] = runtime
-        output_vdbench_data['write_lat'] = vdbench_data[10]
-        output_vdbench_data["write_iops"] = vdbench_data[9]
-        output_vdbench_data["write_bw"] = vdbench_data[12]
-        output_vdbench_data['write_runtime'] = runtime
-        output_vdbench_data['lat_unit'] = 'msec'
-        output_vdbench_data['runtime_unit'] = 'sec'
-        output_vdbench_data['bw_unit'] = 'MB/s'
-        output_vdbench_data['99.00th%_lat'] = '0'
-        result[dirname] = {}
-        result[dirname]["vdbench"] = output_vdbench_data
+        try:
+            vdbench_data = {}
+            runtime = int(common.bash("grep -o 'elapsed=[0-9]\+' "+path+" | cut -d = -f 2"))
+            stdout, stderr = common.bash("grep 'avg_2-' "+path, True)
+            vdbench_data = stdout.split()
+            output_vdbench_data = OrderedDict()
+            output_vdbench_data['read_lat'] = vdbench_data[8]
+            output_vdbench_data["read_iops"] = vdbench_data[7]
+            output_vdbench_data["read_bw"] = vdbench_data[11]
+            output_vdbench_data['read_runtime'] = runtime
+            output_vdbench_data['write_lat'] = vdbench_data[10]
+            output_vdbench_data["write_iops"] = vdbench_data[9]
+            output_vdbench_data["write_bw"] = vdbench_data[12]
+            output_vdbench_data['write_runtime'] = runtime
+            output_vdbench_data['lat_unit'] = 'msec'
+            output_vdbench_data['runtime_unit'] = 'sec'
+            output_vdbench_data['bw_unit'] = 'MB/s'
+            output_vdbench_data['99.00th%_lat'] = '0'
+            result[dirname] = {}
+            result[dirname]["vdbench"] = output_vdbench_data
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_vdbench_data", result] )
         return result
 
@@ -909,80 +933,83 @@ class Analyzer:
 
     def process_fio_data(self, path, dirname):
         result = {}
-        stdout, stderr = common.bash("grep \" IOPS=.*BW=.*\| *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
-        stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
-        stdout2, stderr2 = common.bash("grep \" *clat percentiles\" "+path, True)
-        lat_per_dict = {}
-        if stdout1 != '':
-            lat_per_dict = self.get_lat_persent_dict(stdout1)
-
-        fio_data_rw = {}
-        fio_data_rw["read"] = {}
-        fio_data_rw["write"] = {}
-        fio_data = {}
-        for data in re.split(',|\n|:',stdout):
-            try:
-                key, value = data.split('=')
-                if key.strip().lower() not in fio_data:
-                    fio_data[key.strip().lower()] = []
-                    fio_data[key.strip().lower()].append( value.strip() )
-            except:
-                if 'lat' in data:
-                    res = re.search('lat\s*\((\w+)\)',data)
-                    if 'lat_unit' not in fio_data:
-                        fio_data['lat_unit'] = []
-                    fio_data['lat_unit'].append( res.group(1) )
-                if "read" in data:
-                    fio_data = fio_data_rw["read"]
-                if "write" in data:
-                    fio_data = fio_data_rw["write"]
-
-        output_fio_data = OrderedDict()
-        output_fio_data['read_lat'] = 0
-        output_fio_data['read_iops'] = 0
-        output_fio_data['read_bw'] = 0
-        output_fio_data['read_runtime'] = 0
-        output_fio_data['write_lat'] = 0
-        output_fio_data['write_iops'] = 0
-        output_fio_data['write_bw'] = 0
-        output_fio_data['write_runtime'] = 0
-
-        if len(lat_per_dict) != 0:
-            for tmp_key in ["95.00th", "99.00th", "99.99th"]:
-                if tmp_key in lat_per_dict.keys():
-                    lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
-                    if len(lat_persent_unit) != 0:
-                        output_fio_data[tmp_key+"%_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict[tmp_key], lat_persent_unit[0]),'msec'))
+        try:
+            stdout, stderr = common.bash("grep \" IOPS=.*BW=.*\| *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
+            stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
+            stdout2, stderr2 = common.bash("grep \" *clat percentiles\" "+path, True)
+            lat_per_dict = {}
+            if stdout1 != '':
+                lat_per_dict = self.get_lat_persent_dict(stdout1)
+    
+            fio_data_rw = {}
+            fio_data_rw["read"] = {}
+            fio_data_rw["write"] = {}
+            fio_data = {}
+            for data in re.split(',|\n|:',stdout):
+                try:
+                    key, value = data.split('=')
+                    if key.strip().lower() not in fio_data:
+                        fio_data[key.strip().lower()] = []
+                        fio_data[key.strip().lower()].append( value.strip() )
+                except:
+                    if 'lat' in data:
+                        res = re.search('lat\s*\((\w+)\)',data)
+                        if 'lat_unit' not in fio_data:
+                            fio_data['lat_unit'] = []
+                        fio_data['lat_unit'].append( res.group(1) )
+                    if "read" in data:
+                        fio_data = fio_data_rw["read"]
+                    if "write" in data:
+                        fio_data = fio_data_rw["write"]
+    
+            output_fio_data = OrderedDict()
+            output_fio_data['read_lat'] = 0
+            output_fio_data['read_iops'] = 0
+            output_fio_data['read_bw'] = 0
+            output_fio_data['read_runtime'] = 0
+            output_fio_data['write_lat'] = 0
+            output_fio_data['write_iops'] = 0
+            output_fio_data['write_bw'] = 0
+            output_fio_data['write_runtime'] = 0
+    
+            if len(lat_per_dict) != 0:
+                for tmp_key in ["95.00th", "99.00th", "99.99th"]:
+                    if tmp_key in lat_per_dict.keys():
+                        lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
+                        if len(lat_persent_unit) != 0:
+                            output_fio_data[tmp_key+"%_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict[tmp_key], lat_persent_unit[0]),'msec'))
+                        else:
+                            output_fio_data[tmp_key+"%_lat"] = 'null'
                     else:
                         output_fio_data[tmp_key+"%_lat"] = 'null'
+            output_fio_data['lat_unit'] = 'msec'
+            output_fio_data['runtime_unit'] = 'sec'
+            output_fio_data['bw_unit'] = 'MB/s'
+            for io_pattern in ['read', 'write']:
+                if fio_data_rw[io_pattern] != {}:
+                    first_item = fio_data_rw[io_pattern].keys()[0]
                 else:
-                    output_fio_data[tmp_key+"%_lat"] = 'null'
-        output_fio_data['lat_unit'] = 'msec'
-        output_fio_data['runtime_unit'] = 'sec'
-        output_fio_data['bw_unit'] = 'MB/s'
-        for io_pattern in ['read', 'write']:
-            if fio_data_rw[io_pattern] != {}:
-                first_item = fio_data_rw[io_pattern].keys()[0]
-            else:
-                continue
-            list_len = len(fio_data_rw[io_pattern][first_item])
-            for index in range(0, list_len):
-                fio_data = fio_data_rw[io_pattern]
-                if "avg" in fio_data:
-                    output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
-                if "iops" in fio_data:
-                    output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
-                if "bw" in fio_data:
-                    res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
-                    if res:
-                        output_fio_data['%s_bw' % io_pattern] += float( common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
-                if "runt" in fio_data:
-                    output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
-            output_fio_data['%s_lat' % io_pattern] /= list_len
-            output_fio_data['%s_runtime' % io_pattern] /= list_len
-        result[dirname] = {}
-        result[dirname]["fio"] = output_fio_data
-        
+                    continue
+                list_len = len(fio_data_rw[io_pattern][first_item])
+                for index in range(0, list_len):
+                    fio_data = fio_data_rw[io_pattern]
+                    if "avg" in fio_data:
+                        output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
+                    if "iops" in fio_data:
+                        output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
+                    if "bw" in fio_data:
+                        res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
+                        if res:
+                            output_fio_data['%s_bw' % io_pattern] += float( common.size_to_Kbytes("%s%s" % (res.group(1), res.group(2)),'MB') )
+                    if "runt" in fio_data:
+                        output_fio_data['%s_runtime' % io_pattern] += float( common.time_to_sec(fio_data['runt'][index], 'sec') )
+                output_fio_data['%s_lat' % io_pattern] /= list_len
+                output_fio_data['%s_runtime' % io_pattern] /= list_len
+            result[dirname] = {}
+            result[dirname]["fio"] = output_fio_data
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_fio_data", result] )
         return result
 
@@ -993,63 +1020,66 @@ class Analyzer:
         pass
 
     def process_perfcounter_data(self, dir_name, path):
-    #def process_perfcounter_data(self, path):
-        precise_level = int(self.cluster["perfcounter_time_precision_level"])
-#        precise_level = 6
-        common.printout("LOG","loading %s" % path)
-        perfcounter = []
-        with open(path,"r") as fd:
-            data = fd.readlines()
-        for tmp_data in data:
-            if ',' == tmp_data[-2]:
-                tmp_data = tmp_data[:-2]
-            try:
-                perfcounter.append(json.loads(tmp_data, object_pairs_hook=OrderedDict))
-            except:
-                perfcounter.append({})
-        if not len(perfcounter) > 0:
-            return False
         result = common.MergableDict()
-        lastcounter = perfcounter[0]
-        for counter in perfcounter[1:]:
-            result.update(counter, dedup=False, diff=False)
-        result = result.get()
-        output = OrderedDict()
-#        for key in ["osd", "filestore", "objecter", "mutex-JOS::SubmitManager::lock"]:
-        for key in self.cluster["perfcounter_data_type"]:
-            result_key = key
-            find = True
-            if key != "librbd" and key not in result:
-                continue
-            if key == "librbd":
-                find = False
-                for result_key in result.keys():
-                    if key in result_key:
-                        find = True
-                        break
-            if not find:
-                continue
-            output["perfcounter_"+key] = {}
-            current = output["perfcounter_"+key]
-            for param, data in result[result_key].items():
-                if isinstance(data, list):
-                    if not param in current:
-                        current[param] = []
-                    current[param].extend( data )
-                if isinstance(data, dict) and 'avgcount' in data and 'sum' in data:
-                    if not isinstance(data['sum'], list):
-                        continue
-                    if not param in current:
-                        current[param] = []
-                    last_sum = data['sum'][0]
-                    last_avgcount = data['avgcount'][0]
-                    for i in range(1, len(data['sum'])):
-                        try:
-                            current[param].append( round((data['sum'][i]-last_sum)/(data['avgcount'][i]-last_avgcount),precise_level) )
-                        except:
-                            current[param].append(0)
-                        last_sum = data['sum'][i]
-                        last_avgcount = data['avgcount'][i]
+        try:
+            precise_level = int(self.cluster["perfcounter_time_precision_level"])
+    #        precise_level = 6
+            common.printout("LOG","loading %s" % path)
+            perfcounter = []
+            with open(path,"r") as fd:
+                data = fd.readlines()
+            for tmp_data in data:
+                if ',' == tmp_data[-2]:
+                    tmp_data = tmp_data[:-2]
+                try:
+                    perfcounter.append(json.loads(tmp_data, object_pairs_hook=OrderedDict))
+                except:
+                    perfcounter.append({})
+            if not len(perfcounter) > 0:
+                return False
+            lastcounter = perfcounter[0]
+            for counter in perfcounter[1:]:
+                result.update(counter, dedup=False, diff=False)
+            result = result.get()
+            output = OrderedDict()
+    #        for key in ["osd", "filestore", "objecter", "mutex-JOS::SubmitManager::lock"]:
+            for key in self.cluster["perfcounter_data_type"]:
+                result_key = key
+                find = True
+                if key != "librbd" and key not in result:
+                    continue
+                if key == "librbd":
+                    find = False
+                    for result_key in result.keys():
+                        if key in result_key:
+                            find = True
+                            break
+                if not find:
+                    continue
+                output["perfcounter_"+key] = {}
+                current = output["perfcounter_"+key]
+                for param, data in result[result_key].items():
+                    if isinstance(data, list):
+                        if not param in current:
+                            current[param] = []
+                        current[param].extend( data )
+                    if isinstance(data, dict) and 'avgcount' in data and 'sum' in data:
+                        if not isinstance(data['sum'], list):
+                            continue
+                        if not param in current:
+                            current[param] = []
+                        last_sum = data['sum'][0]
+                        last_avgcount = data['avgcount'][0]
+                        for i in range(1, len(data['sum'])):
+                            try:
+                                current[param].append( round((data['sum'][i]-last_sum)/(data['avgcount'][i]-last_avgcount),precise_level) )
+                            except:
+                                current[param].append(0)
+                            last_sum = data['sum'][i]
+                            last_avgcount = data['avgcount'][i]
+        except:
+            err_log = traceback.format_exc()
+            self.common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_perfcounter_data", dir_name, output] )
         return output
 
@@ -1144,6 +1174,7 @@ class WorkPool:
                     if dir_name not in self.workload_result:
                         self.workload_result[dir_name] = OrderedDict()
                     self.workload_result[dir_name][key] = value
+            self.common.printout("LOG","%d inflight_processes remain." % self.inflight_process_count)
         self.queue_check = False
 
     def enqueue_data(self, data):
