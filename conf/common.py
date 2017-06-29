@@ -501,7 +501,11 @@ class MergableDict:
     def get(self):
         return self.mergable_dict
 
-def size_to_Kbytes(size, dest_unit='KB'):
+def remove_unit(data):
+    ret = size_to_Kbytes( "%sB" % data, 'B', 1000.0 )
+    return ret
+
+def size_to_Kbytes(size, dest_unit='KB', arg=1024.0):
     if not str(size).isdigit():
         res = re.search('(\d+\.*\d*)\s*(\D*)',size)
         space_num = float(res.group(1))
@@ -524,10 +528,10 @@ def size_to_Kbytes(size, dest_unit='KB'):
     space_unit_index = unit_list.index(space_unit)
     if dest_unit_index > space_unit_index:
         for i in range(space_unit_index, dest_unit_index):
-            space_num *= 1024.0
+            space_num *= arg
     else:
         for i in range(dest_unit_index, space_unit_index):
-            space_num /= 1024.0
+            space_num /= arg
     return float('%.3f' % space_num)
 
 def time_to_sec(fio_runtime, dest_unit='sec'):

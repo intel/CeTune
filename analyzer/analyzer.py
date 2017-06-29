@@ -19,6 +19,7 @@ from multiprocessing import Process, Lock, Queue
 import multiprocessing
 import threading
 import csv
+import traceback
 
 pp = pprint.PrettyPrinter(indent=4)
 class Analyzer:
@@ -667,7 +668,7 @@ class Analyzer:
                     result["phase"][tool]["benchmark_stop"] = None
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_log_data", result] )
         return result
 
@@ -693,7 +694,7 @@ class Analyzer:
             tmp["%s_iops" % io_pattern] = result["Throughput"]["detail"]["value"]
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_cosbench_data", result ])
         return result
 
@@ -785,7 +786,7 @@ class Analyzer:
                         res.append(numpy.mean(self.tmp_res))
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_fiolog_data", volume_name, result] )
         #print "pid:%d done" % os.getpid()
         return result
@@ -839,7 +840,7 @@ class Analyzer:
             #4. tps
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_sar_data", result] )
         return result
 
@@ -886,7 +887,7 @@ class Analyzer:
                 result[output]["disk_num"] = disk_num
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_iostat_data", result] )
         return result
 
@@ -914,7 +915,7 @@ class Analyzer:
             result[dirname]["vdbench"] = output_vdbench_data
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_vdbench_data", result] )
         return result
 
@@ -996,7 +997,7 @@ class Analyzer:
                     if "avg" in fio_data:
                         output_fio_data['%s_lat' % io_pattern] += float(common.time_to_sec("%s%s" % (fio_data['avg'][index], fio_data['lat_unit'][index]),'msec'))
                     if "iops" in fio_data:
-                        output_fio_data['%s_iops' % io_pattern] += int(fio_data['iops'][index])
+                        output_fio_data['%s_iops' % io_pattern] += int(common.remove_unit(fio_data['iops'][index]))
                     if "bw" in fio_data:
                         res = re.search('(\d+\.*\d*)\s*(\w+)/s',fio_data['bw'][index])
                         if res:
@@ -1009,7 +1010,7 @@ class Analyzer:
             result[dirname]["fio"] = output_fio_data
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_fio_data", result] )
         return result
 
@@ -1079,7 +1080,7 @@ class Analyzer:
                             last_avgcount = data['avgcount'][i]
         except:
             err_log = traceback.format_exc()
-            self.common.printout("ERROR","%s" % err_log)
+            common.printout("ERROR","%s" % err_log)
         self.workpool.enqueue_data( ["process_perfcounter_data", dir_name, output] )
         return output
 
