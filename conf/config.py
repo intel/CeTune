@@ -227,12 +227,12 @@ class Config():
             output = helper._check_config( key, value )
         return output
 
-    def get(self, key, dotry=False):
+    def get(self, key, dotry=False,loglevel="LVL3"):
         if key in self.conf_data:
             return self.conf_data[key]
         else:
             if not dotry:
-                common.printout("WARNING","%s not defined in all.conf" % key)
+                common.printout("WARNING","%s not defined in all.conf" % key,log_level=loglevel)
                 sys.exit()
             else:
                 return ""

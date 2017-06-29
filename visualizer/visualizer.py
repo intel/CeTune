@@ -53,7 +53,7 @@ class Visualizer:
         for node_type, node_data in self.result.items():
             if not isinstance(node_data, dict):
                 continue
-            common.printout("LOG","Generating %s view" % node_type)
+            common.printout("LOG","Generating %s view" % node_type,log_level="LVL5")
             output.extend(self.generate_node_view(node_type))
 
         output.append("</div>")
@@ -72,13 +72,13 @@ class Visualizer:
             return
 
         # Copy local result to remote dir
-        common.printout("LOG","Session result generated, copy to remote")
+        common.printout("LOG","Session result generated, copy to remote",log_level="LVL5")
         common.bash("scp -r %s %s" % (self.path, self.dest_dir_remote_bak))
 
         remote_bak, remote_dir = self.dest_dir_remote_bak.split(':')
         output = self.generate_history_view(remote_bak, remote_dir, self.user)
 
-        common.printout("LOG","History view generated, copy to remote")
+        common.printout("LOG","History view generated, copy to remote",log_level="LVL5")
         with open("%s/cetune_history.html" % self.path, 'w') as f:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (self.path, self.dest_dir_remote_bak))
@@ -199,7 +199,7 @@ class Visualizer:
             return False
 
     def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format = True):
-        common.printout("LOG","Generating history view")
+        common.printout("LOG","Generating history view", log_level="LVL5")
         dbpath = os.path.join(self.db_path,"cetune_report.db")
         if not self.check_DB_case_list(self.db_path,dbpath):
             self.generate_history_from_folder(dbpath, remote_host, remote_dir, user)
@@ -413,7 +413,7 @@ class Visualizer:
         output = []
         common.bash("mkdir -p ../visualizer/include/pic")
         common.bash("mkdir -p ../visualizer/include/csv")
-        common.printout("LOG","generate %s line chart" % node_type)
+        common.printout("LOG","generate %s line chart" % node_type,log_level="LVL5")
         for field_column, field_data in data.items():
             pyplot.figure(figsize=(9, 4))
             for node, node_data in field_data.items():

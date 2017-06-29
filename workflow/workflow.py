@@ -16,6 +16,7 @@ import threading
 pp = pprint.PrettyPrinter(indent=4)
 class Workflow:
     def __init__(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.cur_tuning = {}
         self.all_conf_data = config.Config("../conf/all.conf")
         self.worksheet = common.load_yaml_conf("../conf/tuner.yaml")
@@ -38,10 +39,12 @@ class Workflow:
                     self.cluster[osd].append( osd_journal[1] )
 
     def default_all_conf(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
 
     def run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
         osds = self.cluster["osds"]
@@ -71,7 +74,7 @@ class Workflow:
                         time.sleep(3)
                     run_cases.main(['--tuning', section])
                 else:
-                    common.printout("ERROR","Unknown tuner workstage %s" % work)
+                    common.printout("ERROR","Unknown tuner workstage %s" % work,log_level="LVL1")
 
 def main(args):
     parser = argparse.ArgumentParser(description='workflow')
