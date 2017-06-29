@@ -255,7 +255,7 @@ class Benchmark(object):
         #collect all.conf
         try:
             common.bash("mkdir -p %s/conf" % (dest_dir))
-            common.bash("mkdir -p %s/log" % (dest_dir))
+            common.bash("mkdir -p %s/conf/log" % (dest_dir))
             common.cp("%s/conf/all.conf" % self.pwd, "%s/conf/" % dest_dir)
             common.cp("%s/conf/%s" % (self.pwd, common.cetune_log_file), "%s/conf/" % dest_dir)
             common.cp("%s/conf/%s" % (self.pwd, common.cetune_error_file), "%s/conf/" % dest_dir)
@@ -296,7 +296,7 @@ class Benchmark(object):
             with open("%s/real_runtime.txt" % dest_dir, "w") as f:
                 f.write(str(int(self.real_runtime)))
 
-        common.bash("cp %s/log/* %s/log/" %(self.pwd,dest_dir))
+        common.bash("cp %s/log/* %s/conf/log/" %(self.pwd,dest_dir))
         common.bash("rm -f %s/log/*" %self.pwd)
 
     def stop_data_collecters(self):

@@ -133,8 +133,8 @@ def clean_console():
 
 def cetune_log_collecter(func):
     def wrapper(level, content, screen = True,log_level = "LVL3"):
-        #if not os.path.exists("../log/"):
-        #    bash("mkdir -p ../log")
+        if not os.path.exists("../log/"):
+            os.mkdir("../log")
         if log_level in ["LVL1"]:
             output = "[%s][%s]: %s" % (log_level,level,content)
             with open(cetune_error_log_file, "a+") as f:
