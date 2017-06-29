@@ -18,9 +18,11 @@ class Benchmark(object):
 
     def go(self, testcase, tuning):
         try:
-            cancel_file = open("../conf/execute_op_type.conf","r")
-            execute_op_type = cancel_file.read().strip("\n")
-            if execute_op_type != "cancel_all":
+            self.execute_op_type = "execute"
+            if os.path.exists("../conf/execute_op_type.conf"):
+                cancel_file = open("../conf/execute_op_type.conf","r")
+                self.execute_op_type = cancel_file.read().strip("\n")
+            if self.execute_op_type != "cancel_all":
                 common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_log_file))
                 common.bash("rm -f %s/conf/%s" % (self.pwd, common.cetune_error_file))
                 user = self.all_conf_data.get("user")
@@ -49,6 +51,8 @@ class Benchmark(object):
                     self.run()
                 except KeyboardInterrupt:
                     interrupted_flag = True
+                    self.execute_op_type = "cancel_one"
+                    os.system("echo 'cancel_one' > ../conf/execute_op_type.conf")
                     self.setStatus("Interrupted")
                     common.printout("WARNING","Caught Signal to Cancel this run, killing Workload now, pls wait")
                     self.real_runtime = time.time() - test_start_time
