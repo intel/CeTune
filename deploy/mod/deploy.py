@@ -505,6 +505,7 @@ class Deploy(object):
             self.make_osds(ceph_disk=ceph_disk)
             common.printout("LOG","Succeeded in building osd daemon")
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
+            self.start_mgr(True)
 
         else:
             diff_map = self.cal_cephmap_diff(ceph_disk=ceph_disk)
@@ -520,6 +521,7 @@ class Deploy(object):
             self.make_osds(diff_map["osd"], diff_map, ceph_disk=ceph_disk)
             common.printout("LOG","Succeeded in building osd daemon")
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
+            self.start_mgr(True)
 
     def restart(self, ceph_disk=False):
         self.cleanup(ceph_disk=ceph_disk)
@@ -537,12 +539,14 @@ class Deploy(object):
 
     def cleanup(self, ceph_disk=False):
         user = self.cluster["user"]
+        head = self.cluster["head"]
         mons = self.cluster["mons"]
         osds = self.cluster["osds"]
         mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
         mon_filename = os.path.basename(self.cluster["ceph_conf"]["mon"]["mon_data"]).replace("$id","*")
         common.printout("LOG", "Shutting down mon daemon")
         common.pdsh(user, mons, "killall -9 ceph-mon", option="check_return")
+        common.pdsh(user, [head], "killall -9 ceph-mgr", option="check_return")
 
         try_kill = True
         if ceph_disk:
@@ -881,11 +885,15 @@ class Deploy(object):
                         except_returncode=1)
             common.printout("LOG","Started osd.%s daemon on %s" % (osd_name, osd_host))
 
-    def start_mgr(self):
-        outStr = common.bash("ceph status")
-        outList = [x.strip() for x in outStr.split('\n')]
-        if "mgr no daemons active" in outList:
-            common.bash("ceph auth get-or-create mgr.admin mon 'allow *' && ceph-mgr -i admin")
+    def start_mgr(self, force=False):
+        user = self.cluster["user"]
+        head = self.cluster["head"]
+        outStr, stderr = common.pdsh(user, [head], "ceph status --format json", "check_return")
+        formatted_outStr = common.format_pdsh_return(outStr)
+        ceph_status = formatted_outStr[head]
+        #outList = [x.strip() for x in outStr.split('\n')]
+        if "no active mgr" in outStr:
+            common.pdsh(user, [head], "ceph auth get-or-create mgr.admin mon 'allow *' && ceph-mgr -i %s" % ceph_status["fsid"], option="console")
             common.printout("LOG", "create mgr success: admin")
         else:
             common.printout("LOG", "not need create mgr")
