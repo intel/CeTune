@@ -101,6 +101,7 @@ class Deploy(object):
         self.cluster["mount_opts"] = "-o inode64,noatime,logbsize=256k"
 
         self.cluster["ceph_conf"]["client"] = {}
+        self.cluster["ceph_conf"]["global"]["mon_allow_pool_delete"] = "true"
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
         self.cluster["ceph_conf"]["osd"]["osd_mkfs_type"] = "xfs"
         osd_mount_options_fs_type = "osd_mount_options" + "_" + self.cluster["ceph_conf"]["osd"]["osd_mkfs_type"]
