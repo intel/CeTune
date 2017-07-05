@@ -502,7 +502,7 @@ class MergableDict:
         return self.mergable_dict
 
 def remove_unit(data):
-    ret = size_to_Kbytes( "%sB" % data, 'B', 1000.0 )
+    ret = size_to_Kbytes( "%s" % data, 'B', 1000.0 )
     return ret
 
 def size_to_Kbytes(size, dest_unit='KB', arg=1024.0):
