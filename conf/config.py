@@ -240,9 +240,9 @@ class Config():
     def get_list(self,key):
         if key in self.conf_data:
             if re.search(',', self.conf_data[key]):
-                return self.conf_data[key].split(",")
+                return [x.strip() for x in self.conf_data[key].split(",")]
             else:
-                return [self.conf_data[key]]
+                return [self.conf_data[key].strip()]
         else:
             print "%s not defined in all.conf" % key
             return []

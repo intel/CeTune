@@ -11,6 +11,7 @@ import argparse
 import json
 from threading import Thread
 from collections import OrderedDict
+import traceback
 
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy(object):
@@ -695,7 +696,9 @@ class Deploy(object):
             common.pdsh( user, [osd], 'umount %s' % osd_device )
             common.pdsh( user, [osd], 'rm -rf %s' % mounted_dir )
         except:
-            pass
+            err_log = traceback.format_exc()
+            common.printout("ERROR", "%s" % err_log)
+            common.printout("ERROR", "mount_list is " % mount_list)
         common.pdsh( user, [osd], 'mkfs.xfs %s %s' % (mkfs_opts, osd_device), option="console")
         osd_filedir = osd_filename.replace("$id", str(osd_num))
         common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
