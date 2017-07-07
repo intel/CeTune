@@ -359,7 +359,7 @@ class Benchmark(object):
         client_num = 0
         self.cluster["testjob_distribution"] = {}
         for client in self.cluster["client"]:
-            vclient_total = int(disk_num_per_client[client_num])
+            vclient_total = int(disk_num_per_client[client_num]) if client_num < len(disk_num_per_client) else int(disk_num_per_client[-1])
             end_vclient_num = start_vclient_num + vclient_total
             self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
             start_vclient_num = end_vclient_num
