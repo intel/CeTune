@@ -145,6 +145,13 @@ class Config():
             for key, value in res.items():
                 if value == "":
                     value = '""'
+                if key == "disk_num_per_client" and "list_client" in self.conf_data:
+                    if len(res["list_client"].split(',')) != len(res["disk_num_per_client"].split(',')):
+                        diff = len(res["list_client"].split(',')) - len(res["disk_num_per_client"].split(','))
+                        if diff > 0:
+                            res["disk_num_per_client"] = res["disk_num_per_client"] + (','+res["list_client"].split(',')[-1]) * diff
+                        else:
+                            res["disk_num_per_client"] = res["list_client"].split(',')[0:diff]
                 line_list.append("%s=%s" % (key, value))
         #print "\n".join(line_list)
         with open(output, 'w') as f:
