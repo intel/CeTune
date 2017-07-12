@@ -398,7 +398,9 @@ class Analyzer:
         tmp_data["IOPS"] = 0
         tmp_data["BW(MB/s)"] = 0
         tmp_data["Latency(ms)"] = 0
+        tmp_data["95.00th%_lat(ms)"] = 0
         tmp_data["99.00th%_lat(ms)"] = 0
+        tmp_data["99.99th%_lat(ms)"] = 0
         tmp_data["SN_IOPS"] = 0
         tmp_data["SN_BW(MB/s)"] = 0
         tmp_data["SN_Latency(ms)"] = 0
@@ -412,6 +414,8 @@ class Analyzer:
             write_BW = 0
             write_Latency = 0
             max_lat = 0
+            max_lat_95 = 0
+            max_lat_99 = 0
             for engine_candidate in data["workload"].keys():
                 if engine_candidate in benchmark_tool:
                     engine = engine_candidate
@@ -423,7 +427,9 @@ class Analyzer:
                 write_IOPS += float(node_data["write_iops"])
                 write_BW += float(node_data["write_bw"])
                 write_Latency += float(node_data["write_lat"])
-                max_lat += float(node_data["99.00th%_lat"])
+                max_lat_95 += float(node_data["95.00th%_lat"])
+                max_lat_99 += float(node_data["99.00th%_lat"])
+                max_lat += float(node_data["99.99th%_lat"])
             if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
                 tmp_data["IOPS"] = "%.3f" % read_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % read_BW
@@ -440,7 +446,9 @@ class Analyzer:
                 if rbd_count > 0:
                     tmp_data["Latency(ms)"] = "%.3f, %.3f" % ((read_Latency/rbd_count), (write_Latency/rbd_count))
             if rbd_count > 0:
-                tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
+                tmp_data["95.00th%_lat(ms)"] = "%.3f" % (max_lat_95/rbd_count)
+                tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_lat_99/rbd_count)
+                tmp_data["99.99th%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
         except:
             pass
         read_SN_IOPS = 0
