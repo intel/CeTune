@@ -501,9 +501,10 @@ def remove_unit(data):
 
 def size_to_Kbytes(size, dest_unit='KB', arg=1024.0):
     if not str(size).isdigit():
-        res = re.search('(\d+\.*\d*)\s*(\D*)',size)
+        size_s = size.replace('\n','')
+        res = re.search('(\d+\.*\d*)\s*(\D*)',size_s)
         space_num = float(res.group(1))
-        space_unit = res.group(2)
+        space_unit = res.group(2).strip()
         if space_unit == "":
             space_unit = 'B'
     else:
@@ -551,6 +552,15 @@ def unique_extend( list_data, new_list ):
         if data not in list_data:
             list_data.append( data )
     return list_data
+
+def get_total( data ):
+    total = 0
+    if isinstance(data, list):
+        total = len(data)
+    elif isinstance(data, dict):
+        for key, value in data.items():
+            total += get_total(value)
+    return total
 
 def read_file_after_stamp(path, stamp = None):
     lines = []

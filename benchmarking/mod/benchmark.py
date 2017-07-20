@@ -5,6 +5,7 @@ import os, sys
 import time
 import re
 import uuid
+import traceback
 from analyzer import *
 lib_path = ( os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -71,7 +72,8 @@ class Benchmark(object):
                 except:
                     common.printout("ERROR","analyzer failed, pls try cd analyzer; python analyzer.py --path %s process_data " % self.cluster["dest_dir"],log_level="LVL1")
         except:
-            common.printout("ERROR","The test has been stopped.",log_level="LVL1")
+            err_log = traceback.format_exc()
+            common.printout("ERROR","The test has been stopped, error_log: %s." % err_log,log_level="LVL1")
 
     def create_image(self, volume_count, volume_size, poolname):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
@@ -79,8 +81,8 @@ class Benchmark(object):
         controller =  self.cluster["head"]
         rbd_list = self.get_rbd_list(poolname)
         need_to_create = 0
-        if not len(rbd_list) >= int(volume_count):
-            need_to_create = int(volume_count) - len(rbd_list)
+        if not common.get_total(rbd_list) >= int(volume_count):
+            need_to_create = int(volume_count) - common.get_total(rbd_list)
         if need_to_create != 0:
             for i in range(0, need_to_create):
                 volume = 'volume-%s' % str(uuid.uuid4())
@@ -91,16 +93,19 @@ class Benchmark(object):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user =  self.cluster["user"]
         controller =  self.cluster["head"]
-        stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % poolname, option="check_return")
-        if stderr:
-            common.printout("ERROR","unable get rbd list, return msg: %s" % stderr,log_level="LVL1")
-            #sys.exit()
-        res = common.format_pdsh_return(stdout)
-        if res != {}:
-            rbd_list_tmp = (res[controller]).split()
-        else:
-            rbd_list_tmp = []
-        return rbd_list_tmp
+        ret = {}
+        for pool_name in poolname.split(':'):
+            stdout, stderr = common.pdsh(user, [controller], "rbd ls -p %s" % pool_name, option="check_return")
+            if stderr:
+                common.printout("ERROR","unable get rbd list, return msg: %s" % stderr,log_level="LVL1")
+                #sys.exit()
+            res = common.format_pdsh_return(stdout)
+            if res != {}:
+                rbd_list_tmp = res[controller].split()
+            else:
+                rbd_list_tmp = []
+            ret[pool_name] = rbd_list_tmp
+        return ret
 
     def after_run(self):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
@@ -355,36 +360,79 @@ class Benchmark(object):
 
     def testjob_distribution(self, disk_num_per_client, instance_list):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
-        start_vclient_num = 0
-        client_num = 0
         self.cluster["testjob_distribution"] = {}
-        for client in self.cluster["client"]:
-            vclient_total = int(disk_num_per_client[client_num])
-            end_vclient_num = start_vclient_num + vclient_total
-            self.cluster["testjob_distribution"][client] = copy.deepcopy(instance_list[start_vclient_num:end_vclient_num])
-            start_vclient_num = end_vclient_num
-            client_num += 1
+        total_disk = 0
+        workload_engine = "fiorbd"
+        tmp_instance_list = {}
+        if isinstance( instance_list, list ):
+            tmp_instance_list["vclient"] = instance_list
+            workload_engine = "qemu"
+        else:
+            tmp_instance_list = instance_list
+        for disk_num in disk_num_per_client:
+            total_disk += int(disk_num)
+        for pool_name in tmp_instance_list.keys():
+            start_vclient_num = 0
+            end_vclient_num = 0
+            client_num = 0
+            for client in self.cluster["client"]:
+                vclient_total = (int(disk_num_per_client[client_num])/total_disk) * len(tmp_instance_list[pool_name])
+                end_vclient_num = start_vclient_num + vclient_total
+                if workload_engine != "qemu":
+                    if client not in self.cluster["testjob_distribution"]:
+                        self.cluster["testjob_distribution"][client] = {}
+                    self.cluster["testjob_distribution"][client][pool_name] = copy.deepcopy(tmp_instance_list[pool_name][start_vclient_num:end_vclient_num])
+                else:
+                    self.cluster["testjob_distribution"][client] = copy.deepcopy(tmp_instance_list[pool_name][start_vclient_num:end_vclient_num])
+                start_vclient_num = end_vclient_num
+                client_num += 1
+        print self.cluster["testjob_distribution"]
 
     def cal_run_job_distribution(self):
-         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
-         number = int(self.benchmark["instance_number"])
-         client_total = len(self.cluster["client"])
-         if (number % client_total) > 0:
-              volume_max_per_client = number / client_total + 1
-         else:
-              volume_max_per_client = number / client_total
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
+        client_total = len(self.cluster["client"])
+        self.benchmark["distribution"] = {}
+        workload_engine = "fiorbd"
 
-         self.benchmark["distribution"] = {}
-         remained_instance_num = number
-         for client in self.cluster["testjob_distribution"]:
-             if not remained_instance_num:
-                 break
-             if remained_instance_num < volume_max_per_client:
-                 volume_num_upper_bound = remained_instance_num
-             else:
-                 volume_num_upper_bound = volume_max_per_client
-             self.benchmark["distribution"][client] = copy.deepcopy(self.cluster["testjob_distribution"][client][:volume_num_upper_bound])
-             remained_instance_num = remained_instance_num - volume_num_upper_bound
+        for client in self.cluster["client"]:
+            volume_count_per_pool = {}
+            pool_id = 0
+            tmp_testjob_distribution = {}
+            instance_num_per_pool = self.benchmark["instance_number"].split(":")
+            if isinstance( self.cluster["testjob_distribution"][client], list ):
+                tmp_testjob_distribution["vclient"] = self.cluster["testjob_distribution"][client]
+                workload_engine = "qemu"
+            else:
+                tmp_testjob_distribution = self.cluster["testjob_distribution"][client]
+            for pool_name in tmp_testjob_distribution.keys():
+                volume_count_per_pool[pool_name] = {"volume_max_per_client":0, "remained_instance_num": 0}
+                if pool_id < len(instance_num_per_pool):
+                    number = int(instance_num_per_pool[pool_id])
+                pool_id += 1
+                #use old number
+                volume_count_per_pool[pool_name]["remained_instance_num"] = number
+                if (number % client_total) > 0:
+                    volume_count_per_pool[pool_name]["volume_max_per_client"] = number / client_total + 1
+                else:
+                    volume_count_per_pool[pool_name]["volume_max_per_client"] = number / client_total
+   
+            for pool_name in tmp_testjob_distribution.keys():
+                remained_instance_num = volume_count_per_pool[pool_name]["remained_instance_num"]
+                volume_max_per_client = volume_count_per_pool[pool_name]["volume_max_per_client"]
+                if not remained_instance_num:
+                    break
+                if remained_instance_num < volume_max_per_client:
+                    volume_num_upper_bound = remained_instance_num
+                else:
+                    volume_num_upper_bound = volume_max_per_client
+                if workload_engine != "qemu":
+                    if client not in self.benchmark["distribution"]:
+                        self.benchmark["distribution"][client] = {}
+                    self.benchmark["distribution"][client][pool_name] = copy.deepcopy(tmp_testjob_distribution[pool_name][:volume_num_upper_bound])
+                else:
+                    self.benchmark["distribution"][client] = copy.deepcopy(tmp_testjob_distribution[pool_name][:volume_num_upper_bound])
+                remained_instance_num = remained_instance_num - volume_num_upper_bound
+        print self.benchmark["distribution"]
 
     def check_fio_pgrep(self, nodes, fio_node_num = 1, check_type="jobnum"):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")

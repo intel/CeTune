@@ -282,7 +282,7 @@ class Analyzer:
         output_sort = OrderedDict()
         output_sort["summary"] = OrderedDict()
         monitor_interval = int(self.cluster["monitor_interval"])
-        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
+        res = re.search('^(\d+)-([^-]+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-([^-]+)$',data["session_name"])
         if not res:
             return output_sort
         rampup = int(res.group(8))
@@ -389,7 +389,8 @@ class Analyzer:
         # generate summary
         benchmark_tool = ["fio", "cosbench", "vdbench"]
         data["summary"]["run_id"] = {}
-        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
+        redata = data["session_name"]
+        res = re.search('^(\d+)-([^-]+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-([^-]+)$', redata)
         if not res:
             common.printout("ERROR", "Unable to get result infomation")
             return data
@@ -463,7 +464,8 @@ class Analyzer:
                 tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_lat_99/rbd_count)
                 tmp_data["99.99th%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
         except:
-            pass
+            err_log = traceback.format_exc()
+            common.printout("ERROR","%s" % err_log)
         read_SN_IOPS = 0
         read_SN_BW = 0
         read_SN_Latency = 0

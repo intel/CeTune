@@ -257,6 +257,7 @@ function Report_Timer(init){
              detailReport = detailReport.replace(/src=["'].\/include\/pic\/(\S*).png["']/g,'attr="$1"');
              detailReport = detailReport.replace(/<script>.*<\/script>/,'');
              //style='max-width:100px; overflow:hidden; white-space: nowrap; text-overflow:ellipsis;
+         session_name = session_name.replace(/:/g,'_');
 		     var appendHtml = "<li id='menu_li_"+session_name+"' class='li_add_menu_class' padding-right:10px;' title='"+session_name+"'>";
 			 var str;
 		     if(session_name.length >= 4){
