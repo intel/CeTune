@@ -1154,7 +1154,6 @@ class WorkPool:
                 time.sleep(1)
                 continue
             res = self.process_return_val_queue.get()
-            self.inflight_process_count -= 1
             self.common.printout("LOG", "Updating on %s" % res[0])
             if res[0] == "process_smartinfo_data":
                 self.result.update(res[1])
@@ -1184,6 +1183,8 @@ class WorkPool:
                         self.workload_result[dir_name] = OrderedDict()
                     self.workload_result[dir_name][key] = value
             self.common.printout("LOG","%d inflight_processes remain." % self.inflight_process_count)
+            self.common.printout("LOG","current result has keys: %s." % str(self.result.keys()))
+            self.inflight_process_count -= 1
         self.queue_check = False
 
     def enqueue_data(self, data):

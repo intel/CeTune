@@ -289,7 +289,7 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
 
 def bash(command, force=False, option="", nodie=False,loglevel = "LVL3"):
     args = ['bash', '-c', command]
-    printout("CONSOLE", args, screen=False)
+    #printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = []
@@ -302,9 +302,10 @@ def bash(command, force=False, option="", nodie=False,loglevel = "LVL3"):
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     if stdout:
-        printout("CONSOLE", stdout, screen=False,log_level=loglevel)
+        #printout("CONSOLE", stdout, screen=False,log_level=loglevel)
+        printout("CONSOLE", "cmdline: %s, return_code: %s\n" % (args, str(returncode)), screen=False,log_level=loglevel)
     if stderr:
-        printout("CONSOLE", stderr, screen=False,log_level=loglevel)
+        printout("CONSOLE", "cmdline: %s, error_code: %s\n" % (args,  stderr), screen=False,log_level=loglevel)
 
     if force:
         return [stdout, stderr]
