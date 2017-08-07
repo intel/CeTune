@@ -17,17 +17,18 @@ import struct
 from collections import OrderedDict
 import argparse
 
-cetune_log_file = "../conf/cetune_process.log"
-cetune_error_file = "../conf/cetune_error.log"
+#cetune_log_file = "../conf/cetune_process.log"
+#cetune_error_file = "../conf/cetune_error.log"
 cetune_console_file = "../conf/cetune_console.log"
+#cetune_log_file = "../log/cetune_process_log_file.log"
+#cetune_error_file = "../log/cetune_error_log_file.log"
 case_conf_file = "../conf/cases.conf"
 tuner_yaml_file = "../conf/tuner.yaml"
 cetune_python_log_file = "../log/cetune_python_log_file.log"
 cetune_python_error_log_file = "../log/cetune_python_error_log_file.log"
-cetune_console_log_file = "../log/cetune_console_log_file.log"
 cetune_process_log_file = "../log/cetune_process_log_file.log"
 cetune_error_log_file = "../log/cetune_error_log_file.log"
-cetune_operate_log_file = "../log/cetune_operate_log_file.log"
+#cetune_operate_log_file = "../log/cetune_operate_log_file.log"
 no_die = False
 
 class bcolors:
@@ -143,21 +144,13 @@ def cetune_log_collecter(func):
             output = "[%s][%s]: %s" % (log_level,level,content)
             with open(cetune_python_error_log_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        if log_level in ["LVL1","LVL3"]:
-            output = "[%s][%s]: %s" % (log_level,level,content)
-            with open(cetune_console_log_file, "a+") as f:
-                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        if log_level in ["LVL2","LVL4"]:
+        if log_level in ["LVL2","LVL4","LVL6"]:
             output = "[%s][%s]: %s" % (log_level,level,content)
             with open(cetune_python_log_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if log_level in ["LVL1","LVL2","LVL3"]:
             output = "[%s][%s]: %s" % (log_level,level,content)
             with open(cetune_process_log_file, "a+") as f:
-                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        if log_level in ["LVL6"]:
-            output = "[%s][%s]: %s" % (log_level,level,content)
-            with open(cetune_operate_log_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         return func(level, content, screen)
     return wrapper
@@ -166,33 +159,33 @@ def cetune_log_collecter(func):
 def printout(level, content, screen = True):
     if level == "ERROR":
         output = "[ERROR]: %s" % content
-        with open(cetune_error_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_error_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.FAIL + output + bcolors.ENDC
     if level == "LOG":
         output = "[LOG]: %s" % content
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.OKGREEN + output + bcolors.ENDC
     if level == "WARNING":
         output = "[WARNING]: %s" % content
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.WARNING + output + bcolors.ENDC
     if level == "CONSOLE":
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))

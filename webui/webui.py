@@ -187,7 +187,7 @@ class monitor:
     def tail_console(self, timestamp=None):
         if timestamp == "undefined":
             timestamp = None
-        output = common.read_file_after_stamp("../conf/cetune_console.log", timestamp)
+        output = common.read_file_after_stamp(common.cetune_console_file, timestamp)
         res = {}
         if len(output) == 0:
             return json.dumps(res)
