@@ -319,8 +319,6 @@ class Analyzer:
                             output[field_type] = OrderedDict()
                         if data_group not in output[field_type]:
                             output[field_type][data_group] = OrderedDict()
-                        if node not in output[field_type][data_group]:
-                            output[field_type][data_group][node] = OrderedDict()
 
                         if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
                             try:
@@ -335,14 +333,29 @@ class Analyzer:
                                 runtime_start = runtime_start / monitor_interval
                                 runtime_end = runtime_end / monitor_interval
 
-                                for colume_name, colume_data in orgData.items():
-                                    if isinstance(colume_data, list):
-                                        colume_data = colume_data[runtime_start:runtime_end]
-                                    output[field_type][data_group][node][colume_name] = colume_data
                             except:
-                                output[field_type][data_group][node] = orgData
+                                runtime_start = 0
+                                runtime_end = -1
                         else:
-                            output[field_type][data_group][node] = orgData
+                            runtime_start = 0
+                            runtime_end = -1
+                        for colume_name, colume_data in orgData.items():
+                            if isinstance(colume_data, dict):
+                                output[field_type][data_group][node+"_"+colume_name] = OrderedDict()
+                                for sub_colume_name, sub_colume_data in colume_data.items():
+                                    if isinstance(colume_data, list):
+                                        sub_colume_data = sub_colume_data[runtime_start:runtime_end]
+                                    output[field_type][data_group][node+"_"+colume_name][sub_colume_name] = sub_colume_data
+
+                            elif isinstance(colume_data, list):
+                                colume_data = colume_data[runtime_start:runtime_end]
+                                if node not in output[field_type][data_group]:
+                                    output[field_type][data_group][node] = OrderedDict()
+                                output[field_type][data_group][node][colume_name] = colume_data
+                            else:    
+                                if node not in output[field_type][data_group]:
+                                    output[field_type][data_group][node] = OrderedDict()
+                                output[field_type][data_group][node][colume_name] = colume_data
 
             for key in sorted(output.keys()):
                 output_sort[node_type][key] = copy.deepcopy( output[key] )
@@ -819,15 +832,19 @@ class Analyzer:
                     cpu_core_dict[node_name+"_cpu_all"] = stdout
                 else:
                     cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
-            cpu_core_dict_new = common.format_cpu_core_data_to_list(cpu_core_dict)
+            cpu_core_dict_new = common.format_detail_data_to_list(cpu_core_dict)
             result["cpu"] = cpu_core_dict_new
             #2. memory
             stdout = common.bash( "grep 'kbmemfree' -m 1 "+path+" | awk -Fkbmemfree '{printf \"kbmenfree  \";print $2}'; grep \"kbmemfree\" -A 1 "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"kbmemfree\"){find=i;next;}}if(find!=0){for(j=find;j<=NF;j++)printf $j\"\"FS;find=0;print \"\"}}'" )
             result["memory"] = common.convert_table_to_2Dlist(stdout)
     
             #3. nic
-            stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";next}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'" )
-            result["nic"] = common.convert_table_to_2Dlist(stdout)
+            stdout = common.bash( "cat "+path+" | awk 'BEGIN{find=0;}{if(find==0){for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;lines=1;next}}}};if($j==\"rxerr/s\"){find=2;for(k=1;k<=lines;k++)printf res_arr[k]\"\"FS;}if(find==1){res_arr[lines]=$(j-1);lines=lines+1;}if(find==2)exit}'" )
+            nic_array = stdout.split();
+            result["nic"] = {}
+            for nic_id in nic_array:
+                stdout = common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find= 0;}{if(find==0){for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;next;}}}}if(find==1&&$j==\"rxerr/s\"){find=0;next}if(find==1 && $(j-1)==\""+nic_id+"\"){for(k=j;k<=NF;k++) printf $k\"\"FS; print \"\"}}'" )
+                result["nic"][nic_id] = common.convert_table_to_2Dlist(stdout)
     
             for tab in result.keys():
                 summary_data_dict = OrderedDict()

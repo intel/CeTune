@@ -429,10 +429,10 @@ def convert_table_to_2Dlist(table_str):
                 index += 1
     return res_dict
 
-def format_cpu_core_data_to_list(cpu_core_dict):
-    for key,value in cpu_core_dict.items():
-        cpu_core_dict[key] = convert_table_to_2Dlist(value)
-    return cpu_core_dict
+def format_detail_data_to_list(detail_data):
+    for key,value in detail_data.items():
+        detail_data[key] = convert_table_to_2Dlist(value)
+    return detail_data
 
 def check_if_adict_contains_bdict(adict, bdict):
     for key in bdict:
@@ -683,3 +683,15 @@ def parse_disk_format( disk_format_str ):
 
 def download_result( key ):
     return key
+
+def get_title_list( data ):
+    found = False
+    for key, value in data.items():
+        if isinstance(value, dict):
+            return get_title_list(value)
+        else:
+            found = True
+            break
+    if found:
+        return data.keys()
+
