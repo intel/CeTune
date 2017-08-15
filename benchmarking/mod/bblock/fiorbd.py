@@ -8,7 +8,7 @@ class FioRbd(Benchmark):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).load_parameter()
         self.cluster["rbdlist"] = self.get_rbd_list(self.benchmark["poolname"])
-        if len(self.cluster["rbdlist"]) < int(self.all_conf_data.get("rbd_volume_count")):
+        if common.get_total(self.cluster["rbdlist"]) < int(self.all_conf_data.get("rbd_volume_count")):
             self.prepare_images()
 
         disk_num_per_client = self.cluster["disk_num_per_client"]
@@ -22,7 +22,7 @@ class FioRbd(Benchmark):
         controller =  self.cluster["head"]
         rbd_count = self.all_conf_data.get("rbd_volume_count")
         rbd_size = self.all_conf_data.get("volume_size")
-        common.printout("LOG","Creating rbd volume")
+        common.printout("LOG","Preparing rbd volume")
         if rbd_count and rbd_size:
             super(self.__class__, self).create_image(rbd_count, rbd_size, self.benchmark["poolname"])
         else:
@@ -37,10 +37,11 @@ class FioRbd(Benchmark):
         clients = self.cluster["testjob_distribution"].keys()
         for client in self.cluster["testjob_distribution"]:
             common.scp(user, client, "../conf/fio_init.conf", dest_dir)
-            rbdlist = ' '.join(self.cluster["testjob_distribution"][client])
-            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --section init-write %s/fio_init.conf  & done" % (rbdlist, self.benchmark["poolname"], dest_dir), option = "force")
-            fio_job_num_total += len(self.cluster["testjob_distribution"][client])
-            common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
+            for pool_name in self.benchmark["poolname"].split(":"):
+                rbdlist = ' '.join(self.cluster["testjob_distribution"][client][pool_name])
+                common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.cluster["testjob_distribution"][client]), client))
+                res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --section init-write %s/fio_init.conf & done" % (rbdlist, pool_name, dest_dir), option = "force")
+                fio_job_num_total += len(self.cluster["testjob_distribution"][client][pool_name])
         time.sleep(1)
         if not self.check_fio_pgrep(clients, fio_job_num_total):
             common.printout("ERROR","Failed to start FIO process",log_level="LVL1")
@@ -98,9 +99,10 @@ class FioRbd(Benchmark):
         fio_job_num_total = 0
         poolname = self.benchmark["poolname"]
         for client in self.benchmark["distribution"]:
-            rbdlist = ' '.join(self.benchmark["distribution"][client])
-            res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, poolname, dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
-            fio_job_num_total += len(self.benchmark["distribution"][client])
+            for pool_name in poolname.split(":"):
+              rbdlist = ' '.join(self.benchmark["distribution"][client][pool_name])
+              res = common.pdsh(user, [client], "for rbdname in %s; do POOLNAME=%s RBDNAME=${rbdname} fio --output %s/`hostname`_${rbdname}_fio.txt --write_bw_log=%s/`hostname`_${rbdname}_fio --write_lat_log=%s/`hostname`_${rbdname}_fio --write_iops_log=%s/`hostname`_${rbdname}_fio --section %s %s/fio.conf 2>%s/`hostname`_${rbdname}_fio_errorlog.txt & done" % (rbdlist, pool_name, dest_dir, dest_dir, dest_dir, dest_dir, self.benchmark["section_name"], dest_dir, dest_dir), option = "force")
+              fio_job_num_total += len(self.benchmark["distribution"][client][pool_name])
         self.chkpoint_to_log("fio start")
         time.sleep(1)
         if not self.check_fio_pgrep(self.benchmark["distribution"].keys(), fio_job_num_total):
