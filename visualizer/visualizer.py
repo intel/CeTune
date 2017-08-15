@@ -335,15 +335,17 @@ class Visualizer:
             common.bash("mkdir -p %s"%(os.path.join(self.db_path,session_name,"include/csv")))
         csv_list = []
         title_row = []
-        title_row = data[data.keys()[0]][data[data.keys()[0]].keys()[0]].keys()
+        title_row = common.get_title_list(data)
         title_row.insert(0,'')
+        print title_row
         csv_list.append(title_row)
-        for key,value in data.items():
-            for detail_node, detail_data in value.items():
-                row = [detail_node]
-                for i in range(len(detail_data)):
-                    row.append(detail_data[title_row[i+1]])
-                csv_list.append(row)
+        for detail_node, detail_data in data.items():
+            row = [detail_node]
+            for title in title_row:
+                if len(title) == 0:
+                    continue
+                row.append(detail_data[title])
+            csv_list.append(row)
         file_name = "%s_%s_detail_data.csv"%(node_type,field_type)
         csv_path = os.path.join(self.db_path,session_name,"include/csv/",file_name)
         csvfile = file(csv_path, 'wb')

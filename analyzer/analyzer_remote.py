@@ -118,109 +118,6 @@ class Analyzer:
             self.result["vclient"].update(workload)
         return
 
-        # switch result format for visualizer
-        # desired format
-        '''
-         result = {
-             tab1: {
-                 table1: { 
-                     row1: {
-                         column1: [value], column2: [value] , ...
-                           }
-                     }
-                 }
-             },
-             tab2: {}
-             tab3: {}
-             ...
-             tabn: {}
-        }
-        '''
-        result = self.format_result_for_visualizer( self.result )
-        result = self.summary_result( result )
-        result["summary"]["Download"] = {"Configuration":{"URL":"<button class='cetune_config_button' href='../results/get_detail_zip?session_name=%s&detail_type=conf'><a>Click TO Download</a></button>" % self.result["session_name"]}}
-        node_ceph_version = {}
-        if self.collect_node_ceph_version(dest_dir):
-            for key,value in self.collect_node_ceph_version(dest_dir).items():
-                node_ceph_version[key] = {"ceph_version":value}
-        result["summary"]["Node"] = node_ceph_version
-        dest_dir = self.cluster["dest_dir_root"]
-        self.common.printout("LOG","Write analyzed results into result.json")
-        with open('%s/result.json' % dest_dir, 'w') as f:
-            json.dump(result, f, indent=4)
-        view = visualizer.Visualizer(result, dest_dir)
-        output = view.generate_summary_page()
-
-    def format_result_for_visualizer(self, data):
-        output_sort = OrderedDict()
-        output_sort["summary"] = OrderedDict()
-        monitor_interval = int(self.cluster["monitor_interval"])
-        res = re.search('^(\d+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\d+)-(\d+)-(\w+)$',data["session_name"])
-        if not res:
-            return output_sort
-        rampup = int(res.group(8))
-        runtime = int(res.group(9))
-        diskformat = self.common.parse_disk_format( self.cluster['diskformat'] )
-        phase_name_map_for_disk = {}
-        for typename in diskformat:
-            phase_name_map_for_disk[typename] = "iostat" 
-        phase_name_map = {"cpu": "sar", "memory": "sar", "nic": "sar", "vdisk": "iostat" }
-        phase_name_map.update( phase_name_map_for_disk )
-
-        for node_type in data.keys():
-            if not isinstance(data[node_type], dict):
-                output_sort[node_type] = data[node_type]
-                continue
-            if data[node_type] == {}:
-                continue
-            output = {}
-            output_sort[node_type] = OrderedDict()
-            for data_group in ["summary", "detail"]:
-                for node in sorted(data[node_type].keys()):
-                    for field_type in sorted(data[node_type][node].keys()):
-                        tmp_group = data_group if data[node_type][node][field_type].has_key(data_group) else "summary"
-                        if tmp_group != data_group:
-                            if field_type not in output:
-                                output[field_type] = {}
-                            output[field_type][data_group] = {}
-                            continue
-
-                        orgData = data[node_type][node][field_type][data_group] if data[node_type][node][field_type].has_key(data_group) else data[node_type][node][field_type]
-                        if field_type == "phase":
-                            continue
-                        if field_type not in output:
-                            output[field_type] = OrderedDict()
-                        if data_group not in output[field_type]:
-                            output[field_type][data_group] = OrderedDict()
-                        if node not in output[field_type][data_group]:
-                            output[field_type][data_group][node] = OrderedDict()
-
-                        if "phase" in data[node_type][node].keys() and field_type in phase_name_map.keys():
-                            try:
-                                start = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_start"])
-                                end = int(data[node_type][node]["phase"][phase_name_map[field_type]]["benchmark_stop"])
-                                benchmark_active_time = end - start
-                                if benchmark_active_time > (rampup + runtime) or end <= 0:
-                                    runtime_end = start + rampup + runtime
-                                else:
-                                    runtime_end = end
-                                runtime_start = start + rampup
-                                runtime_start = runtime_start / monitor_interval
-                                runtime_end = runtime_end / monitor_interval
-
-                                for colume_name, colume_data in orgData.items():
-                                    if isinstance(colume_data, list):
-                                        colume_data = colume_data[runtime_start:runtime_end]
-                                    output[field_type][data_group][node][colume_name] = colume_data
-                            except:
-                                output[field_type][data_group][node] = orgData
-                        else:
-                            output[field_type][data_group][node] = orgData
-
-            for key in sorted(output.keys()):
-                output_sort[node_type][key] = copy.deepcopy( output[key] )
-        return output_sort
-
     def get_execute_time(self):
         dest_dir = self.dest_dir
         cf = config.Config(dest_dir+"/conf/all.conf")
@@ -682,7 +579,7 @@ class Analyzer:
                     cpu_core_dict[node_name+"_cpu_all"] = stdout
                 else:
                     cpu_core_dict[node_name+"_cpu_"+str(line-1)] = stdout
-            cpu_core_dict_new = self.common.format_cpu_core_data_to_list(cpu_core_dict)
+            cpu_core_dict_new = self.common.format_detail_data_to_list(cpu_core_dict)
             result["cpu"] = cpu_core_dict_new
     
             #2. memory
@@ -690,8 +587,12 @@ class Analyzer:
             result["memory"] = self.common.convert_table_to_2Dlist(stdout)
     
             #3. nic
-            stdout = self.common.bash("grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find=0;}{for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==    \"rxpck/s\"){find=1;start_col=j;col=NF;for(k=1;k<=col;k++){res_arr[k]=0;}next};if($j==\"rxerr/s\"){find=0;for(k=start_col;k<=col;k++)printf res_arr[k]\"\"FS; print \"\";ne    xt}}if($i==\"lo\")next;if(find){res_arr[i]+=$i}}}'")
-            result["nic"] = self.common.convert_table_to_2Dlist(stdout)
+            stdout = self.common.bash( "cat "+path+" | awk 'BEGIN{find=0;}{if(find==0){for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;lines=1;next}}}};if($j==\"rxerr/s\"){find=2;for(k=1;k<=lines;k++)printf res_arr[k]\"\"FS;}if(find==1){res_arr[lines]=$(j-1);lines=lines+1;}if(find==2)exit}'" )
+            nic_array = stdout.split();
+            result["nic"] = {}
+            for nic_id in nic_array:
+                stdout = self.common.bash( "grep 'IFACE' -m 1 "+path+" | awk -FIFACE '{print $2}'; cat "+path+" | awk 'BEGIN{find= 0;}{if(find==0){for(i=1;i<=NF;i++){if($i==\"IFACE\"){j=i+1;if($j==\"rxpck/s\"){find=1;next;}}}}if(find==1&&$j==\"rxerr/s\"){find=0;next}if(find==1 && $(j-1)==\""+nic_id+"\"){for(k=j;k<=NF;k++) printf $k\"\"FS; print \"\"}}'" )
+                result["nic"][nic_id] = self.common.convert_table_to_2Dlist(stdout)
     
             for tab in result.keys():
                 summary_data_dict = OrderedDict()
