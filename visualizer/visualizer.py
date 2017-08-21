@@ -337,7 +337,6 @@ class Visualizer:
         title_row = []
         title_row = common.get_title_list(data)
         title_row.insert(0,'')
-        print title_row
         csv_list.append(title_row)
         for detail_node, detail_data in data.items():
             row = [detail_node]
