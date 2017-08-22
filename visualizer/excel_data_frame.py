@@ -1,11 +1,21 @@
 import os
 import json
 
+def get_float(value):
+    try:
+        if isinstance(value, list):
+            return float(value[0])
+        else:
+            return float(value)
+    except:
+        return 0
+
 class ExcelDataFrame:
     def __init__(self, cases, storeType):
-        self.cases = cases
+        self.cases = {}
+        for case in cases:
+            self.cases[case] = self.GetDataObj(case)
         self.storeType = storeType
-        self.dataObj = {}
 
     def GetDataObj(self, case):
         dataPath = os.path.join(case,"result.json")
@@ -13,33 +23,76 @@ class ExcelDataFrame:
             with open(dataPath) as dataFile:
                 return json.load(dataFile)
 
+    def GetExcelData(self):
+        e_table_data = self.GetETables()
+        return [e_table_data, self.GetExtTables(e_table_data)]
+
     def GetETables(self):
-        if self.storeType == "fileStore":
-            eTables = [[["runcase","title"]],[["","subtitle_b"]],[["Throughput","subtitle_b"]],[["FIO_IOPS","sstitle"]],[["FIO_BW","sstitle"]],[["FIO_Latency","sstitle"]],[["Throughput_avg","subtitle_b"]],[["FIO_IOPS","sstitle"]],[["FIO_BW","sstitle"]],[["FIO_Latency","sstitle"]],
-                      [["CPU","subtitle_b"]],[["sar all user%","sstitle"]],[["sar all kernel%","sstitle"]],[["sar all iowait%","sstitle"]],[["sar all soft%","sstitle"]],[["sar all idle%","sstitle"]],
-                      [["AVG_IOPS_Journal","subtitle_b"]],[["r/s","sstitle"]],[["w/s","sstitle"]],[["rMB/s","sstitle"]],[["wMB/s","sstitle"]],[["avgrq-sz","sstitle"]],[["avgqu-sz","sstitle"]],[["await","sstitle"]],[["svtcm","sstitle"]],[["%util","sstitle"]],
-                      [["AVG_IOPS_OSD","subtitle_b"]],[["r/s","sstitle"]],[["w/s","sstitle"]],[["rMB/s","sstitle"]],[["wMB/s","sstitle"]],[["avgrq-sz","sstitle"]],[["avgqu-sz","sstitle"]],[["await","sstitle"]],[["svtcm","sstitle"]],[["%util","sstitle"]],
-                      [["Memory","subtitle_b"]],[["kbmemfree","sstitle"]],[["kbmemused","sstitle"]],[["%memused","sstitle"]],
-                      [["NIC","subtitle_b"]],[["rxpck/s","sstitle"]],[["txpck/s","sstitle"]],[["rxkB/s","sstitle"]],[["txkB/s","sstitle"]]]
-            for case in self.cases:
-                self.dataObj = self.GetDataObj(case)
+        eTables = [[["runcase","title"]],
+                  [""],
+                  [["Throughput","subtitle_b"]],
+                  [["FIO_IOPS","sstitle"]],
+                  [["FIO_BW","sstitle"]],
+                  [["FIO_Latency","sstitle"]],
+                  [["Throughput_avg","subtitle_b"]],
+                  [["FIO_IOPS","sstitle"]],
+                  [["FIO_BW","sstitle"]],
+                  [["FIO_Latency","sstitle"]],
+                  [["CPU","subtitle_b"]],
+                  [["sar all user%","sstitle"]],
+                  [["sar all kernel%","sstitle"]],
+                  [["sar all iowait%","sstitle"]],
+                  [["sar all soft%","sstitle"]],
+                  [["sar all idle%","sstitle"]],
+                  [["AVG_IOPS_OTHER","subtitle_b"]],
+                  [["r/s","sstitle"]],
+                  [["w/s","sstitle"]],
+                  [["rMB/s","sstitle"]],
+                  [["wMB/s","sstitle"]],
+                  [["avgrq-sz","sstitle"]],
+                  [["avgqu-sz","sstitle"]],
+                  [["await","sstitle"]],
+                  [["svtcm","sstitle"]],
+                  [["%util","sstitle"]],
+                  [["AVG_IOPS_OSD","subtitle_b"]],
+                  [["r/s","sstitle"]],
+                  [["w/s","sstitle"]],
+                  [["rMB/s","sstitle"]],
+                  [["wMB/s","sstitle"]],
+                  [["avgrq-sz","sstitle"]],
+                  [["avgqu-sz","sstitle"]],
+                  [["await","sstitle"]],
+                  [["svtcm","sstitle"]],
+                  [["%util","sstitle"]],
+                  [["Memory","subtitle_b"]],
+                  [["kbmemfree","sstitle"]],
+                  [["kbmemused","sstitle"]],
+                  [["%memused","sstitle"]],
+                  [["NIC","subtitle_b"]],
+                  [["rxpck/s","sstitle"]],
+                  [["txpck/s","sstitle"]],
+                  [["rxkB/s","sstitle"]],
+                  [["txkB/s","sstitle"]]]
+        if self.storeType == "filestore":
+            for case, case_data in self.cases.items():
+                self.dataObj = case_data
                 eTables[0].append(case)
                 eTables[1].extend(["ceph", "vclient", "client"])
                 eTables[2].extend([["from iostat","rtitle"], ["from FIO","rtitle"], ["from iostat","rtitle_b"]])
                 eTables[3].extend([self.cal_Throughput_FIO_IOPS_ceph(case), self.cal_Throughput_FIO_IOPS_vclient(case), ""])
                 eTables[4].extend([self.cal_Throughput_FIO_BW_ceph(case), self.cal_Throughput_FIO_BW_vclient(case), ""])
                 eTables[5].extend([self.cal_Throughput_FIO_Latency_ceph(case), self.cal_Throughput_FIO_Latency_vclient(case), ""])
-                eTables[6].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[6].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[7].extend([self.cal_ThroughputAvg_FIO_IOPS_ceph(case), self.cal_ThroughputAvg_FIO_IOPS_vclient(case), ""])
                 eTables[8].extend([self.cal_ThroughputAvg_FIO_BW_ceph(case), self.cal_ThroughputAvg_FIO_BW_vclient(case), ""])
                 eTables[9].extend([self.cal_ThroughputAvg_FIO_Latency_ceph(case), self.cal_ThroughputAvg_FIO_Latency_vclient(case), ""])
-                eTables[10].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[10].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[11].extend([self.cal_CPU_user_ceph(case), self.cal_CPU_user_vclient(case), self.cal_CPU_user_client(case)])
                 eTables[12].extend([self.cal_CPU_kernel_ceph(case), self.cal_CPU_kernel_vclient(case), self.cal_CPU_kernel_client(case)])
                 eTables[13].extend([self.cal_CPU_iowait_ceph(case), self.cal_CPU_iowait_vclient(case), self.cal_CPU_iowait_client(case)])
                 eTables[14].extend([self.cal_CPU_soft_ceph(case), self.cal_CPU_soft_vclient(case), self.cal_CPU_soft_client(case)])
                 eTables[15].extend([self.cal_CPU_idle_ceph(case), self.cal_CPU_idle_vclient(case), self.cal_CPU_idle_client(case)])
-                eTables[16].extend([["SSD","rtitle"], ["vclient_total","rtitle"], ["client_total","rtitle_b"]])
+                eTables[16].extend([["Journal","rtitle"], ["vclient_total","rtitle"], ["client_total","rtitle_b"]])
                 eTables[17].extend([self.cal_AVG_IOPS_Journal_r_ceph(case), self.cal_AVG_IOPS_Journal_r_vclient(case), self.cal_AVG_IOPS_Journal_r_client(case)])
                 eTables[18].extend([self.cal_AVG_IOPS_Journal_w_ceph(case), self.cal_AVG_IOPS_Journal_w_vclient(case), self.cal_AVG_IOPS_Journal_w_client(case)])
                 eTables[19].extend([self.cal_AVG_IOPS_Journal_rMB_ceph(case), self.cal_AVG_IOPS_Journal_rMB_vclient(case), self.cal_AVG_IOPS_Journal_rMB_client(case)])
@@ -59,42 +112,36 @@ class ExcelDataFrame:
                 eTables[33].extend([self.cal_AVG_IOPS_OSD_await_ceph(case), self.cal_AVG_IOPS_OSD_await_vclient(case), self.cal_AVG_IOPS_OSD_await_client(case)])
                 eTables[34].extend([self.cal_AVG_IOPS_OSD_svtcm_ceph(case), self.cal_AVG_IOPS_OSD_svtcm_vclient(case), self.cal_AVG_IOPS_OSD_svtcm_client(case)])
                 eTables[35].extend([self.cal_AVG_IOPS_OSD_util_ceph(case), self.cal_AVG_IOPS_OSD_util_vclient(case), self.cal_AVG_IOPS_OSD_util_client(case)])
-                eTables[36].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[36].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[37].extend([self.cal_Memory_kbmemfree_ceph(case), self.cal_Memory_kbmemfree_vclient(case), self.cal_Memory_kbmemfree_client(case)])
                 eTables[38].extend([self.cal_Memory_kbmemused_ceph(case), self.cal_Memory_kbmemused_vclient(case), self.cal_Memory_kbmemused_client(case)])
                 eTables[39].extend([self.cal_Memory_memused_ceph(case), self.cal_Memory_memused_vclient(case), self.cal_Memory_memused_client(case)])
-                eTables[40].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[40].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[41].extend([self.cal_NIC_rxpck_ceph(case), self.cal_NIC_rxpck_vclient(case), self.cal_NIC_rxpck_client(case)])
                 eTables[42].extend([self.cal_NIC_txpck_ceph(case), self.cal_NIC_txpck_vclient(case), self.cal_NIC_txpck_client(case)])
                 eTables[43].extend([self.cal_NIC_rxkB_ceph(case), self.cal_NIC_rxkB_vclient(case), self.cal_NIC_rxkB_client(case)])
                 eTables[44].extend([self.cal_NIC_txkB_ceph(case), self.cal_NIC_txkB_vclient(case), self.cal_NIC_txkB_client(case)])
                     
-        elif self.storeType == "blueStore":
-            eTables = [[["runcase","title"]],[["","subtitle"]],[["Throughput","subtitle_b"]],[["FIO_IOPS","sstitle"]],[["FIO_BW","sstitle"]],[["FIO_Latency","sstitle"]],[["Throughput_avg_b","subtitle"]],[["FIO_IOPS","sstitle"]],[["FIO_BW","sstitle"]],[["FIO_Latency","sstitle"]],
-                      [["CPU","subtitle_b"]],[["sar all user%","sstitle"]],[["sar all kernel%","sstitle"]],[["sar all iowait%","sstitle"]],[["sar all soft%","sstitle"]],[["sar all idle%","sstitle"]],
-                      [["AVG_IOPS_Journal","subtitle_b"]],[["r/s","sstitle"]],[["w/s","sstitle"]],[["rMB/s","sstitle"]],[["wMB/s","sstitle"]],[["avgrq-sz","sstitle"]],[["avgqu-sz","sstitle"]],[["await","sstitle"]],[["svtcm","sstitle"]],[["%util","sstitle"]],
-                      [["AVG_IOPS_OSD","subtitle_b"]],[["r/s","sstitle"]],[["w/s","sstitle"]],[["rMB/s","sstitle"]],[["wMB/s","sstitle"]],[["avgrq-sz","sstitle"]],[["avgqu-sz","sstitle"]],[["await","sstitle"]],[["svtcm","sstitle"]],[["%util","sstitle"]],
-                      [["Memory","subtitle_b"]],[["kbmemfree","sstitle"]],[["kbmemused","sstitle"]],[["%memused","sstitle"]],
-                      [["NIC","subtitle_b"]],[["rxpck/s","sstitle"]],[["txpck/s","sstitle"]],[["rxkB/s","sstitle"]],[["txkB/s","sstitle"]]]
-            for case in self.cases:
-                self.dataObj = self.GetDataObj(case)
+        elif self.storeType == "bluestore":
+            for case, case_data in self.cases.items():
+                self.dataObj = case_data
                 eTables[0].append(case)
-                eTables[1].extend(["ceph", "vclient", "client"])
+                eTables[1].extend([["ceph","rtitle"], ["vclient","rtitle"], ["client","rtitle_b"]])
                 eTables[2].extend([["from iostat","rtitle"], ["from FIO","rtitle"], ["from iostat","rtitle_b"]])
                 eTables[3].extend([self.cal_Throughput_FIO_IOPS_ceph(case), self.cal_Throughput_FIO_IOPS_vclient(case), ""])
                 eTables[4].extend([self.cal_Throughput_FIO_BW_ceph(case), self.cal_Throughput_FIO_BW_vclient(case), ""])
                 eTables[5].extend([self.cal_Throughput_FIO_Latency_ceph(case), self.cal_Throughput_FIO_Latency_vclient(case), ""])
-                eTables[6].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[6].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[7].extend([self.cal_ThroughputAvg_FIO_IOPS_ceph(case), self.cal_Throughput_FIO_IOPS_vclient(case), ""])
                 eTables[8].extend([self.cal_ThroughputAvg_FIO_BW_ceph(case), self.cal_Throughput_FIO_BW_vclient(case), ""])
                 eTables[9].extend([self.cal_ThroughputAvg_FIO_Latency_ceph(case), self.cal_Throughput_FIO_Latency_vclient(case), ""])
-                eTables[10].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[10].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[11].extend([self.cal_CPU_user_ceph(case), self.cal_CPU_user_vclient(case), self.cal_CPU_user_client(case)])
                 eTables[12].extend([self.cal_CPU_kernel_ceph(case), self.cal_CPU_kernel_vclient(case), self.cal_CPU_kernel_client(case)])
                 eTables[13].extend([self.cal_CPU_iowait_ceph(case), self.cal_CPU_iowait_vclient(case), self.cal_CPU_iowait_client(case)])
                 eTables[14].extend([self.cal_CPU_soft_ceph(case), self.cal_CPU_soft_vclient(case), self.cal_CPU_soft_client(case)])
                 eTables[15].extend([self.cal_CPU_idle_ceph(case), self.cal_CPU_idle_vclient(case), self.cal_CPU_idle_client(case)])
-                eTables[16].extend([["SSD","rtitle"], ["vclient_total","rtitle"], ["client_total","rtitle_b"]])
+                eTables[16].extend([["WAL&DB","rtitle"], ["vclient_total","rtitle"], ["client_total","rtitle_b"]])
                 eTables[17].extend([self.cal_AVG_IOPS_Journal_r_ceph(case), self.cal_AVG_IOPS_Journal_r_vclient(case), self.cal_AVG_IOPS_Journal_r_client(case)])
                 eTables[18].extend([self.cal_AVG_IOPS_Journal_w_ceph(case), self.cal_AVG_IOPS_Journal_w_vclient(case), self.cal_AVG_IOPS_Journal_w_client(case)])
                 eTables[19].extend([self.cal_AVG_IOPS_Journal_rMB_ceph(case), self.cal_AVG_IOPS_Journal_rMB_vclient(case), self.cal_AVG_IOPS_Journal_rMB_client(case)])
@@ -114,26 +161,143 @@ class ExcelDataFrame:
                 eTables[33].extend([self.cal_AVG_IOPS_OSD_await_ceph(case), self.cal_AVG_IOPS_OSD_await_vclient(case), self.cal_AVG_IOPS_OSD_await_client(case)])
                 eTables[34].extend([self.cal_AVG_IOPS_OSD_svtcm_ceph(case), self.cal_AVG_IOPS_OSD_svtcm_vclient(case), self.cal_AVG_IOPS_OSD_svtcm_client(case)])
                 eTables[35].extend([self.cal_AVG_IOPS_OSD_util_ceph(case), self.cal_AVG_IOPS_OSD_util_vclient(case), self.cal_AVG_IOPS_OSD_util_client(case)])
-                eTables[36].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[36].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[37].extend([self.cal_Memory_kbmemfree_ceph(case), self.cal_Memory_kbmemfree_vclient(case), self.cal_Memory_kbmemfree_client(case)])
                 eTables[38].extend([self.cal_Memory_kbmemused_ceph(case), self.cal_Memory_kbmemused_vclient(case), self.cal_Memory_kbmemused_client(case)])
                 eTables[39].extend([self.cal_Memory_memused_ceph(case), self.cal_Memory_memused_vclient(case), self.cal_Memory_memused_client(case)])
-                eTables[40].extend([["","subtitle"], ["","subtitle"], ["","subtitle_b"]])
+                eTables[40].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
                 eTables[41].extend([self.cal_NIC_rxpck_ceph(case), self.cal_NIC_rxpck_vclient(case), self.cal_NIC_rxpck_client(case)])
                 eTables[42].extend([self.cal_NIC_txpck_ceph(case), self.cal_NIC_txpck_vclient(case), self.cal_NIC_txpck_client(case)])
                 eTables[43].extend([self.cal_NIC_rxkB_ceph(case), self.cal_NIC_rxkB_vclient(case), self.cal_NIC_rxkB_client(case)])
                 eTables[44].extend([self.cal_NIC_txkB_ceph(case), self.cal_NIC_txkB_vclient(case), self.cal_NIC_txkB_client(case)])
         return eTables
 
-    def GetExtTables(self):
+    def GetExtTables(self, r_table_data):
         result = []
-        for case in self.cases:
-            if self.storeType == "fileStore":
-                extTable = [[[case.split("-")[3], 16, 'title']], [["", 1, 'title'], ["CPU", 3, 'title'], ["Disk", 9, 'title'], ["Memory", 1, 'title'], ["NIC", 2, 'title']]]
-                extTable.append(["", "user%", "kernel%+soft%", "iowait%", "r/s", "w/s", "rMB/s", "wMB/s", "requsz", "queue-sz", "await", "svctm", "%util", "used%", "rxkB/s", "txkB/s"])
-                extTable.append(["Ceph", self.cal_CPU_user_ceph(case), self.cal_CPU_kenelsoft_ceph(case), self.cal_CPU_iowait_ceph(case), self.cal_AVG_IOPS_OSD_r_ceph(case), self.cal_AVG_IOPS_OSD_w_ceph(case), self.cal_AVG_IOPS_OSD_rMB_ceph(case), self.cal_AVG_IOPS_OSD_wMB_ceph(case), self.cal_AVG_IOPS_OSD_avgrqsz_ceph(case), self.cal_AVG_IOPS_OSD_avgqusz_ceph(case), self.cal_AVG_IOPS_OSD_await_ceph(case), self.cal_AVG_IOPS_OSD_svtcm_ceph(case), self.cal_AVG_IOPS_OSD_util_ceph(case), self.cal_Memory_memused_ceph(case), self.cal_NIC_rxkB_ceph(case), self.cal_NIC_txkB_ceph(case)])
-                extTable.append(["VM", self.cal_CPU_user_vclient(case), self.cal_CPU_kenelsoft_vclient(case), self.cal_CPU_iowait_vclient(case), self.cal_AVG_IOPS_OSD_r_vclient(case), self.cal_AVG_IOPS_OSD_w_vclient(case), self.cal_AVG_IOPS_OSD_rMB_vclient(case), self.cal_AVG_IOPS_OSD_wMB_vclient(case), self.cal_AVG_IOPS_OSD_avgrqsz_vclient(case), self.cal_AVG_IOPS_OSD_avgqusz_vclient(case), self.cal_AVG_IOPS_OSD_await_vclient(case), self.cal_AVG_IOPS_OSD_svtcm_vclient(case), self.cal_AVG_IOPS_OSD_util_vclient(case), self.cal_Memory_memused_vclient(case), self.cal_NIC_rxkB_vclient(case), self.cal_NIC_txkB_vclient(case)])
-                extTable.append(["Client", self.cal_CPU_user_client(case), self.cal_CPU_kenelsoft_client(case), self.cal_CPU_iowait_client(case), self.cal_AVG_IOPS_OSD_r_client(case), self.cal_AVG_IOPS_OSD_w_client(case), self.cal_AVG_IOPS_OSD_rMB_client(case), self.cal_AVG_IOPS_OSD_wMB_client(case), self.cal_AVG_IOPS_OSD_avgrqsz_client(case), self.cal_AVG_IOPS_OSD_avgqusz_client(case), self.cal_AVG_IOPS_OSD_await_client(case), self.cal_AVG_IOPS_OSD_svtcm_client(case), self.cal_AVG_IOPS_OSD_util_client(case), self.cal_Memory_memused_client(case), self.cal_NIC_rxkB_client(case), self.cal_NIC_txkB_client(case)])
+        for case, case_data in self.cases.items():
+            print case
+            extTable = [[[case.split("-")[3], 25, 'title']],
+                        [["", 1, 'title'],
+                         ["CPU", 3, 'title'],
+                         ["OTHER", 9, 'title'],
+                         ["DATA", 9, 'title'],
+                         ["Memory", 1, 'title'],
+                         ["NIC", 2, 'title']]]
+            extTable.append(["",
+                             "user%",
+                             "kernel%+soft%",
+                             "iowait%",
+                             "r/s",
+                             "w/s",
+                             "rMB/s",
+                             "wMB/s",
+                             "requsz",
+                             "queue-sz",
+                             "await",
+                             "svctm",
+                             "%util",
+                             "r/s",
+                             "w/s",
+                             "rMB/s",
+                             "wMB/s",
+                             "requsz",
+                             "queue-sz",
+                             "await",
+                             "svctm",
+                             "%util",
+                             "used%",
+                             "rxkB/s",
+                             "txkB/s"])
+            extTable.append(["Ceph", 
+                    get_float(r_table_data[11][1]),
+                    get_float(r_table_data[12][1])+get_float(r_table_data[14][1]),
+                    get_float(r_table_data[13][1]), 
+
+                    get_float(r_table_data[17][1]),
+                    get_float(r_table_data[18][1]),
+                    get_float(r_table_data[19][1]),
+                    get_float(r_table_data[20][1]),
+                    get_float(r_table_data[21][1]),
+                    get_float(r_table_data[22][1]),
+                    get_float(r_table_data[23][1]),
+                    get_float(r_table_data[24][1]),
+                    get_float(r_table_data[25][1]),
+
+                    get_float(r_table_data[27][1]),
+                    get_float(r_table_data[28][1]),
+                    get_float(r_table_data[29][1]),
+                    get_float(r_table_data[30][1]),
+                    get_float(r_table_data[31][1]),
+                    get_float(r_table_data[32][1]),
+                    get_float(r_table_data[33][1]),
+                    get_float(r_table_data[34][1]),
+                    get_float(r_table_data[35][1]),
+
+                    get_float(r_table_data[39][1]),
+
+                    get_float(r_table_data[43][1]),
+                    get_float(r_table_data[44][1])
+                    ])
+            extTable.append(["VM",
+                    get_float(r_table_data[11][2]), 
+                    get_float(r_table_data[12][2])+get_float(r_table_data[14][1]),
+                    get_float(r_table_data[13][2]),
+
+                    get_float(r_table_data[17][2]),
+                    get_float(r_table_data[18][2]),
+                    get_float(r_table_data[19][2]),
+                    get_float(r_table_data[20][2]),
+                    get_float(r_table_data[21][2]),
+                    get_float(r_table_data[22][2]),
+                    get_float(r_table_data[23][2]),
+                    get_float(r_table_data[24][2]),
+                    get_float(r_table_data[25][2]),
+                    
+                    get_float(r_table_data[27][2]),
+                    get_float(r_table_data[28][2]),
+                    get_float(r_table_data[29][2]),
+                    get_float(r_table_data[30][2]),
+                    get_float(r_table_data[31][2]),
+                    get_float(r_table_data[32][2]),
+                    get_float(r_table_data[33][2]),
+                    get_float(r_table_data[34][2]),
+                    get_float(r_table_data[35][2]),
+
+                    get_float(r_table_data[39][2]),
+
+                    get_float(r_table_data[43][2]),
+                    get_float(r_table_data[44][2])
+                    ])
+            extTable.append(["Client",
+                    get_float(r_table_data[11][3]), 
+                    get_float(r_table_data[12][3])+get_float(r_table_data[14][1]),
+                    get_float(r_table_data[13][3]),
+
+                    get_float(r_table_data[17][3]),
+                    get_float(r_table_data[18][3]),
+                    get_float(r_table_data[19][3]),
+                    get_float(r_table_data[20][3]),
+                    get_float(r_table_data[21][3]),
+                    get_float(r_table_data[22][3]),
+                    get_float(r_table_data[23][3]),
+                    get_float(r_table_data[24][3]),
+                    get_float(r_table_data[25][3]),
+                    
+                    get_float(r_table_data[27][3]),
+                    get_float(r_table_data[28][3]),
+                    get_float(r_table_data[29][3]),
+                    get_float(r_table_data[30][3]),
+                    get_float(r_table_data[31][3]),
+                    get_float(r_table_data[32][3]),
+                    get_float(r_table_data[33][3]),
+                    get_float(r_table_data[34][3]),
+                    get_float(r_table_data[35][3]),
+
+                    get_float(r_table_data[39][3]),
+
+                    get_float(r_table_data[43][3]),
+                    get_float(r_table_data[44][3])
+                    ])
             result.append(extTable)
         return result
 
