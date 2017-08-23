@@ -3,9 +3,9 @@ import excel_data_frame
 import os,sys
 import argparse
 
-def GenExcelFile(value, caseNum):
+def GenExcelFile(dest_dir, value, caseNum):
     eTables, extTables = value
-    dataFile = xlsxwriter.Workbook('summray.xlsx')
+    dataFile = xlsxwriter.Workbook('%s/summary.xlsx' % dest_dir)
     dataSheet = dataFile.add_worksheet(u'summary')
     for i,eRow in enumerate(eTables):
         for j,eCol in enumerate(eRow):
@@ -248,6 +248,9 @@ def main(args):
         '--path',nargs='*',
         )
     parser.add_argument(
+        '--dest_dir',
+        )
+    parser.add_argument(
         '--type',
         )
     parser.add_argument(
@@ -261,8 +264,14 @@ def main(args):
         benchType = args.bench_type
     else:    
         benchType = "fiorbd"
+    dest_dir = args.dest_dir
+    print dest_dir
+    if args.dest_dir != None:
+        dest_dir = args.dest_dir
+    else:    
+        dest_dir = "./"
     edf = excel_data_frame.ExcelDataFrame(cases, storeType, benchType)
-    GenExcelFile(edf.GetExcelData(), len(cases))
+    GenExcelFile( dest_dir, edf.GetExcelData(), len(cases))
 
 if __name__ == '__main__':
     import sys
