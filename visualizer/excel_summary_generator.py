@@ -6,7 +6,7 @@ import argparse
 def GenExcelFile(dest_dir, value, caseNum):
     eTables, extTables = value
     dataFile = xlsxwriter.Workbook('%s/summary.xlsx' % dest_dir)
-    dataSheet = dataFile.add_worksheet(u'summary')
+    dataSheet = dataFile.add_worksheet(u'Detail')
     for i,eRow in enumerate(eTables):
         for j,eCol in enumerate(eRow):
             if i == 0 and j > 0:
@@ -63,169 +63,179 @@ def getChart(fileObj, ci):
     #CPU char
     tmpChart1 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart1.add_series({
-        'name': ['summary', ci+1, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 1, 3, ci + 1, 5],
+        'name': ['Detail', ci+1, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 1, 3, ci + 1, 5],
     })
     tmpChart1.add_series({
-        'name': ['summary', ci+2, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 2, 3, ci + 2, 5],
+        'name': ['Detail', ci+2, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 2, 3, ci + 2, 5],
     })
     tmpChart1.add_series({
-        'name': ['summary', ci+3, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 3, 3, ci + 3, 5],
+        'name': ['Detail', ci+3, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 3, 3, ci + 3, 5],
     })
-    tmpChart1.set_title ({'name': ['summary', ci + 1, 7]}) 
+    tmpChart1.set_title ({'name': ['Detail', ci + 1, 7]}) 
     tmpChart1.set_y_axis({'name': 'ratio(100%)'})
     tmpChart1.set_style(12)
     tmpChart1.set_size({'width': 380, 'height': 300})
+    tmpChart1.set_legend({'position': 'bottom'})
     chars.append(tmpChart1)
     
     #MEM char
     tmpChart2 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart2.add_series({
-        'name': ['summary', ci + 22, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 22, 3, ci + 22, 5],
+        'name': ['Detail', ci + 22, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 22, 3, ci + 22, 5],
     })
-    tmpChart2.set_title ({'name': ['summary', ci + 22, 7]})
+    tmpChart2.set_title ({'name': ['Detail', ci + 22, 7]})
     tmpChart2.set_y_axis({'name': 'ratio(100%)'})
     tmpChart2.set_style(12)
     tmpChart2.set_size({'width': 380, 'height': 300})
+    tmpChart2.set_legend({'position': 'bottom'})
     chars.append(tmpChart2)
     
     #NIC char
     tmpChart3 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart3.add_series({
-        'name': ['summary', ci + 23, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 23, 3, ci + 23, 5],
+        'name': ['Detail', ci + 23, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 23, 3, ci + 23, 5],
     })
     tmpChart3.add_series({
-        'name': ['summary', ci + 24, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 24, 3, ci + 24, 5],
+        'name': ['Detail', ci + 24, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 24, 3, ci + 24, 5],
     })
-    tmpChart3.set_title ({'name': ['summary', ci + 23, 7]})
+    tmpChart3.set_title ({'name': ['Detail', ci + 23, 7]})
     tmpChart3.set_y_axis({'name': 'BandWidth(KB/s)'})
     tmpChart3.set_style(12)
     tmpChart3.set_size({'width': 380, 'height': 300})
+    tmpChart3.set_legend({'position': 'bottom'})
     chars.append(tmpChart3)
     
     #DISK(journal) char
     tmpChart4 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart4.add_series({
-        'name': ['summary', ci + 4, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 4, 3, ci + 4, 5],
+        'name': ['Detail', ci + 4, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 4, 3, ci + 4, 5],
     })
     tmpChart4.add_series({
-        'name': ['summary', ci + 5, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 5, 3, ci + 5, 5],
+        'name': ['Detail', ci + 5, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 5, 3, ci + 5, 5],
     })
     tmpChart5 = fileObj.add_chart({'type': 'line'})
     tmpChart5.add_series({
-        'name': ['summary', ci + 10, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 10, 3, ci + 10, 5],
+        'name': ['Detail', ci + 10, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 10, 3, ci + 10, 5],
         'marker': {'type': 'diamond'},
         'line':   {'width': 1.5},
+        'y2_axis':True,
     })
     tmpChart4.combine(tmpChart5)
-    tmpChart4.set_title ({'name': ['summary', ci + 4, 7]})
+    tmpChart4.set_title ({'name': ['Detail', ci + 4, 7]})
     tmpChart4.set_y_axis({'name': 'IOPS'})
-    tmpChart4.set_y2_axis({'name': 'Latency(ms)'})
+    tmpChart5.set_y2_axis({'name': 'Latency(ms)'})
     tmpChart4.set_style(12)
     tmpChart4.set_size({'width': 380, 'height': 300})
+    tmpChart4.set_legend({'position': 'bottom'})
     chars.append(tmpChart4)
     
     #DISK(journal) char BW
-    tmpChart7 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
-    tmpChart7.add_series({
-        'name': ['summary', ci + 6, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 6, 3, ci + 6, 5],
-    })
-    tmpChart7.add_series({
-        'name': ['summary', ci + 7, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 7, 3, ci + 7, 5],
-    })
-    tmpChart8 = fileObj.add_chart({'type': 'line'})
+    tmpChart8 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart8.add_series({
-        'name': ['summary', ci + 10, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 10, 3, ci + 10, 5],
+        'name': ['Detail', ci + 6, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 6, 3, ci + 6, 5],
+    })
+    tmpChart8.add_series({
+        'name': ['Detail', ci + 7, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 7, 3, ci + 7, 5],
+    })
+    tmpChart9 = fileObj.add_chart({'type': 'line'})
+    tmpChart9.add_series({
+        'name': ['Detail', ci + 10, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 10, 3, ci + 10, 5],
         'marker': {'type': 'diamond'},
         'line':   {'width': 1.5},
+        'y2_axis':True,
     })
-    tmpChart7.combine(tmpChart8)
-    tmpChart7.set_title ({'name': ['summary', ci + 4, 7]})
-    tmpChart7.set_y_axis({'name': 'BandWidth(MB/s)'})
-    tmpChart7.set_y2_axis({'name': 'Latency(ms)'})
-    tmpChart7.set_style(12)
-    tmpChart7.set_size({'width': 380, 'height': 300})
-    chars.append(tmpChart7)
+    tmpChart8.combine(tmpChart9)
+    tmpChart8.set_title ({'name': ['Detail', ci + 4, 7]})
+    tmpChart8.set_y_axis({'name': 'BandWidth(MB/s)'})
+    tmpChart9.set_y2_axis({'name': 'Latency(ms)'})
+    tmpChart8.set_style(12)
+    tmpChart8.set_size({'width': 380, 'height': 300})
+    tmpChart8.set_legend({'position': 'bottom'})
+    chars.append(tmpChart8)
     
     #DISK(OSD) char
-    tmpChart5 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
-    tmpChart5.add_series({
-        'name': ['summary', ci + 13, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 13, 3, ci + 13, 5],
-    })
-    tmpChart5.add_series({
-        'name': ['summary', ci + 14, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 14, 3, ci + 14, 5],
-    })
-    tmpChart6 = fileObj.add_chart({'type': 'line'})
+    tmpChart6 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart6.add_series({
-        'name': ['summary', ci + 19, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 19, 3, ci + 19, 5],
+        'name': ['Detail', ci + 13, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 13, 3, ci + 13, 5],
+    })
+    tmpChart6.add_series({
+        'name': ['Detail', ci + 14, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 14, 3, ci + 14, 5],
+    })
+    tmpChart7 = fileObj.add_chart({'type': 'line'})
+    tmpChart7.add_series({
+        'name': ['Detail', ci + 19, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 19, 3, ci + 19, 5],
         'marker': {'type': 'diamond'},
         'line':   {'width': 1.5},
+        'y2_axis':True,
     })
-    tmpChart5.combine(tmpChart6)
-    tmpChart5.set_title ({'name': ['summary', ci + 13, 7]})
-    tmpChart5.set_y_axis({'name': 'IOPS'})
-    tmpChart5.set_y2_axis({'name': 'Latency(ms)'})
-    tmpChart5.set_style(12)
-    tmpChart5.set_size({'width': 380, 'height': 300})
-    chars.append(tmpChart5)
+    tmpChart6.combine(tmpChart7)
+    tmpChart6.set_title ({'name': ['Detail', ci + 13, 7]})
+    tmpChart6.set_y_axis({'name': 'IOPS'})
+    tmpChart7.set_y2_axis({'name': 'Latency(ms)'})
+    tmpChart6.set_style(12)
+    tmpChart6.set_size({'width': 380, 'height': 300})
+    tmpChart6.set_legend({'position': 'bottom'})
+    chars.append(tmpChart6)
 
     #DISK(OSD) char BW
-    tmpChart9 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
-    tmpChart9.add_series({
-        'name': ['summary', ci + 15, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 15, 3, ci + 15, 5],
-    })
-    tmpChart9.add_series({
-        'name': ['summary', ci + 16, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 16, 3, ci + 16, 5],
-    })
-    tmpChart10 = fileObj.add_chart({'type': 'line'})
+    tmpChart10 = fileObj.add_chart({'type': 'column', 'subtype': 'stacked'})
     tmpChart10.add_series({
-        'name': ['summary', ci + 19, 2],
-        'categories': ['summary', ci, 3, ci, 5],
-        'values': ['summary', ci + 19, 3, ci + 19, 5],
+        'name': ['Detail', ci + 15, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 15, 3, ci + 15, 5],
+    })
+    tmpChart10.add_series({
+        'name': ['Detail', ci + 16, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 16, 3, ci + 16, 5],
+    })
+    tmpChart11 = fileObj.add_chart({'type': 'line'})
+    tmpChart11.add_series({
+        'name': ['Detail', ci + 19, 2],
+        'categories': ['Detail', ci, 3, ci, 5],
+        'values': ['Detail', ci + 19, 3, ci + 19, 5],
         'marker': {'type': 'diamond'},
         'line':   {'width': 1.5},
+        'y2_axis':True,
     })
-    tmpChart9.combine(tmpChart10)
-    tmpChart9.set_title ({'name': ['summary', ci + 13, 7]})
-    tmpChart9.set_y_axis({'name': 'Bandwidth(MB/s)'})
-    tmpChart9.set_y2_axis({'name': 'Latency(ms)'})
-    tmpChart9.set_style(12)
-    tmpChart9.set_size({'width': 380, 'height': 300})
-
-    chars.append(tmpChart9)
+    tmpChart10.combine(tmpChart11)
+    tmpChart10.set_title ({'name': ['Detail', ci + 13, 7]})
+    tmpChart10.set_legend({'position': 'bottom'})
+    tmpChart10.set_y_axis({'name': 'Bandwidth(MB/s)'})
+    tmpChart11.set_y2_axis({'name': 'Latency(ms)'})
+    tmpChart10.set_style(12)
+    tmpChart10.set_size({'width': 380, 'height': 300})
+    chars.append(tmpChart10)
     return chars
 
 def set_style(fileObj, name):
