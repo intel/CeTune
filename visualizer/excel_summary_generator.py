@@ -137,6 +137,7 @@ def getChart(fileObj, ci):
     tmpChart4.combine(tmpChart5)
     tmpChart4.set_title ({'name': ['summary', ci + 4, 7]})
     tmpChart4.set_y_axis({'name': 'IOPS'})
+    tmpChart4.set_y2_axis({'name': 'Latency(ms)'})
     tmpChart4.set_style(12)
     tmpChart4.set_size({'width': 380, 'height': 300})
     chars.append(tmpChart4)
@@ -164,6 +165,7 @@ def getChart(fileObj, ci):
     tmpChart7.combine(tmpChart8)
     tmpChart7.set_title ({'name': ['summary', ci + 4, 7]})
     tmpChart7.set_y_axis({'name': 'BandWidth(MB/s)'})
+    tmpChart7.set_y2_axis({'name': 'Latency(ms)'})
     tmpChart7.set_style(12)
     tmpChart7.set_size({'width': 380, 'height': 300})
     chars.append(tmpChart7)
@@ -191,6 +193,7 @@ def getChart(fileObj, ci):
     tmpChart5.combine(tmpChart6)
     tmpChart5.set_title ({'name': ['summary', ci + 13, 7]})
     tmpChart5.set_y_axis({'name': 'IOPS'})
+    tmpChart5.set_y2_axis({'name': 'Latency(ms)'})
     tmpChart5.set_style(12)
     tmpChart5.set_size({'width': 380, 'height': 300})
     chars.append(tmpChart5)
@@ -218,6 +221,7 @@ def getChart(fileObj, ci):
     tmpChart9.combine(tmpChart10)
     tmpChart9.set_title ({'name': ['summary', ci + 13, 7]})
     tmpChart9.set_y_axis({'name': 'Bandwidth(MB/s)'})
+    tmpChart9.set_y2_axis({'name': 'Latency(ms)'})
     tmpChart9.set_style(12)
     tmpChart9.set_size({'width': 380, 'height': 300})
 
@@ -246,11 +250,18 @@ def main(args):
     parser.add_argument(
         '--type',
         )
+    parser.add_argument(
+        '--bench_type',
+        )
     args = parser.parse_args(args)
     print args.path
     cases = args.path
     storeType = args.type
-    edf = excel_data_frame.ExcelDataFrame(cases, storeType)
+    if args.bench_type != None:
+        benchType = args.bench_type
+    else:    
+        benchType = "fiorbd"
+    edf = excel_data_frame.ExcelDataFrame(cases, storeType, benchType)
     GenExcelFile(edf.GetExcelData(), len(cases))
 
 if __name__ == '__main__':

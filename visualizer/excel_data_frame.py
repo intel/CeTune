@@ -11,11 +11,12 @@ def get_float(value):
         return 0
 
 class ExcelDataFrame:
-    def __init__(self, cases, storeType):
+    def __init__(self, cases, storeType, benchType):
         self.cases = {}
         for case in cases:
             self.cases[case] = self.GetDataObj(case)
         self.storeType = storeType
+        self.benchmark_type = benchType
 
     def GetDataObj(self, case):
         dataPath = os.path.join(case,"result.json")
@@ -44,7 +45,7 @@ class ExcelDataFrame:
                   [["sar all iowait%","sstitle"]],
                   [["sar all soft%","sstitle"]],
                   [["sar all idle%","sstitle"]],
-                  [["AVG_IOPS_OTHER","subtitle_b"]],
+                  [["DISK_OTHER_AVG","subtitle_b"]],
                   [["r/s","sstitle"]],
                   [["w/s","sstitle"]],
                   [["rMB/s","sstitle"]],
@@ -54,7 +55,7 @@ class ExcelDataFrame:
                   [["await","sstitle"]],
                   [["svtcm","sstitle"]],
                   [["%util","sstitle"]],
-                  [["AVG_IOPS_OSD","subtitle_b"]],
+                  [["DISK_OSD_AVG","subtitle_b"]],
                   [["r/s","sstitle"]],
                   [["w/s","sstitle"]],
                   [["rMB/s","sstitle"]],
@@ -73,109 +74,108 @@ class ExcelDataFrame:
                   [["txpck/s","sstitle"]],
                   [["rxkB/s","sstitle"]],
                   [["txkB/s","sstitle"]]]
-        if self.storeType == "filestore":
+        if self.storeType == "filestore" and self.benchmark_type == "fiorbd":
             for case, case_data in self.cases.items():
                 self.dataObj = case_data
                 eTables[0].append(case)
                 eTables[1].extend(["ceph", "vclient", "client"])
                 eTables[2].extend([["from iostat","rtitle"], ["from FIO","rtitle"], ["from iostat","rtitle_b"]])
-                eTables[3].extend([self.cal_Throughput_FIO_IOPS_ceph(case), self.cal_Throughput_FIO_IOPS_vclient(case), ""])
-                eTables[4].extend([self.cal_Throughput_FIO_BW_ceph(case), self.cal_Throughput_FIO_BW_vclient(case), ""])
-                eTables[5].extend([self.cal_Throughput_FIO_Latency_ceph(case), self.cal_Throughput_FIO_Latency_vclient(case), ""])
+                eTables[3].extend(["", self.cal_Throughput_FIO_IOPS_vclient(case), ""])
+                eTables[4].extend(["", self.cal_Throughput_FIO_BW_vclient(case), ""])
+                eTables[5].extend(["", self.cal_Throughput_FIO_Latency_vclient(case), ""])
                 eTables[6].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[7].extend([self.cal_ThroughputAvg_FIO_IOPS_ceph(case), self.cal_ThroughputAvg_FIO_IOPS_vclient(case), ""])
-                eTables[8].extend([self.cal_ThroughputAvg_FIO_BW_ceph(case), self.cal_ThroughputAvg_FIO_BW_vclient(case), ""])
-                eTables[9].extend([self.cal_ThroughputAvg_FIO_Latency_ceph(case), self.cal_ThroughputAvg_FIO_Latency_vclient(case), ""])
+                eTables[7].extend(["", self.cal_ThroughputAvg_FIO_IOPS_vclient(case), ""])
+                eTables[8].extend(["", self.cal_ThroughputAvg_FIO_BW_vclient(case), ""])
+                eTables[9].extend(["", self.cal_ThroughputAvg_FIO_Latency_vclient(case), ""])
                 eTables[10].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[11].extend([self.cal_CPU_user_ceph(case), self.cal_CPU_user_vclient(case), self.cal_CPU_user_client(case)])
-                eTables[12].extend([self.cal_CPU_kernel_ceph(case), self.cal_CPU_kernel_vclient(case), self.cal_CPU_kernel_client(case)])
-                eTables[13].extend([self.cal_CPU_iowait_ceph(case), self.cal_CPU_iowait_vclient(case), self.cal_CPU_iowait_client(case)])
-                eTables[14].extend([self.cal_CPU_soft_ceph(case), self.cal_CPU_soft_vclient(case), self.cal_CPU_soft_client(case)])
-                eTables[15].extend([self.cal_CPU_idle_ceph(case), self.cal_CPU_idle_vclient(case), self.cal_CPU_idle_client(case)])
-                eTables[16].extend([["Journal","rtitle"], ["vclient_total","rtitle"], ["client_total","rtitle_b"]])
-                eTables[17].extend([self.cal_AVG_IOPS_Journal_r_ceph(case), self.cal_AVG_IOPS_Journal_r_vclient(case), self.cal_AVG_IOPS_Journal_r_client(case)])
-                eTables[18].extend([self.cal_AVG_IOPS_Journal_w_ceph(case), self.cal_AVG_IOPS_Journal_w_vclient(case), self.cal_AVG_IOPS_Journal_w_client(case)])
-                eTables[19].extend([self.cal_AVG_IOPS_Journal_rMB_ceph(case), self.cal_AVG_IOPS_Journal_rMB_vclient(case), self.cal_AVG_IOPS_Journal_rMB_client(case)])
-                eTables[20].extend([self.cal_AVG_IOPS_Journal_wMB_ceph(case), self.cal_AVG_IOPS_Journal_wMB_vclient(case), self.cal_AVG_IOPS_Journal_wMB_client(case)])
-                eTables[21].extend([self.cal_AVG_IOPS_Journal_avgrqsz_ceph(case), self.cal_AVG_IOPS_Journal_avgrqsz_vclient(case), self.cal_AVG_IOPS_Journal_avgrqsz_client(case)])
-                eTables[22].extend([self.cal_AVG_IOPS_Journal_avgqusz_ceph(case), self.cal_AVG_IOPS_Journal_avgqusz_vclient(case), self.cal_AVG_IOPS_Journal_avgqusz_client(case)])
-                eTables[23].extend([self.cal_AVG_IOPS_Journal_await_ceph(case), self.cal_AVG_IOPS_Journal_await_vclient(case), self.cal_AVG_IOPS_Journal_await_client(case)])
-                eTables[24].extend([self.cal_AVG_IOPS_Journal_svtcm_ceph(case), self.cal_AVG_IOPS_Journal_svtcm_vclient(case), self.cal_AVG_IOPS_Journal_svtcm_client(case)])
-                eTables[25].extend([self.cal_AVG_IOPS_Journal_util_ceph(case), self.cal_AVG_IOPS_Journal_util_vclient(case), self.cal_AVG_IOPS_Journal_util_client(case)])
-                eTables[26].extend([["Data","rtitle"], ["vclient_average","rtitle"], ["client_average","rtitle_b"]])
-                eTables[27].extend([self.cal_AVG_IOPS_OSD_r_ceph(case), self.cal_AVG_IOPS_OSD_r_vclient(case), self.cal_AVG_IOPS_OSD_r_client(case)])
-                eTables[28].extend([self.cal_AVG_IOPS_OSD_w_ceph(case), self.cal_AVG_IOPS_OSD_w_vclient(case), self.cal_AVG_IOPS_OSD_w_client(case)])
-                eTables[29].extend([self.cal_AVG_IOPS_OSD_rMB_ceph(case), self.cal_AVG_IOPS_OSD_rMB_vclient(case), self.cal_AVG_IOPS_OSD_rMB_client(case)])
-                eTables[30].extend([self.cal_AVG_IOPS_OSD_wMB_ceph(case), self.cal_AVG_IOPS_OSD_wMB_vclient(case), self.cal_AVG_IOPS_OSD_wMB_client(case)])
-                eTables[31].extend([self.cal_AVG_IOPS_OSD_avgrqsz_ceph(case), self.cal_AVG_IOPS_OSD_avgrqsz_vclient(case), self.cal_AVG_IOPS_OSD_avgrqsz_client(case)])
-                eTables[32].extend([self.cal_AVG_IOPS_OSD_avgqusz_ceph(case), self.cal_AVG_IOPS_OSD_avgqusz_vclient(case), self.cal_AVG_IOPS_OSD_avgqusz_client(case)])
-                eTables[33].extend([self.cal_AVG_IOPS_OSD_await_ceph(case), self.cal_AVG_IOPS_OSD_await_vclient(case), self.cal_AVG_IOPS_OSD_await_client(case)])
-                eTables[34].extend([self.cal_AVG_IOPS_OSD_svtcm_ceph(case), self.cal_AVG_IOPS_OSD_svtcm_vclient(case), self.cal_AVG_IOPS_OSD_svtcm_client(case)])
-                eTables[35].extend([self.cal_AVG_IOPS_OSD_util_ceph(case), self.cal_AVG_IOPS_OSD_util_vclient(case), self.cal_AVG_IOPS_OSD_util_client(case)])
+                eTables[11].extend([self.cal_CPU_user_ceph(case), "", self.cal_CPU_user_client(case)])
+                eTables[12].extend([self.cal_CPU_kernel_ceph(case), "", self.cal_CPU_kernel_client(case)])
+                eTables[13].extend([self.cal_CPU_iowait_ceph(case), "", self.cal_CPU_iowait_client(case)])
+                eTables[14].extend([self.cal_CPU_soft_ceph(case), "", self.cal_CPU_soft_client(case)])
+                eTables[15].extend([self.cal_CPU_idle_ceph(case), "", self.cal_CPU_idle_client(case)])
+                eTables[16].extend([["Journal","rtitle"], ["vclient_iostat","rtitle"], ["client_iostat","rtitle_b"]])
+                eTables[17].extend([self.cal_AVG_IOPS_Journal_r_ceph(case), "", ""])
+                eTables[18].extend([self.cal_AVG_IOPS_Journal_w_ceph(case), "", ""])
+                eTables[19].extend([self.cal_AVG_IOPS_Journal_rMB_ceph(case), "", ""])
+                eTables[20].extend([self.cal_AVG_IOPS_Journal_wMB_ceph(case), "", ""])
+                eTables[21].extend([self.cal_AVG_IOPS_Journal_avgrqsz_ceph(case), "", ""])
+                eTables[22].extend([self.cal_AVG_IOPS_Journal_avgqusz_ceph(case), "", ""])
+                eTables[23].extend([self.cal_AVG_IOPS_Journal_await_ceph(case), "", ""])
+                eTables[24].extend([self.cal_AVG_IOPS_Journal_svtcm_ceph(case), "", ""])
+                eTables[25].extend([self.cal_AVG_IOPS_Journal_util_ceph(case), "", ""])
+                eTables[26].extend([["Data","rtitle"], ["vclient_iostat","rtitle"], ["client_iostat","rtitle_b"]])
+                eTables[27].extend([self.cal_AVG_IOPS_OSD_r_ceph(case), "", ""])
+                eTables[28].extend([self.cal_AVG_IOPS_OSD_w_ceph(case), "", ""])
+                eTables[29].extend([self.cal_AVG_IOPS_OSD_rMB_ceph(case), "", ""])
+                eTables[30].extend([self.cal_AVG_IOPS_OSD_wMB_ceph(case), "", ""])
+                eTables[31].extend([self.cal_AVG_IOPS_OSD_avgrqsz_ceph(case), "", ""])
+                eTables[32].extend([self.cal_AVG_IOPS_OSD_avgqusz_ceph(case), "", ""])
+                eTables[33].extend([self.cal_AVG_IOPS_OSD_await_ceph(case), "", ""])
+                eTables[34].extend([self.cal_AVG_IOPS_OSD_svtcm_ceph(case), "", ""])
+                eTables[35].extend([self.cal_AVG_IOPS_OSD_util_ceph(case), "", ""])
                 eTables[36].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[37].extend([self.cal_Memory_kbmemfree_ceph(case), self.cal_Memory_kbmemfree_vclient(case), self.cal_Memory_kbmemfree_client(case)])
-                eTables[38].extend([self.cal_Memory_kbmemused_ceph(case), self.cal_Memory_kbmemused_vclient(case), self.cal_Memory_kbmemused_client(case)])
-                eTables[39].extend([self.cal_Memory_memused_ceph(case), self.cal_Memory_memused_vclient(case), self.cal_Memory_memused_client(case)])
+                eTables[37].extend([self.cal_Memory_kbmemfree_ceph(case), "", self.cal_Memory_kbmemfree_client(case)])
+                eTables[38].extend([self.cal_Memory_kbmemused_ceph(case), "", self.cal_Memory_kbmemused_client(case)])
+                eTables[39].extend([self.cal_Memory_memused_ceph(case), "", self.cal_Memory_memused_client(case)])
                 eTables[40].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[41].extend([self.cal_NIC_rxpck_ceph(case), self.cal_NIC_rxpck_vclient(case), self.cal_NIC_rxpck_client(case)])
-                eTables[42].extend([self.cal_NIC_txpck_ceph(case), self.cal_NIC_txpck_vclient(case), self.cal_NIC_txpck_client(case)])
-                eTables[43].extend([self.cal_NIC_rxkB_ceph(case), self.cal_NIC_rxkB_vclient(case), self.cal_NIC_rxkB_client(case)])
-                eTables[44].extend([self.cal_NIC_txkB_ceph(case), self.cal_NIC_txkB_vclient(case), self.cal_NIC_txkB_client(case)])
+                eTables[41].extend([self.cal_NIC_rxpck_ceph(case), "", self.cal_NIC_rxpck_client(case)])
+                eTables[42].extend([self.cal_NIC_txpck_ceph(case), "", self.cal_NIC_txpck_client(case)])
+                eTables[43].extend([self.cal_NIC_rxkB_ceph(case), "", self.cal_NIC_rxkB_client(case)])
+                eTables[44].extend([self.cal_NIC_txkB_ceph(case), "", self.cal_NIC_txkB_client(case)])
                     
-        elif self.storeType == "bluestore":
+        elif self.storeType == "bluestore" and self.benchmark_type == "fiorbd":
             for case, case_data in self.cases.items():
                 self.dataObj = case_data
                 eTables[0].append(case)
                 eTables[1].extend([["ceph","rtitle"], ["vclient","rtitle"], ["client","rtitle_b"]])
                 eTables[2].extend([["from iostat","rtitle"], ["from FIO","rtitle"], ["from iostat","rtitle_b"]])
-                eTables[3].extend([self.cal_Throughput_FIO_IOPS_ceph(case), self.cal_Throughput_FIO_IOPS_vclient(case), ""])
-                eTables[4].extend([self.cal_Throughput_FIO_BW_ceph(case), self.cal_Throughput_FIO_BW_vclient(case), ""])
-                eTables[5].extend([self.cal_Throughput_FIO_Latency_ceph(case), self.cal_Throughput_FIO_Latency_vclient(case), ""])
+                eTables[3].extend(["", self.cal_Throughput_FIO_IOPS_vclient(case), ""])
+                eTables[4].extend(["", self.cal_Throughput_FIO_BW_vclient(case), ""])
+                eTables[5].extend(["", self.cal_Throughput_FIO_Latency_vclient(case), ""])
                 eTables[6].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[7].extend([self.cal_ThroughputAvg_FIO_IOPS_ceph(case), self.cal_Throughput_FIO_IOPS_vclient(case), ""])
-                eTables[8].extend([self.cal_ThroughputAvg_FIO_BW_ceph(case), self.cal_Throughput_FIO_BW_vclient(case), ""])
-                eTables[9].extend([self.cal_ThroughputAvg_FIO_Latency_ceph(case), self.cal_Throughput_FIO_Latency_vclient(case), ""])
+                eTables[7].extend(["", self.cal_Throughput_FIO_IOPS_vclient(case), ""])
+                eTables[8].extend(["", self.cal_Throughput_FIO_BW_vclient(case), ""])
+                eTables[9].extend(["", self.cal_Throughput_FIO_Latency_vclient(case), ""])
                 eTables[10].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[11].extend([self.cal_CPU_user_ceph(case), self.cal_CPU_user_vclient(case), self.cal_CPU_user_client(case)])
-                eTables[12].extend([self.cal_CPU_kernel_ceph(case), self.cal_CPU_kernel_vclient(case), self.cal_CPU_kernel_client(case)])
-                eTables[13].extend([self.cal_CPU_iowait_ceph(case), self.cal_CPU_iowait_vclient(case), self.cal_CPU_iowait_client(case)])
-                eTables[14].extend([self.cal_CPU_soft_ceph(case), self.cal_CPU_soft_vclient(case), self.cal_CPU_soft_client(case)])
-                eTables[15].extend([self.cal_CPU_idle_ceph(case), self.cal_CPU_idle_vclient(case), self.cal_CPU_idle_client(case)])
+                eTables[11].extend([self.cal_CPU_user_ceph(case), "", self.cal_CPU_user_client(case)])
+                eTables[12].extend([self.cal_CPU_kernel_ceph(case), "", self.cal_CPU_kernel_client(case)])
+                eTables[13].extend([self.cal_CPU_iowait_ceph(case), "", self.cal_CPU_iowait_client(case)])
+                eTables[14].extend([self.cal_CPU_soft_ceph(case), "", self.cal_CPU_soft_client(case)])
+                eTables[15].extend([self.cal_CPU_idle_ceph(case), "", self.cal_CPU_idle_client(case)])
                 eTables[16].extend([["WAL&DB","rtitle"], ["vclient_total","rtitle"], ["client_total","rtitle_b"]])
-                eTables[17].extend([self.cal_AVG_IOPS_Journal_r_ceph(case), self.cal_AVG_IOPS_Journal_r_vclient(case), self.cal_AVG_IOPS_Journal_r_client(case)])
-                eTables[18].extend([self.cal_AVG_IOPS_Journal_w_ceph(case), self.cal_AVG_IOPS_Journal_w_vclient(case), self.cal_AVG_IOPS_Journal_w_client(case)])
-                eTables[19].extend([self.cal_AVG_IOPS_Journal_rMB_ceph(case), self.cal_AVG_IOPS_Journal_rMB_vclient(case), self.cal_AVG_IOPS_Journal_rMB_client(case)])
-                eTables[20].extend([self.cal_AVG_IOPS_Journal_wMB_ceph(case), self.cal_AVG_IOPS_Journal_wMB_vclient(case), self.cal_AVG_IOPS_Journal_wMB_client(case)])
-                eTables[21].extend([self.cal_AVG_IOPS_Journal_avgrqsz_ceph(case), self.cal_AVG_IOPS_Journal_avgrqsz_vclient(case), self.cal_AVG_IOPS_Journal_avgrqsz_client(case)])
-                eTables[22].extend([self.cal_AVG_IOPS_Journal_avgqusz_ceph(case), self.cal_AVG_IOPS_Journal_avgqusz_vclient(case), self.cal_AVG_IOPS_Journal_avgqusz_client(case)])
-                eTables[23].extend([self.cal_AVG_IOPS_Journal_await_ceph(case), self.cal_AVG_IOPS_Journal_await_vclient(case), self.cal_AVG_IOPS_Journal_await_client(case)])
-                eTables[24].extend([self.cal_AVG_IOPS_Journal_svtcm_ceph(case), self.cal_AVG_IOPS_Journal_svtcm_vclient(case), self.cal_AVG_IOPS_Journal_svtcm_client(case)])
-                eTables[25].extend([self.cal_AVG_IOPS_Journal_util_ceph(case), self.cal_AVG_IOPS_Journal_util_vclient(case), self.cal_AVG_IOPS_Journal_util_client(case)])
+                eTables[17].extend([self.cal_AVG_IOPS_WAL_r_ceph(case), "", ""])
+                eTables[18].extend([self.cal_AVG_IOPS_WAL_w_ceph(case), "", ""])
+                eTables[19].extend([self.cal_AVG_IOPS_WAL_rMB_ceph(case), "", ""])
+                eTables[20].extend([self.cal_AVG_IOPS_WAL_wMB_ceph(case), "", ""])
+                eTables[21].extend([self.cal_AVG_IOPS_WAL_avgrqsz_ceph(case), "", ""])
+                eTables[22].extend([self.cal_AVG_IOPS_WAL_avgqusz_ceph(case), "", ""])
+                eTables[23].extend([self.cal_AVG_IOPS_WAL_await_ceph(case), "", ""])
+                eTables[24].extend([self.cal_AVG_IOPS_WAL_svtcm_ceph(case), "", ""])
+                eTables[25].extend([self.cal_AVG_IOPS_WAL_util_ceph(case), "", ""])
                 eTables[26].extend([["Data","rtitle"], ["vclient_average","rtitle"], ["client_average","rtitle_b"]])
-                eTables[27].extend([self.cal_AVG_IOPS_OSD_r_ceph(case), self.cal_AVG_IOPS_OSD_r_vclient(case), self.cal_AVG_IOPS_OSD_r_client(case)])
-                eTables[28].extend([self.cal_AVG_IOPS_OSD_w_ceph(case), self.cal_AVG_IOPS_OSD_w_vclient(case), self.cal_AVG_IOPS_OSD_w_client(case)])
-                eTables[29].extend([self.cal_AVG_IOPS_OSD_rMB_ceph(case), self.cal_AVG_IOPS_OSD_rMB_vclient(case), self.cal_AVG_IOPS_OSD_rMB_client(case)])
-                eTables[30].extend([self.cal_AVG_IOPS_OSD_wMB_ceph(case), self.cal_AVG_IOPS_OSD_wMB_vclient(case), self.cal_AVG_IOPS_OSD_wMB_client(case)])
-                eTables[31].extend([self.cal_AVG_IOPS_OSD_avgrqsz_ceph(case), self.cal_AVG_IOPS_OSD_avgrqsz_vclient(case), self.cal_AVG_IOPS_OSD_avgrqsz_client(case)])
-                eTables[32].extend([self.cal_AVG_IOPS_OSD_avgqusz_ceph(case), self.cal_AVG_IOPS_OSD_avgqusz_vclient(case), self.cal_AVG_IOPS_OSD_avgqusz_client(case)])
-                eTables[33].extend([self.cal_AVG_IOPS_OSD_await_ceph(case), self.cal_AVG_IOPS_OSD_await_vclient(case), self.cal_AVG_IOPS_OSD_await_client(case)])
-                eTables[34].extend([self.cal_AVG_IOPS_OSD_svtcm_ceph(case), self.cal_AVG_IOPS_OSD_svtcm_vclient(case), self.cal_AVG_IOPS_OSD_svtcm_client(case)])
-                eTables[35].extend([self.cal_AVG_IOPS_OSD_util_ceph(case), self.cal_AVG_IOPS_OSD_util_vclient(case), self.cal_AVG_IOPS_OSD_util_client(case)])
+                eTables[27].extend([self.cal_AVG_IOPS_OSD_r_ceph(case), "", ""])
+                eTables[28].extend([self.cal_AVG_IOPS_OSD_w_ceph(case), "", ""])
+                eTables[29].extend([self.cal_AVG_IOPS_OSD_rMB_ceph(case), "", ""])
+                eTables[30].extend([self.cal_AVG_IOPS_OSD_wMB_ceph(case), "", ""])
+                eTables[31].extend([self.cal_AVG_IOPS_OSD_avgrqsz_ceph(case), "", ""])
+                eTables[32].extend([self.cal_AVG_IOPS_OSD_avgqusz_ceph(case), "", ""])
+                eTables[33].extend([self.cal_AVG_IOPS_OSD_await_ceph(case), "", ""])
+                eTables[34].extend([self.cal_AVG_IOPS_OSD_svtcm_ceph(case), "", ""])
+                eTables[35].extend([self.cal_AVG_IOPS_OSD_util_ceph(case), "", ""])
                 eTables[36].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[37].extend([self.cal_Memory_kbmemfree_ceph(case), self.cal_Memory_kbmemfree_vclient(case), self.cal_Memory_kbmemfree_client(case)])
-                eTables[38].extend([self.cal_Memory_kbmemused_ceph(case), self.cal_Memory_kbmemused_vclient(case), self.cal_Memory_kbmemused_client(case)])
-                eTables[39].extend([self.cal_Memory_memused_ceph(case), self.cal_Memory_memused_vclient(case), self.cal_Memory_memused_client(case)])
+                eTables[37].extend([self.cal_Memory_kbmemfree_ceph(case), "", self.cal_Memory_kbmemfree_client(case)])
+                eTables[38].extend([self.cal_Memory_kbmemused_ceph(case), "", self.cal_Memory_kbmemused_client(case)])
+                eTables[39].extend([self.cal_Memory_memused_ceph(case), "", self.cal_Memory_memused_client(case)])
                 eTables[40].extend([["","rtitle"], ["","rtitle"], ["","rtitle_b"]])
-                eTables[41].extend([self.cal_NIC_rxpck_ceph(case), self.cal_NIC_rxpck_vclient(case), self.cal_NIC_rxpck_client(case)])
-                eTables[42].extend([self.cal_NIC_txpck_ceph(case), self.cal_NIC_txpck_vclient(case), self.cal_NIC_txpck_client(case)])
-                eTables[43].extend([self.cal_NIC_rxkB_ceph(case), self.cal_NIC_rxkB_vclient(case), self.cal_NIC_rxkB_client(case)])
-                eTables[44].extend([self.cal_NIC_txkB_ceph(case), self.cal_NIC_txkB_vclient(case), self.cal_NIC_txkB_client(case)])
+                eTables[41].extend([self.cal_NIC_rxpck_ceph(case), "", self.cal_NIC_rxpck_client(case)])
+                eTables[42].extend([self.cal_NIC_txpck_ceph(case), "", self.cal_NIC_txpck_client(case)])
+                eTables[43].extend([self.cal_NIC_rxkB_ceph(case), "", self.cal_NIC_rxkB_client(case)])
+                eTables[44].extend([self.cal_NIC_txkB_ceph(case), "", self.cal_NIC_txkB_client(case)])
         return eTables
 
     def GetExtTables(self, r_table_data):
         result = []
         for case, case_data in self.cases.items():
-            print case
             extTable = [[[case.split("-")[3], 25, 'title']],
                         [["", 1, 'title'],
                          ["CPU", 3, 'title'],
@@ -240,7 +240,7 @@ class ExcelDataFrame:
                     ])
             extTable.append(["VM",
                     get_float(r_table_data[11][2]), 
-                    get_float(r_table_data[12][2])+get_float(r_table_data[14][1]),
+                    get_float(r_table_data[12][2])+get_float(r_table_data[14][2]),
                     get_float(r_table_data[13][2]),
 
                     get_float(r_table_data[17][2]),
@@ -301,452 +301,353 @@ class ExcelDataFrame:
             result.append(extTable)
         return result
 
-    def cal_Throughput_FIO_IOPS_ceph(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["workload"]["fio"]["summary"]:
-                tmpList.extend([self.dataObj["workload"]["fio"]["summary"][key]["read_iops"] + self.dataObj["workload"]["fio"]["summary"][key]["write_iops"]])
-        return sum(tmpList)
-    def cal_Throughput_FIO_IOPS_client(self, case):
-        pass
     def cal_Throughput_FIO_IOPS_vclient(self, case):
-        pass
-
-    def cal_Throughput_FIO_BW_ceph(self, case):
-        tmpList = []
         if self.dataObj:
-            for key in self.dataObj["workload"]["fio"]["summary"]:
-                tmpList.extend([self.dataObj["workload"]["fio"]["summary"][key]["read_bw"] + self.dataObj["workload"]["fio"]["summary"][key]["write_bw"]])
-        return sum(tmpList)
-    def cal_Throughput_FIO_BW_client(self, case):
-        pass
+            for key, value in self.dataObj["summary"]["run_id"].items():
+                return value["IOPS"]
+
     def cal_Throughput_FIO_BW_vclient(self, case):
-        pass
-
-    def cal_Throughput_FIO_Latency_ceph(self, case):
-        tmpList = []
         if self.dataObj:
-            for key in self.dataObj["workload"]["fio"]["summary"]:
-                tmpList.extend([self.dataObj["workload"]["fio"]["summary"][key]["read_lat"] + self.dataObj["workload"]["fio"]["summary"][key]["write_lat"]])
-        return sum(tmpList)/len(tmpList)
-    def cal_Throughput_FIO_Latency_client(self, case):
-        pass
+            for key, value in self.dataObj["summary"]["run_id"].items():
+                return value["BW(MB/s)"]
+
     def cal_Throughput_FIO_Latency_vclient(self, case):
-        pass
-
-    def cal_ThroughputAvg_FIO_IOPS_ceph(self, case):
-        tmpList = []
         if self.dataObj:
-            for key in self.dataObj["workload"]["fio"]["summary"]:
-                tmpList.extend([self.dataObj["workload"]["fio"]["summary"][key]["read_iops"] + self.dataObj["workload"]["fio"]["summary"][key]["write_iops"]])
-        return sum(tmpList)/len(tmpList)
-    def cal_ThroughputAvg_FIO_IOPS_client(self, case):
-        pass
+            for key, value in self.dataObj["summary"]["run_id"].items():
+                return value["Latency(ms)"]
+
     def cal_ThroughputAvg_FIO_IOPS_vclient(self, case):
-        pass
-
-    def cal_ThroughputAvg_FIO_BW_ceph(self, case):
-        tmpList = []
         if self.dataObj:
-            for key in self.dataObj["workload"]["fio"]["summary"]:
-                tmpList.extend([self.dataObj["workload"]["fio"]["summary"][key]["read_bw"] + self.dataObj["workload"]["fio"]["summary"][key]["write_bw"]])
-        return sum(tmpList)/len(tmpList)
-    def cal_ThroughputAvg_FIO_BW_client(self, case):
-        pass
+            worker_num = len(self.dataObj["workload"]["fio"]["summary"].keys())
+            for key, value in self.dataObj["summary"]["run_id"].items():
+                total_iops = 0
+                if ',' in value["IOPS"]:
+                    for s in value["IOPS"].split(','):
+                        total_iops += float(s)
+                else:
+                    total_iops = float(value["IOPS"])
+                return "%.3f" % (total_iops / worker_num)
+
     def cal_ThroughputAvg_FIO_BW_vclient(self, case):
-        pass
-
-    def cal_ThroughputAvg_FIO_Latency_ceph(self, case):
-        pass
-    def cal_ThroughputAvg_FIO_Latency_client(self, case):
-        pass
-    def cal_ThroughputAvg_FIO_Latency_vclient(self, case):
-        tmpList = []
         if self.dataObj:
-            for key in self.dataObj["workload"]["fio"]["summary"]:
-                tmpList.extend([self.dataObj["workload"]["fio"]["summary"][key]["read_lat"] + self.dataObj["workload"]["fio"]["summary"][key]["write_lat"]])
-        return sum(tmpList)/len(tmpList)
+            worker_num = len(self.dataObj["workload"]["fio"]["summary"].keys())
+            for key, value in self.dataObj["summary"]["run_id"].items():
+                total_iops = 0
+                if ',' in value["BW(MB/s)"]:
+                    for s in value["BW(MB/s)"].split(','):
+                        total_iops += float(s)
+                else:
+                    total_iops = float(value["BW(MB/s)"])
+                return "%.3f" % (total_iops / worker_num)
+
+    def cal_ThroughputAvg_FIO_Latency_vclient(self, case):
+        if self.dataObj:
+            for key, value in self.dataObj["summary"]["run_id"].items():
+                return value["Latency(ms)"]
 
     def cal_CPU_user_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["cpu"]["summary"][key]["%usr"])
-        return sum(tmpList)/len(tmpList)
-    def cal_CPU_user_client(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%usr"])
-        return sum(tmpList)/len(tmpList)
-    def cal_CPU_user_vclient(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%usr"])
+            for key, value in self.dataObj["ceph"]["cpu"]["summary"].items():
+                tmpList.extend(value["%usr"])
         return sum(tmpList)/len(tmpList)
 
     def cal_CPU_kernel_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["cpu"]["summary"][key]["%sys"])
+            for key, value in self.dataObj["ceph"]["cpu"]["summary"].items():
+                tmpList.extend(value["%sys"])
         return sum(tmpList)/len(tmpList)
-    def cal_CPU_kernel_client(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%sys"])
-        return sum(tmpList)/len(tmpList)
-    def cal_CPU_kernel_vclient(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%sys"])
-        return sum(tmpList)/len(tmpList)
-        
+
     def cal_CPU_iowait_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["cpu"]["summary"][key]["%iowait"])
+            for key, value in self.dataObj["ceph"]["cpu"]["summary"].items():
+                tmpList.extend(value["%iowait"])
         return sum(tmpList)/len(tmpList)
-    def cal_CPU_iowait_client(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%iowait"])
-        return sum(tmpList)/len(tmpList)
-    def cal_CPU_iowait_vclient(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%iowait"])
-        return sum(tmpList)/len(tmpList)
-        
+
     def cal_CPU_soft_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["cpu"]["summary"][key]["%soft"])
+            for key, value in self.dataObj["ceph"]["cpu"]["summary"].items():
+                tmpList.extend(value["%soft"])
         return sum(tmpList)/len(tmpList)
-    def cal_CPU_soft_client(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%soft"])
-        return sum(tmpList)/len(tmpList)
-    def cal_CPU_soft_vclient(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%soft"])
-        return sum(tmpList)/len(tmpList)
-        
+
     def cal_CPU_idle_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["cpu"]["summary"][key]["%idle"])
+            for key, value in self.dataObj["ceph"]["cpu"]["summary"].items():
+                tmpList.extend(value["%idle"])
         return sum(tmpList)/len(tmpList)
+
+    def cal_CPU_user_client(self, case):
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["client"]["cpu"]["summary"].items():
+                tmpList.extend(value["%usr"])
+        return sum(tmpList)/len(tmpList)
+
+    def cal_CPU_kernel_client(self, case):
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["client"]["cpu"]["summary"].items():
+                tmpList.extend(value["%sys"])
+        return sum(tmpList)/len(tmpList)
+
+    def cal_CPU_iowait_client(self, case):
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["client"]["cpu"]["summary"].items():
+                tmpList.extend(value["%iowait"])
+        return sum(tmpList)/len(tmpList)
+
+    def cal_CPU_soft_client(self, case):
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["client"]["cpu"]["summary"].items():
+                tmpList.extend(value["%soft"])
+        return sum(tmpList)/len(tmpList)
+
     def cal_CPU_idle_client(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%idle"])
+            for key, value in self.dataObj["client"]["cpu"]["summary"].items():
+                tmpList.extend(value["%idle"])
         return sum(tmpList)/len(tmpList)
-    def cal_CPU_idle_vclient(self, case):
-        tmpList = []
-        if self.dataObj:
-            for key in self.dataObj["client"]["cpu"]["summary"]:
-                tmpList.extend(self.dataObj["client"]["cpu"]["summary"][key]["%idle"])
-        return sum(tmpList)/len(tmpList)
-
-    def cal_CPU_kenelsoft_ceph(self, case):
-        return self.cal_CPU_kernel_ceph(case) + self.cal_CPU_soft_ceph(case)
-    def cal_CPU_kenelsoft_vclient(self, case):
-        return self.cal_CPU_kernel_vclient(case) + self.cal_CPU_soft_vclient(case)
-    def cal_CPU_kenelsoft_client(self, case):
-        return self.cal_CPU_kernel_client(case) + self.cal_CPU_soft_client(case)
 
     def cal_AVG_IOPS_Journal_r_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_r_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_r_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["r/s"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_Journal_w_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_w_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_w_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["w/s"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_Journal_rMB_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_rMB_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_rMB_vclient(self, case):
-        pass
-
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["rMB/s"])
+        return sum(tmpList)/len(tmpList)
+ 
     def cal_AVG_IOPS_Journal_wMB_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_wMB_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_wMB_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["wMB/s"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_Journal_avgrqsz_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_avgrqsz_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_avgrqsz_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["avgrq-sz"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_Journal_avgqusz_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_avgqusz_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_avgqusz_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["avgqu-sz"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_Journal_await_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_await_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_await_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["await"])
+        return sum(tmpList)/len(tmpList)*1000
 
     def cal_AVG_IOPS_Journal_svtcm_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_svtcm_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_svtcm_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["svctm"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_Journal_util_ceph(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_util_client(self, case):
-        pass
-    def cal_AVG_IOPS_Journal_util_vclient(self, case):
-        pass
+        tmpList = []
+        if self.dataObj:
+            for key, value in self.dataObj["ceph"]["journal"]["summary"].items():
+                tmpList.extend(value["%util"])
+        return sum(tmpList)/len(tmpList)
 
     def cal_AVG_IOPS_OSD_r_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["r/s"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["r/s"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_r_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_r_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_w_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["w/s"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["w/s"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_w_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_w_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_rMB_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["rMB/s"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["rMB/s"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_rMB_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_rMB_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_wMB_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["wMB/s"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["wMB/s"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_wMB_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_wMB_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_avgrqsz_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["avgrq-sz"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["avgrq-sz"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_avgrqsz_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_avgrqsz_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_avgqusz_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["avgqu-sz"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["avgqu-sz"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_avgqusz_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_avgqusz_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_await_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["await"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_await_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_await_vclient(self, case):
-        pass
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["await"])
+        return sum(tmpList)/len(tmpList)*1000
 
     def cal_AVG_IOPS_OSD_svtcm_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["svctm"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["svctm"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_svtcm_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_svtcm_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_OSD_util_ceph(self, case):
         tmpList = []
         if self.dataObj:
-            for key in self.dataObj["ceph"]["osd"]["summary"]:
-                tmpList.extend(self.dataObj["ceph"]["osd"]["summary"][key]["%util"])
+            for key, value in self.dataObj["ceph"]["osd"]["summary"].items():
+                tmpList.extend(value["%util"])
         return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_OSD_util_client(self, case):
-        pass
-    def cal_AVG_IOPS_OSD_util_vclient(self, case):
-        pass
 
     def cal_AVG_IOPS_WAL_r_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["r/s"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["r/s"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_r_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_r_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_w_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["w/s"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["w/s"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_w_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_w_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_rMB_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["rMB/s"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["rMB/s"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_rMB_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_rMB_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_wMB_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["wMB/s"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["wMB/s"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_wMB_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_wMB_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_avgrqsz_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["avgrq-sz"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["avgrq-sz"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_avgrqsz_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_avgrqsz_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_avgqusz_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["avgqu-sz"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["avgqu-sz"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_avgqusz_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_avgqusz_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_await_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["await"])
+            ret = sum(tmpList)/len(tmpList)*1000
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["await"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_await_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_await_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)*1000
+        return ret
 
     def cal_AVG_IOPS_WAL_svtcm_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["svctm"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["svctm"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_svtcm_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_svtcm_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_AVG_IOPS_WAL_util_ceph(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["ceph"]["wal"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["wal"]["summary"][key]["%util"])
+            ret = sum(tmpList)/len(tmpList)
+            tmpList = []
             for key in self.dataObj["ceph"]["db"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["db"]["summary"][key]["%util"])
-        return sum(tmpList)/len(tmpList)
-    def cal_AVG_IOPS_WAL_util_client(self, case):
-        pass
-    def cal_AVG_IOPS_WAL_util_vclient(self, case):
-        pass
+            ret += sum(tmpList)/len(tmpList)
+        return ret
 
     def cal_Memory_kbmemfree_ceph(self, case):
         tmpList = []
@@ -754,12 +655,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["memory"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["memory"]["summary"][key]["kbmenfree"])
         return sum(tmpList)/len(tmpList)
+
     def cal_Memory_kbmemfree_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["memory"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["memory"]["summary"][key]["kbmenfree"])
         return sum(tmpList)/len(tmpList)
+
     def cal_Memory_kbmemfree_vclient(self, case):
         tmpList = []
         if self.dataObj:
@@ -773,12 +676,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["memory"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["memory"]["summary"][key]["kbmemused"])
         return sum(tmpList)/len(tmpList)
+
     def cal_Memory_kbmemused_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["memory"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["memory"]["summary"][key]["kbmemused"])
         return sum(tmpList)/len(tmpList)
+
     def cal_Memory_kbmemused_vclient(self, case):
         tmpList = []
         if self.dataObj:
@@ -792,12 +697,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["memory"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["memory"]["summary"][key]["%memused"])
         return sum(tmpList)/len(tmpList)
+
     def cal_Memory_memused_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["memory"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["memory"]["summary"][key]["%memused"])
         return sum(tmpList)/len(tmpList)
+
     def cal_Memory_memused_vclient(self, case):
         tmpList = []
         if self.dataObj:
@@ -811,12 +718,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["nic"]["summary"][key]["rxpck/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_rxpck_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["nic"]["summary"][key]["rxpck/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_rxpck_vclient(self, case):
         tmpList = []
         if self.dataObj:
@@ -830,12 +739,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["nic"]["summary"][key]["txpck/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_txpck_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["nic"]["summary"][key]["txpck/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_txpck_vclient(self, case):
         tmpList = []
         if self.dataObj:
@@ -849,12 +760,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["nic"]["summary"][key]["rxkB/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_rxkB_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["nic"]["summary"][key]["rxkB/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_rxkB_vclient(self, case):
         tmpList = []
         if self.dataObj:
@@ -868,12 +781,14 @@ class ExcelDataFrame:
             for key in self.dataObj["ceph"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["ceph"]["nic"]["summary"][key]["txkB/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_txkB_client(self, case):
         tmpList = []
         if self.dataObj:
             for key in self.dataObj["client"]["nic"]["summary"]:
                 tmpList.extend(self.dataObj["client"]["nic"]["summary"][key]["txkB/s"])
         return sum(tmpList)/len(tmpList)
+
     def cal_NIC_txkB_vclient(self, case):
         tmpList = []
         if self.dataObj:
