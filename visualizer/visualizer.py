@@ -485,13 +485,6 @@ class Visualizer:
             output.append( ",".join(tmp) )
         return "\n".join( output )
 
-    def generate_summary_excel(self, cases, storeType):
-        import excel_data_frame
-        import excel_summary_generator as esg
-
-        edf = excel_data_frame.ExcelDataFrame(cases, storeType)
-        esg.GenExcelFile(edf.GetETables(), edf.GetExtTables(), len(cases))
-
 def main(args):
     parser = argparse.ArgumentParser(description='Analyzer tool')
     parser.add_argument(

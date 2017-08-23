@@ -20,6 +20,7 @@ import collections
 from web import form
 from login import *
 from time import gmtime, strftime
+from visualizer import *
 
 urls = (
   '/', 'index',
@@ -269,10 +270,16 @@ class results:
         # copy quired runs
         filename_list = []
         for runid in json.loads(keys):
-            session_name = common.bash("cd %s; find ./ -maxdepth 1 -name %s-*" % (dest_dir, runid)).strip('\t\n\r')
+            session_name = common.bash("cd %s; find ./ -maxdepth 1 -name %s-*" % (dest_dir, runid)).strip('\t\n\r')[2:]
             print session_name
             common.bash("cd %s; mkdir -p %s/%s/; cp -r %s/*.html %s/include %s/conf %s/%s/;" % (dest_dir, path, session_name, session_name, session_name, session_name, path, session_name))
+            filename_list.append("%s%s" % (dest_dir,session_name))
         common.bash("mkdir -p %s/%s/include/; cp -r ../webui/static/css/ ../webui/static/js/jquery.js ../webui/static/js/src/jquery.table2excel.js %s/%s/include/;" % (dest_dir, path, dest_dir, path))
+        # create excel file
+        cmd = ['--dest_dir', '%s/%s/' % (dest_dir, path), '--type','filestore','--path']
+        cmd.extend(filename_list)
+        excel_summary_generator.main(cmd)
+
         # tar to zip
         common.bash("cd %s; zip %s.zip -r %s;" % (dest_dir, path, path))
         web.header("Content-Type", "application/zip")
