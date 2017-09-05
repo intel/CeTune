@@ -3,10 +3,10 @@ import excel_data_frame
 import os,sys
 import argparse
 
-def GenExcelFile(dest_dir, value, caseNum):
+def GenExcelFile(dataFile, value, caseNum):
     eTables, extTables = value
-    dataFile = xlsxwriter.Workbook('%s/summary.xlsx' % dest_dir)
     dataSheet = dataFile.add_worksheet(u'Detail')
+
     for i,eRow in enumerate(eTables):
         for j,eCol in enumerate(eRow):
             if i == 0 and j > 0:
@@ -46,17 +46,15 @@ def GenExcelFile(dest_dir, value, caseNum):
         i = ei + 1
         dataSheet.merge_range(ei, 0, ei, 5, "", set_style(dataFile, 'content'))
 
-    
     for ci in chartList:
         charts = getChart(dataFile, ci)
         for i,chart in enumerate(charts):
             x_offset = i * 380 + 10
             dataSheet.insert_chart(ci + 1, 6, chart, {'x_offset': x_offset, 'y_offset': 0})
-       
+
     for k in range(3*caseNum + 1):
         dataSheet.set_column(k, k, 18)
     dataSheet.set_row(0, 34)
-    dataFile.close()
 
 def getChart(fileObj, ci):
     chars = []
@@ -238,6 +236,86 @@ def getChart(fileObj, ci):
     chars.append(tmpChart10)
     return chars
 
+def GenScalingSheet(dataFile, value):
+    volumeScalingTables, qdScalingTables = value
+    volumeScalingSheet = dataFile.add_worksheet(u'Volume Scaling')
+    qdScalingSheet = dataFile.add_worksheet(u'QD Scaling')
+    for vi, vsRow in enumerate(volumeScalingTables):
+        for vj, vsCol in enumerate(vsRow):
+            if type(vsCol) == list:
+                volumeScalingSheet.merge_range(vj, vi, vj + vsCol[2], vi + vsCol[1], vsCol[0], set_style(dataFile, 'content'))
+            else:
+                volumeScalingSheet.write(vj, vi, vsCol, set_style(dataFile, 'content'))
+    for vci, vchart in enumerate(getScalingChart(dataFile, "Volume Scaling", 0, 2, 2, 2, 6)):
+        x_offset = vci * 500
+        volumeScalingSheet.insert_chart(8, 0, vchart, {'x_offset': x_offset, 'y_offset': 0})
+
+    for qi, qdRow in enumerate(qdScalingTables):
+        for qj, qdCol in enumerate(qdRow):
+            if type(qdCol) == list:
+                qdScalingSheet.merge_range(qj, qi, qj + qdCol[2], qi + qdCol[1], qdCol[0], set_style(dataFile, 'content'))
+            else:
+                qdScalingSheet.write(qj, qi, qdCol, set_style(dataFile, 'content'))
+    for qci, qchart in enumerate(getScalingChart(dataFile, "QD Scaling", 0, 2, 2, 2, 9)):
+        x_offset = qci * 500
+        qdScalingSheet.insert_chart(11, 0, qchart, {'x_offset': x_offset, 'y_offset': 0})
+
+    for l in range(10):
+        if l < 2 or l % 2 == 0:
+            volumeScalingSheet.set_column(l, l, 10)
+        else:
+            volumeScalingSheet.set_column(l, l, 18)
+
+    for m in range(10):
+        if m < 2 or m % 2 == 0:
+            qdScalingSheet.set_column(m, m, 10)
+        else:
+            qdScalingSheet.set_column(m, m, 18)
+
+def getScalingChart(fileObj, sheetName, name_row, name_col, s_row, s_col, e_row):
+    chars = []
+    tmpChart1 = fileObj.add_chart({'type': 'scatter', 'subtype': 'straight_with_markers'})
+    tmpChart1.add_series({
+        'name': [sheetName, name_row, name_col + 4],
+        'categories': [sheetName, s_row, s_col + 4, e_row, s_col + 4],
+        'values': [sheetName, s_row, s_col + 5, e_row, s_col + 5],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart1.add_series({
+        'name': [sheetName, name_row, name_col + 6],
+        'categories': [sheetName, s_row, s_col + 6, e_row, s_col + 6],
+        'values': [sheetName, s_row, s_col + 7, e_row, s_col + 7],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart1.set_title({'name': '4K Random Read & Write Performance Configuration-80 OSDs, QD=64', 'name_font': {'size': 14}})
+    tmpChart1.set_x_axis({'name': 'IOPS'})
+    tmpChart1.set_y_axis({'name': 'Latency(ms)'})
+    tmpChart1.set_legend({'position': 'bottom'})
+    chars.append(tmpChart1)
+    tmpChart2 = fileObj.add_chart({'type': 'scatter', 'subtype': 'straight_with_markers'})
+    tmpChart2.add_series({
+        'name': [sheetName, name_row, name_col],
+        'categories': [sheetName, s_row, s_col, e_row, s_col],
+        'values': [sheetName, s_row, s_col + 1, e_row, s_col + 1],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart2.add_series({
+        'name': [sheetName, name_row, name_col + 2],
+        'categories': [sheetName, s_row, s_col + 2, e_row, s_col + 2],
+        'values': [sheetName, s_row, s_col + 3, e_row, s_col + 3],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart2.set_title({'name': '64K Sequential Read & Write Performance Configuration-80 OSDs, QD=64', 'name_font': {'size': 14}})
+    tmpChart2.set_x_axis({'name': 'BW(MB/s)'})
+    tmpChart2.set_y_axis({'name': 'Latency(ms)'})
+    tmpChart2.set_legend({'position': 'bottom'})
+    chars.append(tmpChart2)
+    return chars
+
 def set_style(fileObj, name):
     styleObj = {
         'title': {'bold': True, 'bg_color': '#5B9BD5', 'bottom': 1, 'top': 1, 'left': 2, 'right': 2, 'valign': 'vcenter'},
@@ -258,6 +336,9 @@ def main(args):
         '--path',nargs='*',
         )
     parser.add_argument(
+        '--basepath',
+    )
+    parser.add_argument(
         '--dest_dir',
         )
     parser.add_argument(
@@ -266,22 +347,33 @@ def main(args):
     parser.add_argument(
         '--bench_type',
         )
+    parser.add_argument(
+        '--volume_runids',nargs='*',
+    )
+    parser.add_argument(
+        '--qd_runids',nargs='*',
+    )
     args = parser.parse_args(args)
     print args.path
     cases = args.path
+    basepath = args.basepath
+    volume_runids = args.volume_runids
+    qd_runids = args.qd_runids
     storeType = args.type
     if args.bench_type != None:
         benchType = args.bench_type
     else:    
         benchType = "fiorbd"
-    dest_dir = args.dest_dir
-    print dest_dir
     if args.dest_dir != None:
         dest_dir = args.dest_dir
     else:    
         dest_dir = "./"
     edf = excel_data_frame.ExcelDataFrame(cases, storeType, benchType)
-    GenExcelFile( dest_dir, edf.GetExcelData(), len(cases))
+    dataFile = xlsxwriter.Workbook('%s/summary.xlsx' % dest_dir)
+    GenExcelFile(dataFile, edf.GetExcelData(), len(cases))
+    if basepath and volume_runids and qd_runids:
+        GenScalingSheet(dataFile, edf.GetScalingSheetData(basepath, volume_runids, qd_runids))
+    dataFile.close()
 
 if __name__ == '__main__':
     import sys
