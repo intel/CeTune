@@ -2,11 +2,12 @@ import xlsxwriter
 import excel_data_frame
 import os,sys
 import argparse
+import collections
 
-def GenExcelFile(dest_dir, value, caseNum):
+def GenExcelFile(dataFile, value, caseNum):
     eTables, extTables = value
-    dataFile = xlsxwriter.Workbook('%s/summary.xlsx' % dest_dir)
     dataSheet = dataFile.add_worksheet(u'Detail')
+
     for i,eRow in enumerate(eTables):
         for j,eCol in enumerate(eRow):
             if i == 0 and j > 0:
@@ -46,17 +47,15 @@ def GenExcelFile(dest_dir, value, caseNum):
         i = ei + 1
         dataSheet.merge_range(ei, 0, ei, 5, "", set_style(dataFile, 'content'))
 
-    
     for ci in chartList:
         charts = getChart(dataFile, ci)
         for i,chart in enumerate(charts):
             x_offset = i * 380 + 10
             dataSheet.insert_chart(ci + 1, 6, chart, {'x_offset': x_offset, 'y_offset': 0})
-       
+
     for k in range(3*caseNum + 1):
         dataSheet.set_column(k, k, 18)
     dataSheet.set_row(0, 34)
-    dataFile.close()
 
 def getChart(fileObj, ci):
     chars = []
@@ -238,6 +237,97 @@ def getChart(fileObj, ci):
     chars.append(tmpChart10)
     return chars
 
+def GenScalingSheet(dataFile, value):
+    volumeScalingTables, qdScalingTables = value
+    volumeScalingSheet = dataFile.add_worksheet(u'Volume Scaling')
+    qdScalingSheet = dataFile.add_worksheet(u'QD Scaling')
+    vm_chartList = []
+    for vi, vsRow in enumerate(volumeScalingTables):
+        if len(vsRow) > 1 and vsRow[0] == "chartinfo":
+            vm_chartList.append([vsRow[1], vsRow[2]])
+            continue
+        for vj, vsCol in enumerate(vsRow):
+            if type(vsCol) == list:
+                volumeScalingSheet.merge_range(vi, vj, vi + vsCol[2], vj + vsCol[1], vsCol[0], set_style(dataFile, 'content'))
+            else:
+                volumeScalingSheet.write(vi, vj, vsCol, set_style(dataFile, 'content'))
+
+    for vm_ci in vm_chartList:
+        for vci, vchart in enumerate(getScalingChart(dataFile, "Volume Scaling", vm_ci[0], 2, vm_ci[0] + 2, 2, vm_ci[0] + vm_ci[1])):
+            x_offset = vci * 500 + 10
+            volumeScalingSheet.insert_chart(vm_ci[0], 10, vchart, {'x_offset': x_offset, 'y_offset': 0})
+
+    qd_chartList = []
+    for qi, qdRow in enumerate(qdScalingTables):
+        if len(qdRow) > 1 and qdRow[0] == "chartinfo":
+            qd_chartList.append([qdRow[1], qdRow[2]])
+            continue
+        for qj, qdCol in enumerate(qdRow):
+            if type(qdCol) == list:
+                qdScalingSheet.merge_range(qi, qj, qi + qdCol[2], qj + qdCol[1], qdCol[0], set_style(dataFile, 'content'))
+            else:
+                qdScalingSheet.write(qi, qj, qdCol, set_style(dataFile, 'content'))
+    for qd_ci in qd_chartList:
+        for qci, qchart in enumerate(getScalingChart(dataFile, "QD Scaling", qd_ci[0], 2, qd_ci[0] + 2, 2, qd_ci[0] + qd_ci[1])):
+            x_offset = qci * 500 + 10
+            qdScalingSheet.insert_chart(qd_ci[0], 10, qchart, {'x_offset': x_offset, 'y_offset': 0})
+
+    for l in range(10):
+        if l < 2 or l % 2 == 0:
+            volumeScalingSheet.set_column(l, l, 10)
+        else:
+            volumeScalingSheet.set_column(l, l, 18)
+
+    for m in range(10):
+        if m < 2 or m % 2 == 0:
+            qdScalingSheet.set_column(m, m, 10)
+        else:
+            qdScalingSheet.set_column(m, m, 18)
+
+def getScalingChart(fileObj, sheetName, name_row, name_col, s_row, s_col, e_row):
+    chars = []
+    tmpChart1 = fileObj.add_chart({'type': 'scatter', 'subtype': 'straight_with_markers'})
+    tmpChart1.add_series({
+        'name': [sheetName, name_row, name_col + 4],
+        'categories': [sheetName, s_row, s_col + 4, e_row, s_col + 4],
+        'values': [sheetName, s_row, s_col + 5, e_row, s_col + 5],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart1.add_series({
+        'name': [sheetName, name_row, name_col + 6],
+        'categories': [sheetName, s_row, s_col + 6, e_row, s_col + 6],
+        'values': [sheetName, s_row, s_col + 7, e_row, s_col + 7],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart1.set_title({'name': '4K Random Read & Write Performance Configuration-80 OSDs, QD=64', 'name_font': {'size': 14}})
+    tmpChart1.set_x_axis({'name': 'IOPS'})
+    tmpChart1.set_y_axis({'name': 'Latency(ms)'})
+    tmpChart1.set_legend({'position': 'bottom'})
+    chars.append(tmpChart1)
+    tmpChart2 = fileObj.add_chart({'type': 'scatter', 'subtype': 'straight_with_markers'})
+    tmpChart2.add_series({
+        'name': [sheetName, name_row, name_col],
+        'categories': [sheetName, s_row, s_col, e_row, s_col],
+        'values': [sheetName, s_row, s_col + 1, e_row, s_col + 1],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart2.add_series({
+        'name': [sheetName, name_row, name_col + 2],
+        'categories': [sheetName, s_row, s_col + 2, e_row, s_col + 2],
+        'values': [sheetName, s_row, s_col + 3, e_row, s_col + 3],
+        'marker': {'type': 'circle'},
+        'line': {'width': 1},
+    })
+    tmpChart2.set_title({'name': '64K Sequential Read & Write Performance Configuration-80 OSDs, QD=64', 'name_font': {'size': 14}})
+    tmpChart2.set_x_axis({'name': 'BW(MB/s)'})
+    tmpChart2.set_y_axis({'name': 'Latency(ms)'})
+    tmpChart2.set_legend({'position': 'bottom'})
+    chars.append(tmpChart2)
+    return chars
+
 def set_style(fileObj, name):
     styleObj = {
         'title': {'bold': True, 'bg_color': '#5B9BD5', 'bottom': 1, 'top': 1, 'left': 2, 'right': 2, 'valign': 'vcenter'},
@@ -251,37 +341,89 @@ def set_style(fileObj, name):
     }
     return fileObj.add_format(styleObj[name]) if name in styleObj else fileObj.add_format({})
 
+def classifyRunids(edf, basepath, runids, volume, qd):
+    vm_runids = []
+    qd_runids = []
+    for runid in runids:
+        dataObj = edf.GetDataObjByRunid(basepath, runid)
+        if dataObj and dataObj["summary"]["run_id"][str(runid)]["Worker"] == str(volume):
+            vm_runids.append(runid)
+        if dataObj and dataObj["summary"]["run_id"][str(runid)]["QD"] == "qd" + str(qd):
+            qd_runids.append(runid)
+    return vm_runids,qd_runids
+
+def get_volume_group(runids):
+    result = collections.OrderedDict()
+    for runid in runids:
+        if getBenchType(runid) != "fiorbd":
+            continue
+        tmpVM = getVolume(runid)
+        tmpQD = getQD(runid)
+        tmpType = getType(runid)
+        if tmpVM not in result:
+            result[tmpVM] = {}
+        if tmpQD not in result[tmpVM]:
+            result[tmpVM][tmpQD] = {}
+        if tmpType not in  result[tmpVM][tmpQD]:
+            result[tmpVM][tmpQD][tmpType] = runid
+    return result
+
+def get_qd_group(runids):
+    result = collections.OrderedDict()
+    for runid in runids:
+        if getBenchType(runid) != "fiorbd":
+            continue
+        tmpQD = getQD(runid)
+        tmpVM = getVolume(runid)
+        tmpType = getType(runid)
+        if tmpQD not in result:
+            result[tmpQD] = {}
+        if tmpVM not in result[tmpQD]:
+            result[tmpQD][tmpVM] = {}
+        if tmpType not in result[tmpQD][tmpVM]:
+            result[tmpQD][tmpVM][tmpType] = runid
+    return result
+
+def getBenchType(runid):
+    return runid.split("/")[-1].split("-")[2]
+def getType(runid):
+    return runid.split("/")[-1].split("-")[3] + "-" + runid.split("/")[-1].split("-")[4]
+def getVolume(runid):
+    return int(runid.split("/")[-1].split("-")[1])
+def getQD(runid):
+    return int(runid.split("/")[-1].split("-")[5][2:])
 
 def main(args):
     parser = argparse.ArgumentParser(description='Analyzer tool')
     parser.add_argument(
         '--path',nargs='*',
-        )
+    )
     parser.add_argument(
         '--dest_dir',
-        )
+    )
     parser.add_argument(
         '--type',
-        )
+    )
     parser.add_argument(
         '--bench_type',
-        )
+    )
+
     args = parser.parse_args(args)
-    print args.path
     cases = args.path
     storeType = args.type
     if args.bench_type != None:
         benchType = args.bench_type
     else:    
         benchType = "fiorbd"
-    dest_dir = args.dest_dir
-    print dest_dir
     if args.dest_dir != None:
         dest_dir = args.dest_dir
     else:    
         dest_dir = "./"
     edf = excel_data_frame.ExcelDataFrame(cases, storeType, benchType)
-    GenExcelFile( dest_dir, edf.GetExcelData(), len(cases))
+    dataFile = xlsxwriter.Workbook('%s/summary.xlsx' % dest_dir)
+    GenExcelFile(dataFile, edf.GetExcelData(), len(cases))
+    GenScalingSheet(dataFile, edf.GetScalingSheetData(get_qd_group(cases), get_volume_group(cases)))
+    dataFile.close()
 
 if __name__ == '__main__':
     import sys
