@@ -10,6 +10,7 @@ import re
 import json
 import argparse
 import threading
+import reweight
 
 pp = pprint.PrettyPrinter(indent=4)
 class Tuner:
@@ -338,6 +339,9 @@ class Tuner:
                 if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                     self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
 
+            if not pool_exist and  self.worksheet[jobname]['pool'][new_poolname]['reweight_enable'] == 'true':
+                self.handle_pool(option = 'reweight', param = {'reweight_target':self.worksheet[jobname]['pool'][new_poolname]['reweight_target']})
+
         if no_check:
             return
 
@@ -373,6 +377,12 @@ class Tuner:
             for pool in cur_pools:
                 common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
+
+        if option == "reweight":
+            common.printout("LOG", "start reweight, target: %s" % param['reweight_target'])
+            reweight.do(param['reweight_target'])
+            common.printout("LOG", "reweight complete.")
+
 
 def main(args):
     print args
