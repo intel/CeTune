@@ -338,11 +338,19 @@ class Tuner:
                 if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                     self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
         if no_check:
             return
 
-        user = self.cluster["user"]
-        controller = self.cluster["head"]
+        #health check
+        ceph_status = common.get_ceph_health( user, controller )
+        print ceph_status
+        if ceph_status["ceph_status"] == "HEALTH_WARN":
+            if "POOL_APP_NOT_ENABLED" in ceph_status["detail"]:
+                poolname = self.worksheet[jobname]['pool'].keys()[0]
+                common.pdsh(user, [controller], "rbd pool init %s" % poolname, option="check_return")
+
         common.wait_ceph_to_health( user, controller )
 
     def handle_pool(self, option="set", param = {}):

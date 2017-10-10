@@ -637,11 +637,13 @@ def check_health( user, controller ):
 def get_ceph_health(user, node):
     check_count = 0
     output = {}
+    output["detail"] = {}
     stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s -f json", option = "check_return",loglevel="LVL5")
     res = format_pdsh_return(stdout)
     if len(res):
         stdout = res[node]
         output["ceph_status"] = stdout['health']['overall_status']
+        output["detail"] = stdout['health']['checks']
         if "write_bytes_sec" in stdout['pgmap']:
             str_wb = str(stdout['pgmap']['write_bytes_sec'] / 1024 / 1024) + ' MB/s wr, '
             str_rop = '0 op/s rd, ' if stdout['pgmap']['read_op_per_sec'] == 0 else str(stdout['pgmap']['read_op_per_sec'] / 1024) + ' kop/s rd, '
