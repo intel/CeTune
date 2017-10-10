@@ -69,8 +69,8 @@ class Hook(Benchmark):
         if self.custom_script:
             common.bash( self.custom_script )
         plugin.main()
-        for wait in range(1, waittime):
-            time.sleep(1)
+        #for wait in range(1, waittime):
+        #    time.sleep(1)
 
     def archive(self):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
