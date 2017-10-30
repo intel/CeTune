@@ -376,7 +376,7 @@ class Benchmark(object):
             end_vclient_num = 0
             client_num = 0
             for client in self.cluster["client"]:
-                vclient_total = (int(disk_num_per_client[client_num])/total_disk) * len(tmp_instance_list[pool_name])
+                vclient_total = int(float(disk_num_per_client[client_num])/total_disk * len(tmp_instance_list[pool_name]))
                 end_vclient_num = start_vclient_num + vclient_total
                 if workload_engine != "qemu":
                     if client not in self.cluster["testjob_distribution"]:
