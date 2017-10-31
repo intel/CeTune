@@ -87,8 +87,6 @@ class ConfigHandler():
 
     def set_config(self, request_type, key, value):
         conf_type = self.get_corresponde_config(request_type)
-        import pdb
-        #pdb.set_trace()
         if conf_type == "tuner":
             res = self.tuner_conf.set_config(key, value)
         elif conf_type == "all":
@@ -208,6 +206,7 @@ class ConfigHandler():
         required_list["ceph_hard_config"]["osd_objectstore"] = "filestore"
         required_list["benchmark"] = OrderedDict()
         required_list["benchmark"]["disable_tuning_check"] = "false"
+        required_list["benchmark"]["distributed_data_process"] = "false"
         required_list["benchmark"]["tmp_dir"]="/opt/"
         required_list["benchmark"]["dest_dir"]="/mnt/data/"
         required_list["benchmark"]["cache_drop_level"]=1

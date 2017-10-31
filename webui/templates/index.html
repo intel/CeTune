@@ -25,6 +25,7 @@
 
 
 <script src="../static/js/jquery.js"></script>
+<script src="../static/js/src/jquery.table2excel.js"></script>
 <script src="../static/js/store.js"></script>
 <script src="../static/js/jquery.resizableColumns.min.js"></script>
 
@@ -53,7 +54,10 @@
        <h1><a href="#">CeTune -- Ceph tuning and profiling</a></h1>
     </div>
      <div id="div_top_status_id">
+     <!--
        <h1>Benchmark is runing.....</h1>
+	-->
+       <h1>CeTune Status: idle Ceph Status: None</h1>
        <h6 class='ceph_thr'></h6>
       <!-- <h1><a href="#"><img id="img_top_id" src="image/progruss.jpg" />Benchmark is runing.....</a></h1>-->
     </div>
@@ -75,7 +79,7 @@
              
                     <dd>
                       <div>
-                        <h4><div><input type="checkbox" class="check_control_class"  title="deploy"  onclick="ExecutvieCheck(event)">   Deploy</div></h4>            
+                        <h4><div><input type="checkbox" class="check_control_class" title="deploy"  onclick="ExecutvieCheck(event)">   Deploy</div></h4>            
                         <ul>           
                           <li class="div_Configuration_left_nav_li_class"><a id="cluster" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Cluster Configuration</a></li>
                           <li class="div_Configuration_left_nav_li_class"><a id="ceph_hard_config" href="#" onclick="$('.div_Configuration_left_nav_li_class a').removeClass('active');$(this).addClass('active');"><img title="true" class="img_Configuration_class" src="../static/image/config_OK.gif">Ceph Configuration</a></li>      
@@ -156,6 +160,10 @@
              </dl>
           </div>
         </div>
+        <div id = "div_Status_left_button">
+        <input id="bnt_Configuration_cancel_one" class="btn btn-primary btn-lg" type="button" value="Cancel One"/>
+        <input id="bnt_Configuration_cancel_all" class="btn btn-primary btn-lg" type="button" value="Cancel All"/>
+        </div>
      </div>
      <div id = "div_Status_right_id" class="div_content_right_class">
         <div id="div_console_id">
@@ -225,6 +233,23 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="DeleteResultReportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+       
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ModalLabel_delete">Are you sure delete thers rows?</h4>
+      </div>
+      
+       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="DeleteModal_OK" onclick="DeleteModal_OK('resultreport')">Apply</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>        
+      </div>
+       
+    </div>
+  </div>
+</div>
 
 <div class="modal fade" id="DeleteBenchmarkModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
   <div class="modal-dialog" role="document">
@@ -243,7 +268,6 @@
     </div>
   </div>
 </div>
-
 
 <!----------------------------------------------------------------------------------------------------------------------------------->
 
@@ -377,6 +401,17 @@
             <label class="testcase-dialog-description" id="Tag_Description">example: librados_4MB_write</label>
             <!--<textarea class="form-control" id="message-text"></textarea>-->
              <input type="text" class="form-control" id="recipient_desc">
+          </div>
+
+          <div class="form-group">
+              <label for="additional_option" class="control-label">additional_option:</label>
+              <label class="testcase-dialog-description" id="additional_option_label">example: restart,redeploy,resetPerf</label>
+              <select name="select" id="additional_option_select" class="form-control">
+                  <option>null</option>
+                  <option>restart</option>
+                  <option>redeploy</option>
+                  <option>resetPerf</option>
+              </select>
           </div>
           
         </form>

@@ -5,8 +5,12 @@ import json
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from collections import OrderedDict
-from conf import common
-from conf import description
+try:
+    from conf import common
+    from conf import description
+except:
+    import common 
+    import description
 import re
 import argparse
 
@@ -212,6 +216,7 @@ class Config():
         required["monitoring_interval"] = {"type":"int"}
         required["disk_format"] = {"type":"diskformat"}
         required["disable_tuning_check"] = {"type":"bool"}
+        required["distributed_data_process"] = {"type":"bool"}
 
         helper = ConfigHelper()
         if key in required:
@@ -222,12 +227,12 @@ class Config():
             output = helper._check_config( key, value )
         return output
 
-    def get(self, key, dotry=False):
+    def get(self, key, dotry=False,loglevel="LVL3"):
         if key in self.conf_data:
             return self.conf_data[key]
         else:
             if not dotry:
-                common.printout("WARNING","%s not defined in all.conf" % key)
+                common.printout("WARNING","%s not defined in all.conf" % key,log_level=loglevel)
                 sys.exit()
             else:
                 return ""
@@ -235,9 +240,9 @@ class Config():
     def get_list(self,key):
         if key in self.conf_data:
             if re.search(',', self.conf_data[key]):
-                return self.conf_data[key].split(",")
+                return [x.strip() for x in self.conf_data[key].split(",")]
             else:
-                return [self.conf_data[key]]
+                return [self.conf_data[key].strip()]
         else:
             print "%s not defined in all.conf" % key
             return []
@@ -263,18 +268,20 @@ class BenchmarkConfig():
     def set_config(self, case_json_list):
         testcase_keys = [
             "benchmark_driver","worker", "container_size", "iopattern",
-            "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc"
+            "op_size", "object_size/QD", "rampup", "runtime", "device", "parameter", "desc","additional_option"
         ]
         case_list = []
         for tmp_dict in json.loads(case_json_list):
             tmp = []
             for key in testcase_keys:
+                if tmp_dict[key] == "":
+                    tmp_dict[key] = "NULL"
                 tmp.append(tmp_dict[key])
             if tmp not in case_list:
                 case_list.append(tmp)
         output = ""
         for case_items in case_list:
-            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\t%8s\t%s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8], case_items[9] ,case_items[10])
+            output += '%8s\t%4s\t%16s\t%8s\t%8s\t%16s\t%8s\t%8s\t%8s\t%8s\t%s\t%6s\n' % ( case_items[0],case_items[1], case_items[2], case_items[3], case_items[4], case_items[5], case_items[6], case_items[7], case_items[8], case_items[9] ,case_items[10],case_items[11])
         with open("../conf/cases.conf","w") as f:
             f.write( output )
         return False
@@ -286,14 +293,16 @@ class BenchmarkConfig():
                 lines = f.readlines()
             for line in lines:
                 p = line.split()
-                testcase_list.append( self.parse_benchmark_cases( p ) )
+                if len(p) != 0 and p!="\n":
+                    testcase_list.append( self.parse_benchmark_cases( p ) )
         except:
             common.bash("cp %s %s" % (self.default_conf_path, self.conf_path))
             with open(self.conf_path,"r") as f:
                 lines = f.readlines()
             for line in lines:
                 p = line.split()
-                testcase_list.append( self.parse_benchmark_cases( p ) )
+                if len(p) != 0 and p!="\n":
+                    testcase_list.append( self.parse_benchmark_cases( p ) )
         return testcase_list
 
     def parse_benchmark_cases(self, testcase):
@@ -303,20 +312,45 @@ class BenchmarkConfig():
             "op_size":p[4], "object_size/QD":p[5], "rampup":p[6], "runtime":p[7], "device":p[8]
         }
 
-        if len(p) == 11:
+        if len(p) == 12:
             testcase_dict["parameter"] = p[9]
             testcase_dict["description"] = p[10]
+            testcase_dict["additional_option"] = p[11]
         else:
+            option_list = ['restart','redeploy']
             if len(p) == 9:
                 testcase_dict["parameter"] = ""
                 testcase_dict["description"] = ""
-            else:
+                testcase_dict["additional_option"] = ""
+            elif len(p) == 10:
                 if self.check_parameter_style(p[9]):
                     testcase_dict["parameter"] = p[9]
                     testcase_dict["description"] = ""
+                    testcase_dict["additional_option"] = ""
+                elif p[9] in option_list:
+                    testcase_dict["parameter"] = ""
+                    testcase_dict["description"] = ""
+                    testcase_dict["additional_option"] = p[9]
                 else:
                     testcase_dict["parameter"] = ""
                     testcase_dict["description"] = p[9]
+                    testcase_dict["additional_option"] = ""
+
+            elif len(p) == 11:
+                if p[10] in option_list:
+                    if self.check_parameter_style(p[9]):
+                        testcase_dict["parameter"] = p[9]
+                        testcase_dict["description"] = ""
+                        testcase_dict["additional_option"] = p[10]
+                    else:
+                        testcase_dict["parameter"] = ""
+                        testcase_dict["description"] = p[9]
+                        testcase_dict["additional_option"] = p[10]
+                else:
+                    testcase_dict["parameter"] = p[9]
+                    testcase_dict["description"] = p[10]
+                    testcase_dict["additional_option"] = ""
+
         return testcase_dict
     
     def check_parameter_style(self,paras):

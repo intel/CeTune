@@ -17,9 +17,18 @@ import struct
 from collections import OrderedDict
 import argparse
 
-cetune_log_file = "../conf/cetune_process.log"
-cetune_error_file = "../conf/cetune_error.log"
+#cetune_log_file = "../conf/cetune_process.log"
+#cetune_error_file = "../conf/cetune_error.log"
 cetune_console_file = "../conf/cetune_console.log"
+cetune_log_file = "../log/cetune_process_log_file.log"
+cetune_error_file = "../log/cetune_error_log_file.log"
+case_conf_file = "../conf/cases.conf"
+tuner_yaml_file = "../conf/tuner.yaml"
+cetune_python_log_file = "../log/cetune_python_log_file.log"
+cetune_python_error_log_file = "../log/cetune_python_error_log_file.log"
+cetune_process_log_file = "../log/cetune_process_log_file.log"
+cetune_error_log_file = "../log/cetune_error_log_file.log"
+#cetune_operate_log_file = "../log/cetune_operate_log_file.log"
 no_die = False
 
 class bcolors:
@@ -57,7 +66,22 @@ class IPHandler:
 
     def getIpByHostInSubnet(self, hostname, subnet ):
         "Get IP by hostname and filter with subnet"
-        (hostname, aliaslist, ipaddrlist) = socket.gethostbyname_ex(hostname)
+        stdout, stderr = pdsh('root', [hostname] ,"ifconfig", option = "check_return",loglevel="LVL6")
+        if len(stderr):
+            printout("ERROR", 'Error to get ips: %s' % stderr,log_level="LVL1")
+            sys.exit()
+        ipaddrlist = []
+        res = re.findall("inet addr:\d+\.\d+\.\d+\.\d+",stdout)
+        if len(res) == 0:
+            res = re.findall("inet \d+\.\d+\.\d+\.\d+",stdout)
+        for item in res:
+            tmp = re.findall("\d+\.\d+\.\d+\.\d+",item)
+            b = tmp[0]
+            if b != "127.0.0.1":
+                ipaddrlist.append(b)
+        if len(ipaddrlist) == 0:
+            printout("ERROR", "No IP found",log_level="LVL1")
+            sys.exit()
         try:
             network, netmask = self.networkMask(subnet)
         except:
@@ -78,6 +102,21 @@ def get_list( string ):
             res.append([value,""])
     return res
 
+def check_case_conf():
+    result = "false"
+    with open(case_conf_file,"r") as f:
+        case_list = f.readlines()
+    if len(case_list) != 0:
+        for line in case_list:
+            if "redeploy" in line:
+                result = "true"
+    with open(tuner_yaml_file,"r") as f:
+        yaml_data = yaml.load(f)
+    for key,value in yaml_data.items():
+        if "deploy" in value["workstages"]:
+            result = "true"
+    return result
+
 def get_largest_list_len( data ):
     max_len = 0;
     if isinstance(data, dict):
@@ -93,40 +132,80 @@ def get_largest_list_len( data ):
 def clean_console():
     bash("echo > %s" % cetune_console_file)
 
+def cetune_log_collecter(func):
+    def wrapper(level, content, screen = True,log_level = "LVL3"):
+        if not os.path.exists("../log/"):
+            os.mkdir("../log")
+        if log_level in ["LVL1"]:
+            output = "[%s][%s]: %s" % (log_level,level,content)
+            with open(cetune_error_log_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        if log_level in ["LVL2"]:
+            output = "[%s][%s]: %s" % (log_level,level,content)
+            with open(cetune_python_error_log_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        if log_level in ["LVL2","LVL4","LVL6"]:
+            output = "[%s][%s]: %s" % (log_level,level,content)
+            with open(cetune_python_log_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        if log_level in ["LVL1","LVL2","LVL3"]:
+            output = "[%s][%s]: %s" % (log_level,level,content)
+            with open(cetune_process_log_file, "a+") as f:
+                f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        return func(level, content, screen)
+    return wrapper
+
+@cetune_log_collecter
 def printout(level, content, screen = True):
     if level == "ERROR":
         output = "[ERROR]: %s" % content
-        with open(cetune_error_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_error_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.FAIL + output + bcolors.ENDC
     if level == "LOG":
         output = "[LOG]: %s" % content
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.OKGREEN + output + bcolors.ENDC
     if level == "WARNING":
         output = "[WARNING]: %s" % content
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),output))
             print bcolors.WARNING + output + bcolors.ENDC
     if level == "CONSOLE":
-        with open(cetune_log_file, "a+") as f:
-            f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
+        #with open(cetune_log_file, "a+") as f:
+        #    f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
         if screen:
             with open(cetune_console_file, "a+") as f:
                 f.write("[%s]%s\n" % (datetime.datetime.now().isoformat(),content))
             print content
+
+def clean_process_log(file_path):
+    start_line = 0
+    with open(os.path.join(file_path,'cetune_process_log_file.log'),'rw') as f:
+        data = f.readlines()
+    for i in range(len(data)):
+        if data[i].strip('\n').find("============start deploy============") > 0:
+            start_line = int(i)+1
+    if start_line != 0:
+        old_name = os.path.join(file_path,'cetune_process_log_file.log')
+        new_name = os.path.join(file_path,'cetune_process_log_file.log') + '.new'
+        bash("tail -n +%d %s > %s" % (start_line,old_name,new_name))
+        bash("mv %s %s"%(new_name,old_name))
+    else:
+        bash("rm  %s/*" % (file_path))
+    printout("LOG", "Clean process log file.",log_level="LVL3")
 
 def remote_dir_exist( user, node, path ):
     stdout, stderr = pdsh(user, [node] ,"test -d %s; echo $?" % path, option = "check_return")
@@ -140,14 +219,14 @@ def remote_file_exist( user, node ,path):
     for node, returncode in res.items():
         return int(returncode) == 0
 
-def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=False):
+def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=False,loglevel="LVL3"):
     _nodes = []
     for node in nodes:
         _nodes.append("%s@%s" % (user, node))
     _nodes = ",".join(_nodes)
     args = ['pdsh', '-R', 'exec', '-w', _nodes, '-f', str(len(nodes)), 'ssh', '%h', '-oConnectTimeout=15', command]
 #    args = ['pdsh', '-w', _nodes, command]
-    printout("CONSOLE", args, screen=False)
+    printout("CONSOLE", args, screen=False,log_level=loglevel)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if "force" in option:
@@ -164,9 +243,9 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     if stdout:
-        printout("CONSOLE", stdout, screen=False)
+        printout("CONSOLE", stdout, screen=False,log_level=loglevel)
     if stderr:
-        printout("CONSOLE", stderr, screen=False)
+        printout("CONSOLE", stderr, screen=False,log_level=loglevel)
 
     if stderr:
         returncode_re = re.search('ssh exited with exit code (\d+)', stderr)
@@ -186,7 +265,7 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
                 for line in stderr_tmp:
                     if "ssh exited with exit code 255" not in line:
                         stderr_print.append(line)
-                printout("ERROR",'\n'.join(stderr_print), screen=False)
+                printout("ERROR",'\n'.join(stderr_print), screen=False,log_level="LVL1")
         return [stdout, stderr]
     else:
         if returncode or "Connection timed out" in stderr:
@@ -197,13 +276,13 @@ def pdsh(user, nodes, command, option="error_check", except_returncode=0, nodie=
                     if "ssh exited with exit code 255" not in line:
                         stderr_print.append(line)
                 print('pdsh: %s' % args)
-                printout("ERROR",'\n'.join(stderr_print))
+                printout("ERROR",'\n'.join(stderr_print),log_level="LVL1")
             if not nodie:
                 sys.exit()
 
-def bash(command, force=False, option="", nodie=False):
+def bash(command, force=False, option="", nodie=False,loglevel = "LVL3"):
     args = ['bash', '-c', command]
-    printout("CONSOLE", args, screen=False)
+    #printout("CONSOLE", args, screen=False)
 
     _subp = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout = []
@@ -216,16 +295,17 @@ def bash(command, force=False, option="", nodie=False):
     stderr = _subp.stderr.read()
     stdout = "".join(stdout)
     if stdout:
-        printout("CONSOLE", stdout, screen=False)
+        #printout("CONSOLE", stdout, screen=False,log_level=loglevel)
+        printout("CONSOLE", "cmdline: %s, return_code: %s\n" % (args, str(returncode)), screen=False,log_level=loglevel)
     if stderr:
-        printout("CONSOLE", stderr, screen=False)
+        printout("CONSOLE", "cmdline: %s, error_code: %s\n" % (args,  stderr), screen=False,log_level=loglevel)
 
     if force:
         return [stdout, stderr]
     if returncode:
         if stderr:
             print('bash: %s' % args)
-            printout("ERROR",stderr+"\n")
+            printout("ERROR",stderr+"\n",log_level="LVL1")
         if not nodie:
             sys.exit()
     return stdout
@@ -349,6 +429,11 @@ def convert_table_to_2Dlist(table_str):
                 index += 1
     return res_dict
 
+def format_detail_data_to_list(detail_data):
+    for key,value in detail_data.items():
+        detail_data[key] = convert_table_to_2Dlist(value)
+    return detail_data
+
 def check_if_adict_contains_bdict(adict, bdict):
     for key in bdict:
         if key in adict:
@@ -410,11 +495,16 @@ class MergableDict:
     def get(self):
         return self.mergable_dict
 
-def size_to_Kbytes(size, dest_unit='KB'):
+def remove_unit(data):
+    ret = size_to_Kbytes( "%s" % data, 'B', 1000.0 )
+    return ret
+
+def size_to_Kbytes(size, dest_unit='KB', arg=1024.0):
     if not str(size).isdigit():
-        res = re.search('(\d+\.*\d*)\s*(\D*)',size)
+        size_s = size.replace('\n','')
+        res = re.search('(\d+\.*\d*)\s*(\D*)',size_s)
         space_num = float(res.group(1))
-        space_unit = res.group(2)
+        space_unit = res.group(2).strip()
         if space_unit == "":
             space_unit = 'B'
     else:
@@ -424,6 +514,8 @@ def size_to_Kbytes(size, dest_unit='KB'):
         space_unit = 'K'
     if space_unit in ['Z','E','P','T','G','M','K']:
         space_unit += 'B'
+    if space_unit in ['ZiB','EiB','PiB','TiB','GiB','MiB','KiB']:
+        space_unit = space_unit.replace("i","")
     if space_unit == 'bytes':
         space_unit = 'B'
     unit_list = ['ZB','EB','PB','TB','GB','MB','KB','B']
@@ -431,10 +523,10 @@ def size_to_Kbytes(size, dest_unit='KB'):
     space_unit_index = unit_list.index(space_unit)
     if dest_unit_index > space_unit_index:
         for i in range(space_unit_index, dest_unit_index):
-            space_num *= 1024.0
+            space_num *= arg
     else:
         for i in range(dest_unit_index, space_unit_index):
-            space_num /= 1024.0
+            space_num /= arg
     return float('%.3f' % space_num)
 
 def time_to_sec(fio_runtime, dest_unit='sec'):
@@ -460,6 +552,15 @@ def unique_extend( list_data, new_list ):
         if data not in list_data:
             list_data.append( data )
     return list_data
+
+def get_total( data ):
+    total = 0
+    if isinstance(data, list):
+        total = len(data)
+    elif isinstance(data, dict):
+        for key, value in data.items():
+            total += get_total(value)
+    return total
 
 def read_file_after_stamp(path, stamp = None):
     lines = []
@@ -508,19 +609,46 @@ def eval_args( obj, function_name, args ):
             res = func( **argv )
     return res
 
+def wait_ceph_to_health( user, controller ):
+        #wait ceph health to be OK
+        waitcount = 0
+        try:
+            while not check_health( user, controller ) and waitcount < 300:
+                printout("WARNING","Applied tuning, waiting ceph to be healthy")
+                time.sleep(3)
+                waitcount += 3
+        except:
+            printout("WARNING","Caught KeyboardInterrupt, exit")
+            sys.exit()
+        if waitcount < 300:
+            printout("LOG","Tuning has applied to ceph cluster, ceph is Healthy now")
+        else:
+            printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually",log_level="LVL1")
+            sys.exit()
+
+def check_health( user, controller ):
+    check_count = 0
+    stdout, stderr = pdsh(user, [controller], 'ceph health', option="check_return")
+    if "HEALTH_OK" in stdout:
+        return True
+    else:
+        return False
+
 def get_ceph_health(user, node):
     check_count = 0
     output = {}
-    stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s", option = "check_return")
+    output["detail"] = {}
+    stdout, stderr = pdsh(user, [node], "timeout 3 ceph -s -f json", option = "check_return",loglevel="LVL5")
     res = format_pdsh_return(stdout)
     if len(res):
         stdout = res[node]
-        stdout = stdout.split('\n')
-        output["ceph_status"] = stdout[1]
-        if "client io" in stdout[-2]:
-            output["ceph_throughput"] = stdout[-2]
-        if "client io" in stdout[-1]:
-            output["ceph_throughput"] = stdout[-1]
+        output["ceph_status"] = stdout['health']['overall_status']
+        output["detail"] = stdout['health']['checks']
+        if "write_bytes_sec" in stdout['pgmap']:
+            str_wb = str(stdout['pgmap']['write_bytes_sec'] / 1024 / 1024) + ' MB/s wr, '
+            str_rop = '0 op/s rd, ' if stdout['pgmap']['read_op_per_sec'] == 0 else str(stdout['pgmap']['read_op_per_sec'] / 1024) + ' kop/s rd, '
+            str_wop = '0 op/s wr, ' if stdout['pgmap']['write_op_per_sec'] == 0 else str(stdout['pgmap']['write_op_per_sec'] / 1024) + ' kop/s wr'
+            output["ceph_throughput"] = 'client: ' + str_wb + str_rop + str_wop
     else:
         output["ceph_status"] = "NOT ALIVE"
     return output
@@ -556,7 +684,7 @@ def parse_device_name(dev_name):
     res = nvme_pattern.search(dev_name)
     if res:
         return res.group()
-    printout("ERROR", "device path error!\n")
+    printout("ERROR", "device path error!\n",log_level="LVL1")
     return None
 
 def parse_disk_format( disk_format_str ):
@@ -564,4 +692,18 @@ def parse_disk_format( disk_format_str ):
         disk_format_str = "osd:journal"
     disk_type_list = disk_format_str.split(":")
     return disk_type_list
+
+def download_result( key ):
+    return key
+
+def get_title_list( data ):
+    found = False
+    for key, value in data.items():
+        if isinstance(value, dict):
+            return get_title_list(value)
+        else:
+            found = True
+            break
+    if found:
+        return data.keys()
 

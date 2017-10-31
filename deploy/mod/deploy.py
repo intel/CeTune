@@ -11,10 +11,12 @@ import argparse
 import json
 from threading import Thread
 from collections import OrderedDict
+import traceback
 
 pp = pprint.PrettyPrinter(indent=4)
 class Deploy(object):
     def __init__(self, tunings=""):
+        common.printout("LOG", "============start deploy============",log_level="LVL3")
         self.all_conf_data = config.Config("../conf/all.conf")
         self.cluster = {}
         self.cluster["clean_build"] = self.all_conf_data.get("clean_build")
@@ -39,6 +41,7 @@ class Deploy(object):
         self.cluster["ceph_conf"]["osd"]["osd_data"] = "/var/lib/ceph/mnt/osd-device-$id-data"
         self.cluster["collector"] = self.all_conf_data.get_list("collector")
         self.cluster["ceph_disk"] = {}
+	self.cluster["disk_format"] = self.all_conf_data.get("disk_format")
 
         for key, value in self.all_conf_data.get_group("ceph_hard_config").items():
             section_name = "global"
@@ -99,6 +102,7 @@ class Deploy(object):
         self.cluster["mount_opts"] = "-o inode64,noatime,logbsize=256k"
 
         self.cluster["ceph_conf"]["client"] = {}
+        self.cluster["ceph_conf"]["global"]["mon_allow_pool_delete"] = "true"
         self.cluster["ceph_conf"]["client"]["rbd_cache"] = "false"
         self.cluster["ceph_conf"]["osd"]["osd_mkfs_type"] = "xfs"
         osd_mount_options_fs_type = "osd_mount_options" + "_" + self.cluster["ceph_conf"]["osd"]["osd_mkfs_type"]
@@ -129,6 +133,11 @@ class Deploy(object):
                         self.cluster["ceph_conf"]['mds'] = OrderedDict()
                     for key, value in section.items():
                         self.cluster["ceph_conf"]['mds'][key] = value
+                if section_name == 'client':
+		    if 'client' not in self.cluster["ceph_conf"]:
+			self.cluster["ceph_conf"]['client'] = OrderedDict()
+		    for key, value in section.items():
+			self.cluster["ceph_conf"]['client'][key] = value
 
         self.map_diff = None
 
@@ -156,7 +165,9 @@ class Deploy(object):
                        'giant': '0.87',
                        'hammer': '0.94',
                        'infernalis': '9.2',
-		       'jewel': '10.2'}
+		       'jewel': '10.2',
+		       'kraken': '11.2',
+		       'luminous': '12.2'}
         for node, version_code in installed.items():
             if version == "":
                 for release_name, short_version in version_map.items():
@@ -175,7 +186,7 @@ class Deploy(object):
                 if code in installed_list[0]:
                     version = version_name
         elif len(installed_list) >= 2:
-            common.printout("ERROR", "More than two versions of ceph installed, %s" % installed_list)
+            common.printout("ERROR", "More than two versions of ceph installed, %s" % installed_list,log_level="LVL1")
             sys.exit()
         if len(uninstall_nodes):
             self.uninstall_binary(uninstall_nodes)
@@ -289,45 +300,63 @@ class Deploy(object):
             cephconf.append("    mon addr = %s\n" % self.cluster["mons"][mon])
 
         backend_storage = self.cluster["ceph_conf"]["global"]["osd_objectstore"]
-        for osd in sorted(osds):
+
+	disk_format_list = common.parse_disk_format(self.cluster["disk_format"])
+
+        if backend_storage == "filestore":
+            assert(2 == len(disk_format_list))
+            osd_pos = disk_format_list.index("osd")
+            journal_pos = disk_format_list.index("journal")
+        elif backend_storage == "bluestore":
+            assert(3 <= len(disk_format_list))
+            assert(4 >= len(disk_format_list))
+            osd_pos = disk_format_list.index("osd")
+            block_pos = disk_format_list.index("data")
+            if (3 == len(disk_format_list)):
+                db_wal_pos = disk_format_list.index("db_wal")
+            else:
+                db_pos = disk_format_list.index("db")
+                wal_pos = disk_format_list.index("wal")
+	for osd in sorted(osds):
             for device_bundle in common.get_list(osd_dict[osd]):
-                device_bundle_len = len(device_bundle)
+                disk_format_list_len = len(disk_format_list)
+		assert(disk_format_list_len <= len(device_bundle))
                 cephconf.append("[osd.%d]\n" % osd_id)
                 osd_id += 1
                 cephconf.append("    host = %s\n" % osd)
                 cephconf.append("    public addr = %s\n" % osds[osd]["public"])
                 cephconf.append("    cluster addr = %s\n" % osds[osd]["cluster"])
                 if ceph_disk:
-                    cephconf.append("    devs = %s\n" % (device_bundle[0]))
+                    cephconf.append("    devs = %s\n" % (device_bundle[osd_pos]))
                 else:
-                    cephconf.append("    devs = %s\n" % device_bundle[0])
-                if device_bundle_len == 1 or device_bundle[1] == "":
+                    cephconf.append("    devs = %s\n" % device_bundle[osd_pos])
+                if disk_format_list_len == 1 or device_bundle[1] == "":
                     continue
                 if ceph_disk:
                     if backend_storage == "filestore":
-                        cephconf.append("    osd journal = %s\n" % (device_bundle[1]))
+                        cephconf.append("    osd journal = %s\n" % (device_bundle[journal_pos]))
                     else:
-                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[1]))
+                        cephconf.append("    bluestore_block_path = %s\n" % (device_bundle[block_pos]))
                 else:
                     if backend_storage == "filestore":
-                        cephconf.append("    osd journal = %s\n" % device_bundle[1])
+                        cephconf.append("    osd journal = %s\n" % device_bundle[journal_pos])
                     else:
-                        cephconf.append("    bluestore_block_path = %s\n" % device_bundle[1])
-                if device_bundle_len == 2 or backend_storage == "filestore":
+                        cephconf.append("    bluestore_block_path = %s\n" % device_bundle[block_pos])
+                if disk_format_list_len == 2 or backend_storage == "filestore":
                     continue
-                if ceph_disk:
-                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[2]))
-                else:
-                    cephconf.append("    bluestore_block_db_path = %s\n" % device_bundle[2])
-                if device_bundle_len == 3:
+
+                # bluestore specific
+                if disk_format_list_len == 3:
+                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[db_wal_pos]))
                     continue
-                if ceph_disk:
-                    cephconf.append("    bluestore_block_wal_path = %s\n" % (device_bundle[3]))
-                else:
-                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[3])
+                if disk_format_list_len == 4:
+                    cephconf.append("    bluestore_block_db_path = %s\n" % (device_bundle[db_pos]))
+                    cephconf.append("    bluestore_block_wal_path = %s\n" % device_bundle[wal_pos])
+
                 for bluestore_block_path in self.bluestore_block_pathes:
                     if osds[osd].has_key(bluestore_block_path):
                         cephconf.append("    %s = %s\n" % (bluestore_block_path, osds[osd][bluestore_block_path]))
+	
 
         output = "".join(cephconf)
         with open("../conf/ceph.conf", 'w') as f:
@@ -341,9 +370,14 @@ class Deploy(object):
         cephconf_dict["radosgw"] = []
         tmp_dict = {}
 
+        cephconf = ""
         try:
-            with open("../conf/ceph_current_status", 'r') as f:
-                cephconf = f.readlines()
+            if not os.path.exists("../conf/ceph_current_status"):
+                with open("/etc/ceph/ceph.conf", 'r') as f:
+                    cephconf = f.readlines()
+            else:
+                with open("../conf/ceph_current_status", 'r') as f:
+                    cephconf = f.readlines()
         except:
             common.printout("WARNING", "Current Cluster ceph.conf file not exists under CeTune/conf/")
             return cephconf_dict
@@ -475,6 +509,7 @@ class Deploy(object):
             self.make_osds(ceph_disk=ceph_disk)
             common.printout("LOG","Succeeded in building osd daemon")
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
+            self.start_mgr(True)
 
         else:
             diff_map = self.cal_cephmap_diff(ceph_disk=ceph_disk)
@@ -490,6 +525,7 @@ class Deploy(object):
             self.make_osds(diff_map["osd"], diff_map, ceph_disk=ceph_disk)
             common.printout("LOG","Succeeded in building osd daemon")
             common.bash("cp -f ../conf/ceph.conf ../conf/ceph_current_status")
+            self.start_mgr(True)
 
     def restart(self, ceph_disk=False):
         self.cleanup(ceph_disk=ceph_disk)
@@ -503,15 +539,18 @@ class Deploy(object):
             self.start_osd_created_by_ceph_disk()
         else:
             self.start_osd()
+        self.start_mgr()
 
     def cleanup(self, ceph_disk=False):
         user = self.cluster["user"]
+        head = self.cluster["head"]
         mons = self.cluster["mons"]
         osds = self.cluster["osds"]
         mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
         mon_filename = os.path.basename(self.cluster["ceph_conf"]["mon"]["mon_data"]).replace("$id","*")
         common.printout("LOG", "Shutting down mon daemon")
         common.pdsh(user, mons, "killall -9 ceph-mon", option="check_return")
+        common.pdsh(user, [head], "killall -9 ceph-mgr", option="check_return")
 
         try_kill = True
         if ceph_disk:
@@ -659,7 +698,9 @@ class Deploy(object):
             common.pdsh( user, [osd], 'umount %s' % osd_device )
             common.pdsh( user, [osd], 'rm -rf %s' % mounted_dir )
         except:
-            pass
+            err_log = traceback.format_exc()
+            common.printout("ERROR", "%s" % err_log)
+            common.printout("ERROR", "mount_list is " % mount_list)
         common.pdsh( user, [osd], 'mkfs.xfs %s %s' % (mkfs_opts, osd_device), option="console")
         osd_filedir = osd_filename.replace("$id", str(osd_num))
         common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
@@ -696,14 +737,13 @@ class Deploy(object):
         osds = sorted(self.cluster["osds"])
         if mons==None:
             mons = self.cluster["mons"]
-        mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
-        common.bash("mkdir -p %s" % mon_basedir)
-
         # Keyring
         if not len(mons.keys()):
             return 
 
         mon = mons.keys()[0]
+	mon_basedir = os.path.dirname(self.cluster["ceph_conf"]["mon"]["mon_data"])
+	common.pdsh(user, [mon], 'mkdir -p %s' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --create-keyring --gen-key --name=mon. %s/keyring --cap mon \'allow *\'' % mon_basedir)
         common.pdsh(user, [mon], 'ceph-authtool --gen-key --name=client.admin --set-uid=0 --cap mon \'allow *\' --cap osd \'allow *\' --cap mds allow %s/keyring' % mon_basedir)
         common.rscp(user, mon, '%s/keyring.tmp' % mon_basedir, '%s/keyring' % mon_basedir )
@@ -756,20 +796,25 @@ class Deploy(object):
 
         if not daemon:
             common.printout("ERROR",
-                            "please select your daemon[osd, mon or mds]")
+                            "please select your daemon[osd, mon or mds]",log_level="LVL1")
             sys.exit(1)
 
         if daemon not in ["osd", "mon", "mds"]:
             common.printout("ERROR",
-                            "the daemon is not one of osd, mon or mds")
+                            "the daemon is not one of osd, mon or mds",log_level="LVL1")
             sys.exit(1)
 
+        ceph_conf = ""
         try:
-            with open("../conf/ceph_current_status", 'r') as f:
-                ceph_conf = f.readlines()
+            if not os.path.exists("../conf/ceph_current_status"):
+                with open("/etc/ceph/ceph.conf", 'r') as f:
+                    ceph_conf = f.readlines()
+            else:
+                with open("../conf/ceph_current_status", 'r') as f:
+                    ceph_conf = f.readlines()
         except:
             common.printout("ERROR",
-                            "Current Cluster ceph.conf file not exists under CeTune/conf/")
+                            "Current Cluster ceph_current_status file not exists under CeTune/conf/",log_level="LVL1")
             sys.exit(1)
 
         num = 0
@@ -828,6 +873,7 @@ class Deploy(object):
     def start_osd(self):
         user = self.cluster["user"]
         osd_list = self.get_daemon_info_from_ceph_conf("osd")
+        print osd_list
         for osd in osd_list:
             osd_name = osd["daemon_name"]
             osd_host = osd["daemon_host"]
@@ -844,3 +890,26 @@ class Deploy(object):
                         'exec %s"' % (lttng_prefix, cmd), option="console",
                         except_returncode=1)
             common.printout("LOG","Started osd.%s daemon on %s" % (osd_name, osd_host))
+
+    def start_mgr(self, force=False):
+        user = self.cluster["user"]
+        head = self.cluster["head"]
+        outStr, stderr = common.pdsh(user, [head], "ceph status --format json", "check_return")
+        formatted_outStr = common.format_pdsh_return(outStr)
+        ceph_status = formatted_outStr[head]
+        #outList = [x.strip() for x in outStr.split('\n')]
+        if "no active mgr" in outStr:
+            common.pdsh(user, [head], "ceph auth get-or-create mgr.admin mon 'allow *' && ceph-mgr -i %s" % ceph_status["fsid"], option="console")
+            common.printout("LOG", "create mgr success: admin")
+        else:
+            common.printout("LOG", "not need create mgr")
+
+    def osd_perf_reset(self):
+        osd_list = self.get_daemon_info_from_ceph_conf("osd")
+        user = self.cluster["user"]
+        for osd in osd_list:
+            osd_name = osd["daemon_name"]
+            osd_host = osd["daemon_host"]
+            cmd = "ceph daemon osd.{0} perf reset all".format(osd_name)
+            common.pdsh(user, [osd_host],cmd)
+            common.printout("LOG","ceph daemon osd.{0} perf clean on {1}. ".format (osd_name, osd_host))

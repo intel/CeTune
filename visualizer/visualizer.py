@@ -15,6 +15,7 @@ import json
 import yaml
 import numpy
 from create_DB import *
+import csv
 
 pp = pprint.PrettyPrinter(indent=4)
 class Visualizer:
@@ -52,7 +53,7 @@ class Visualizer:
         for node_type, node_data in self.result.items():
             if not isinstance(node_data, dict):
                 continue
-            common.printout("LOG","Generating %s view" % node_type)
+            common.printout("LOG","Generating %s view" % node_type,log_level="LVL5")
             output.extend(self.generate_node_view(node_type))
 
         output.append("</div>")
@@ -71,13 +72,13 @@ class Visualizer:
             return
 
         # Copy local result to remote dir
-        common.printout("LOG","Session result generated, copy to remote")
+        common.printout("LOG","Session result generated, copy to remote",log_level="LVL5")
         common.bash("scp -r %s %s" % (self.path, self.dest_dir_remote_bak))
 
         remote_bak, remote_dir = self.dest_dir_remote_bak.split(':')
         output = self.generate_history_view(remote_bak, remote_dir, self.user)
 
-        common.printout("LOG","History view generated, copy to remote")
+        common.printout("LOG","History view generated, copy to remote",log_level="LVL5")
         with open("%s/cetune_history.html" % self.path, 'w') as f:
             f.write(output)
         common.bash("scp -r %s/cetune_history.html %s" % (self.path, self.dest_dir_remote_bak))
@@ -106,6 +107,7 @@ class Visualizer:
             for j in range(len(i)):
                 if j == 0:
                     line += "<tr href=%s/%s.html id=%s>"%(i[j],i[j],i[j])
+                    line += "<td><input type='checkbox' class = 'checkbox_configuration_class' id='checkbox_configuration_%s' name='checkbox_%s'></td>"%(j,j)
                 else:
                     if type(i[j]) == float:
                         line += "<td title='%.3f'>%.3f</td>\n"%(i[j],i[j])
@@ -196,25 +198,57 @@ class Visualizer:
         else:
             return False
 
-    def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format=True):
-        common.printout("LOG","Generating history view")
+    def generate_history_view(self, remote_host="127.0.0.1", remote_dir="/mnt/data/", user='root', html_format = True):
+        common.printout("LOG","Generating history view", log_level="LVL5")
         dbpath = os.path.join(self.db_path,"cetune_report.db")
         if not self.check_DB_case_list(self.db_path,dbpath):
-            stdout, stderr = common.pdsh(user, [remote_host], "find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir, option="check_return")
-            res = common.format_pdsh_return(stdout)
-            if remote_host not in res:
-                common.printout("ERROR","Generating history view failed")
-                return False
-            # some modification in greped trs
+            self.generate_history_from_folder(dbpath, remote_host, remote_dir, user)
+        return self.generate_history_from_DB(html_format)
+
+
+    def generate_history_from_DB(self, html_format = True, selected_lines = []):
+        dbpath = os.path.join(self.db_path,"cetune_report.db")
+        lines = self.parse_to_html(database.select_report_list(dbpath, selected_lines))
+        output = []
+        output.append("<input id='down_button' type='button' onclick='mouse_on()'></input>")
+        output.append("""<div id='result_report_top'><div id='result_report_dropdown_title'>
+                          <h4 class='modal-title'>Select desired operation to selected rows</h4>
+                          </div><div id='div_Configuration_right_top_button'><div>
+                              <input class='result_report_button btn btn-primary' id='result_report_delete_Cancel' type='button' value='Cancel' onclick ='Cancel_delete()'/>
+                              <input class='result_report_button btn btn-primary' id='result_report_delete' type='button' value='Delete' data-toggle='modal'  data-target='#DeleteResultReportModal' data-whatever='@mdo'/>
+                              <input class='result_report_button btn btn-primary' id='result_report_download' type='button' value='Download' data-toggle='modal' onclick='download_report()'/>
+                          </div></div></div>""")
+        output.append("<table id='report_list' class='cetune_table'>")
+        #output.append(" <thead>")
+        output.extend( self.getSummaryTitle() )
+        #output.append(" </thead>")
+        #output.append(" <tbody>")
+        #output.append(res_tmp)
+        for runid in sorted(lines.keys()):
+            output.append(lines[runid])
+        #output.append(" </tbody>")
+        output.append(" </table>")
+        output.extend(self.getscripthtml())
+        output.append("<script>")
+        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
+        output.append("</script>")
+        if html_format:
+            return self.add_html_framework(output)
+        else:
+            return "".join(output)
+
+    def generate_history_from_folder(self, dbpath, remote_host, remote_dir, user):
+            stdout = common.bash("find %s -name '*.html' | grep -v 'cetune_history'|sort -u | while read file;do session=`echo $file | awk -F/ {'print $(NF-1)'}`; awk -v session=\"$session\" 'BEGIN{find=0;}{if(match($1,\"tbody\")&&find==2){find=0;}if(find==2){if(match($1,\"<tr\"))printf(\"<tr href=\"session\"/\"session\".html id=\"session\">\");else print ;};if(match($1,\"div\")&&match($2,\"summary\"))find=1;if(match($1,\"tbody\")&&find==1){find+=1}}' $file; done" % remote_dir)
+            res_tmp = stdout;
             formated_report = {}
-            report_lines = re.findall('(<tr.*?</tr>)',res[remote_host],re.S)
+            report_lines = re.findall('(<tr.*?</tr>)',res_tmp,re.S)
             for line in report_lines:
                 tr_start = re.search('(<tr.*?>)', line, re.S).group(1)
                 data = re.findall('<td>(.*?)</td>', line, re.S)
 
                 #runid = int(data[0])
                 runid = re.findall('id=(.*?)>', tr_start, re.S)[0]
-                if len(data) < 17:
+                if len(data) < 18:
                     data.insert(2, "")
                 formated_report[runid] = tr_start
                 for block in data:
@@ -239,28 +273,6 @@ class Visualizer:
             if len(diff_case_list) != 0:
                 for i in diff_case_list:
                     database.delete_case_by_runid(i,dbpath)
-        lines = self.parse_to_html(database.select_report_list(dbpath))
-        output = []
-        #output.append("<h1>CeTune History Page</h1>")
-        output.append("<table id='report_list' class='cetune_table'>")
-        #output.append(" <thead>")
-        output.extend( self.getSummaryTitle() )
-        #output.append(" </thead>")
-        #output.append(" <tbody>")
-        #output.append(res[remote_host])
-        for runid in sorted(lines.keys()):
-            output.append(lines[runid])
-        #output.append(" </tbody>")
-        output.append(" </table>")
-        output.extend(self.getscripthtml())
-        output.append("<script>")
-        output.append("$('.cetune_table tr').dblclick(function(){var path=$(this).attr('href'); window.location=path})")
-        output.append("</script>")
-        if html_format:
-            return self.add_html_framework(output)
-        else:
-            return "".join(output)
-
 
     def getscripthtml(self):
         output = []
@@ -274,25 +286,29 @@ class Visualizer:
 
     def getSummaryTitle(self):
         output = []
-        output.append(" <tr>")
-        output.append(" <th data-resizable-column-id='0'>runid</th>")
-        output.append(" <th data-resizable-column-id='1'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
-        output.append(" <th data-resizable-column-id='2'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
-        output.append(" <th data-resizable-column-id='3'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
-        output.append(" <th data-resizable-column-id='4'><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")
-        output.append(" <th data-resizable-column-id='5'><a title='Type of Op Request' id='runid_op_type' href='#'>Op_Type</a></th>")
-        output.append(" <th data-resizable-column-id='6'><a title='Queue_depth/Container Number' id='runid_QD' href='#'>QD</a></th>")
-        output.append(" <th data-resizable-column-id='7'><a title='Type of Workload' id='runid_engine' href='#'>Driver</a></th>")
-        output.append(" <th data-resizable-column-id='8'><a title='Storage Node Number' id='runid_serverNum' href='#'>SN_Number</a></th>")
-        output.append(" <th data-resizable-column-id='9'><a title='Client Node Number' id='runid_clientNum' href='#'>CN_Number</a></th>")
-        output.append(" <th data-resizable-column-id='10'><a title='Workers Number/Objects Number' id='runid_rbdNum' href='#'>Worker</a></th>")
-        output.append(" <th data-resizable-column-id='11'><a title='Test Time be Profiled' id='runid_runtime' href='#'>Runtime(sec)</a></th>")
-        output.append(" <th data-resizable-column-id='12'><a title='Benchmarked IOPS' id='runid_fio_iops' href='#'>IOPS</a></th>")
-        output.append(" <th data-resizable-column-id='13'><a title='Benchmarked Bandwidth' id='runid_fio_bw' href='#'>BW(MB/s)</a></th>")
-        output.append(" <th data-resizable-column-id='14'><a title='Benchmarked Latency' id='runid_fio_latency' href='#'>Latency(ms)</a></th>")
-        output.append(" <th data-resizable-column-id='15'><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
-        output.append(" <th data-resizable-column-id='16'><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
-        output.append(" <th data-resizable-column-id='17'><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
+        output.append(" <tr id = 'result_report_title' z-index='0'>")
+        output.append(" <th data-resizable-column-id='0'>Menu</th>")
+        output.append(" <th data-resizable-column-id='1'><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:history});'>runid</a></button></th>")
+        output.append(" <th data-resizable-column-id='2'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
+        output.append(" <th data-resizable-column-id='3'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
+        output.append(" <th data-resizable-column-id='4'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
+        output.append(" <th data-resizable-column-id='5'><a title='Size of Op Request' id='runid_op_size' href='#'>Op_Size</a></th>")
+        output.append(" <th data-resizable-column-id='6'><a title='Type of Op Request' id='runid_op_type' href='#'>Op_Type</a></th>")
+        output.append(" <th data-resizable-column-id='7'><a title='Queue_depth/Container Number' id='runid_QD' href='#'>QD</a></th>")
+        output.append(" <th data-resizable-column-id='8'><a title='Type of Workload' id='runid_engine' href='#'>Driver</a></th>")
+        output.append(" <th data-resizable-column-id='9'><a title='Storage Node Number' id='runid_serverNum' href='#'>SN_Number</a></th>")
+        output.append(" <th data-resizable-column-id='10'><a title='Client Node Number' id='runid_clientNum' href='#'>CN_Number</a></th>")
+        output.append(" <th data-resizable-column-id='11'><a title='Workers Number/Objects Number' id='runid_rbdNum' href='#'>Worker</a></th>")
+        output.append(" <th data-resizable-column-id='12'><a title='Test Time be Profiled' id='runid_runtime' href='#'>Runtime(sec)</a></th>")
+        output.append(" <th data-resizable-column-id='13'><a title='Benchmarked IOPS' id='runid_fio_iops' href='#'>IOPS</a></th>")
+        output.append(" <th data-resizable-column-id='14'><a title='Benchmarked Bandwidth' id='runid_fio_bw' href='#'>BW(MB/s)</a></th>")
+        output.append(" <th data-resizable-column-id='15'><a title='Benchmarked Latency' id='runid_fio_latency' href='#'>Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='16'><a title='Benchmarked Latency 95.00' id='runid_fio_latency_95' href='#'>95.00% Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='17'><a title='Benchmarked Latency 99.00' id='runid_fio_latency_99' href='#'>99.00% Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='18'><a title='Benchmarked Latency 99.99' id='runid_fio_latency_9999' href='#'>99.99% Latency(ms)</a></th>")
+        output.append(" <th data-resizable-column-id='19'><a title='Storage Node IOPS' id='runid_osd_iops' href='#'>SN_IOPS</a></th>")
+        output.append(" <th data-resizable-column-id='20'><a title='Storage Node Bandwidth' id='runid_osd_bw' href='#'>SN_BW(MB/s)</a></th>")
+        output.append(" <th data-resizable-column-id='21'><a title='Storage Node Latency' id='runid_osd_latency' href='#'>SN_Latency(ms)</a></th>")
         output.append(" </tr>")
         return output
 
@@ -306,14 +322,35 @@ class Visualizer:
         output.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./include/css/TableStyle.css\">")
         output.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./include/css/bootstrap.min.css\">")
         output.append("<script src=\"./include/jquery.js\"></script>")
-#        output.append("<link href=\"./include/jquery/jquery-ui.css\" rel=\"stylesheet\">")
-#        output.append("<link href=\"./include/css/common.css\" rel=\"stylesheet\">")
-#        output.append("<script src=\"./include/jquery/jquery-ui.js\"></script>")
+        output.append("<script src=\"./include/jquery.table2excel.js\"></script>")
         output.append("</head>")
         output.append("<body>")
         output.extend(maindata)
         output.append("</body>")
         return "\n".join(output)
+
+    def save_data_to_csv(self,data,node_type,field_type,session_name):
+        common.printout("LOG","save %s %s detail data to csv file." % (node_type,field_type))
+        if not os.path.exists(os.path.join(self.db_path,session_name,"include/csv")):
+            common.bash("mkdir -p %s"%(os.path.join(self.db_path,session_name,"include/csv")))
+        csv_list = []
+        title_row = []
+        title_row = common.get_title_list(data)
+        title_row.insert(0,'')
+        csv_list.append(title_row)
+        for detail_node, detail_data in data.items():
+            row = [detail_node]
+            for title in title_row:
+                if len(title) == 0:
+                    continue
+                row.append(detail_data[title])
+            csv_list.append(row)
+        file_name = "%s_%s_detail_data.csv"%(node_type,field_type)
+        csv_path = os.path.join(self.db_path,session_name,"include/csv/",file_name)
+        csvfile = file(csv_path, 'wb')
+        csv_writer = csv.writer(csvfile)
+        for row in csv_list:
+            csv_writer.writerow(row)
 
     def generate_node_view(self, node_type):
         output = []
@@ -321,29 +358,65 @@ class Visualizer:
             return output
         output.append("<div id='%s'>" % node_type)
         for field_type, field_data in self.result[node_type].items():
-            data = OrderedDict()
-            chart_data = OrderedDict()
-            for node, node_data in field_data.items():
-                if node not in data:
-                    data[node] = OrderedDict()
-                for key, value in node_data.items():
-                    if not isinstance(value, list):
-                        data[node][key] = value
-                    else:
-                        data[node][key] = "%.3f" % numpy.mean(value)
-                        if key not in chart_data:
-                            chart_data[key] = OrderedDict()
-                        chart_data[key][node] = value
-            output.extend( self.generate_table_from_json(data,'cetune_table', field_type) )
-            output.extend( self.generate_line_chart(chart_data, node_type, field_type ) )
+            if "summary" not in field_data.keys() and "detail" not in field_data.keys():
+                output = self.generate_output_view(output, field_data, field_type, node_type)
+            else:
+                if "summary" in field_data.keys():
+                    output = self.generate_output_view(output, field_data, field_type, node_type, data_type="summary")
+                if "detail" in field_data.keys() and len([x for x in field_data["detail"] if len(field_data["detail"][x]) > 0]):
+                    output = self.generate_output_view(output, field_data, field_type, node_type, data_type="detail")
         output.append("</div>")
+        return output
+
+    def generate_output_view(self, output, field_data, field_type, node_type, data_type=""):
+        data = OrderedDict()
+        chart_data = OrderedDict()
+        inputdata = field_data.items()
+        if data_type == "summary":
+            inputdata = field_data["summary"].items()
+        if data_type == "detail":
+            inputdata = field_data["detail"].items()
+
+        for node, node_data in inputdata:
+            if node not in data:
+                data[node] = OrderedDict()
+            for key, value in node_data.items():
+                if not isinstance(value, list):
+                    if isinstance(value, dict):
+                        if key not in data[node]:
+                            data[node][key] = OrderedDict()
+                        for sub_key, sub_value in value.items():
+                            if isinstance(sub_value, list):
+                                data[node][key][sub_key] = "%.3f" % numpy.mean(sub_value)
+                            else:
+                                data[node][key][sub_key] = sub_value
+                    else:
+                        data[node][key] = value
+                else:
+                    data[node][key] = "%.3f" % numpy.mean(value)
+                    if key not in chart_data:
+                        chart_data[key] = OrderedDict()
+                    chart_data[key][node] = value
+        if data_type != "detail":
+            output.extend(self.generate_table_from_json(data, 'cetune_table', field_type))
+            output.extend(self.generate_line_chart(chart_data, node_type, field_type))
+        if data_type == "detail":
+            if len(data) != 0:
+                self.save_data_to_csv(data, node_type, field_type, self.result["session_name"])
+            if len(field_data["detail"]) != 0:
+                output.extend(self.add_csv_download_button(node_type,field_type))
+        return output
+
+    def add_csv_download_button(self,node_type,field_type):
+        output = []
+        output.append("<div class='cetune_download' style='display: block;height:26px;'><button><a href='../results/get_detail_csv?session_name=%s&csv_name=%s_%s_detail_data.csv'>Download %s detail csv table</a></button></div>" %(self.session_name,node_type,field_type,field_type))
         return output
 
     def generate_line_chart(self, data, node_type, field, append_table=True):
         output = []
         common.bash("mkdir -p ../visualizer/include/pic")
         common.bash("mkdir -p ../visualizer/include/csv")
-        common.printout("LOG","generate %s line chart" % node_type)
+        common.printout("LOG","generate %s line chart" % node_type,log_level="LVL5")
         for field_column, field_data in data.items():
             pyplot.figure(figsize=(9, 4))
             for node, node_data in field_data.items():
@@ -374,7 +447,7 @@ class Visualizer:
         output.append("<table class='%s'>" % classname)
         output.append("<thead>")
         output.append("<tr>")
-        output.append("<th>%s</th>" % node_type)
+        output.append("<th><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:\"%s\"});'>%s</a></button></th>" % (node_type, node_type))
         max_col_key = data.keys()[0]
         max_col_count = 0
         for key, value in data.items():
@@ -384,7 +457,7 @@ class Visualizer:
                 max_col_key = key
         for key in data[max_col_key].keys():
             output.append("<th><a id='%s_%s' href='#%s_%s'>%s</a></th>" % (node_type, re.sub('[/%]','',key), node_type, re.sub('[/%]','',key), key))
-        output.append("<tr>")
+        output.append("</tr>")
         output.append("</thead>")
         output.append("<tbody>")
         for node, node_data in data.items():

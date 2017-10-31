@@ -2,6 +2,7 @@ import argparse
 import os, sys
 
 lib_path = ( os.path.dirname(os.path.dirname(os.path.abspath(__file__)) ))
+this_file_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(lib_path)
 
 from conf import *
@@ -10,6 +11,8 @@ from mod.bblock import *
 from mod.bobject import *
 from mod.bcephfs import *
 from mod.generic import *
+from deploy import *
+from tuner import *
 
 def main(args):
     parser = argparse.ArgumentParser(description='Cephperf Benchmark Script.')
@@ -59,9 +62,12 @@ def main(args):
 
     else:
         with open("../conf/cases.conf", "r") as f:
-            for line in f.readlines():
+            case_lines = f.readlines()
+            for line in case_lines:
                 p = line.split()
-                testcase_list.append({"engine":p[0],"parameter":p[1:]})
+                if len(p) > 0 and p!="\n":
+                    if not p[0].startswith('#'):
+                        testcase_list.append({"engine":p[0],"parameter":p[1:]})
         for testcase in testcase_list:
             if testcase["engine"] == "qemurbd":
                 benchmark = qemurbd.QemuRbd()
@@ -78,11 +84,24 @@ def main(args):
             if testcase["engine"] == "vdbench":
                 benchmark = vdbench.VdBench()
             if not benchmark:
-                common.printout("ERROR","Unknown benchmark engine")
+                common.printout("ERROR","Unknown benchmark engine",log_level="LVL1")
             try:
+                additional_option = ''
+                for i in testcase["parameter"]:
+                    if i in ["restart","redeploy","resetPerf"]:
+                        additional_option = i
+                if additional_option != '':
+                    if additional_option == "restart":
+                        run_deploy.main(['restart'])
+                    if additional_option == "redeploy":
+                        run_deploy.main(['redeploy'])
+                        tuner.main(['--section', tuning_section,'apply_tuning'])
+                    if additional_option == "resetPerf":
+                        run_deploy.main(['osd_perf_reset'])
+
                 benchmark.go(testcase["parameter"], tuning_section)
             except KeyboardInterrupt:
-                common.printout("WARNING","Caught KeyboardInterrupt Interruption")
+                common.printout("WARNING","Caught KeyboardInterrupt Interruption",log_level="LVL1")
 
 if __name__ == '__main__':
     import sys

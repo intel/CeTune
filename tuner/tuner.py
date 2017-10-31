@@ -3,7 +3,6 @@ lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 from conf import *
 from deploy import *
-from benchmarking import *
 import os, sys
 import time
 import pprint
@@ -15,6 +14,7 @@ import threading
 pp = pprint.PrettyPrinter(indent=4)
 class Tuner:
     def __init__(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.cur_tuning = {}
         self.all_conf_data = config.Config("../conf/all.conf")
         self.worksheet = common.load_yaml_conf("../conf/tuner.yaml")
@@ -37,42 +37,12 @@ class Tuner:
                     self.cluster[osd].append( osd_journal[1] )
 
     def default_all_conf(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         self.cluster = {}
         self.cluster["user"] = self.all_conf_data.get("user")
 
-    def run(self):
-        user = self.cluster["user"]
-        controller = self.cluster["head"]
-        osds = self.cluster["osds"]
-        pwd = os.path.abspath(os.path.join('..'))
-        if len(self.cluster["rgw"]) and self.cluster["rgw_enable"]=="true":
-            with_rgw = True
-        else:
-            with_rgw = False
-        for section in self.worksheet:
-            for work in self.worksheet[section]['workstages'].split(','):
-                if work == "deploy":
-                    common.printout("LOG","Check ceph version, reinstall ceph if necessary")
-                    self.apply_version(section)
-                    self.apply_tuning(section, no_check=True)
-                    common.printout("LOG","Start to redeploy ceph")
-                    if with_rgw:
-                        run_deploy.main(['--with_rgw','redeploy'])
-                    else:
-                        run_deploy.main(['redeploy'])
-                    self.apply_tuning(section)
-                elif work == "benchmark":
-                    if not common.check_ceph_running( user, controller ):
-                        run_deploy.main(['restart'])
-                    common.printout("LOG","start to run performance test")
-                    if self.cluster["disable_tuning_check"] not in ["true", "True", "TRUE"]:
-                        self.apply_tuning(section)
-                        time.sleep(3)
-                    run_cases.main(['--tuning', section])
-                else:
-                    common.printout("ERROR","Unknown tuner workstage %s" % work)
-
     def handle_disk(self, option="get", param={'read_ahead_kb':2048, 'max_sectors_kb':512, 'scheduler':'deadline'}, fs_params=""):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         osds = self.cluster["osds"]
 
@@ -103,6 +73,7 @@ class Tuner:
                        stdout, stderr = common.pdsh(user, [osd], 'sh -c "echo %s > /sys/block/%s/queue/%s"' % (str(value), parsed_device_name, key), option="check_return")
 
     def get_version(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         osds = self.cluster["osds"]
         clients = self.cluster["client"]
@@ -142,10 +113,11 @@ class Tuner:
         return ceph_version.get()
 
     def get_osd_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         osds = self.cluster["osds"]
 
-        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return")
+        stdout, stderr = common.pdsh(user, osds, 'path=`find /var/run/ceph -name "*osd*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return",loglevel="LVL6")
         res = common.format_pdsh_return(stdout)
         # merge config diff
         osd_config = common.MergableDict()
@@ -154,10 +126,11 @@ class Tuner:
         return osd_config.get()
 
     def get_mon_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         mons = self.cluster["mons"]
 
-        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return")
+        stdout, stderr = common.pdsh(user, mons, 'path=`find /var/run/ceph -name "*mon*asok" | head -1`; timeout 5 ceph --admin-daemon $path config show', option="check_return",loglevel="LVL6")
         res = common.format_pdsh_return(stdout)
         mon_config = common.MergableDict()
         for node in res:
@@ -165,6 +138,7 @@ class Tuner:
         return mon_config.get()
 
     def get_pool_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
 
@@ -180,11 +154,13 @@ class Tuner:
                 for index in range(4, len(raw_res),2):
                     try:
                         pool_config[name][raw_res[index]] = raw_res[index+1]
-                    except:
+                    except Exception,e:
+                        common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
                         pass
         return pool_config
 
     def dump_config(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
     # check ceph config and os config meet request
         user = self.cluster["user"]
         controller = self.cluster["head"]
@@ -194,7 +170,11 @@ class Tuner:
 
         config = {}
         #get [system] config
-        config["disk"] = self.handle_disk(option="get")
+        try:
+            config["disk"] = self.handle_disk(option="get")
+        except Exception,e:
+            common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
+            pass
 
         #get [ceph version]
         #config['version'] = self.get_version()
@@ -210,6 +190,7 @@ class Tuner:
         return config
 
     def apply_version(self, jobname):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
         pwd = os.path.abspath(os.path.join('..'))
@@ -243,6 +224,7 @@ class Tuner:
             run_deploy.main(['install_binary', '--version', planed_version])
 
     def check_tuning(self, jobname):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         if not self.cur_tuning:
             self.cur_tuning = self.dump_config()
         tuning_diff = []
@@ -280,6 +262,7 @@ class Tuner:
         return tuning_diff
 
     def apply_tuning(self, jobname, no_check = False):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #check the diff between worksheet tuning and cur system
         if not no_check:
             common.printout("LOG","Calculate Difference between Current Ceph Cluster Configuration with tuning")
@@ -287,6 +270,44 @@ class Tuner:
         else:
             tmp_tuning_diff = ['global']
 
+        if 'disk' in tmp_tuning_diff:
+            param = {}
+            for param_name, param_data in self.worksheet[jobname]['disk'].items():
+                param[param_name] = param_data
+            try:
+                if param != {}:
+                    self.handle_disk( option="set", param=param )
+                else:
+                    self.handle_disk( option="set" )
+            except Exception,e:
+                common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
+                pass
+        if 'global' in tmp_tuning_diff or 'osd' in tmp_tuning_diff or 'mon' in tmp_tuning_diff:
+            if self.cluster["rgw_enable"]=="true" and len(self.cluster["rgw"]):
+                with_rgw = True
+            else:
+                with_rgw = False
+            tuning = {}
+            for section_name, section in self.worksheet[jobname].items():
+                if section_name in ["version","workstages","pool","benchmark_engine"]:
+                    continue
+                tuning[section_name] = section
+            common.printout("LOG","Apply osd and mon tuning to ceph.conf")
+            if with_rgw:
+                run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
+            else:
+                run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
+            common.printout("LOG","Distribute ceph.conf")
+            if with_rgw:
+                run_deploy.main(['--with_rgw','distribute_conf'])
+            else:
+                run_deploy.main(['distribute_conf'])
+            if not no_check:
+                common.printout("LOG","Restart ceph cluster")
+                if with_rgw:
+                    run_deploy.main(['--with_rgw','restart'])
+                else:
+                    run_deploy.main(['restart'])
         if 'pool' in tmp_tuning_diff:
             pool_exist = False
             new_poolname = self.worksheet[jobname]['pool'].keys()[0]
@@ -316,61 +337,24 @@ class Tuner:
                     continue
                 if self.worksheet[jobname]['pool'][new_poolname][param] != latest_pool_config[new_poolname][param]:
                     self.handle_pool(option = 'set', param = {'name':new_poolname, param:self.worksheet[jobname]['pool'][new_poolname][param]})
-        if 'global' in tmp_tuning_diff or 'osd' in tmp_tuning_diff or 'mon' in tmp_tuning_diff:
-            if self.cluster["rgw_enable"]=="true" and len(self.cluster["rgw"]):
-                with_rgw = True
-            else:
-                with_rgw = False
-            tuning = {}
-            for section_name, section in self.worksheet[jobname].items():
-                if section_name in ["version","workstages","pool","benchmark_engine"]:
-                    continue
-                tuning[section_name] = section
-            common.printout("LOG","Apply osd and mon tuning to ceph.conf")
-            if with_rgw:
-                run_deploy.main(['--config', json.dumps(tuning), '--with_rgw',  'gen_cephconf'])
-            else:
-                run_deploy.main(['--config', json.dumps(tuning), 'gen_cephconf'])
-            common.printout("LOG","Distribute ceph.conf")
-            if with_rgw:
-                run_deploy.main(['--with_rgw','distribute_conf'])
-            else:
-                run_deploy.main(['distribute_conf'])
-            if not no_check:
-                common.printout("LOG","Restart ceph cluster")
-                if with_rgw:
-                    run_deploy.main(['--with_rgw','restart'])
-                else:
-                    run_deploy.main(['restart'])
-        if 'disk' in tmp_tuning_diff:
-            param = {}
-            for param_name, param_data in self.worksheet[jobname]['disk'].items():
-                param[param_name] = param_data
-            if param != {}:
-                self.handle_disk( option="set", param=param )
-            else:
-                self.handle_disk( option="set" )
 
+        user = self.cluster["user"]
+        controller = self.cluster["head"]
         if no_check:
             return
 
-        #wait ceph health to be OK
-        waitcount = 0
-        try:
-            while not self.check_health() and waitcount < 300:
-                common.printout("WARNING","Applied tuning, waiting ceph to be healthy")
-                time.sleep(3)
-                waitcount += 3
-        except:
-            common.printout("WARNING","Caught KeyboardInterrupt, exit")
-            sys.exit()
-        if waitcount < 300:
-            common.printout("LOG","Tuning has applied to ceph cluster, ceph is Healthy now")
-        else:
-            common.printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually")
-            sys.exit()
+        #health check
+        ceph_status = common.get_ceph_health( user, controller )
+        print ceph_status
+        if ceph_status["ceph_status"] == "HEALTH_WARN":
+            if "POOL_APP_NOT_ENABLED" in ceph_status["detail"]:
+                poolname = self.worksheet[jobname]['pool'].keys()[0]
+                common.pdsh(user, [controller], "rbd pool init %s" % poolname, option="check_return")
+
+        common.wait_ceph_to_health( user, controller )
 
     def handle_pool(self, option="set", param = {}):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         controller = self.cluster["head"]
         if option == "create":
@@ -398,37 +382,28 @@ class Tuner:
                 common.printout("LOG","delete ceph pool %s" % pool)
                 common.pdsh(user, [controller], "ceph osd pool delete %s %s --yes-i-really-really-mean-it" % (pool, pool), option="check_return")
 
-    def check_health(self):
-        user = self.cluster["user"]
-        controller = self.cluster["head"]
-        check_count = 0
-        stdout, stderr = common.pdsh(user, [controller], 'ceph health', option="check_return")
-        if "HEALTH_OK" in stdout:
-            return True
-        else:
-            return False
-
 def main(args):
-    parser = argparse.ArgumentParser(description='tuner')
-    parser.add_argument(
-        '--by_thread',
+    print args
+    tuner_parser = argparse.ArgumentParser(description='Tuner.')
+    tuner_parser.add_argument(
+        'operation',
+    )
+    tuner_parser.add_argument(
+        '--section',
+    )
+    tuner_parser.add_argument(
+        '--no_check',
         default = False,
         action = 'store_true'
-        )
-    args = parser.parse_args(args)
+    )
+    args = tuner_parser.parse_args(args)
     tuner = Tuner()
-    if args.by_thread:
-        print "tuner by thread"
-        new_thread = threading.Thread(target=tuner.run, args=())
-        new_thread.daemon = True
-        new_thread.start()
-        return new_thread
-    else:
-        tuner.run()
-        return None
+    if args.operation == "apply_tuning":
+        tuner.apply_tuning( args.section, args.no_check )
+    if args.operation == "apply_version":
+        tuner.apply_version( args.section )
 
 if __name__ == '__main__':
-    print "enter tuner"
-    tuner = Tuner()
-    tuner.run()
+    import sys
+    main( sys.argv[1:] )
 #tuner.apply_tuning('testjob1')

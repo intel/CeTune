@@ -10,6 +10,8 @@ var address_Configuration_Get="../configuration/get_group?request_type=";
 var address_Configuration_Set="../configuration/set_config";
 var address_BenchmarkEngine_Check="../configuration/check_testcase";
 var address_Delete="../configuration/del_config";
+var address_Report_Delete="../results/delete_result";
+var address_Report_Download="../results/download_result";
 var address_Status="../monitor/tail_console";
 var address_Report="../results/get_summary";
 var address_Description="../configuration/get_help";
@@ -19,7 +21,10 @@ var address_Report_Detail_pic="../results/get_detail_pic";
 var address_Report_Detail_csv="../results/get_detail_csv";
 var address_GetRuningStatus="../monitor/cetune_status";
 var address_IntoRuningMode="../configuration/execute";
-var address_ExitRuningMode="../configuration/cancel";
+var address_Redeploy_Check="../configuration/redeploy_check";
+var address_ExitRuningMode_cancel_all="../configuration/cancel_all";
+var address_ExitRuningMode_cancel_one="../configuration/cancel_one";
+var address_userrole="../configuration/user_role";
 
 var timer_RunStatus;
 var timer_Console;
@@ -31,20 +36,33 @@ var interval_Report=30000;
 var edit_flag = 0;
 
 /*************Interval function************************************************************************/
+function showtopdiv(){
+    $("#result_report_top").show("slow");
+}
+function mouse_on(){
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        $("#result_report_top").show("slow");
+        document.getElementById('result_report_top').style.display="block";
+    }
+}
+function Cancel_delete(){
+    $("#result_report_top").hide("slow");
+}
 
 function RunStatus_Timer(){
     var cetune_status = GetDataByAjax(address_GetRuningStatus);//?
-    var line1 = "CeTune Status: "+cetune_status.cetune_status+" Ceph Status: "+cetune_status.ceph_status
+    var line1 = "CeTune Status: "+cetune_status.cetune_status+" Ceph Status: "+cetune_status.ceph_status;
     if(cetune_status.ceph_throughput != undefined)
-        var line2 = cetune_status.ceph_throughput
+        var line2 = cetune_status.ceph_throughput;
     else
-        var line2 = ""
+        var line2 = "";
+    loadinghide();
     if(cetune_status.cetune_status.indexOf("idle")<0)
     {
         $("#div_top_status_id h1").text(line1);
         $("#div_top_status_id .ceph_thr").text(line2);
         $("#div_Configuration_right_back_id").show()
-        $("#bnt_Configuration_exec_id").attr("value","Cancel Job")
+        $("#bnt_Configuration_exec_id").attr("value","Cancel Job");
     }
     else
     {
@@ -52,7 +70,7 @@ function RunStatus_Timer(){
         clearTimer(timer_RunStatus);
         $("#div_top_status_id h1").text(line1);
         $("#div_top_status_id .ceph_thr").text(line2);
-        $("#bnt_Configuration_exec_id").attr("value","Execute")
+        $("#bnt_Configuration_exec_id").attr("value","Execute");
     }
 }
 
@@ -73,6 +91,11 @@ function Console_Timer(init){
     }else{
        var consoleData = GetDataByAjax(address_Status);
     }
+
+    if(GetDataByAjax(address_userrole) == 'readonly'){
+        document.getElementById("bnt_Configuration_cancel_one").disabled=true;
+        document.getElementById("bnt_Configuration_cancel_all").disabled=true;
+    }
     
     if(consoleData.content == "")
         return 
@@ -83,6 +106,7 @@ function Console_Timer(init){
     consoleHTML += "</div>";
     
     //insert html
+    loadinghide();
     $("#div_console_id").append(consoleHTML);    
     var scroll_position = 0
     $("#div_console_id").children(".div_console_timestamp").each(function(){ scroll_position += $(this).height()});
@@ -96,8 +120,9 @@ function Helper(init){
         return
     var timestamp = GetTimestamp();
 
-    var data ;
+    var data;
     var Data = GetDataByAjax(address_Guide);
+    loadinghide();
     $("#div_Markdown").html(Data);
     var consoleData = GetDataByAjax(address_Description);
     $("#div_Help").html(consoleData);
@@ -105,7 +130,7 @@ function Helper(init){
         return
     })
     //add submenu to left
-    data = ""
+    data = "";
     $("#div_Markdown h4").each(function(){
         text = $(this).text();
         //$(this).insertBefore("<div id=\""+text+"\" style=\"postion:relative; top:-125px\"></div>");
@@ -113,7 +138,7 @@ function Helper(init){
         data += "<li><a href='#"+text+"'>"+text+"</a></li>";
     });
     $("#ul_user_guide").html(data);
-    data = ""
+    data = "";
     $("#div_Help #label_id").each(function(){
         text = $(this).text();
         $("<div id=\""+text+"\" style=\"position:relative; top:-125px\"></div>").insertBefore($(this));
@@ -137,7 +162,7 @@ function getRowObj(obj){
 function Cancel_Click(tr_id,cellText){
     var trObj = document.getElementById(tr_id);
     cellHtml = "<td title='"+cellText+"'>"+cellText+"</td>"
-    trObj.cells[3].innerHTML = cellHtml;
+    trObj.cells[4].innerHTML = cellHtml;
     edit_flag = 2;
 }
 
@@ -146,7 +171,7 @@ function ok_click(tr_No,tr_id,cellText){
     var trObj = document.getElementById(tr_id);
     var txt = document.getElementById('text_id_'+tr_No);
     cellHtml = "<td title='"+cellText+"'>"+txt.value+"</td>"
-    trObj.cells[3].innerHTML = cellHtml;
+    trObj.cells[4].innerHTML = cellHtml;
     edit_flag = 2;
     var postData = {
         "tr_id": tr_id,
@@ -174,6 +199,7 @@ function Report_Timer(init){
     if( cetune_status.indexOf("idle") > -1 && init != true )
         return
     var reportSummaryData = GetDataByAjax(address_Report);
+    loadinghide();
     reportSummaryData = reportSummaryData.replace(/<script>.*<\/script>/,'');
     $("#div_Reports").html(reportSummaryData);
 	
@@ -189,20 +215,22 @@ function Report_Timer(init){
                 //alert(trNo);
                 tr_number = trNo;
                 rowObj = trArr[trNo];
-                cellObj = rowObj.cells[3];
+                cellObj = rowObj.cells[4];
                 tr_id = rowObj.id;
                 cellText = cellObj.outerText;
                 cellHtml = cellObj.outerHTML;
             }
         }
         //if(c==null || c==0){
-        if(rowObj.cells[0].innerText != "runid" && colnum == 3){
-            if(edit_flag == 0){
-                edit_flag = 1;
-                var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
-                strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
-                strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
-                cellObj.innerHTML = strHtml;
+        if(GetDataByAjax(address_userrole) == 'admin'){
+            if(rowObj.cells[0].innerText != "runid" && colnum == 4){
+                if(edit_flag == 0){
+                    edit_flag = 1;
+                    var strHtml = "<input id = 'text_id_"+tr_number+"' value = '"+cellText+"' type='text' name='fname'/>";
+                    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+tr_number+"' type='button' value='OK' onclick= 'ok_click(&quot;"+tr_number+"&quot;,&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)' />";
+                    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+tr_number+"' type='button' value='Cancel' onclick= 'Cancel_Click(&quot;"+tr_id+"&quot;,&quot;"+cellText+"&quot;)'/>";
+                    cellObj.innerHTML = strHtml;
+                }
             }
         }
         if(edit_flag == 2){edit_flag = 0;}
@@ -229,6 +257,7 @@ function Report_Timer(init){
              detailReport = detailReport.replace(/src=["'].\/include\/pic\/(\S*).png["']/g,'attr="$1"');
              detailReport = detailReport.replace(/<script>.*<\/script>/,'');
              //style='max-width:100px; overflow:hidden; white-space: nowrap; text-overflow:ellipsis;
+         session_name = session_name.replace(/:/g,'_');
 		     var appendHtml = "<li id='menu_li_"+session_name+"' class='li_add_menu_class' padding-right:10px;' title='"+session_name+"'>";
 			 var str;
 		     if(session_name.length >= 4){
@@ -343,29 +372,32 @@ $(document).ready(function(){
         switch(menuName)
         {
             case "menu_Configuration_id":
+                loading();
                 clearTimer(timer_Console);
                 clearTimer(timer_Report);
-                RunStatus_Timer();
+                //RunStatus_Timer();
                 timer_RunStatus = setInterval(RunStatus_Timer,interval_RunStatus);
-               break;
+                break;
             
-            case "menu_Status_id": 
-			
-	        //init left li style, default select first li
+            case "menu_Status_id":
+                loading();
+                //init left li style, default select first li
                 $(".div_Status_left_nav_li_class > a").eq(0).addClass('active');
 				
                 clearTimer(timer_Report);
                 Console_Timer(true);
                 timer_Console = setInterval(Console_Timer,interval_Console);
-               break;
+                break;
                
-            case "menu_Reports_id": 
+            case "menu_Reports_id":
+                loading();
                 clearTimer(timer_Console);
                 Report_Timer(true);
                 timer_Report = setInterval(Report_Timer,interval_Report);
                 break;
 
-	    case "menu_help_id":
+            case "menu_help_id":
+                loading();
                 Helper(true);
                 break;
                 
@@ -432,13 +464,13 @@ $(document).ready(function(){
 	
     
     //traverse the sub menu li, check Configuation Data is true----------------------------------
-    CheckTableDataError();
+    //CheckTableDataError();
 	
-    ExecutvieCheckSync();
+    //ExecutvieCheckSync();
 	
     //Executive 
     if(CheckIsExecutive() == "true"){    
-        $("#bnt_Configuration_exec_id").removeAttr("disabled");        //re-enable
+        //$("#bnt_Configuration_exec_id").removeAttr("disabled");        //re-enable
         $("#bnt_Configuration_exec_id").addClass("bnt_Configuration_exec");
     }else{
         $("#bnt_Configuration_exec_id").attr("disabled",true);
@@ -455,25 +487,53 @@ $(document).ready(function(){
         //2 into the runing mode
         var stat = $(this).attr("value");
         if(stat=="Execute"){
-            var result = GetDataByAjax(address_IntoRuningMode);  // code on server
-            if(result != "false"){
-                 $(this).attr("value","Cancel Job")
-                 //show the runing status logo and title on top bar;
-                 $("#div_top_stauts_id h1").show(); 
-                 // a back div for keep out right opertion elements;
-                 RunStatus_Timer();
-                 $("#menu_Status_id").click();
-            }else{
-                 alert("Failed to start");
+            var run_test = "true";
+            var is_redeploy = GetDataByAjax(address_Redeploy_Check);
+            if(is_redeploy == "true"){
+                if (!confirm("There is 'deploy'/'redeploy' action in this job, do you want to continue?")){
+                    run_test = "false";
+                }
+            }
+            if(run_test == "true"){
+                var result = GetDataByAjax(address_IntoRuningMode);  // code on server
+                if(result != "false"){
+                     $(this).attr("value","Cancel Job")
+                     //show the runing status logo and title on top bar;
+                     $("#div_top_stauts_id h1").show(); 
+                     // a back div for keep out right opertion elements;
+                     RunStatus_Timer();
+                     $("#menu_Status_id").click();
+                }else{
+                     alert("Failed to start");
+                }
             }
         }
         if(stat=="Cancel Job"){
-            var result = GetDataByAjax(address_ExitRuningMode);  // code on server
+            if (confirm("Are you sure to cancel the job?")) {
+                var result = GetDataByAjax(address_ExitRuningMode_cancel_all);  // code on server
+                if(result=="true"){
+                     $("#menu_Status_id").click();
+                }
+            }
+        }
+
+    });  
+
+    $("#bnt_Configuration_cancel_one").click(function(){
+        if (confirm("Are you sure to cancel the current case?")) {
+            var result = GetDataByAjax(address_ExitRuningMode_cancel_one);  // code on server
+            if(result=="true"){
+                 $("#menu_Status_id").click();
+            }
+         }
+    });  
+    $("#bnt_Configuration_cancel_all").click(function(){
+        if (confirm("Are you sure to cancel the all case?")) {
+            var result = GetDataByAjax(address_ExitRuningMode_cancel_all);  // code on server
             if(result=="true"){
                  $("#menu_Status_id").click();
             }
         }
-
     });  
 
 });
@@ -564,7 +624,14 @@ function ExecutvieCheck(event){
 
 //init setting
 function Init(){
-     
+     //check user_role
+    var userrole = GetDataByAjax(address_userrole);
+    if(userrole == 'readonly'){
+        $("#bnt_Configuration_exec_id").attr("disabled", true);
+        $("#bnt_Confguration_add_id").attr("disabled", true);
+        $("#bnt_Confguration_delete_id").attr("disabled", true);
+     }
+
     //(1)tab seting
     $("#div_menu_id ul li").eq(0).addClass("tab_background_click");
     $(".div_tab_class").eq(0).show().siblings(".div_tab_class").hide();
@@ -584,7 +651,7 @@ function Init(){
 	 
 	
     //(4)decide server is runing,start the timer;
-    RunStatus_Timer();
+    //RunStatus_Timer();
     timer_RunStatus = setInterval(RunStatus_Timer,interval_RunStatus);
 	
 }
@@ -636,14 +703,23 @@ function loading(){
      $("#myShow").css({display:"",top:"40%",left:"50%",position:"absolute"});
 }
 
+
+function loadinghide(){
+     $("#myShow").hide();
+}
+
 //Display configuation data table and banchmark table on right page
 function DisplayConfiguationDataTable(request_type){
     //(1) get data for json obj
     var jsonObj_Config = GetConfigurationData(request_type);
 
-    var address_Benchmark = "../configuration/get_group?request_type=testcase";
-    var jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
-    console.log("jsonObj_Bnechmark");
+    var jsonObj_Benchmark;
+    if(request_type == "benchmark"){
+	    var address_Benchmark = "../configuration/get_group?request_type=testcase";
+	    jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
+	    //var jsonObj_Benchmark = GetDataByAjax(address_Benchmark);    
+	    console.log("jsonObj_Bnechmark");
+    }
     //(2) display table
     CreateDataTableForConfiguration(jsonObj_Config , jsonObj_Benchmark ,request_type);
     console.log("CreateDataTableForConfiguration");

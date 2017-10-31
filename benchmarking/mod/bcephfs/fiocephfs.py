@@ -1,13 +1,16 @@
 from ..benchmark import *
 from collections import OrderedDict
 import itertools
+import sys
 
 class FioCephFS(Benchmark):
     def load_parameter(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).load_parameter()
 	self.cluster["fiocephfs_dir"] = self.all_conf_data.get("fio_for_libcephfs_dir")
 
     def prepare_result_dir(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #1. prepare result dir
         self.get_runid()
         self.benchmark["section_name"] = "%s-%s-qd%s-%s-%s-%s-fiocephfs" % (self.benchmark["iopattern"], self.benchmark["block_size"], self.benchmark["qd"], self.benchmark["volume_size"],self.benchmark["rampup"], self.benchmark["runtime"])
@@ -16,11 +19,12 @@ class FioCephFS(Benchmark):
 	
         res = common.pdsh(self.cluster["user"],["%s"%(self.cluster["head"])],"test -d %s" % (self.cluster["dest_dir"]), option = "check_return")
 	if not res[1]:
-            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]))
+            common.printout("ERROR","Output DIR %s exists" % (self.cluster["dest_dir"]),log_level="LVL1")
             sys.exit()
         common.pdsh(self.cluster["user"] ,["%s" % (self.cluster["head"])], "mkdir -p %s" % (self.cluster["dest_dir"]))
 
     def prerun_check(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         #1. check is vclient alive
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
@@ -28,11 +32,12 @@ class FioCephFS(Benchmark):
         common.pdsh(user, nodes, "%s/fio -v" % fio_dir )
         res = common.pdsh(user, nodes, "%s/fio -enghelp | grep cephfs" % fio_dir, option = "check_return")
         if res and not res[0]:
-            common.printout("ERROR","FIO cephfs engine not installed")
+            common.printout("ERROR","FIO cephfs engine not installed",log_level="LVL1")
 	    print "You can get the source code of fiocephfs from: https://github.com/noahdesu/fio.git"
             sys.exit()
      
     def run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).run() 
         user = self.cluster["user"]
         waittime = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"])
@@ -46,12 +51,13 @@ class FioCephFS(Benchmark):
             time.sleep(1)
             res = common.pdsh(user, [client], "pgrep -x fio", option = "check_return")
             if res and not len(res[0].split('\n')) >= len(self.benchmark["distribution"][client]):
-                common.printout("ERROR","Failed to start FIO process")
+                common.printout("ERROR","Failed to start FIO process",log_level="LVL1")
                 raise KeyboardInterrupt
             common.printout("LOG","%d FIO Jobs starts on %s" % (len(self.benchmark["distribution"][client]), client))
         time.sleep(waittime)
         
     def prepare_run(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         super(self.__class__, self).prepare_run()
         user = self.cluster["user"]
         dest_dir = self.cluster["tmp_dir"]
@@ -59,6 +65,7 @@ class FioCephFS(Benchmark):
             common.scp(user, client, "../conf/fio.conf", dest_dir)
     
     def wait_workload_to_stop(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         common.printout("LOG","Waiting Workload to complete its work")
         user = self.cluster["user"]
         stop_flag = 0
@@ -78,14 +85,17 @@ class FioCephFS(Benchmark):
         common.printout("LOG","Workload completed")
 
     def stop_workload(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         user = self.cluster["user"]
         nodes = self.benchmark["distribution"].keys()
         common.pdsh(user, nodes, "killall -9 fio", option = "check_return")
     
     def testjob_distribution(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         pass
 
     def cal_run_job_distribution(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         number = int(self.benchmark["instance_number"])
         client_total = len(self.cluster["client"])
 	instance_per_client = number/client_total + (number % client_total > 0 )
@@ -94,6 +104,7 @@ class FioCephFS(Benchmark):
 	    self.benchmark["distribution"][client] = range(instance_per_client)
 
     def generate_benchmark_cases(self):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         engine = self.all_conf_data.get_list('benchmark_engine')
         if "fiocephfs" not in engine:
             return [[],[]]
@@ -139,12 +150,14 @@ class FioCephFS(Benchmark):
                 try:
                     rwmixread = self.all_conf_data.get('rwmixread')
                     fio_template.append("    rwmixread=%s" % rwmixread)
-                except:
+                except Exception,e:
+                    common.printout("LOG","<CLASS_NAME:%s> <FUN_NAME : %s> ERR_MSG:%s"%(self.__class__.__name__,sys._getframe().f_code.co_name,e),log_level="LVL2")
                     pass
             fio_list.extend(fio_template)
         return [testcase_list, fio_list]
 
     def parse_benchmark_cases(self, testcase):
+        common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
         p = testcase
         testcase_dict = {
             "instance_number":p[0], "volume_size":p[1], "iopattern":p[2],

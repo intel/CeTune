@@ -114,8 +114,13 @@ function CreateTableHTML_Benchmark(jsonObj){
 
 
     tableHtml="<div id='div_benchmark_button_id'>";
-    tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' >Delete</button>";
-    tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' >Add</button>";
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' >Delete</button>";
+        tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' >Add</button>";
+    }else{
+        tableHtml +="<button id='bnt_benchmark_delete_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#DeleteBenchmarkModal' data-whatever='@mdo' disabled='disabled'>Delete</button>";
+        tableHtml +="<button id='bnt_benchmark_add_id' type='button' class='btn btn-primary' data-toggle='modal'  data-target='#BenchmarkModel' data-whatever='@mdo' disabled='disabled'>Add</button>";
+    }
     tableHtml +=  "</div>"
 
     tableHtml +=  "<table id='"+tableID+"' class='"+tableClass+"'>";
@@ -170,6 +175,11 @@ function CreateTableHTML_Benchmark(jsonObj){
     tableHtml += "<th>";
     tableHtml += "Description";
     tableHtml += "</th>";
+
+    tableHtml += "<th>";
+    tableHtml += "additional_option";
+    tableHtml += "</th>";
+
 
     tableHtml += "</th>"
     tableHtml += "</tr>";
@@ -237,30 +247,97 @@ function CreateTableHTML_Benchmark(jsonObj){
         tableHtml +=  "</label>";
         tableHtml += "</td>";
 
+        tableHtml += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
+        tableHtml += "<label style='display:none;'>"+index+"</label>";
+        if(val.additional_option == "restart"){
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()' disabled='disabled'>";
+            }
+            tableHtml += "<option>NULL</option>";
+            tableHtml += "<option selected>restart</option>";
+            tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
+        }
+        if(val.additional_option == "redeploy"){
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";}
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()' disabled='disabled'>";
+            }
+            tableHtml += "<option>NULL</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option selected>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
+        }
+        if(val.additional_option == "resetPerf"){
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()' disabled='disabled'>";
+            }
+            tableHtml += "<option>NULL</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option selected>resetPerf</option>";
+        }
+        if(val.additional_option == "NULL"){
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()' disabled='disabled'>";
+            }
+            tableHtml += "<option selected>NULL</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
+        }
+        if(val.additional_option == ""){
+            if(GetDataByAjax(address_userrole) == 'admin'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+            }
+            if(GetDataByAjax(address_userrole) == 'readonly'){
+                tableHtml += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()' disabled='disabled'>";
+            }
+            tableHtml += "<option selected>NULL</option>";
+            tableHtml += "<option>restart</option>";
+            tableHtml += "<option>redeploy</option>";
+            tableHtml += "<option>resetPerf</option>";
+        }
+        tableHtml += "</select>"
+        tableHtml += "</td>";
+
         tableHtml += "</tr>";
 
     });
 
     tableHtml += "</tbody>";
-    tableHtml += "</table>"
+    tableHtml += "</table>";
+    tableHtml += "<div><li class='error'>If case start with '#',workflow will not running this cases.</li></div>";
     return tableHtml;
 }
 
 //------------------------------  Events Definition ----------------------------
 //label click opertion
 function Label_Click(count,value){
-    var rowNum = count;
-    olabel = document.getElementById("label_id_"+rowNum);
-    olabel.style.backgroundColor = "#cff";
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        var rowNum = count;
+        olabel = document.getElementById("label_id_"+rowNum);
+        olabel.style.backgroundColor = "#cff";
 
-    otd = document.getElementById("td_value_id_"+rowNum);
-    otd.removeChild(olabel);
+        otd = document.getElementById("td_value_id_"+rowNum);
+        otd.removeChild(olabel);
 
-    var strHtml =  "<input class='text_class' id = 'text_id_"+rowNum+"' value = '"+value+"' type='text' name='fname'/>";
-    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_Apply("+rowNum+")' />";
-    strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
+        var strHtml =  "<input class='text_class' id = 'text_id_"+rowNum+"' value = '"+value+"' type='text' name='fname'/>";
+        strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px' id = 'bnt_ok_id_"+rowNum+"' type='button' value='OK' onclick= 'Ok_Apply("+rowNum+")' />";
+        strHtml += "<input class='btn btn-primary btn-xs' style='margin-left:3px'  id = 'bnt_cancel_id_"+rowNum+"' type='button' value='Cancel' onclick= 'Cancel_Apply("+rowNum+",&quot;"+value+"&quot;)'/>";
 
-    otd.innerHTML =strHtml;
+        otd.innerHTML =strHtml;
+    }
 }
 
 //edit value apply
@@ -309,16 +386,24 @@ function Cancel_Apply(rowNum,value){
     otd.innerHTML =" <label id='label_id_"+rowNum+"' class = 'label_class' onclick='Label_Click("+rowNum+",&quot;"+ value+"&quot;)' >"+ value +"</label>";
 }
 //------------------------------------------------------------------------------------------------------
+//radio button click opertion
+function Additional_option_change(){
+    Submit_Benchmark();
+    CheckTableDataError();
+}
+
 //label click opertion
 function Label_benchmark_Click(rowNum , colNum , value){
-    olabel = document.getElementById("label_benchmark_id_" + rowNum + "_" + colNum);
-    olabel.style.backgroundColor = "#cff";
-    otd = document.getElementById("td_benchmark_id_" + rowNum + "_" + colNum);
-    otd.removeChild(olabel);
-    var strHtml =  "<input class='text_class' id = 'text_benchmark_id_"+rowNum+"_"+ colNum +"' value = '"+value+"' type='text' name='fname'/>";
-    strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_ok_id_"+rowNum+"_"+colNum+"' type='button' value='OK' onclick= 'Ok_benchmark_Apply("+rowNum+","+ colNum+")' />";
-    strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_cancel_id_"+rowNum+"_"+colNum+"' type='button' value='Cancel' onclick= 'Cancel_benchmark_Apply("+rowNum+","+colNum+",&quot;"+value+"&quot;)'/>";
-    otd.innerHTML =strHtml;
+    if(GetDataByAjax(address_userrole) == 'admin'){
+        olabel = document.getElementById("label_benchmark_id_" + rowNum + "_" + colNum);
+        olabel.style.backgroundColor = "#cff";
+        otd = document.getElementById("td_benchmark_id_" + rowNum + "_" + colNum);
+        otd.removeChild(olabel);
+        var strHtml =  "<input class='text_class' id = 'text_benchmark_id_"+rowNum+"_"+ colNum +"' value = '"+value+"' type='text' name='fname'/>";
+        strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_ok_id_"+rowNum+"_"+colNum+"' type='button' value='OK' onclick= 'Ok_benchmark_Apply("+rowNum+","+ colNum+")' />";
+        strHtml += "<input class='btn btn-primary btn-xs' id='bnt_benchmark_cancel_id_"+rowNum+"_"+colNum+"' type='button' value='Cancel' onclick= 'Cancel_benchmark_Apply("+rowNum+","+colNum+",&quot;"+value+"&quot;)'/>";
+        otd.innerHTML =strHtml;
+    }
 }
 
 //edit value apply
@@ -340,6 +425,20 @@ function Cancel_benchmark_Apply(rowNum , colNum ,value){
 }
 
 /********************************************************************************************************************************************************/
+function download_report(){
+    var keys = [];
+    $(".checkbox_configuration_class").each(function(index,value){
+        if($(this).is(':checked')){
+            key = $(this).parent("td").next().text();
+            keys.push(key);
+        }
+    });
+    var data = {}
+    data.keys = JSON.stringify(keys);
+    //var result = GetDataByAjax_POST(address_Report_Download, data);
+    window.location = address_Report_Download + "?keys=" + data.keys;
+}
+
 //delete row when checkbox is checked
 function Del(tableType){
     if(tableType =="configuration"){
@@ -359,14 +458,31 @@ function Del(tableType){
             }
         });
     }
-//-------------------------
+//------------------------
     else if(tableType =="benchmark"){
+        var rowNum;
         $(".checkbox_benchmark_class").each(function(index,value){
             if($(this).is(':checked')){
+                rowNum = index;
                 $(this).parent().parent().remove(); 
             }
         });
         Submit_Benchmark();
+    }
+    else if(tableType =="resultreport"){
+        var rowNum;
+        //address_report_Delete
+        $(".checkbox_configuration_class").each(function(index,value){
+            if($(this).is(':checked')){
+                var key;
+                key = $(this).parent().parent().children("td").get(1).innerHTML
+                var data ={};
+                data.key = key;
+                var result = GetDataByAjax_POST(address_Report_Delete,data);
+
+                $(this).parent().parent().remove(); 
+            }
+        });
     }
 
 }
@@ -422,16 +538,18 @@ function DeleteModal_OK(type){
   Del(type);
   setTimeout(function(){$("#DeleteModal").modal("hide")},100);
   setTimeout(function(){$("#DeleteBenchmarkModal").modal("hide")},100);
+  setTimeout(function(){$("#result_report_top").hide("slow")},100);
+  setTimeout(function(){$("#DeleteResultReportModal").modal("hide")},100);
 }
 
 function Select_Value(){
     var _example_list = [
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write'],
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write'],
-        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write'],
-        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write'],
-        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write'],
-        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write']]
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','rbd','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['0(use 0 to initialize container) and 160(as worker)','r(1,100)','write, read','128KB','r(1,100)','100','400','','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['140','10g','seqwrite,seqread,randwrite,randread,readwrite,randrw','4k','64','100','400','','librados_4MB_write','restart,redeploy,resetPerf'],
+        [' ',' ',' ',' ',' ',' ','400','','librados_4MB_write','restart,redeploy,resetPerf'],
+        ['50','30g','seqwrite,seqread,randwrite,randread,readwrite,randrw','8k','32','30','120','width=10,depth=1,files=10000,threads=16,rdpct=65','librados_4MB_write','restart,redeploy,resetPerf']]
     var select_value = document.getElementById("recipient_benchmark_engine");
     var item = 0
     if(select_value.value == "qemurbd"){
@@ -478,6 +596,7 @@ function Select_Value(){
         document.getElementById("recipient_parameter").value = "rbd";
         document.getElementById('recipient_parameter').readOnly=false;
     }
+    document.getElementById("additional_option_select").value = 'restart';
     var worker = document.getElementById("worker");
     worker.innerHTML ="example: "+ _example_list[item][0]
     var container_size = document.getElementById("container_size");
@@ -496,6 +615,8 @@ function Select_Value(){
     parameter.innerHTML = "example: "+ _example_list[item][7]
     var Tag_Description = document.getElementById("Tag_Description");
     Tag_Description.innerHTML = "example: "+ _example_list[item][8]
+    var additional_option = document.getElementById("additional_option_label");
+    additional_option.innerHTML = "example: "+ _example_list[item][9]
 }
 
 function ConfigurationModal_OK(key, value, dsc){
@@ -593,6 +714,7 @@ function BenchMarkModel_OK(){
     var parameter = document.getElementById("recipient_parameter").value;
     //var desc = $("#recipient-desc").val();
     var desc = document.getElementById("recipient_desc").value;
+    var additional_option = document.getElementById("additional_option_select").value;
     if(benchmark_driver == "qemurbd")
         device = "/dev/vdb"
     if(benchmark_driver == "fiorbd")
@@ -656,6 +778,46 @@ function BenchMarkModel_OK(){
             html +="<label id = 'label_benchmark_id_"+rows+"_11' class='label_class' onclick='Label_benchmark_Click("+rows+",11,&quot;"+ desc+"&quot;)'>"+ desc +"</label>";
             html +="</td>";
 
+            html += "<td class='td_class' id='td_benchmark_id_"+index+"_12'>";
+            html += "<label style='display:none;'>"+index+"</label>";
+            if(additional_option == "restart"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='restart' onchange='Additional_option_change()'>";
+                html += "<option>null</option>";
+                html += "<option selected>restart</option>";
+                html += "<option>redeploy</option>";
+                html += "<option>resetPerf</option>";
+            }
+            if(additional_option == "redeploy"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+                html += "<option>null</option>";
+                html += "<option>restart</option>";
+                html += "<option selected>redeploy</option>";
+                html += "<option>resetPerf</option>";
+            }
+            if(additional_option == "resetPerf"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='redeploy' onchange='Additional_option_change()'>";
+                html += "<option>null</option>";
+                html += "<option>restart</option>";
+                html += "<option>redeploy</option>";
+                html += "<option selected>resetPerf</option>";
+            }
+            if(additional_option == "null"){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+                html += "<option selected>null</option>";
+                html += "<option>restart</option>";
+                html += "<option>redeploy</option>";
+                html += "<option>resetPerf</option>";
+            }
+            if(additional_option == ""){
+                html += "<select name='select' id='additional_option_dropdown_"+index+"' class='form-control' value='null' onchange='Additional_option_change()'>";
+                html += "<option selected>null</option>";
+                html += "<option>restart</option>";
+                html += "<option>redeploy</option>";
+                html += "<option>resetPerf</option>";
+            }
+            html += "</select>"
+            html +="</td>";
+
             html += "<tr>";
 
             $("#table_benchmark_id").append(html); 
@@ -682,6 +844,9 @@ function Submit_Benchmark(){
         device = $(this).parent().parent().children().eq(9).children("label").text();
         parameter = $(this).parent().parent().children().eq(10).children("label").text();
         desc = $(this).parent().parent().children().eq(11).children("label").text();
+        var additional = '';
+        var rowid = $(this).parent().parent().children().eq(12).children().eq(0).text();
+        additional = document.getElementById("additional_option_dropdown_"+rowid).value;
 
         var data ={}; 
         data.benchmark_driver = benchmark_driver;
@@ -695,7 +860,8 @@ function Submit_Benchmark(){
         data.device = device;
         data.parameter = parameter;
         data.desc = desc;
-
+        if(additional == "null"){data.additional_option="";}
+        else{data.additional_option = additional;}
         table_data.push(data);
     });
 

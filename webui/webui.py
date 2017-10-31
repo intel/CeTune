@@ -3,7 +3,7 @@ lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
 sys.path.append('/usr/local/lib/python2.7/dist-packages/web/')
 from conf import *
-from tuner import *
+from workflow import *
 import web
 from web.contrib.template import render_jinja
 import json
@@ -19,6 +19,8 @@ import ConfigParser
 import collections
 from web import form
 from login import *
+from time import gmtime, strftime
+from visualizer import *
 
 urls = (
   '/', 'index',
@@ -56,6 +58,7 @@ class login:
         if UserClass.check_account([username,passwd]) == 'true':
             session.logged_in = True
             session.username = username
+            session.userrole = UserClass.get_user_role(username)
             web.setcookie('system_mangement', '', 60)
             raise web.seeother('/')
         else:
@@ -76,6 +79,11 @@ class configuration:
         print "post_param:%s" % str(web.input())
         return common.eval_args( self, function_name, web.input() )
 
+    def user_role(self):
+        output = session.userrole
+        web.header("Content-Type","application/json")
+        return json.dumps(output)
+
     def get_group(self,request_type):
         conf = handler.ConfigHandler()
         web.header("Content-Type","application/json")
@@ -95,46 +103,69 @@ class configuration:
         return html
 
     def set_config(self, request_type, key, value):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.set_config(request_type, key, value))
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.set_config(request_type, key, value))
 
     def check_engine(self, engine_list):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.check_engine(engine_list.split(',')))
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.check_engine(engine_list.split(',')))
 
     def check_testcase(self):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.check_testcase())
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.check_testcase())
 
     def del_config(self, request_type, key):
-        conf = handler.ConfigHandler()
-        web.header("Content-Type","application/json")
-        return json.dumps(conf.del_config(request_type, key))
+        if session.get('userrole') == 'admin':
+            conf = handler.ConfigHandler()
+            web.header("Content-Type","application/json")
+            return json.dumps(conf.del_config(request_type, key))
 
     def execute(self):
         if web.cache["tuner_thread"]:
             return "false"
-        common.clean_console()
-        #thread_num = tuner.main(["--by_thread"])
-        thread_num = subprocess.Popen("cd ../tuner/; python tuner.py", shell=True)
-        if thread_num:
-            web.cache["tuner_thread"] = thread_num
-            web.cache["cetune_status"] = "running"
+        if session.get('userrole') == 'admin':
+            common.clean_console()
+            #thread_num = tuner.main(["--by_thread"])
+            thread_num = subprocess.Popen("cd ../workflow/; python workflow.py", shell=True)
+            if thread_num:
+                web.cache["tuner_thread"] = thread_num
+                web.cache["cetune_status"] = "running"
+                os.system("echo 'execute' > ../conf/execute_op_type.conf")
 
-    def cancel(self):
-        if web.cache["tuner_thread"]:
-            pid = web.cache["tuner_thread"].pid
-            os.kill((pid+1), signal.SIGINT)
-            web.cache["cetune_status"] = "running, caught cancel request, working to close]"
-            #web.cache["tuner_thread"].wait()
-            #web.cache["tuner_thread"] = None
-            #web.cache["cetune_status"] = "idle"
-            return "true"
-        else:
-            return "false"
+    def cancel_all(self):
+        if session.get('userrole') == 'admin':
+            if web.cache["tuner_thread"]:
+                pid = web.cache["tuner_thread"].pid
+                os.kill((pid+1), signal.SIGINT)
+                web.cache["cetune_status"] = "running, caught cancel request, working to close]"
+                os.system("echo 'cancel_all' > ../conf/execute_op_type.conf")
+                #web.cache["tuner_thread"].wait()
+                #web.cache["tuner_thread"] = None
+                #web.cache["cetune_status"] = "idle"
+                return "true"
+            else:
+                return "false"
+
+    def cancel_one(self):
+        if session.get('userrole') == 'admin':
+            if web.cache["tuner_thread"]:
+                pid = web.cache["tuner_thread"].pid
+                os.kill((pid+1), signal.SIGINT)
+                web.cache["cetune_status"] = "running, caught cancel request, working to close]"
+                os.system("echo 'cancel_one' > ../conf/execute_op_type.conf")
+                return "true"
+            else:
+                return "false"
+
+    def redeploy_check(self):
+        if session.get('userrole') == 'admin':
+            return common.check_case_conf()
 
 class monitor:
     def GET(self, function_name = ""):
@@ -157,7 +188,7 @@ class monitor:
     def tail_console(self, timestamp=None):
         if timestamp == "undefined":
             timestamp = None
-        output = common.read_file_after_stamp("../conf/cetune_console.log", timestamp)
+        output = common.read_file_after_stamp(common.cetune_console_file, timestamp)
         res = {}
         if len(output) == 0:
             return json.dumps(res)
@@ -190,16 +221,18 @@ class description:
         data = web.input()
         tr_id = data["tr_id"]
         new_description = data["celltext"]
-        view = visualizer.Visualizer({})
-        view.update_report_list_db(tr_id,new_description)
+        if session.get('userrole')== 'admin':
+            view = visualizer.Visualizer({})
+            view.update_report_list_db(tr_id,new_description)
         #return common.eval_args( self, function_name, web.input() )
 
     def update(self):
         data = web.input()
         tr_id = data["tr_id"]
         new_description = data["celltext"]
-        view = visualizer.Visualizer({})
-        view.update_report_list_db(tr_id,new_description)
+        if session.get('userrole')=='admin':
+            view = visualizer.Visualizer({})
+            view.update_report_list_db(tr_id,new_description)
 
     def get_help(self):
 	view = visualizer.Visualizer({})
@@ -215,13 +248,48 @@ class results:
     def GET(self, function_name = ""):
         return common.eval_args( self, function_name, web.input() )
     def POST(self, function_name = ""):
+        print function_name
         print web.input()
         return common.eval_args( self, function_name, web.input() )
+
+    def delete_result(self, key):
+        if session.get('userrole') == 'admin':
+            conf = config.Config("../conf/all.conf")
+            dest_dir = conf.get("dest_dir")
+            common.bash("rm -rf %s/%s-*"%(dest_dir,key))
+
+    def download_result(self, keys):
+        view = visualizer.Visualizer({})
+        # generate new summary page
+        conf = config.Config("../conf/all.conf")
+        dest_dir = conf.get("dest_dir")
+        path = "history_download_%s" % (strftime("%Y%m%d_%H%M", gmtime()))
+        common.bash("mkdir -p %s/%s" % (dest_dir, path))
+        with open( "%s/%s/history.html" % (dest_dir, path), "w+" ) as history_file:
+            history_file.write(view.generate_history_from_DB(True, json.loads(keys)))
+        # copy quired runs
+        filename_list = []
+        for runid in json.loads(keys):
+            session_name = common.bash("cd %s; find ./ -maxdepth 1 -name %s-*" % (dest_dir, runid)).strip('\t\n\r')[2:]
+            print session_name
+            common.bash("cd %s; mkdir -p %s/%s/; cp -r %s/*.html %s/include %s/conf %s/%s/;" % (dest_dir, path, session_name, session_name, session_name, session_name, path, session_name))
+            filename_list.append("%s%s" % (dest_dir,session_name))
+        common.bash("mkdir -p %s/%s/include/; cp -r ../webui/static/css/ ../webui/static/js/jquery.js ../webui/static/js/src/jquery.table2excel.js %s/%s/include/;" % (dest_dir, path, dest_dir, path))
+        # create excel file
+        cmd = ['--dest_dir', '%s/%s/' % (dest_dir, path), '--type','filestore','--path']
+        cmd.extend(filename_list)
+        excel_summary_generator.main(cmd)
+
+        # tar to zip
+        common.bash("cd %s; zip %s.zip -r %s;" % (dest_dir, path, path))
+        web.header("Content-Type", "application/zip")
+        web.header('Content-disposition', 'attachment; filename=%s.zip' % (path))
+        return open( "%s/%s.zip" % ( dest_dir, path ), "rb" ).read()
 
     def get_summary(self):
         view = visualizer.Visualizer({})
         conf = config.Config("../conf/all.conf")
-        dest_dir = conf.get("dest_dir")
+        dest_dir = conf.get("dest_dir",loglevel="LVL6")
         output = view.generate_history_view("127.0.0.1",dest_dir,"root",False)
         if not output:
             return ""
