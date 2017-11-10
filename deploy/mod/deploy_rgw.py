@@ -203,7 +203,7 @@ class Deploy_RGW(Deploy) :
         rgw_ins = {}
         total_rgw_ins = len(rgw_nodes) * rgw_ins_per_nodes
         while ( total_rgw_ins - rgw_index + 1) > 0:
-	    common.printout("LOG","deploy radosgw instances for %s-%s" % (self.cluster["rgw_ip_bond"][self.cluster['rgw'][rgw_node_index]], rgw_index))
+	    common.printout("LOG","deploy radosgw instances for %s-%s" % (self.cluster['rgw'][rgw_node_index], rgw_index))
             host_name_id = self.cluster['rgw'][rgw_node_index]+"-"+str(rgw_index)
             # ceph auth for all radosgw instances
 	    common.pdsh( user, [rgw_nodes[0]], 'ceph auth del client.radosgw.%s' %( host_name_id ), 'check_return')
