@@ -579,11 +579,11 @@ def return_os_id(user, nodes):
 
 def add_to_hosts( nodes ):
     for node, ip in nodes.items():
-        res = bash("grep '%s' /etc/hosts" % str(ip)).strip()
+        res = bash("grep '\<%s\>' /etc/hosts" % str(ip)).strip()
         if node in res:
             continue
         if res != "":
-            bash("sed -i 's/%s/%s %s/g' /etc/hosts" % (res, res, node))
+            bash("sed -i 's/\<%s\>/%s %s/g' /etc/hosts" % (res, res, node))
         else:
             bash("echo %s %s >> /etc/hosts" % (str(ip), node))
 
@@ -611,6 +611,8 @@ def eval_args( obj, function_name, args ):
 
 def wait_ceph_to_health( user, controller ):
         #wait ceph health to be OK
+    	pass
+	'''
         waitcount = 0
         try:
             while not check_health( user, controller ) and waitcount < 300:
@@ -625,7 +627,7 @@ def wait_ceph_to_health( user, controller ):
         else:
             printout("ERROR","ceph is unHealthy after 300sec waiting, please fix the issue manually",log_level="LVL1")
             sys.exit()
-
+	'''
 def check_health( user, controller ):
     check_count = 0
     stdout, stderr = pdsh(user, [controller], 'ceph health', option="check_return")
@@ -643,7 +645,7 @@ def get_ceph_health(user, node):
     if len(res):
         stdout = res[node]
         output["ceph_status"] = stdout['health']['overall_status']
-        output["detail"] = stdout['health']['checks']
+        output["detail"] = stdout['health']['timechecks']
         if "write_bytes_sec" in stdout['pgmap']:
             str_wb = str(stdout['pgmap']['write_bytes_sec'] / 1024 / 1024) + ' MB/s wr, '
             str_rop = '0 op/s rd, ' if stdout['pgmap']['read_op_per_sec'] == 0 else str(stdout['pgmap']['read_op_per_sec'] / 1024) + ' kop/s rd, '
