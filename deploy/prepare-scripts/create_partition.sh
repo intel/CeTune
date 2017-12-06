@@ -28,7 +28,7 @@ function part_disk {
         echo "ssh $host dd if=/dev/zero of=$device bs=4M count=1 oflag=direct"
         ssh $host "dd if=/dev/zero of=$device bs=4M count=1 oflag=direct" 2>/dev/null
         echo "ssh $host parted $device  mklabel gpt &>/dev/null"
-        ssh $host "parted $device  mklabel gpt &>/dev/null" 2>/dev/null
+        ssh $host "parted $device  mklabel gpt yes &>/dev/null" 2>/dev/null
         start_pos="1"
         end_pos=$part_size
         for i in `seq 1 $part_count`
@@ -80,11 +80,11 @@ do
     for item in $osd_list
     do
         if [[ $item == *"nvme"* ]]; then
-            osd_disk=`echo $item | sed 's/p$//g'`
+            osd_disk=`echo $item | sed 's/^\/dev\///g;s/p[0-9]*$//g'`
         else
-            osd_disk=`echo $item | sed 's/[0-9]\+$//g'`
+            osd_disk=`echo $item | sed 's/^\/dev\///g;s/[0-9]\+$//g'`
         fi
-        echo "/dev/"$osd_disk >> tmp.osd
+        echo /dev/$osd_disk >> tmp.osd
     done
     case "$command" in
     -l)
