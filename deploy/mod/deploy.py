@@ -95,7 +95,8 @@ class Deploy(object):
             self.cluster["mdss"][mds] = ip_handler.getIpByHostInSubnet(mds)
 
         for osd in self.cluster["osds"]:
-            self.cluster[osd] = self.all_conf_data.get_list(osd)
+            devices_id = self.translate_to_id(self.all_conf_data.get_list(osd))
+            self.cluster[osd] = devices_id
 
         self.cluster["fs"] = "xfs"
         self.cluster["mkfs_opts"] = "-f -i size=2048 -n size=64k"
@@ -705,6 +706,23 @@ class Deploy(object):
         osd_filedir = osd_filename.replace("$id", str(osd_num))
         common.pdsh( user, [osd], 'mkdir -p %s/%s' % (osd_basedir, osd_filedir))
         common.pdsh( user, [osd], 'mount %s -t xfs %s %s/%s' % (mount_opts, osd_device, osd_basedir, osd_filedir))
+    def translate_to_id(self, osd, devices):
+        user = self.cluster["user"]
+        result = []
+        for device in devices:
+            if len(device.split(":")) == 2:
+                osd_out, osd_err = common.pdsh(user, [osd], "ls -l /dev/disk/by-id | grep %s | grep -v wwn- | awk '{print $9}'" % (device.split(":")[0].split("/")[-1]), option="check_return")
+                jnl_out, jnl_err = common.pdsh(user, [osd], "ls -l /dev/disk/by-id | grep %s | grep -v wwn- | awk '{print $9}'" % (device.split(":")[1].split("/")[-1]), option="check_return")
+                if not (osd_err and jnl_err):
+                    osd_res = common.format_pdsh_return(osd_out)
+                    jnl_res = common.format_pdsh_return(jnl_out)
+                    result.append("/dev/disk/by-id/" + osd_res[osd].strip() + ":/dev/disk/by-id/" + jnl_res[osd].strip())
+                else:
+                    common.printout("WARNING", "can't translate %s to id" % (device))
+                    result.append(device)
+            else:
+                result.append(device)
+        return result
 
     def make_osd(self, osd, osd_num, osd_device, journal_device):
         user = self.cluster["user"]
