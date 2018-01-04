@@ -331,8 +331,8 @@ class Visualizer:
 
     def save_data_to_csv(self,data,node_type,field_type,session_name):
         common.printout("LOG","save %s %s detail data to csv file." % (node_type,field_type))
-        if not os.path.exists(os.path.join(self.db_path,session_name,"include/csv")):
-            common.bash("mkdir -p %s"%(os.path.join(self.db_path,session_name,"include/csv")))
+        if not os.path.exists("../visualizer/include/csv/"):
+            common.bash("mkdir -p %s"%("../visualizer/include/csv/"))
         csv_list = []
         title_row = []
         title_row = common.get_title_list(data)
@@ -345,12 +345,11 @@ class Visualizer:
                     continue
                 row.append(detail_data[title])
             csv_list.append(row)
-        file_name = "%s_%s_detail_data.csv"%(node_type,field_type)
-        csv_path = os.path.join(self.db_path,session_name,"include/csv/",file_name)
-        csvfile = file(csv_path, 'wb')
-        csv_writer = csv.writer(csvfile)
-        for row in csv_list:
-            csv_writer.writerow(row)
+        csv_name = "%s_%s_detail_data.csv"%(node_type,field_type)
+        with open('../visualizer/include/csv/%s' % csv_name, 'w') as f:
+            csv_writer = csv.writer(f)
+            for row in csv_list:
+                csv_writer.writerow(row)
 
     def generate_node_view(self, node_type):
         output = []
