@@ -288,7 +288,7 @@ class Visualizer:
         output = []
         output.append(" <tr id = 'result_report_title' z-index='0'>")
         output.append(" <th data-resizable-column-id='0'>Menu</th>")
-        output.append(" <th data-resizable-column-id='1'><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:history});'>runid</a></button></th>")
+        output.append(" <th data-resizable-column-id='1'><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:history});'>runid</a> <img style='background:url(static/pic/sorted.png) no-repeat 80% 8px; padding: 8px; -webkit-margin-after:16px;' onclick='order_report($(this));' /></th>")
         output.append(" <th data-resizable-column-id='2'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
         output.append(" <th data-resizable-column-id='3'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
         output.append(" <th data-resizable-column-id='4'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
