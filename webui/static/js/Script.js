@@ -815,4 +815,25 @@ function LocalTest_DisplayConfiguationDataTable(request_type){
 }
 //*******************************************************************************************************
 
-
+function order_report(obj){
+    if(obj.text() == "?"){
+        obj.text("?");
+    } else {
+        obj.text("?");
+    }
+    var tableObject = $('#report_list');
+    var tbBody = tableObject.children('tbody');
+    var tbBodyTr = tbBody.find('tr').slice(1);
+    var trsValue = new Array();
+    tbBodyTr.each(function () {
+        var tds = $(this).find('td');
+        trsValue.push($(this));
+        $(this).remove();
+    });
+    trsValue.reverse();
+    var len = trsValue.length;
+    for (var i = 0; i < len; i++) {
+        tbBody.append(trsValue[i]);
+    }
+    window.event.cancelBubble = true;
+}

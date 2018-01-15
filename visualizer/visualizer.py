@@ -1,7 +1,11 @@
+# -*- coding:utf-8 -*-
+
 import os,sys
 import argparse
 lib_path = os.path.abspath(os.path.join('..'))
 sys.path.append(lib_path)
+reload(sys)
+sys.setdefaultencoding('utf-8')
 from conf import *
 import os, sys
 import time
@@ -288,7 +292,7 @@ class Visualizer:
         output = []
         output.append(" <tr id = 'result_report_title' z-index='0'>")
         output.append(" <th data-resizable-column-id='0'>Menu</th>")
-        output.append(" <th data-resizable-column-id='1'><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:history});'>runid</a></button></th>")
+        output.append(" <th data-resizable-column-id='1'><button><a title='Click to download as excel file' href='#' onclick='$(this).parents(\".cetune_table\").table2excel({filename:history});'>runid</a></button> <button onclick='order_report($(this));'>↓</button></th>")
         output.append(" <th data-resizable-column-id='2'><a title='Timestamp' id='runid_timestamp' href='#'>Timestamp</a></th>")
         output.append(" <th data-resizable-column-id='3'><a title='CeTune Status' id='runid_status' href='#'>Status</a></th>")
         output.append(" <th data-resizable-column-id='4'><a title='Testcase description' id='runid_description' href='#'>Description</a></th>")
