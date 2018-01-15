@@ -224,7 +224,7 @@ class Visualizer:
         #output.append(" </thead>")
         #output.append(" <tbody>")
         #output.append(res_tmp)
-        for runid in sorted(lines.keys()):
+        for runid in sorted(lines.keys(), reverse=True):
             output.append(lines[runid])
         #output.append(" </tbody>")
         output.append(" </table>")
