@@ -828,8 +828,7 @@ function order_report(obj){
     var tbBodyTr = tbBody.find('tr').slice(1);
     var trsValue = new Array();
     tbBodyTr.each(function () {
-        var tds = $(this).find('td');
-        trsValue.push($(this));
+        trsValue.push($(this).clone(true));
         $(this).remove();
     });
     trsValue.reverse();
