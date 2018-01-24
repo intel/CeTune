@@ -247,7 +247,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "ps -fe|grep sar |grep -v grep; if [ $? -ne 0 ]; then sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt; fi" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "ceph -v > %s/`hostname`_ceph_version.txt" % (dest_dir))
         if head not in nodes:
-            common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
+            common.pdsh(user, [head], "date > %s/`hostname`_process_log.txt" % (dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
             self.create_admin_daemon_dump_script(dest_dir, time_tmp, monitor_interval)
@@ -298,6 +298,11 @@ class Benchmark(object):
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.txt" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/raw/%s/" % (dest_dir, node), "%s/*.csv" % self.cluster["tmp_dir"])
             common.rscp(user, node, "%s/conf/" % (dest_dir), "%s/*.csv" % self.cluster["tmp_dir"])
+
+        #collect head timestamp
+        if head not in self.benchmark["distribution"].keys():
+            common.bash("mkdir -p %s/raw/%s" % (dest_dir, head))
+            common.rscp(user, head, "%s/raw/%s" % (dest_dir, head), "%s/%s_process_log.txt" % (self.cluster["tmp_dir"], head))
 
         #save real runtime
         if self.real_runtime:
