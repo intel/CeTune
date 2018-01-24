@@ -172,6 +172,7 @@ class Benchmark(object):
         time_tmp = int(self.benchmark["runtime"]) + int(self.benchmark["rampup"]) + self.cluster["run_time_extend"]
         dest_dir = self.cluster["tmp_dir"]
         nodes = self.cluster["osd"]
+        head = self.cluster["head"]
         monitor_interval = self.cluster["monitoring_interval"]
         #nodes.extend(self.benchmark["distribution"].keys())
         common.pdsh(user, nodes, "sync && echo '%s' > /proc/sys/vm/drop_caches" % self.cluster["cache_drop_level"])
@@ -245,6 +246,8 @@ class Benchmark(object):
         common.pdsh(user, nodes, "ps -fe|grep iostat |grep -v grep; if [ $? -ne 0 ]; then iostat -p -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt; fi" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "ps -fe|grep sar |grep -v grep; if [ $? -ne 0 ]; then sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt; fi" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "ceph -v > %s/`hostname`_ceph_version.txt" % (dest_dir))
+        if head not in nodes:
+            common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
             self.create_admin_daemon_dump_script(dest_dir, time_tmp, monitor_interval)
