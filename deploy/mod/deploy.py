@@ -95,7 +95,7 @@ class Deploy(object):
             self.cluster["mdss"][mds] = ip_handler.getIpByHostInSubnet(mds)
 
         for osd in self.cluster["osds"]:
-            devices_id = self.translate_to_id(self.all_conf_data.get_list(osd))
+            devices_id = self.translate_to_id(osd, self.all_conf_data.get_list(osd))
             self.cluster[osd] = devices_id
 
         self.cluster["fs"] = "xfs"
@@ -913,12 +913,13 @@ class Deploy(object):
     def start_mgr(self, force=False):
         user = self.cluster["user"]
         head = self.cluster["head"]
-        outStr, stderr = common.pdsh(user, [head], "ceph status --format json", "check_return")
+        outStr, stderr = common.pdsh(user, [head], "ceph status --format json-pretty", "check_return")
         formatted_outStr = common.format_pdsh_return(outStr)
         ceph_status = formatted_outStr[head]
-        #outList = [x.strip() for x in outStr.split('\n')]
+        common.pdsh(user, [head], "mkdir -p /var/lib/ceph/mgr/", option="console")
+
         if "no active mgr" in outStr:
-            common.pdsh(user, [head], "ceph auth get-or-create mgr.admin mon 'allow *' && ceph-mgr -i %s" % ceph_status["fsid"], option="console")
+            common.pdsh(user, [head], "ceph auth get-or-create mgr.admin mon 'allow profile mgr' osd 'allow *' mds 'allow *' 2>/dev/null 1>/var/lib/ceph/mgr/ceph-admin && ceph-mgr -i admin", option="console")
             common.printout("LOG", "create mgr success: admin")
         else:
             common.printout("LOG", "not need create mgr")
