@@ -95,7 +95,7 @@ class Deploy(object):
             self.cluster["mdss"][mds] = ip_handler.getIpByHostInSubnet(mds)
 
         for osd in self.cluster["osds"]:
-            devices_id = self.translate_to_id(self.all_conf_data.get_list(osd))
+            devices_id = self.translate_to_id(osd, self.all_conf_data.get_list(osd))
             self.cluster[osd] = devices_id
 
         self.cluster["fs"] = "xfs"
@@ -309,13 +309,12 @@ class Deploy(object):
             osd_pos = disk_format_list.index("osd")
             journal_pos = disk_format_list.index("journal")
         elif backend_storage == "bluestore":
-            assert(3 <= len(disk_format_list))
-            assert(4 >= len(disk_format_list))
-            osd_pos = disk_format_list.index("osd")
+            assert(1 < len(disk_format_list))
             block_pos = disk_format_list.index("data")
+            osd_pos = disk_format_list.index("osd")
             if (3 == len(disk_format_list)):
                 db_wal_pos = disk_format_list.index("db_wal")
-            else:
+            elif (4 == len(disk_format_list)):
                 db_pos = disk_format_list.index("db")
                 wal_pos = disk_format_list.index("wal")
 	for osd in sorted(osds):

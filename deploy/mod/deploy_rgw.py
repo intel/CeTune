@@ -1,6 +1,8 @@
 #/usr/bin/python
 import os,sys,re,copy
-lib_path = os.path.abspath(os.path.join('../conf/'))
+#lib_path = os.path.abspath(os.path.join('../conf/'))
+#sys.path.append(lib_path)
+lib_path = os.path.abspath(os.path.join('../'))
 sys.path.append(lib_path)
 import argparse
 import socket
@@ -29,8 +31,8 @@ class Deploy_RGW(Deploy) :
         self.map_diff = self.cal_cephmap_diff()
         rgw_nodes = self.map_diff["radosgw"]
         super(self.__class__, self).redeploy(gen_cephconf, ceph_disk=False)
-        self.rgw_dependency_install()
-        self.rgw_install()
+        #self.rgw_dependency_install()
+        #self.rgw_install()
         self.gen_cephconf(ceph_disk=ceph_disk)
         self.distribute_conf()
         #self.restart()
@@ -39,7 +41,7 @@ class Deploy_RGW(Deploy) :
             self.rgw_deploy()
             self.create_pools()
             self.init_auth()
-            self.configure_haproxy()
+            #self.configure_haproxy()
             self.restart_rgw()
         else:
 
@@ -47,7 +49,7 @@ class Deploy_RGW(Deploy) :
             if (len(self.cluster["rgw"]) - len(rgw_nodes)) == 0:
                 self.create_pools()
                 self.init_auth()
-            self.configure_haproxy(rgw_nodes)
+            #self.configure_haproxy(rgw_nodes)
             if len(rgw_nodes):
                 self.restart_rgw()
 
@@ -59,7 +61,7 @@ class Deploy_RGW(Deploy) :
         for rgw_node in self.cluster['rgw']:
             index_end = index + int(self.cluster['rgw_num'])
             stdout, stderr = common.pdsh(self.cluster['user'],[rgw_node],'host_name=`hostname -s`;for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done;' % (self.cluster['rgw_index'][index],self.cluster['rgw_index'][index_end-1]), option="console|check_return")
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console")
+        #common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console")
         wait_count = 30
         while not self.check_rgw_runing():
             if wait_count <= 0:
@@ -195,25 +197,17 @@ class Deploy_RGW(Deploy) :
     def create_pools(self):
         # generate new pools
         common.printout('LOG','Creating rgw required pools')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.buckets 8192 8192', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.buckets.index 1024 1024', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .log 512 512')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.gc 512 512', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw 512 512', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.control 512 512', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .users 512 512 ', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .rgw.root 512 512', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .users.swift 512 512', 'check_return')
-        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create .users.uid 512 512', 'check_return')
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create default.rgw.buckets.data 2048 2048', 'check_return')
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create default.rgw.meta 128 128', 'check_return')
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create default.rgw.buckets.index 128 128', 'check_return')
+        common.pdsh(self.cluster['user'],self.cluster['rgw'],'ceph osd pool create default.rgw.buckets.non-ec 128 128', 'check_return')
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'sleep 5', 'check_return')
 
     def init_auth(self):
         rgw_node = [self.cluster['rgw'][0]]
-        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin user create --uid="cosbench" --display-name="cosbench"', 'check_return')
-        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin subuser create --uid=cosbench --subuser=cosbench:operator --access=full', 'check_return')
-        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin key create --uid=cosbench --subuser=cosbench:operator --key-type=swift', 'check_return')
-        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin user modify --uid=cosbench --max-buckets=100000', 'check_return')
-        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin subuser modify --uid=cosbench --subuser=cosbench:operator --secret=intel2012 --key-type=swift', 'check_return')
+        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin user create --uid="s3a" --display-name="s3a"', 'check_return')
+        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin subuser create --uid=s3a --subuser=s3a:operator --access=full', 'check_return')
+        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin user modify --uid=s3a --max-buckets=100000', 'check_return')
 
     def gen_conf(self, rgw_nodes = None):
         common.printout('LOG', 'Generating rgw ceph.conf parameters' )
@@ -229,7 +223,7 @@ class Deploy_RGW(Deploy) :
         while (total_rgw_ins - rgw_index + 1) > 0:
             host_id = self.cluster["rgw"][rgw_node_index]+"-"+str(rgw_index)
             common.printout('LOG', 'configure %s in ceph.conf' % host_id )
-            civetweb_port = 7480 + rgw_index
+            civetweb_port = 7481
             conf.append("[client.radosgw.%s]\n" %(host_id))
             conf.append("host = %s\n" %(self.cluster['rgw'][rgw_node_index]))
             conf.append("keyring = /etc/ceph/ceph.client.radosgw.keyring\n")
@@ -318,6 +312,9 @@ def main(args):
     if args.option == "gen_conf":
         mydeploy = Deploy_RGW()
         mydeploy.gen_conf()
+    else:
+        mydeploy = Deploy_RGW()
+        mydeploy.redeploy(False, False)
 
 if __name__ == '__main__':
     import sys
