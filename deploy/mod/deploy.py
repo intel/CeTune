@@ -917,6 +917,7 @@ class Deploy(object):
         formatted_outStr = common.format_pdsh_return(outStr)
         ceph_status = formatted_outStr[head]
         common.pdsh(user, [head], "mkdir -p /var/lib/ceph/mgr/", option="console")
+        common.pdsh(user, [head], "ceph auth get-or-create mgr.admin mon 'allow profile mgr' osd 'allow *' mds 'allow *' 2>/dev/null 1>/var/lib/ceph/mgr/ceph-admin && ceph-mgr -i admin", option="console")
 
         if "no active mgr" in outStr:
             common.pdsh(user, [head], "ceph auth get-or-create mgr.admin mon 'allow profile mgr' osd 'allow *' mds 'allow *' 2>/dev/null 1>/var/lib/ceph/mgr/ceph-admin && ceph-mgr -i admin", option="console")
