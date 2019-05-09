@@ -642,7 +642,7 @@ def get_ceph_health(user, node):
     res = format_pdsh_return(stdout)
     if len(res):
         stdout = res[node]
-        output["ceph_status"] = stdout['health']['overall_status']
+        output["ceph_status"] = stdout['health']['status']
         output["detail"] = stdout['health']['checks']
         if "write_bytes_sec" in stdout['pgmap']:
             str_wb = str(stdout['pgmap']['write_bytes_sec'] / 1024 / 1024) + ' MB/s wr, '
