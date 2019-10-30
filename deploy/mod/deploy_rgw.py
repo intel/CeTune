@@ -59,6 +59,7 @@ class Deploy_RGW(Deploy) :
         for rgw_node in self.cluster['rgw']:
             index_end = index + int(self.cluster['rgw_num'])
             stdout, stderr = common.pdsh(self.cluster['user'],[rgw_node],'host_name=`hostname -s`;for inst in {%s..%s}; do radosgw -n client.radosgw.${host_name}-$inst; done;' % (self.cluster['rgw_index'][index],self.cluster['rgw_index'][index_end-1]), option="console|check_return")
+            index = index_end
         common.pdsh(self.cluster['user'],self.cluster['rgw'],'/etc/init.d/haproxy restart; ', option="console")
         wait_count = 30
         while not self.check_rgw_runing():
