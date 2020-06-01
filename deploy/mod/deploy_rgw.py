@@ -214,7 +214,7 @@ class Deploy_RGW(Deploy) :
         common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin subuser create --uid=cosbench --subuser=cosbench:operator --access=full', 'check_return')
         common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin key create --uid=cosbench --subuser=cosbench:operator --key-type=swift', 'check_return')
         common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin user modify --uid=cosbench --max-buckets=100000', 'check_return')
-        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin subuser modify --uid=cosbench --subuser=cosbench:operator --secret=intel2012 --key-type=swift', 'check_return')
+        common.pdsh(self.cluster['user'],rgw_node,'radosgw-admin subuser modify --uid=cosbench --subuser=$(username) --secret=$(password) --key-type=swift', 'check_return')
 
     def gen_conf(self, rgw_nodes = None):
         common.printout('LOG', 'Generating rgw ceph.conf parameters' )

@@ -194,7 +194,7 @@ class Config():
         required["osd_journal"] = {"type":"osd_journal_list"}
         required["list_client"] = {"type":"node_list"}
         required["list_mon"] = {"type":"node_list"}
-        required["enable_rgw"] = {"if":"true", "type":"bool", "addition":{"rgw_server":"","rgw_start_index":1, "rgw_num_per_server":5, "cosbench_auth_username":"cosbench:operator", "cosbench_auth_password":"intel2012", "cosbench_controller_proxy":""}}
+        required["enable_rgw"] = {"if":"true", "type":"bool", "addition":{"rgw_server":"","rgw_start_index":1, "rgw_num_per_server":5, "cosbench_auth_username":"$(username)", "cosbench_auth_password":"$(password)", "cosbench_controller_proxy":""}}
         required["rgw_server"] = {"type":"node_list"}
         required["rgw_num_per_server"] = {"type":"int"}
         required["rgw_start_index"] = {"type":"int"}

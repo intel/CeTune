@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workload name="{{rw}}{{config_middle}}{{size}}_{{workers}}w" description="{{description}}">
 <storage type="swift" config="timeout=300000" />
-<auth type="swauth" config="username=cosbench:operator;password=intel2012;url=http://{{cluster_ip}}/auth/v1.0;retry=9" />
+<auth type="swauth" config="username=$(username);password=$(password);url=http://{{cluster_ip}}/auth/v1.0;retry=9" />
 <workflow>
 <workstage name="main">
 <work name="{{size}}" workers="{{workers}}" rampup="90" runtime="300" rampdown="30">
