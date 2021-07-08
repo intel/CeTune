@@ -1,5 +1,6 @@
+Cetune - A Ceph deplyment, benchmarking, tuning, profiling tool developed by Intel
 
-#### Functionality Description
+#### Description
 - CeTune is a toolkit/framework to deploy, benchmark, profile and tune *Ceph cluster performance. 
 - Aim to speed up the procedure of benchmarking *Ceph performance, and provide clear data charts of system metrics, latency breakdown data for users to analyze *Ceph performance.
 - CeTune provides test performance through three interfaces: block, file system and object to evaluate *Ceph.

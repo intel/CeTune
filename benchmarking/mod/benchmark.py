@@ -179,6 +179,11 @@ class Benchmark(object):
 
         #send command to ceph cluster
         common.pdsh(user, nodes, "for i in `seq 1 %d`;do echo `date \"+%s\"` `ceph health` >> %s/`hostname`_ceph_health.txt; sleep %s;done" % (time_tmp/int(monitor_interval)+1, "%Y_%m_%d %H:%M:%S", dest_dir, monitor_interval), option="force")
+        common.pdsh(user, nodes, "cat /proc/cpuinfo >  %s/`hostname`_HWINFO_CPU.txt" % (dest_dir))
+        common.pdsh(user, nodes, "free -m >  %s/`hostname`_HWINFO_meomory.txt" % (dest_dir))
+        common.pdsh(user, nodes, "ifconfig >  %s/`hostname`_HWINFO_NIC.txt" % (dest_dir))
+        common.pdsh(user, nodes, "ip link show >  %s/`hostname`_HWINFO_iplink.txt" % (dest_dir))
+        common.pdsh(user, nodes, "fdisk -l >  %s/`hostname`_HWINFO_fdisk.txt" % (dest_dir))
         common.pdsh(user, nodes, "ps aux | grep ceph-osd | grep -v 'grep' > %s/`hostname`_ps.txt" % (dest_dir))
         common.pdsh(user, nodes, "date > %s/`hostname`_process_log.txt" % (dest_dir))
         common.printout("LOG","Start system data collector under %s " % nodes)
@@ -188,6 +193,7 @@ class Benchmark(object):
         common.pdsh(user, nodes, "iostat -p ALL -dxm %s > %s/`hostname`_iostat.txt & echo `date +%s`' iostat start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "sar -A %s > %s/`hostname`_sar.txt & echo `date +%s`' sar start' >> %s/`hostname`_process_log.txt" % (monitor_interval, dest_dir, '%s', dest_dir))
         common.pdsh(user, nodes, "ceph -v > %s/`hostname`_ceph_version.txt" % (dest_dir))
+        common.pdsh(user, nodes, "ceph osd tree > %s/`hostname`_ceph_osdtree.txt" % (dest_dir))
         if "perfcounter" in self.cluster["collector"]:
             common.printout("LOG","Start perfcounter data collector under %s " % nodes)
             self.create_admin_daemon_dump_script(dest_dir, time_tmp, monitor_interval)
