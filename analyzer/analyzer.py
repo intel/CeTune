@@ -430,6 +430,12 @@ class Analyzer:
             max_lat = 0
             max_lat_95 = 0
             max_lat_99 = 0
+            max_write_lat = 0
+            max_read_lat = 0
+            max_write_lat_95 = 0
+            max_read_lat_95 = 0
+            max_write_lat_99 = 0
+            max_read_lat_99 = 0
             for engine_candidate in data["workload"].keys():
                 if engine_candidate in benchmark_tool:
                     engine = engine_candidate
@@ -441,28 +447,43 @@ class Analyzer:
                 write_IOPS += float(node_data["write_iops"])
                 write_BW += float(node_data["write_bw"])
                 write_Latency += float(node_data["write_lat"])
-                max_lat_95 += float(node_data["95.00th%_lat"])
-                max_lat_99 += float(node_data["99.00th%_lat"])
-                max_lat += float(node_data["99.99th%_lat"])
+                #max_lat_95 += float(node_data["95.00th%_lat"])
+                #max_lat_99 += float(node_data["99.00th%_lat"])
+                #max_lat += float(node_data["99.99th%_lat"])
+                max_write_lat += float(node_data["99.99th%_write_lat"])
+                max_read_lat += float(node_data["99.99th%_read_lat"])
+                max_write_lat_95 += float(node_data["95.00th%_write_lat"])
+                max_read_lat_95 += float(node_data["95.00th%_read_lat"])
+                max_write_lat_99 += float(node_data["99.00th%_write_lat"])
+                max_read_lat_99 += float(node_data["99.00th%_read_lat"])
             if tmp_data["Op_Type"] in ["randread", "seqread", "read"]:
                 tmp_data["IOPS"] = "%.3f" % read_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % read_BW
                 if rbd_count > 0:
                     tmp_data["Latency(ms)"] = "%.3f" % (read_Latency/rbd_count)
+                    tmp_data["95.00th%_lat(ms)"] = "%.3f" % (max_read_lat_95/rbd_count)
+                    tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_read_lat_99/rbd_count)
+                    tmp_data["99.99th%_lat(ms)"] = "%.3f" % (max_read_lat/rbd_count)
             elif tmp_data["Op_Type"] in ["randwrite", "seqwrite", "write"]:
                 tmp_data["IOPS"] = "%.3f" % write_IOPS
                 tmp_data["BW(MB/s)"] = "%.3f" % write_BW
                 if rbd_count > 0:
                     tmp_data["Latency(ms)"] = "%.3f" % (write_Latency/rbd_count)
+                    tmp_data["95.00th%_lat(ms)"] = "%.3f" % (max_write_lat_95/rbd_count)
+                    tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_write_lat_99/rbd_count)
+                    tmp_data["99.99th%_lat(ms)"] = "%.3f" % (max_write_lat/rbd_count)
             elif tmp_data["Op_Type"] in ["randrw", "rw", "readwrite"]:
                 tmp_data["IOPS"] = "%.3f, %.3f" % (read_IOPS, write_IOPS)
                 tmp_data["BW(MB/s)"] = "%.3f, %.3f" % (read_BW, write_BW)
                 if rbd_count > 0:
                     tmp_data["Latency(ms)"] = "%.3f, %.3f" % ((read_Latency/rbd_count), (write_Latency/rbd_count))
-            if rbd_count > 0:
-                tmp_data["95.00th%_lat(ms)"] = "%.3f" % (max_lat_95/rbd_count)
-                tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_lat_99/rbd_count)
-                tmp_data["99.99th%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
+                    tmp_data["95.00th%_lat(ms)"] = "%.3f, %.3f" % ((max_read_lat_95/rbd_count), (max_write_lat_95/rbd_count))
+                    tmp_data["99.00th%_lat(ms)"] = "%.3f, %.3f" % ((max_read_lat_99/rbd_count), (max_write_lat_99/rbd_count))
+                    tmp_data["99.99th%_lat(ms)"] = "%.3f, %.3f" % ((max_read_lat/rbd_count), (max_write_lat/rbd_count))
+#            if rbd_count > 0:
+#                tmp_data["95.00th%_lat(ms)"] = "%.3f" % (max_lat_95/rbd_count)
+#                tmp_data["99.00th%_lat(ms)"] = "%.3f" % (max_lat_99/rbd_count)
+#                tmp_data["99.99th%_lat(ms)"] = "%.3f" % (max_lat/rbd_count)
         except:
             err_log = traceback.format_exc()
             common.printout("ERROR","%s" % err_log)
@@ -474,7 +495,7 @@ class Analyzer:
         write_SN_Latency = 0
         diskformat = common.parse_disk_format( self.cluster['diskformat'] )
         if len(diskformat):
-            typename = diskformat[0]
+            typename = diskformat[1]
         else:
             typename = "osd"
         for node, node_data in data["ceph"][typename]['summary'].items():
@@ -882,8 +903,8 @@ class Analyzer:
                     disk_list=[]
                     for osd_journal in common.get_list(self.all_conf_data.get_list(node)): 
                        tmp_dev_name = osd_journal[i].split('/')[2]
-                       if 'nvme' in tmp_dev_name:
-                           tmp_dev_name = common.parse_nvme( tmp_dev_name )
+                       #if 'nvme' in tmp_dev_name:
+                       #    tmp_dev_name = common.parse_nvme( tmp_dev_name )
                        if tmp_dev_name not in disk_list:
                            disk_list.append( tmp_dev_name )
                     dict_diskformat[output_list[i]]=disk_list
@@ -963,11 +984,15 @@ class Analyzer:
         result = {}
         try:
             stdout, stderr = common.bash("grep \" IOPS=.*BW=.*\| *io=.*bw=.*iops=.*runt=.*\|^ *lat.*min=.*max=.*avg=.*stdev=.*\" "+path, True)
-            stdout1, stderr1 = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path, True)
+            stdout1_read, stderr1_read = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path+" | head -5", True)
+            stdout1_write, stderr1_write = common.bash("grep \" *1.00th.*],\| *30.00th.*],\| *70.00th.*],\| *99.00th.*],\| *99.99th.*]\" "+path+" | tail -5", True)
             stdout2, stderr2 = common.bash("grep \" *clat percentiles\" "+path, True)
-            lat_per_dict = {}
-            if stdout1 != '':
-                lat_per_dict = self.get_lat_persent_dict(stdout1)
+            lat_per_dict_read = {}
+            lat_per_dict_write = {}
+            if stdout1_read != '':
+                lat_per_dict_read = self.get_lat_persent_dict(stdout1_read)
+            if stdout1_write != '':
+                lat_per_dict_write = self.get_lat_persent_dict(stdout1_write)
     
             fio_data_rw = {}
             fio_data_rw["read"] = {}
@@ -999,17 +1024,30 @@ class Analyzer:
             output_fio_data['write_iops'] = 0
             output_fio_data['write_bw'] = 0
             output_fio_data['write_runtime'] = 0
-    
-            if len(lat_per_dict) != 0:
+
+            if len(lat_per_dict_read) != 0:
                 for tmp_key in ["95.00th", "99.00th", "99.99th"]:
-                    if tmp_key in lat_per_dict.keys():
+                    if tmp_key in lat_per_dict_read.keys():
                         lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
                         if len(lat_persent_unit) != 0:
-                            output_fio_data[tmp_key+"%_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict[tmp_key], lat_persent_unit[0]),'msec'))
+                            output_fio_data[tmp_key+"%_read_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict_read[tmp_key], lat_persent_unit[0]), 'msec'))
                         else:
-                            output_fio_data[tmp_key+"%_lat"] = 'null'
+                            output_fio_data[tmp_key+"%_read_lat"] = 'null'
                     else:
-                        output_fio_data[tmp_key+"%_lat"] = 'null'
+                        output_fio_data[tmp_key+"%_read_lat"] = 'null'
+
+            if len(lat_per_dict_write) != 0:
+                for tmp_key in ["95.00th", "99.00th", "99.99th"]:
+                    if tmp_key in lat_per_dict_write.keys():
+                        lat_persent_unit = re.findall(r"(?<=[\(])[^\)]+(?=[\)])", stdout2.strip('\n').strip(' ').replace(' ',''))
+                        if len(lat_persent_unit) == 1:
+                            output_fio_data[tmp_key+"%_write_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict_write[tmp_key], lat_persent_unit[0]), 'msec'))
+                        elif len(lat_persent_unit) == 2:
+                            output_fio_data[tmp_key+"%_write_lat"] = float(common.time_to_sec("%s%s" % (lat_per_dict_write[tmp_key], lat_persent_unit[1]), 'msec'))
+                        else:
+                            output_fio_data[tmp_key+"%_write_lat"] = 'null'
+                    else:
+                        output_fio_data[tmp_key+"%_write_lat"] = 'null'
             output_fio_data['lat_unit'] = 'msec'
             output_fio_data['runtime_unit'] = 'sec'
             output_fio_data['bw_unit'] = 'MB/s'

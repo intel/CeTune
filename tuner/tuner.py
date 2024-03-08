@@ -52,9 +52,10 @@ class Tuner:
             for osd in osds:
                for device in self.cluster[osd]:
                    parsed_device_name = common.parse_device_name(device)
+                   parsed_device_name = 'loop' + re.findall(r'\d', parsed_device_name)[0]
                    tmp = {}
                    for key, value in param.items():
-                       stdout, stderr = common.pdsh(user, [osd], 'sh -c "cat /sys/block/%s/queue/%s"' % (parsed_device_name, key), option="check_return")
+                       stdout, stderr = common.pdsh(user, [osd], 'sh -c "cat /sys/devices/virtual/block/%s/queue/%s"' % (parsed_device_name, key), option="check_return")
                        res = common.format_pdsh_return(stdout)
                        tmp[key] = res[osd]
                    stdout, stderr = common.pdsh(user, [osd], 'xfs_info %s' % (device), option="check_return")
@@ -69,8 +70,10 @@ class Tuner:
            for osd in osds:
                for device in self.cluster[osd]:
                    parsed_device_name = common.parse_device_name(device)
+                   parsed_device_name = 'loop' + re.findall(r'\d', parsed_device_name)[0]
                    for key, value in param.items():
-                       stdout, stderr = common.pdsh(user, [osd], 'sh -c "echo %s > /sys/block/%s/queue/%s"' % (str(value), parsed_device_name, key), option="check_return")
+                       stdout, stderr = common.pdsh(user, [osd], 'sh -c "echo %s > /sys/devices/virtual/block/%s/queue/%s"' % (str(value), parsed_device_name, key), option="check_return")
+		       common.printout("LOG", "change the read_ahead_kb to %s, device name = %s, key = %s" % (value, parsed_device_name, key))
 
     def get_version(self):
         common.printout("LOG","<CLASS_NAME:%s> Test start running function : %s"%(self.__class__.__name__,sys._getframe().f_code.co_name),screen=False,log_level="LVL4")
@@ -270,6 +273,7 @@ class Tuner:
         else:
             tmp_tuning_diff = ['global']
 
+        common.printout("LOG","tmp_tuning_diff = %s" % tmp_tuning_diff)
         if 'disk' in tmp_tuning_diff:
             param = {}
             for param_name, param_data in self.worksheet[jobname]['disk'].items():
