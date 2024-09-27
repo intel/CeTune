@@ -121,6 +121,7 @@ class Deploy_RGW(Deploy) :
         with open("../conf/ceph.conf", 'a+') as f:
             f.write("".join(rgw_conf))
 
+    '''
     def rgw_dependency_install(self):
         user = self.cluster["user"]
         rgw_nodes = self.cluster["rgw"]
@@ -147,6 +148,46 @@ class Deploy_RGW(Deploy) :
                 install_method = "yum -y install"
                 rados_pkg = "ceph-radosgw"
             common.pdsh( user, [node], "%s radosgw radosgw-agent --force-yes" % install_method,"console")
+    '''
+
+    def rgw_dependency_install(self):
+        common.printout("LOG","Check if radosgw dependencies: haproxy installed")
+        user = self.cluster["user"]
+        rgw_nodes = self.cluster["rgw"]
+        res = common.pdsh(user, rgw_nodes, "dpkg -l | grep haproxy", option = "check_return")
+        if res and res[0]:
+            common.printout("WARNING","Try to reinstall haproxy",log_level="LVL1")
+            common.pdsh(user, rgw_nodes, "dpkg -P haproxy")
+        common.printout("LOG","Reinstall radosgw dependencies: haproxy ")
+        os_type_list = common.return_os_id( user, rgw_nodes )
+        for node, os_type in os_type_list.items():
+            if "Ubuntu" in os_type:
+                install_method = "apt-get -y install"
+            elif "CentOS" in os_type:
+                install_method = "yum -y install"
+            common.pdsh( user, [node], "%s haproxy" % ( install_method ),"console")
+
+
+    def rgw_install(self):
+        common.printout("LOG","Check if radosgw dependencies: haproxy installed")
+        user = self.cluster["user"]
+        rgw_nodes = self.cluster["rgw"]
+        res = common.pdsh(user, rgw_nodes, "dpkg -l | grep radosgw", option = "check_return")
+        if res and res[0]:
+            common.printout("WARNING","Try to reinstall radosgw, radosgw-agent",log_level="LVL1")
+            common.pdsh(user, rgw_nodes, "dpkg -P radosgw")
+            common.pdsh(user, rgw_nodes, "dpkg -P radosgw-agent")
+        common.printout("LOG","Reinstall radosgw: radosgw, radosgw-agent")
+        self.install_binary()
+        os_type_list = common.return_os_id( user, rgw_nodes )
+        for node, os_type in os_type_list.items():
+            if "Ubuntu" in os_type:
+                install_method = "apt-get -y install"
+                rados_pkg = "radosgw"
+            elif "CentOS" in os_type:
+                install_method = "yum -y install"
+                rados_pkg = "ceph-radosgw"
+            common.pdsh( user, [node], "%s radosgw radosgw-agent --force-yes" % install_method,"console")
 
     def rgw_deploy(self, rgw_nodes = None):
         user = self.cluster["user"]
@@ -156,7 +197,6 @@ class Deploy_RGW(Deploy) :
 
         rgw_node_index = len(self.cluster["rgw"]) - len(rgw_nodes)
         rgw_index = rgw_node_index * rgw_ins_per_nodes + 1
-
         common.printout("LOG","deploy radosgw instances")
         common.pdsh( user, rgw_nodes, 'sudo ceph-authtool --create-keyring /etc/ceph/ceph.client.radosgw.keyring', 'check_return')
         common.pdsh( user, rgw_nodes, 'sudo chmod +r /etc/ceph/ceph.client.radosgw.keyring', 'check_return')
@@ -164,19 +204,20 @@ class Deploy_RGW(Deploy) :
         rgw_ins = {}
         total_rgw_ins = len(rgw_nodes) * rgw_ins_per_nodes
         while ( total_rgw_ins - rgw_index + 1) > 0:
+	    common.printout("LOG","deploy radosgw instances for %s-%s" % (self.cluster['rgw'][rgw_node_index], rgw_index))
             host_name_id = self.cluster['rgw'][rgw_node_index]+"-"+str(rgw_index)
             # ceph auth for all radosgw instances
-            common.pdsh( user, [rgw_nodes[0]], 'ceph auth del client.radosgw.%s' %( host_name_id ), 'check_return')
+	    common.pdsh( user, [rgw_nodes[0]], 'ceph auth del client.radosgw.%s' %( host_name_id ), 'check_return')
             common.pdsh( user, [rgw_nodes[0]], 'sudo ceph-authtool /etc/ceph/ceph.client.radosgw.keyring -n client.radosgw.%s --gen-key' %(host_name_id), 'check_return')
             common.pdsh( user, [rgw_nodes[0]], "sudo ceph-authtool -n client.radosgw.%s --cap osd 'allow rwx' --cap mon 'allow rwx' /etc/ceph/ceph.client.radosgw.keyring" %(host_name_id), 'check_return')
             common.pdsh( user, [rgw_nodes[0]], 'sudo ceph -k /etc/ceph/ceph.client.admin.keyring auth add client.radosgw.%s -i /etc/ceph/ceph.client.radosgw.keyring' %(host_name_id), 'check_return')
-
             rgw_ins[host_name_id] = self.cluster["rgw_ip_bond"][self.cluster['rgw'][rgw_node_index]]
             if rgw_index % rgw_ins_per_nodes == 0:
                 rgw_node_index += 1
             rgw_index += 1
-
-        self.distribute_hosts(rgw_ins)
+	
+	common.printout("LOG","Completed deploy radosgw instances")
+	self.distribute_hosts(rgw_ins)
 
         if len(self.cluster['rgw']) == 1:
             return
